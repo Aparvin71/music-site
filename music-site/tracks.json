@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Step Out and Go",
+    "artist": "James Parvin",
+    "album": "Singles",
+    "year": 2026,
+    "audio": "audio/01 Step Out and Go.mp3",
+    "tags": [
+      "worship"
+    ]
+  },
+  {
+    "title": "Upon the Holy Mount",
+    "artist": "James Parvin",
+    "album": "Singles",
+    "year": 2026,
+    "audio": "audio/02 Upon the Holy Mount.mp3",
+    "tags": [
+      "worship"
+    ]
+  },
+  {
+    "title": "Praise the Lord, O My Soul",
+    "artist": "James Parvin",
+    "album": "Singles",
+    "year": 2026,
+    "audio": "audio/03 Praise the Lord, O My Soul.mp3",
+    "tags": [
+      "worship"
+    ]
+  },
+  {
+    "title": "Agape Love",
+    "artist": "James Parvin",
+    "album": "Singles",
+    "year": 2026,
+    "audio": "audio/04 Agape Love.mp3",
+    "tags": [
+      "worship"
+    ]
+  }
+]

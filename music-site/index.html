@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Music</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<h1>My Music</h1>
+<p>Stream my songs below.</p>
+
+<div id="songs"></div>
+
+<audio id="player" controls></audio>
+
+<script>
+fetch("tracks.json")
+.then(r => r.json())
+.then(tracks => {
+
+const list = document.getElementById("songs")
+const player = document.getElementById("player")
+
+tracks.forEach(track => {
+
+let button = document.createElement("button")
+
+button.innerText = track.title
+
+button.onclick = () => {
+player.src = track.audio
+player.play()
+}
+
+list.appendChild(button)
+
+})
+
+})
+</script>
+
+</body>
+</html>
