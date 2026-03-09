@@ -1,0 +1,91 @@
+{
+  "step-out-and-have-faith": {
+    "title": "Step Out and Have Faith",
+    "artist": "James Parvin",
+    "album": "Faith Walk",
+    "year": 2026,
+    "playlist": "Faith",
+    "tags": ["faith", "worship", "trust"]
+  },
+
+  "agape-love": {
+    "title": "Agape Love",
+    "artist": "James Parvin",
+    "album": "Love Songs of Scripture",
+    "year": 2026,
+    "playlist": "Worship",
+    "tags": ["love", "worship", "christian"]
+  },
+
+  "fruit-that-i-bear": {
+    "title": "Fruit That I Bear",
+    "artist": "James Parvin",
+    "album": "Scripture Songs",
+    "year": 2026,
+    "playlist": "Scripture",
+    "tags": ["fruit", "discipleship", "growth"]
+  },
+
+  "lead-on-good-shepherd": {
+    "title": "Lead On Good Shepherd",
+    "artist": "James Parvin",
+    "album": "Shepherd Songs",
+    "year": 2026,
+    "playlist": "Worship",
+    "tags": ["shepherd", "psalm 23", "guidance"]
+  },
+
+  "the-narrow-way": {
+    "title": "The Narrow Way",
+    "artist": "James Parvin",
+    "album": "Kingdom Teachings",
+    "year": 2026,
+    "playlist": "Scripture",
+    "tags": ["discipleship", "jesus", "kingdom"]
+  },
+
+  "deliverance-from-legion": {
+    "title": "Deliverance from Legion",
+    "artist": "James Parvin",
+    "album": "Testimony Songs",
+    "year": 2026,
+    "playlist": "Testimony",
+    "tags": ["deliverance", "freedom", "mercy"]
+  },
+
+  "love-thy-neighbor": {
+    "title": "Love Thy Neighbor",
+    "artist": "James Parvin",
+    "album": "Kingdom Teachings",
+    "year": 2026,
+    "playlist": "Scripture",
+    "tags": ["love", "commandment", "christian"]
+  },
+
+  "holy-beyond-measure": {
+    "title": "Holy Beyond Measure",
+    "artist": "James Parvin",
+    "album": "Songs of Worship",
+    "year": 2026,
+    "playlist": "Worship",
+    "tags": ["holiness", "worship", "glory"]
+  },
+
+  "the-names-of-god": {
+    "title": "The Names of God",
+    "artist": "James Parvin",
+    "album": "Songs of Worship",
+    "year": 2026,
+    "playlist": "Worship",
+    "tags": ["creation", "praise", "worship"]
+  },
+
+  "walking-by-faith": {
+    "title": "Walking by Faith",
+    "artist": "James Parvin",
+    "album": "Faith Walk",
+    "year": 2026,
+    "playlist": "Faith",
+    "tags": ["faith", "trust", "discipleship"]
+  }
+}
