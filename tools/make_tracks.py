@@ -8,7 +8,7 @@ from urllib.parse import quote
 # =========================
 
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
-COVER_BASE_URL = "https://https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
+COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
 
 DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Inspired Songs"
