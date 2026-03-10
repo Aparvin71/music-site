@@ -15,7 +15,6 @@ const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const playQueueBtn = document.getElementById("playQueueBtn");
 const shuffleQueueBtn = document.getElementById("shuffleQueueBtn");
-const downloadSongBtn = document.getElementById("downloadSongBtn");
 
 const seekBar = document.getElementById("seekBar");
 const currentTimeEl = document.getElementById("currentTime");
@@ -42,6 +41,7 @@ const openLyricsBtn = document.getElementById("openLyricsBtn");
 const copyLyricsBtn = document.getElementById("copyLyricsBtn");
 const shareSongBtn = document.getElementById("shareSongBtn");
 const favoriteSongBtn = document.getElementById("favoriteSongBtn");
+const downloadSongBtn = document.getElementById("downloadSongBtn");
 
 const lyricsModal = document.getElementById("lyricsModal");
 const lyricsModalBackdrop = document.getElementById("lyricsModalBackdrop");
@@ -84,6 +84,13 @@ function formatLyricsHtml(text) {
   return escaped
     .replace(/^(verse\s*\d*|chorus|bridge|pre-chorus|hook|outro|intro)$/gim, '<span class="lyrics-line-label">$1</span>')
     .replace(/\n/g, "<br>");
+}
+
+function sanitizeFileName(name) {
+  return String(name || "song")
+    .replace(/[<>:"/\\|?*]+/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function getAlbums() {
@@ -264,21 +271,6 @@ function renderRecentlyPlayed() {
   renderMiniCards(recentlyPlayedList, recentTracks, "No recently played songs yet.");
 }
 
-function downloadCurrentSong() {
-  if (!currentTrack || !currentTrack.audio) return;
-
-  const safeTitle = (currentTrack.title || "song")
-    .replace(/[<>:"/\\|?*]+/g, "")
-    .trim();
-
-  const link = document.createElement("a");
-  link.href = currentTrack.audio;
-  link.download = `${safeTitle}.mp3`;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
 function setNowPlaying(track) {
   currentTrack = track;
   nowCover.src = track.cover || "";
@@ -353,6 +345,19 @@ async function copySongLink() {
   }
 }
 
+function downloadCurrentSong() {
+  if (!currentTrack || !currentTrack.audio) return;
+
+  const safeTitle = sanitizeFileName(currentTrack.title);
+
+  const link = document.createElement("a");
+  link.href = currentTrack.audio;
+  link.download = `${safeTitle}.mp3`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function loadTrack(index, shouldPlay = false) {
   if (!currentQueue.length || index < 0 || index >= currentQueue.length) return;
 
@@ -416,9 +421,7 @@ function renderQueue() {
       ? track.tags.join(" • ")
       : "";
 
-    const safeTitle = (track.title || "song")
-      .replace(/[<>:"/\\|?*]+/g, "")
-      .trim();
+    const safeTitle = sanitizeFileName(track.title);
 
     item.innerHTML = `
       <img class="queue-cover" src="${track.cover || ""}" alt="">
@@ -436,14 +439,6 @@ function renderQueue() {
 
     item.addEventListener("click", (event) => {
       if (event.target.closest(".queue-download")) return;
-      loadTrack(index, true);
-    });
-
-    queueList.appendChild(item);
-  });
-}
-
-    item.addEventListener("click", () => {
       loadTrack(index, true);
     });
 
@@ -658,9 +653,9 @@ openLyricsBtn?.addEventListener("click", openLyricsModal);
 copyLyricsBtn?.addEventListener("click", copyLyricsToClipboard);
 shareSongBtn?.addEventListener("click", copySongLink);
 favoriteSongBtn?.addEventListener("click", () => toggleFavorite(currentTrack));
+downloadSongBtn?.addEventListener("click", downloadCurrentSong);
 closeLyricsBtn?.addEventListener("click", closeLyricsModal);
 lyricsModalBackdrop?.addEventListener("click", closeLyricsModal);
-downloadSongBtn?.addEventListener("click", downloadCurrentSong);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {

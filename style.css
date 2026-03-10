@@ -439,25 +439,6 @@ a:hover {
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.queue-download {
-  justify-self: end;
-}
-
-.queue-download a {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #273243;
-  color: #ffffff;
-  font-size: 13px;
-  text-decoration: none;
-  border: 1px solid #34445c;
-}
-
-.queue-download a:hover {
-  background: #34445c;
-  text-decoration: none;
-}
 .queue-item:hover {
   background: #1c232d;
   border-color: #4f6483;
@@ -491,6 +472,26 @@ a:hover {
 .queue-tags {
   color: #90b4e8;
   font-size: 12px;
+}
+
+.queue-download {
+  justify-self: end;
+}
+
+.queue-download a {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #273243;
+  color: #ffffff;
+  font-size: 13px;
+  text-decoration: none;
+  border: 1px solid #34445c;
+}
+
+.queue-download a:hover {
+  background: #34445c;
+  text-decoration: none;
 }
 
 .empty-message {
