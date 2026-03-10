@@ -115,11 +115,21 @@ a:hover {
   line-height: 1.6;
 }
 
-.about-panel {
+.about-panel,
+.featured-album-card,
+.now-playing-card,
+.controls-card,
+.queue-panel,
+.albums-panel,
+.library-panel,
+.lyrics-panel {
   background: #171a21;
   border: 1px solid #252a34;
   border-radius: 18px;
   padding: 20px;
+}
+
+.about-panel {
   margin-bottom: 24px;
 }
 
@@ -133,101 +143,6 @@ a:hover {
   color: #c2cad6;
   line-height: 1.7;
   max-width: 900px;
-}
-
-.lyrics-panel {
-  background: #171a21;
-  border: 1px solid #252a34;
-  border-radius: 18px;
-  padding: 20px;
-  margin-bottom: 24px;
-}
-
-.lyrics-content {
-  white-space: pre-wrap;
-  line-height: 1.8;
-  color: #d7deea;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.lyrics-content p {
-  margin: 0;
-}
-
-.track-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-}
-
-.hidden {
-  display: none;
-}
-
-.lyrics-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-}
-
-.lyrics-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.72);
-}
-
-.lyrics-modal-content {
-  position: relative;
-  z-index: 2;
-  width: min(900px, calc(100% - 32px));
-  max-height: calc(100vh - 40px);
-  margin: 20px auto;
-  background: #171a21;
-  border: 1px solid #252a34;
-  border-radius: 18px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.lyrics-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 18px 20px;
-  border-bottom: 1px solid #252a34;
-}
-
-.lyrics-modal-header h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.lyrics-modal-body {
-  padding: 20px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  line-height: 1.9;
-  color: #d7deea;
-}
-
-.lyrics-line-label {
-  color: #90b4e8;
-  font-weight: bold;
-}
-
-.featured-album-card,
-.now-playing-card,
-.controls-card,
-.queue-panel,
-.albums-panel {
-  background: #171a21;
-  border: 1px solid #252a34;
-  border-radius: 18px;
-  padding: 20px;
 }
 
 .featured-album-card {
@@ -259,7 +174,8 @@ a:hover {
 }
 
 .featured-actions,
-.queue-actions {
+.queue-actions,
+.track-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -281,7 +197,9 @@ a:hover {
   color: #ffffff;
 }
 
-.albums-panel {
+.albums-panel,
+.library-panel,
+.lyrics-panel {
   margin-bottom: 24px;
 }
 
@@ -327,6 +245,48 @@ a:hover {
 }
 
 .album-card p {
+  margin: 0 0 4px;
+  color: #c2cad6;
+  font-size: 13px;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.mini-card {
+  background: #11161d;
+  border: 1px solid #252a34;
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.mini-card:hover {
+  background: #1c232d;
+  border-color: #4f6483;
+  transform: translateY(-2px);
+}
+
+.mini-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  background: #0f1319;
+  border: 1px solid #252a34;
+  margin-bottom: 10px;
+}
+
+.mini-card h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.mini-card p {
   margin: 0 0 4px;
   color: #c2cad6;
   font-size: 13px;
@@ -424,6 +384,23 @@ a:hover {
   width: 100%;
 }
 
+.lyrics-content {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: #d7deea;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.lyrics-content p {
+  margin: 0;
+}
+
+.lyrics-line-label {
+  color: #90b4e8;
+  font-weight: bold;
+}
+
 .queue-header {
   display: flex;
   align-items: baseline;
@@ -500,6 +477,58 @@ a:hover {
 .empty-message {
   color: #b7c0cf;
   padding: 12px 2px;
+}
+
+.hidden {
+  display: none;
+}
+
+.lyrics-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+}
+
+.lyrics-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.lyrics-modal-content {
+  position: relative;
+  z-index: 2;
+  width: min(900px, calc(100% - 32px));
+  max-height: calc(100vh - 40px);
+  margin: 20px auto;
+  background: #171a21;
+  border: 1px solid #252a34;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lyrics-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #252a34;
+}
+
+.lyrics-modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.lyrics-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.9;
+  color: #d7deea;
 }
 
 @media (max-width: 1100px) {

@@ -1,4 +1,3 @@
-
 import json
 import re
 from pathlib import Path
@@ -13,11 +12,13 @@ from mutagen.id3 import ID3
 
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
-DEFAULT_ARTIST = "James Parvin"
+
+
+DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Singles"
 DEFAULT_YEAR = 2026
 DEFAULT_PLAYLIST = "Uncategorized"
-DEFAULT_TAGS = ["christian"]
+DEFAULT_TAGS = ["Inspired"]
 
 # =========================
 # PROJECT PATHS
@@ -29,7 +30,6 @@ METADATA_FILE = SITE_DIR / "track_metadata.json"
 OUTPUT_FILE = SITE_DIR / "tracks.json"
 
 AUDIO_EXTENSIONS = [".mp3"]
-
 
 # =========================
 # HELPERS
@@ -142,21 +142,19 @@ def get_embedded_lyrics(mp3_path):
     try:
         tags = ID3(mp3_path)
 
-        # Common English key
         if "USLT::eng" in tags:
             text = str(tags["USLT::eng"].text).strip()
             if text:
                 return text
 
-        # Fallback: first USLT key found
         for key in tags.keys():
             if key.startswith("USLT"):
                 text = str(tags[key].text).strip()
                 if text:
                     return text
 
-    except Exception as e:
-        print(f"No embedded lyrics found in {mp3_path.name}: {e}")
+    except Exception:
+        pass
 
     return None
 
@@ -229,6 +227,7 @@ def main():
 
         print(f"Processed: {file.name}")
         print(f"  Title: {track['title']}")
+        print(f"  Slug: {track['slug']}")
         print(f"  Artist: {track['artist']}")
         print(f"  Album: {track['album']}")
         print(f"  Year: {track['year']}")
