@@ -32,6 +32,8 @@ const featuredAlbumCount = document.getElementById("featuredAlbumCount");
 const playAlbumBtn = document.getElementById("playAlbumBtn");
 const shuffleAlbumBtn = document.getElementById("shuffleAlbumBtn");
 
+const lyricsContent = document.getElementById("lyricsContent");
+
 function formatTime(seconds) {
   if (!isFinite(seconds)) return "0:00";
   const mins = Math.floor(seconds / 60);
@@ -74,6 +76,25 @@ function setNowPlaying(track) {
   nowTitle.textContent = track.title || "Unknown Title";
   nowArtist.textContent = track.artist || "Unknown Artist";
   nowAlbum.textContent = track.album ? `${track.album}${track.year ? " • " + track.year : ""}` : "—";
+
+  renderLyrics(track);
+}
+
+function renderLyrics(track) {
+  if (!lyricsContent) return;
+
+  if (track && track.lyrics && String(track.lyrics).trim()) {
+    lyricsContent.innerHTML = `<p>${escapeHtml(track.lyrics)}</p>`;
+  } else {
+    lyricsContent.innerHTML = `<p class="empty-message">No lyrics available for this song.</p>`;
+  }
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function loadTrack(index, shouldPlay = false) {
@@ -145,6 +166,7 @@ function renderQueue() {
         <h3>${track.title || "Unknown Title"}</h3>
         <p>${track.artist || "Unknown Artist"}</p>
         <p>${track.album || ""}</p>
+        <p>${formatTime(track.duration || 0)}</p>
         ${tags ? `<div class="queue-tags">${tags}</div>` : ""}
       </div>
     `;
@@ -249,7 +271,8 @@ function applySearch() {
       track.artist || "",
       track.album || "",
       track.playlist || "",
-      Array.isArray(track.tags) ? track.tags.join(" ") : ""
+      Array.isArray(track.tags) ? track.tags.join(" ") : "",
+      track.lyrics || ""
     ].join(" ").toLowerCase();
 
     return searchHaystack.includes(query);
@@ -268,6 +291,7 @@ function applySearch() {
     nowTitle.textContent = "No songs found";
     nowArtist.textContent = "Try a different search";
     nowAlbum.textContent = "—";
+    renderLyrics(null);
   }
 }
 
@@ -373,9 +397,14 @@ fetch("tracks.json")
 
     if (currentQueue.length) {
       loadTrack(0, false);
+    } else {
+      renderLyrics(null);
     }
   })
   .catch(error => {
     console.error("Could not load tracks.json:", error);
     queueList.innerHTML = '<p class="empty-message">Could not load music library.</p>';
+    if (lyricsContent) {
+      lyricsContent.innerHTML = '<p class="empty-message">Could not load lyrics.</p>';
+    }
   });
