@@ -30,6 +30,7 @@ OUTPUT_FILE = SITE_DIR / "tracks.json"
 
 AUDIO_EXTENSIONS = [".mp3"]
 
+
 # =========================
 # HELPERS
 # =========================
@@ -207,6 +208,7 @@ def main():
 
         track = {
             "title": override.get("title", title),
+            "slug": override.get("slug", slug),
             "artist": override.get("artist", mp3_meta.get("artist") or DEFAULT_ARTIST),
             "album": override.get("album", mp3_meta.get("album") or DEFAULT_ALBUM),
             "year": override.get("year", mp3_meta.get("year") or DEFAULT_YEAR),
