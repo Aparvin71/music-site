@@ -1,6 +1,7 @@
 [
   {
     "title": "Make Me a Faithful Tree",
+    "slug": "make-me-a-faithful-tree",
     "artist": "James Parvin",
     "album": "Change",
     "year": 2026,
@@ -15,6 +16,7 @@
   },
   {
     "title": "Step Out and Go",
+    "slug": "step-out-and-go",
     "artist": "James Parvin",
     "album": "Faith",
     "year": 2026,
@@ -29,6 +31,7 @@
   },
   {
     "title": "Upon the Holy Mount",
+    "slug": "upon-the-holy-mount",
     "artist": "James Parvin",
     "album": "Faith",
     "year": 2026,
@@ -43,6 +46,7 @@
   },
   {
     "title": "Praise the Lord, O My Soul",
+    "slug": "praise-the-lord-o-my-soul",
     "artist": "James Parvin",
     "album": "Praise",
     "year": 2026,
@@ -57,6 +61,7 @@
   },
   {
     "title": "Agape Love",
+    "slug": "agape-love",
     "artist": "James Parvin",
     "album": "The Word",
     "year": 2026,
@@ -71,6 +76,7 @@
   },
   {
     "title": "EVERY BREATH, YOUR NAME",
+    "slug": "every-breath-your-name",
     "artist": "James Parvin",
     "album": "The Word",
     "year": 2026,

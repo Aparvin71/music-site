@@ -2,6 +2,7 @@ let allTracks = [];
 let currentQueue = [];
 let currentIndex = -1;
 let currentAlbum = null;
+let currentTrack = null;
 
 const audioPlayer = document.getElementById("audioPlayer");
 const nowCover = document.getElementById("nowCover");
@@ -18,6 +19,15 @@ const shuffleQueueBtn = document.getElementById("shuffleQueueBtn");
 const seekBar = document.getElementById("seekBar");
 const currentTimeEl = document.getElementById("currentTime");
 const durationEl = document.getElementById("duration");
+
+const openLyricsBtn = document.getElementById("openLyricsBtn");
+const copyLyricsBtn = document.getElementById("copyLyricsBtn");
+const lyricsModal = document.getElementById("lyricsModal");
+const lyricsModalBackdrop = document.getElementById("lyricsModalBackdrop");
+const lyricsModalBody = document.getElementById("lyricsModalBody");
+const lyricsModalTitle = document.getElementById("lyricsModalTitle");
+const closeLyricsBtn = document.getElementById("closeLyricsBtn");
+const shareSongBtn = document.getElementById("shareSongBtn");
 
 const queueList = document.getElementById("queueList");
 const queueCount = document.getElementById("queueCount");
@@ -71,6 +81,7 @@ function getAlbums() {
 }
 
 function setNowPlaying(track) {
+  currentTrack = track;
   nowCover.src = track.cover || "";
   nowCover.alt = track.title ? `${track.title} cover art` : "Album cover";
   nowTitle.textContent = track.title || "Unknown Title";
@@ -78,15 +89,57 @@ function setNowPlaying(track) {
   nowAlbum.textContent = track.album ? `${track.album}${track.year ? " • " + track.year : ""}` : "—";
 
   renderLyrics(track);
+updateSongUrl(track);
+}
+
+function formatLyricsHtml(text) {
+  const escaped = escapeHtml(text);
+
+  return escaped
+    .replace(/^(verse\s*\d*|chorus|bridge|pre-chorus|hook|outro|intro)$/gim, '<span class="lyrics-line-label">$1</span>')
+    .replace(/\n/g, "<br>");
 }
 
 function renderLyrics(track) {
   if (!lyricsContent) return;
 
   if (track && track.lyrics && String(track.lyrics).trim()) {
-    lyricsContent.innerHTML = `<p>${escapeHtml(track.lyrics)}</p>`;
+    lyricsContent.innerHTML = `<p>${formatLyricsHtml(track.lyrics)}</p>`;
   } else {
     lyricsContent.innerHTML = `<p class="empty-message">No lyrics available for this song.</p>`;
+  }
+}
+
+function openLyricsModal() {
+  if (!lyricsModal) return;
+
+  if (currentTrack && currentTrack.lyrics && String(currentTrack.lyrics).trim()) {
+    lyricsModalTitle.textContent = currentTrack.title || "Lyrics";
+    lyricsModalBody.innerHTML = `<p>${formatLyricsHtml(currentTrack.lyrics)}</p>`;
+  } else {
+    lyricsModalTitle.textContent = currentTrack?.title || "Lyrics";
+    lyricsModalBody.innerHTML = `<p class="empty-message">No lyrics available for this song.</p>`;
+  }
+
+  lyricsModal.classList.remove("hidden");
+}
+
+function closeLyricsModal() {
+  if (!lyricsModal) return;
+  lyricsModal.classList.add("hidden");
+}
+
+async function copyLyricsToClipboard() {
+  if (!currentTrack || !currentTrack.lyrics) return;
+
+  try {
+    await navigator.clipboard.writeText(currentTrack.lyrics);
+    copyLyricsBtn.textContent = "Copied!";
+    setTimeout(() => {
+      copyLyricsBtn.textContent = "Copy Lyrics";
+    }, 1500);
+  } catch (error) {
+    console.error("Copy failed:", error);
   }
 }
 
@@ -150,6 +203,36 @@ function renderQueue() {
     return;
   }
 
+function updateSongUrl(track) {
+  if (!track || !track.slug) return;
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("song", track.slug);
+  window.history.replaceState({}, "", url);
+}
+
+function getSongSlugFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("song");
+}
+
+async function copySongLink() {
+  if (!currentTrack || !currentTrack.slug) return;
+
+  const url = new URL(window.location.href);
+  url.searchParams.set("song", currentTrack.slug);
+
+  try {
+    await navigator.clipboard.writeText(url.toString());
+    shareSongBtn.textContent = "Link Copied!";
+    setTimeout(() => {
+      shareSongBtn.textContent = "Copy Song Link";
+    }, 1500);
+  } catch (error) {
+    console.error("Could not copy song link:", error);
+  }
+}
+
   queueCount.textContent = `${currentQueue.length} song${currentQueue.length === 1 ? "" : "s"}`;
 
   currentQueue.forEach((track, index) => {
@@ -178,6 +261,18 @@ function renderQueue() {
     queueList.appendChild(item);
   });
 }
+
+openLyricsBtn?.addEventListener("click", openLyricsModal);
+copyLyricsBtn?.addEventListener("click", copyLyricsToClipboard);
+closeLyricsBtn?.addEventListener("click", closeLyricsModal);
+lyricsModalBackdrop?.addEventListener("click", closeLyricsModal);
+shareSongBtn?.addEventListener("click", copySongLink);
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeLyricsModal();
+  }
+});
 
 function renderPlaylists(activeName = "All Songs") {
   playlistList.innerHTML = "";
@@ -393,6 +488,20 @@ fetch("tracks.json")
     const albums = getAlbums();
     if (albums.length) {
       setFeaturedAlbum(albums[0]);
+    }
+
+    const requestedSlug = getSongSlugFromUrl();
+
+    if (requestedSlug) {
+      const foundIndex = allTracks.findIndex(track => track.slug === requestedSlug);
+
+      if (foundIndex !== -1) {
+        currentQueue = [...allTracks];
+        currentIndex = foundIndex;
+        renderQueue();
+        loadTrack(foundIndex, false);
+        return;
+      }
     }
 
     if (currentQueue.length) {

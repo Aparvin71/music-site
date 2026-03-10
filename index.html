@@ -79,6 +79,12 @@
           </div>
         </div>
 
+<div class="track-actions">
+  <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Open Lyrics</button>
+  <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy Lyrics</button>
+  <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Copy Song Link</button>
+</div>
+
 <section class="lyrics-panel">
   <div class="section-header">
     <h2>Lyrics</h2>
@@ -119,6 +125,19 @@
       </section>
     </main>
   </div>
+
+<div id="lyricsModal" class="lyrics-modal hidden">
+  <div class="lyrics-modal-backdrop" id="lyricsModalBackdrop"></div>
+  <div class="lyrics-modal-content">
+    <div class="lyrics-modal-header">
+      <h2 id="lyricsModalTitle">Lyrics</h2>
+      <button id="closeLyricsBtn" class="control-btn" type="button">✕</button>
+    </div>
+    <div id="lyricsModalBody" class="lyrics-modal-body">
+      <p class="empty-message">No lyrics available.</p>
+    </div>
+  </div>
+</div>
 
   <script src="app.js"></script>
 </body>
