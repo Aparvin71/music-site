@@ -1,3 +1,4 @@
+
 import json
 import re
 from pathlib import Path
@@ -18,7 +19,12 @@ DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Singles"
 DEFAULT_YEAR = 2026
 DEFAULT_PLAYLIST = "Uncategorized"
-DEFAULT_TAGS = ["Inspired"]
+
+# common words to ignore when auto-building tags
+STOPWORDS = {
+    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with",
+    "my", "me", "your", "you", "i", "we", "our", "is", "are"
+}
 
 # =========================
 # PROJECT PATHS
@@ -26,7 +32,6 @@ DEFAULT_TAGS = ["Inspired"]
 
 SITE_DIR = Path(__file__).resolve().parents[1]
 AUDIO_DIR = SITE_DIR / "audio"
-METADATA_FILE = SITE_DIR / "track_metadata.json"
 OUTPUT_FILE = SITE_DIR / "tracks.json"
 
 AUDIO_EXTENSIONS = [".mp3"]
@@ -55,21 +60,6 @@ def build_audio_url(file_name):
 def build_cover_url(slug):
     return f"{COVER_BASE_URL.rstrip('/')}/{slug}.jpg"
 
-def load_metadata():
-    if not METADATA_FILE.exists():
-        print(f"No track_metadata.json found at: {METADATA_FILE}")
-        return {}
-
-    try:
-        with open(METADATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            print(f"Loaded metadata entries: {len(data)}")
-            return data
-    except json.JSONDecodeError as e:
-        raise SystemExit(f"JSON error in track_metadata.json: {e}")
-    except Exception as e:
-        raise SystemExit(f"Error reading track_metadata.json: {e}")
-
 def safe_tag_text(tag_value):
     if not tag_value:
         return ""
@@ -88,6 +78,11 @@ def parse_track_number(tag_value):
     if match:
         return int(match.group(1))
     return None
+
+def title_case_if_all_caps(text):
+    if text and text.isupper():
+        return text.title()
+    return text
 
 def get_mp3_metadata(mp3_path):
     try:
@@ -115,6 +110,10 @@ def get_mp3_metadata(mp3_path):
             if "TRCK" in tags:
                 track_number = parse_track_number(tags["TRCK"])
 
+        title = title_case_if_all_caps(title)
+        artist = title_case_if_all_caps(artist)
+        album = title_case_if_all_caps(album)
+
         return {
             "title": title,
             "artist": artist,
@@ -136,9 +135,6 @@ def get_mp3_metadata(mp3_path):
         }
 
 def get_embedded_lyrics(mp3_path):
-    """
-    Extract embedded lyrics from ID3 USLT tags.
-    """
     try:
         tags = ID3(mp3_path)
 
@@ -158,6 +154,31 @@ def get_embedded_lyrics(mp3_path):
 
     return None
 
+def words_for_tags(text):
+    words = re.findall(r"[a-z0-9]+", text.lower())
+    return [w for w in words if w not in STOPWORDS and len(w) > 2]
+
+def build_tags(title, album, artist):
+    tag_set = set()
+
+    for word in words_for_tags(title):
+        tag_set.add(word)
+
+    for word in words_for_tags(album):
+        tag_set.add(word)
+
+    for word in words_for_tags(artist):
+        tag_set.add(word)
+
+    # useful baseline tags for your type of site
+    tag_set.add("christian")
+
+    return sorted(tag_set)
+
+def choose_playlist(album):
+    album = (album or "").strip()
+    return album if album else DEFAULT_PLAYLIST
+
 # =========================
 # MAIN
 # =========================
@@ -172,7 +193,6 @@ def main():
     if not AUDIO_DIR.exists():
         raise SystemExit(f"Missing audio folder: {AUDIO_DIR}")
 
-    metadata_overrides = load_metadata()
     tracks = []
 
     audio_files = [
@@ -186,39 +206,36 @@ def main():
 
     for file in sorted(audio_files, key=lambda f: f.name.lower()):
         fallback_title = clean_title(file.name)
-        base_slug = slugify(fallback_title)
 
         mp3_meta = get_mp3_metadata(file)
 
         title = mp3_meta.get("title") or fallback_title
+        artist = mp3_meta.get("artist") or DEFAULT_ARTIST
+        album = mp3_meta.get("album") or DEFAULT_ALBUM
+        year = mp3_meta.get("year") or DEFAULT_YEAR
+        track_number = mp3_meta.get("track_number")
+        duration = mp3_meta.get("duration", 0)
+
         slug = slugify(title)
-
-        override = (
-            metadata_overrides.get(slug)
-            or metadata_overrides.get(base_slug)
-            or metadata_overrides.get(Path(file.name).stem)
-            or metadata_overrides.get(fallback_title)
-            or {}
-        )
-
-        embedded_lyrics = get_embedded_lyrics(file)
-        lyrics = override.get("lyrics") or embedded_lyrics
+        lyrics = get_embedded_lyrics(file)
+        playlist = choose_playlist(album)
+        tags = build_tags(title, album, artist)
 
         track = {
-            "title": override.get("title", title),
-            "slug": override.get("slug", slug),
-            "artist": override.get("artist", mp3_meta.get("artist") or DEFAULT_ARTIST),
-            "album": override.get("album", mp3_meta.get("album") or DEFAULT_ALBUM),
-            "year": override.get("year", mp3_meta.get("year") or DEFAULT_YEAR),
+            "title": title,
+            "slug": slug,
+            "artist": artist,
+            "album": album,
+            "year": year,
             "audio": build_audio_url(file.name),
-            "cover": override.get("cover", build_cover_url(slug)),
-            "playlist": override.get("playlist", DEFAULT_PLAYLIST),
-            "tags": override.get("tags", DEFAULT_TAGS),
-            "duration": override.get("duration", mp3_meta.get("duration", 0))
+            "cover": build_cover_url(slug),
+            "playlist": playlist,
+            "tags": tags,
+            "duration": duration
         }
 
-        if mp3_meta.get("track_number") is not None:
-            track["track_number"] = override.get("track_number", mp3_meta["track_number"])
+        if track_number is not None:
+            track["track_number"] = track_number
 
         if lyrics:
             track["lyrics"] = lyrics
@@ -230,14 +247,15 @@ def main():
         print(f"  Slug: {track['slug']}")
         print(f"  Artist: {track['artist']}")
         print(f"  Album: {track['album']}")
-        print(f"  Year: {track['year']}")
+        print(f"  Playlist: {track['playlist']}")
+        print(f"  Tags: {', '.join(track['tags'])}")
         print(f"  Duration: {track['duration']} sec")
         print(f"  Lyrics found: {'yes' if lyrics else 'no'}")
 
     tracks.sort(key=lambda t: (
-        t.get("album", ""),
+        t.get("album", "").lower(),
         t.get("track_number", 9999),
-        t.get("title", "")
+        t.get("title", "").lower()
     ))
 
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
