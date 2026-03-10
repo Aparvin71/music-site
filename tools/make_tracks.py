@@ -22,8 +22,8 @@ DEFAULT_PLAYLIST = "Uncategorized"
 
 # common words to ignore when auto-building tags
 STOPWORDS = {
-    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with",
-    "my", "me", "your", "you", "i", "we", "our", "is", "are"
+    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with", "christian", "christian",
+    "my", "me", "your", "you", "i", "we", "our", "is", "are", "allen", "parvin"
 }
 
 # =========================

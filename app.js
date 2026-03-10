@@ -15,6 +15,7 @@ const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const playQueueBtn = document.getElementById("playQueueBtn");
 const shuffleQueueBtn = document.getElementById("shuffleQueueBtn");
+const downloadSongBtn = document.getElementById("downloadSongBtn");
 
 const seekBar = document.getElementById("seekBar");
 const currentTimeEl = document.getElementById("currentTime");
@@ -263,6 +264,21 @@ function renderRecentlyPlayed() {
   renderMiniCards(recentlyPlayedList, recentTracks, "No recently played songs yet.");
 }
 
+function downloadCurrentSong() {
+  if (!currentTrack || !currentTrack.audio) return;
+
+  const safeTitle = (currentTrack.title || "song")
+    .replace(/[<>:"/\\|?*]+/g, "")
+    .trim();
+
+  const link = document.createElement("a");
+  link.href = currentTrack.audio;
+  link.download = `${safeTitle}.mp3`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
 function setNowPlaying(track) {
   currentTrack = track;
   nowCover.src = track.cover || "";
@@ -400,6 +416,10 @@ function renderQueue() {
       ? track.tags.join(" • ")
       : "";
 
+    const safeTitle = (track.title || "song")
+      .replace(/[<>:"/\\|?*]+/g, "")
+      .trim();
+
     item.innerHTML = `
       <img class="queue-cover" src="${track.cover || ""}" alt="">
       <div class="queue-text">
@@ -409,7 +429,19 @@ function renderQueue() {
         <p>${formatTime(track.duration || 0)}</p>
         ${tags ? `<div class="queue-tags">${tags}</div>` : ""}
       </div>
+      <div class="queue-download">
+        <a href="${track.audio || "#"}" download="${safeTitle}.mp3">Download</a>
+      </div>
     `;
+
+    item.addEventListener("click", (event) => {
+      if (event.target.closest(".queue-download")) return;
+      loadTrack(index, true);
+    });
+
+    queueList.appendChild(item);
+  });
+}
 
     item.addEventListener("click", () => {
       loadTrack(index, true);
@@ -628,6 +660,7 @@ shareSongBtn?.addEventListener("click", copySongLink);
 favoriteSongBtn?.addEventListener("click", () => toggleFavorite(currentTrack));
 closeLyricsBtn?.addEventListener("click", closeLyricsModal);
 lyricsModalBackdrop?.addEventListener("click", closeLyricsModal);
+downloadSongBtn?.addEventListener("click", downloadCurrentSong);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
