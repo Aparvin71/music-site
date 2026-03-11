@@ -11,26 +11,42 @@
     <aside class="sidebar">
       <div class="brand">
         <h1>Allen Parvin Music</h1>
-        <p>Inspired • Family • Worship • Praise • Scripture Songs</p>
+        <p>Inspired • Worship • Family • Scripture • Fun • Thoughful Songs</p>
       </div>
 
       <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Search songs, albums, tags..." />
+        <input type="text" id="searchInput" placeholder="Search songs, albums, tags, scripture..." />
       </div>
 
       <div class="playlist-wrap">
         <h2>Playlists</h2>
         <div id="playlistList" class="playlist-list"></div>
       </div>
+
+      <div class="playlist-wrap">
+        <h2>Browse by Tag</h2>
+        <div id="tagList" class="tag-list"></div>
+      </div>
     </aside>
 
     <main class="main-content">
+      <section id="resumeBanner" class="resume-banner hidden">
+        <div class="resume-copy">
+          <strong>Resume Listening</strong>
+          <p id="resumeText">Continue where you left off.</p>
+        </div>
+        <div class="resume-actions">
+          <button id="resumeSongBtn" class="action-btn" type="button">Resume Song</button>
+          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
+        </div>
+      </section>
+
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Music Library</p>
-          <h2>Stream original, worship, praise, scripture, family, and inspired music</h2>
+          <h2>Stream original songs, worship tracks, and thought-inspired music</h2>
           <p class="hero-text">
-            Browse by album, search by theme, and play curated worship collections.
+            Browse by album, search by theme, filter by tag, and listen through curated collections.
           </p>
         </div>
       </section>
@@ -57,6 +73,8 @@
           <div class="featured-actions">
             <button id="playAlbumBtn" class="action-btn" type="button">Play Album</button>
             <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
+            <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Album</button>
+            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Album</button>
           </div>
         </div>
       </section>
@@ -90,6 +108,7 @@
             <h3 id="nowTitle">Select a song</h3>
             <p id="nowArtist">—</p>
             <p id="nowAlbum">—</p>
+            <p id="nowScripture" class="scripture-line">—</p>
 
             <div class="track-actions">
               <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Open Lyrics</button>
@@ -132,6 +151,15 @@
         </div>
       </section>
 
+      <section class="scripture-panel">
+        <div class="section-header">
+          <h2>Scripture Reference</h2>
+        </div>
+        <div id="scriptureContent" class="scripture-content">
+          <p class="empty-message">No scripture reference available for this song.</p>
+        </div>
+      </section>
+
       <section class="queue-panel">
         <div class="queue-header">
           <h2>Song Queue</h2>
@@ -151,6 +179,31 @@
       </div>
       <div id="lyricsModalBody" class="lyrics-modal-body">
         <p class="empty-message">No lyrics available.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="albumModal" class="album-modal hidden">
+    <div class="album-modal-backdrop" id="albumModalBackdrop"></div>
+    <div class="album-modal-content">
+      <div class="album-modal-header">
+        <h2 id="albumModalTitle">Album</h2>
+        <button id="closeAlbumBtn" class="control-btn" type="button">✕</button>
+      </div>
+      <div class="album-modal-body">
+        <div class="album-modal-top">
+          <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover">
+          <div class="album-modal-meta">
+            <p id="albumModalArtist">—</p>
+            <p id="albumModalInfo">—</p>
+            <div class="featured-actions">
+              <button id="albumModalPlayBtn" class="action-btn" type="button">Play Album</button>
+              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
+              <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>
+            </div>
+          </div>
+        </div>
+        <div id="albumModalTracks" class="album-modal-tracks"></div>
       </div>
     </div>
   </div>

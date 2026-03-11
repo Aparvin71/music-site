@@ -7,28 +7,18 @@ from urllib.parse import quote
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
 
-# =========================
-# SETTINGS - EDIT THESE
-# =========================
-
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
-
 
 DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Singles"
 DEFAULT_YEAR = 2026
-DEFAULT_PLAYLIST = "Uncategorized"
+DEFAULT_PLAYLIST = "Music"
 
-# common words to ignore when auto-building tags
 STOPWORDS = {
-    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with", "christian", "christian",
-    "my", "me", "your", "you", "i", "we", "our", "is", "are", "allen", "parvin"
+    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with", "allen", "parvin"
+    "my", "me", "your", "you", "i", "we", "our", "is", "are", "christian"
 }
-
-# =========================
-# PROJECT PATHS
-# =========================
 
 SITE_DIR = Path(__file__).resolve().parents[1]
 AUDIO_DIR = SITE_DIR / "audio"
@@ -36,9 +26,19 @@ OUTPUT_FILE = SITE_DIR / "tracks.json"
 
 AUDIO_EXTENSIONS = [".mp3"]
 
-# =========================
-# HELPERS
-# =========================
+SCRIPTURE_BOOKS = [
+    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+    "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
+    "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job",
+    "Psalm", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
+    "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos",
+    "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai",
+    "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans",
+    "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians",
+    "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy",
+    "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John",
+    "2 John", "3 John", "Jude", "Revelation"
+]
 
 def clean_title(filename):
     title = Path(filename).stem
@@ -95,6 +95,7 @@ def get_mp3_metadata(mp3_path):
         year = DEFAULT_YEAR
         track_number = None
         duration = int(audio.info.length) if audio.info and audio.info.length else 0
+        comment = ""
 
         if tags:
             if "TIT2" in tags:
@@ -109,6 +110,14 @@ def get_mp3_metadata(mp3_path):
                 year = parse_year(tags["TYER"])
             if "TRCK" in tags:
                 track_number = parse_track_number(tags["TRCK"])
+            if "COMM::eng" in tags:
+                comment = safe_tag_text(tags["COMM::eng"].text)
+            else:
+                for key in tags.keys():
+                    if key.startswith("COMM"):
+                        comment = safe_tag_text(tags[key].text)
+                        if comment:
+                            break
 
         title = title_case_if_all_caps(title)
         artist = title_case_if_all_caps(artist)
@@ -120,7 +129,8 @@ def get_mp3_metadata(mp3_path):
             "album": album,
             "year": year,
             "track_number": track_number,
-            "duration": duration
+            "duration": duration,
+            "comment": comment
         }
 
     except Exception as e:
@@ -131,7 +141,8 @@ def get_mp3_metadata(mp3_path):
             "album": "",
             "year": DEFAULT_YEAR,
             "track_number": None,
-            "duration": 0
+            "duration": 0,
+            "comment": ""
         }
 
 def get_embedded_lyrics(mp3_path):
@@ -158,30 +169,38 @@ def words_for_tags(text):
     words = re.findall(r"[a-z0-9]+", text.lower())
     return [w for w in words if w not in STOPWORDS and len(w) > 2]
 
-def build_tags(title, album, artist):
+def build_tags(title, album, artist, scripture):
     tag_set = set()
 
     for word in words_for_tags(title):
         tag_set.add(word)
-
     for word in words_for_tags(album):
         tag_set.add(word)
-
     for word in words_for_tags(artist):
         tag_set.add(word)
+    for word in words_for_tags(scripture):
+        tag_set.add(word)
 
-    # useful baseline tags for your type of site
     tag_set.add("christian")
-
     return sorted(tag_set)
 
 def choose_playlist(album):
     album = (album or "").strip()
     return album if album else DEFAULT_PLAYLIST
 
-# =========================
-# MAIN
-# =========================
+def extract_scripture_reference(text):
+    if not text:
+        return ""
+
+    normalized = " ".join(str(text).split())
+
+    for book in sorted(SCRIPTURE_BOOKS, key=len, reverse=True):
+        pattern = rf"\b{re.escape(book)}\s+\d+:\d+(?:[-–]\d+)?\b"
+        match = re.search(pattern, normalized, flags=re.IGNORECASE)
+        if match:
+            return match.group(0)
+
+    return ""
 
 def main():
     print("=== DEBUG INFO ===")
@@ -218,8 +237,9 @@ def main():
 
         slug = slugify(title)
         lyrics = get_embedded_lyrics(file)
+        scripture = extract_scripture_reference(mp3_meta.get("comment", "")) or extract_scripture_reference(lyrics or "") or ""
         playlist = choose_playlist(album)
-        tags = build_tags(title, album, artist)
+        tags = build_tags(title, album, artist, scripture)
 
         track = {
             "title": title,
@@ -231,7 +251,8 @@ def main():
             "cover": build_cover_url(slug),
             "playlist": playlist,
             "tags": tags,
-            "duration": duration
+            "duration": duration,
+            "scripture": scripture
         }
 
         if track_number is not None:
@@ -248,6 +269,7 @@ def main():
         print(f"  Artist: {track['artist']}")
         print(f"  Album: {track['album']}")
         print(f"  Playlist: {track['playlist']}")
+        print(f"  Scripture: {track['scripture'] or 'none'}")
         print(f"  Tags: {', '.join(track['tags'])}")
         print(f"  Duration: {track['duration']} sec")
         print(f"  Lyrics found: {'yes' if lyrics else 'no'}")
