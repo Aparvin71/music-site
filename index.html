@@ -7,15 +7,31 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header class="site-header">
+    <nav class="navbar">
+      <h1 class="logo">Allen Parvin Music</h1>
+
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand">
         <h1>Allen Parvin Music</h1>
-        <p>Inspired • Worship • Family • Scripture • Fun • Thoughful Songs</p>
+        <p>Inspired • Worship • Family • Scripture • Fun • Thoughtful Songs</p>
       </div>
 
       <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Search songs, albums, tags, scripture..." />
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search songs, albums, tags, scripture..."
+        />
       </div>
 
       <div class="playlist-wrap">
@@ -63,7 +79,12 @@
 
       <section class="featured-album-card" id="featuredAlbumCard">
         <div class="featured-cover-wrap">
-          <img id="featuredAlbumCover" class="featured-cover" src="" alt="Featured album cover" />
+          <img
+            id="featuredAlbumCover"
+            class="featured-cover"
+            src=""
+            alt="Featured album cover"
+          />
         </div>
         <div class="featured-meta">
           <p class="eyebrow">Featured Album</p>
@@ -100,47 +121,46 @@
         <div id="recentlyPlayedList" class="mini-grid"></div>
       </section>
 
-      <section class="player-panel">
-        <div class="now-playing-card">
-          <img id="nowCover" src="" alt="Album cover" class="now-cover" />
-          <div class="now-meta">
-            <p class="label">Now Playing</p>
-            <h3 id="nowTitle">Select a song</h3>
-            <p id="nowArtist">—</p>
-            <p id="nowAlbum">—</p>
-            <p id="nowScripture" class="scripture-line">—</p>
+  <div class="sticky-player">
+  <div class="sticky-player-left">
+    <img id="nowCover" src="" alt="Album cover" class="now-cover" />
+    <div class="now-meta">
+      <p class="label">Now Playing</p>
+      <h3 id="nowTitle">Select a song</h3>
+      <p id="nowArtist">—</p>
+      <p id="nowAlbum">—</p>
+      <p id="nowScripture" class="scripture-line">—</p>
+    </div>
+  </div>
 
-            <div class="track-actions">
-              <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Open Lyrics</button>
-              <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy Lyrics</button>
-              <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Copy Song Link</button>
-              <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
-              <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download Song</button>
-            </div>
-          </div>
-        </div>
+  <div class="sticky-player-center">
+    <div class="transport">
+      <button id="prevBtn" class="control-btn" type="button">⏮</button>
+      <button id="playBtn" class="control-btn play-btn" type="button">▶</button>
+      <button id="nextBtn" class="control-btn" type="button">⏭</button>
+    </div>
 
-        <div class="controls-card">
-          <div class="transport">
-            <button id="prevBtn" class="control-btn" type="button">⏮</button>
-            <button id="playBtn" class="control-btn play-btn" type="button">▶</button>
-            <button id="nextBtn" class="control-btn" type="button">⏭</button>
-          </div>
+    <div class="progress-wrap">
+      <span id="currentTime">0:00</span>
+      <input id="seekBar" type="range" min="0" max="100" value="0" />
+      <span id="duration">0:00</span>
+    </div>
+  </div>
 
-          <div class="progress-wrap">
-            <span id="currentTime">0:00</span>
-            <input id="seekBar" type="range" min="0" max="100" value="0" />
-            <span id="duration">0:00</span>
-          </div>
+  <div class="sticky-player-right">
+    <div class="track-actions compact-actions">
+      <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
+      <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
+      <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
+      <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+      <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
+      <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
+      <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
+    </div>
 
-          <div class="queue-actions">
-            <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
-            <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle Queue</button>
-          </div>
-
-          <audio id="audioPlayer" preload="metadata"></audio>
-        </div>
-      </section>
+    <audio id="audioPlayer" preload="metadata"></audio>
+  </div>
+</div>
 
       <section class="lyrics-panel">
         <div class="section-header">
@@ -192,7 +212,7 @@
       </div>
       <div class="album-modal-body">
         <div class="album-modal-top">
-          <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover">
+          <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover" />
           <div class="album-modal-meta">
             <p id="albumModalArtist">—</p>
             <p id="albumModalInfo">—</p>
