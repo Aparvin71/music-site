@@ -33,6 +33,17 @@ a:hover {
   border-bottom: 1px solid #252a34;
 }
 
+.site-footer {
+  padding: 24px 20px 32px;
+  text-align: center;
+  color: #b7c0cf;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 14px;
+}
+
 .navbar {
   max-width: 1600px;
   margin: 0 auto;
@@ -1228,4 +1239,54 @@ a:hover {
   .album-track-title-row strong {
     font-size: 14px;
   }
+}
+
+.request-box{
+margin-top:20px;
+padding:20px;
+background:#151515;
+border:1px solid #2d2d2d;
+border-radius:12px;
+}
+
+.request-box h3{
+margin-top:0;
+color:#1db954;
+}
+
+.form-row{
+display:flex;
+gap:15px;
+flex-wrap:wrap;
+}
+
+.form-group{
+display:flex;
+flex-direction:column;
+flex:1;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select{
+padding:10px;
+border-radius:8px;
+border:1px solid #333;
+background:#111;
+color:#fff;
+}
+
+.btn-submit{
+margin-top:15px;
+padding:12px 20px;
+border:none;
+background:#1db954;
+color:black;
+font-weight:bold;
+border-radius:8px;
+cursor:pointer;
+}
+
+.btn-submit:hover{
+opacity:.9;
 }
