@@ -432,14 +432,20 @@ a:hover {
 }
 
 .album-card {
-  background: #11161d;
-  border: 1px solid #252a34;
-  border-radius: 12px;
-  padding: 10px;
-  cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  color: #ffffff;
 }
 
+.album-card h3 {
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.album-card p {
+  color: #b3b3b3;
+  margin: 0;
+}
 .album-card:hover {
   background: #1c232d;
   border-color: #4f6483;
