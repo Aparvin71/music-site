@@ -5,16 +5,15 @@
     "slug": "by-your-hands",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "Pop, Ballad",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/By%20Your%20Hands.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "hands",
-      "them"
+      "Pop",
+      "Ballad"
     ],
     "duration": "4:01",
     "duration_seconds": 241,
@@ -31,18 +30,15 @@
     "slug": "theres-always-enough",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "country, pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Theres%20Always%20Enough.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "always",
-      "christian",
-      "enough",
-      "them",
-      "theres"
+      "country",
+      "pop"
     ],
     "duration": "3:57",
     "duration_seconds": 237,
@@ -59,17 +55,15 @@
     "slug": "things-i-carry",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "country, folk",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Things%20I%20Carry.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "carry",
-      "christian",
-      "them",
-      "things"
+      "country",
+      "folk"
     ],
     "duration": "2:56",
     "duration_seconds": 176,
@@ -86,16 +80,15 @@
     "slug": "my-son",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "alternative pop, hip hop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/My%20Son.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "son",
-      "them"
+      "alternative pop",
+      "hip hop"
     ],
     "duration": "3:59",
     "duration_seconds": 239,
@@ -112,17 +105,15 @@
     "slug": "higher-aim",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "modern country, southern rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Higher%20Aim.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "aim",
-      "christian",
-      "higher",
-      "them"
+      "modern country",
+      "southern rock"
     ],
     "duration": "3:27",
     "duration_seconds": 207,
@@ -139,17 +130,15 @@
     "slug": "keeper-of-the-pines",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "bluegrass, country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Keeper%20of%20the%20Pines.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "keeper",
-      "pines",
-      "them"
+      "bluegrass",
+      "country"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -166,19 +155,15 @@
     "slug": "remington-the-pump-truck-guy",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "Southern Rock, Blue-Collar Rock",
     "year": 2027,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Remington%20the%20Pump%20Truck%20Guy.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "guy",
-      "pump",
-      "remington",
-      "them",
-      "truck"
+      "Southern Rock",
+      "Blue-Collar Rock"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -195,17 +180,14 @@
     "slug": "alivia-play-with-me",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "Child Fantasy",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Alivia%20-%20Play%20with%20Me.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "alivia",
-      "christian",
-      "play",
-      "them"
+      "Child Fantasy"
     ],
     "duration": "4:37",
     "duration_seconds": 277,
@@ -222,16 +204,14 @@
     "slug": "at-work",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "Country Pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/At%20Work.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "them",
-      "work"
+      "Country Pop"
     ],
     "duration": "2:44",
     "duration_seconds": 164,
@@ -248,17 +228,15 @@
     "slug": "watching-you-grow",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "country, ballad",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Watching%20you%20Grow.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "grow",
-      "them",
-      "watching"
+      "country",
+      "ballad"
     ],
     "duration": "3:13",
     "duration_seconds": 193,
@@ -275,17 +253,16 @@
     "slug": "little-brother",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "orchestral, cinematic, emotive",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Little%20Brother.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "brother",
-      "christian",
-      "little",
-      "them"
+      "orchestral",
+      "cinematic",
+      "emotive"
     ],
     "duration": "4:51",
     "duration_seconds": 291,
@@ -302,17 +279,14 @@
     "slug": "mother-of-two",
     "artist": "Allen Parvin",
     "album": "About Them",
+    "genre": "country-pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Mother%20of%20Two.mp3",
     "playlists": [
       "About Them"
     ],
     "tags": [
-      "about",
-      "christian",
-      "mother",
-      "them",
-      "two"
+      "country-pop"
     ],
     "duration": "4:16",
     "duration_seconds": 256,
@@ -329,15 +303,16 @@
     "slug": "genesis",
     "artist": "Allen Parvin",
     "album": "Books",
+    "genre": "faith-based, worship, epic",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Genesis.mp3",
     "playlists": [
       "Books"
     ],
     "tags": [
-      "books",
-      "christian",
-      "genesis"
+      "faith-based",
+      "worship",
+      "epic"
     ],
     "duration": "4:17",
     "duration_seconds": 257,
@@ -354,17 +329,16 @@
     "slug": "chop-it-like-its-hot",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "Pop-Funk, Bollywood, Rap",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Chop%20it%20like%20it%E2%80%99s%20hot%21.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "chop",
-      "christian",
-      "fun",
-      "hot",
-      "like"
+      "Pop-Funk",
+      "Bollywood",
+      "Rap"
     ],
     "duration": "3:07",
     "duration_seconds": 187,
@@ -381,17 +355,14 @@
     "slug": "deck-9-kind-of-love",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "Pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Deck%209%20Kind%20of%20Love.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "christian",
-      "deck",
-      "fun",
-      "kind",
-      "love"
+      "Pop"
     ],
     "duration": "2:56",
     "duration_seconds": 176,
@@ -408,17 +379,15 @@
     "slug": "lake-house-weekend",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "country, party",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Lake%20House%20Weekend.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "christian",
-      "fun",
-      "house",
-      "lake",
-      "weekend"
+      "country",
+      "party"
     ],
     "duration": "2:49",
     "duration_seconds": 169,
@@ -435,18 +404,15 @@
     "slug": "whos-driving-this-bus",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "pop-funk, rap",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Who%27s%20Driving%20this%20Bus.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "bus",
-      "christian",
-      "driving",
-      "fun",
-      "this",
-      "who"
+      "pop-funk",
+      "rap"
     ],
     "duration": "2:52",
     "duration_seconds": 172,
@@ -463,16 +429,14 @@
     "slug": "card-drop",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "Hip Hop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Card%20Drop.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "card",
-      "christian",
-      "drop",
-      "fun"
+      "Hip Hop"
     ],
     "duration": "2:32",
     "duration_seconds": 152,
@@ -489,17 +453,15 @@
     "slug": "lake-house-chant",
     "artist": "Allen Parvin",
     "album": "Fun",
+    "genre": "country, pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Lake%20house%21%20%28Chant%29.mp3",
     "playlists": [
       "Fun"
     ],
     "tags": [
-      "chant",
-      "christian",
-      "fun",
-      "house",
-      "lake"
+      "country",
+      "pop"
     ],
     "duration": "2:24",
     "duration_seconds": 144,
@@ -516,16 +478,15 @@
     "slug": "spiritual-gym-anthem",
     "artist": "Allen Parvin",
     "album": "Gym",
+    "genre": "Country Rock, Southern Rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Spiritual%20Gym%20Anthem.mp3",
     "playlists": [
       "Gym"
     ],
     "tags": [
-      "anthem",
-      "christian",
-      "gym",
-      "spiritual"
+      "Country Rock",
+      "Southern Rock"
     ],
     "duration": "4:02",
     "duration_seconds": 242,
@@ -542,17 +503,14 @@
     "slug": "iron-dont-lie",
     "artist": "Allen Parvin",
     "album": "Gym",
+    "genre": "Southern Rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Iron%20Don%E2%80%99t%20Lie.mp3",
     "playlists": [
       "Gym"
     ],
     "tags": [
-      "christian",
-      "don",
-      "gym",
-      "iron",
-      "lie"
+      "Southern Rock"
     ],
     "duration": "3:16",
     "duration_seconds": 196,
@@ -569,18 +527,15 @@
     "slug": "dont-drop-the-bar-bro",
     "artist": "Allen Parvin",
     "album": "Gym",
+    "genre": "Red Dirt Country, Southern Rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Don%27t%20Drop%20the%20Bar%20Bro.mp3",
     "playlists": [
       "Gym"
     ],
     "tags": [
-      "bar",
-      "bro",
-      "christian",
-      "don",
-      "drop",
-      "gym"
+      "Red Dirt Country",
+      "Southern Rock"
     ],
     "duration": "3:32",
     "duration_seconds": 212,
@@ -597,17 +552,16 @@
     "slug": "forever-and-ever-gritty",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "country, folk, soul",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Forever%20and%20Ever%20%28Gritty%29.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "christian",
-      "ever",
-      "forever",
-      "gritty",
-      "heartprints"
+      "country",
+      "folk",
+      "soul"
     ],
     "duration": "3:08",
     "duration_seconds": 188,
@@ -624,14 +578,15 @@
     "slug": "its-you",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "modern country,pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/It%27s%20You.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "christian",
-      "heartprints"
+      "modern country",
+      "pop"
     ],
     "duration": "2:32",
     "duration_seconds": 152,
@@ -648,15 +603,14 @@
     "slug": "mi-luna",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "Country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Mi%20Luna.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "christian",
-      "heartprints",
-      "luna"
+      "Country"
     ],
     "duration": "3:21",
     "duration_seconds": 201,
@@ -673,16 +627,15 @@
     "slug": "haunting-blue",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "country, pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Haunting%20Blue.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "blue",
-      "christian",
-      "haunting",
-      "heartprints"
+      "country",
+      "pop"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -699,15 +652,15 @@
     "slug": "my-valentine",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "pop, R&B",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/My%20Valentine.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "christian",
-      "heartprints",
-      "valentine"
+      "pop",
+      "R&B"
     ],
     "duration": "3:00",
     "duration_seconds": 180,
@@ -724,16 +677,16 @@
     "slug": "rearview-memories",
     "artist": "Allen Parvin",
     "album": "Heartprints",
+    "genre": "country, folk, americana",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Rearview%20Memories.mp3",
     "playlists": [
       "Heartprints"
     ],
     "tags": [
-      "christian",
-      "heartprints",
-      "memories",
-      "rearview"
+      "country",
+      "folk",
+      "americana"
     ],
     "duration": "3:09",
     "duration_seconds": 189,
@@ -750,16 +703,16 @@
     "slug": "bent-my-mind",
     "artist": "Allen Parvin",
     "album": "Life",
+    "genre": "Country, Alternative Americana, Rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Bent%20My%20Mind.mp3",
     "playlists": [
       "Life"
     ],
     "tags": [
-      "bent",
-      "christian",
-      "life",
-      "mind"
+      "Country",
+      "Alternative Americana",
+      "Rock"
     ],
     "duration": "4:19",
     "duration_seconds": 259,
@@ -776,15 +729,16 @@
     "slug": "breathe",
     "artist": "Allen Parvin",
     "album": "Life",
+    "genre": "Country, Americana, Soul",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Breathe.mp3",
     "playlists": [
       "Life"
     ],
     "tags": [
-      "breathe",
-      "christian",
-      "life"
+      "Country",
+      "Americana",
+      "Soul"
     ],
     "duration": "3:37",
     "duration_seconds": 217,
@@ -801,16 +755,15 @@
     "slug": "im-still-here",
     "artist": "Allen Parvin",
     "album": "Life",
+    "genre": "country, blues",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/I%27m%20Still%20Here.mp3",
     "playlists": [
       "Life"
     ],
     "tags": [
-      "christian",
-      "here",
-      "life",
-      "still"
+      "country",
+      "blues"
     ],
     "duration": "3:17",
     "duration_seconds": 197,
@@ -827,25 +780,15 @@
     "slug": "wide-awake",
     "artist": "Allen Parvin",
     "album": "Next Gen",
+    "genre": "Christian pop-rap, trap-pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Wide%20Awake.mp3",
     "playlists": [
       "Next Gen"
     ],
     "tags": [
-      "awake",
-      "christian",
-      "ephesians",
-      "gen",
-      "luke",
-      "mark",
-      "matthew",
-      "next",
-      "peter",
-      "revelation",
-      "romans",
-      "thessalonians",
-      "wide"
+      "Christian pop-rap",
+      "trap-pop"
     ],
     "duration": "2:04",
     "duration_seconds": 124,
@@ -874,22 +817,16 @@
     "slug": "foot-of-the-cross",
     "artist": "Allen Parvin",
     "album": "Points of Struggle",
+    "genre": "Southern country gospel, blues, spiritual",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Foot%20of%20the%20Cross.mp3",
     "playlists": [
       "Points of Struggle"
     ],
     "tags": [
-      "christian",
-      "cross",
-      "foot",
-      "galatians",
-      "hebrews",
-      "james",
-      "matthew",
-      "points",
-      "romans",
-      "struggle"
+      "Southern country gospel",
+      "blues",
+      "spiritual"
     ],
     "duration": "3:56",
     "duration_seconds": 236,
@@ -913,23 +850,15 @@
     "slug": "lead-me-home-good-shepherd",
     "artist": "Allen Parvin",
     "album": "Points of Struggle",
+    "genre": "country, gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Lead%20Me%20Home%2C%20Good%20Shepherd.mp3",
     "playlists": [
       "Points of Struggle"
     ],
     "tags": [
-      "christian",
-      "good",
-      "home",
-      "isaiah",
-      "john",
-      "lead",
-      "luke",
-      "points",
-      "psalms",
-      "shepherd",
-      "struggle"
+      "country",
+      "gospel"
     ],
     "duration": "3:17",
     "duration_seconds": 197,
@@ -957,21 +886,7 @@
     "playlists": [
       "Points of Struggle"
     ],
-    "tags": [
-      "christian",
-      "colossians",
-      "faithful",
-      "galatians",
-      "hosea",
-      "jeremiah",
-      "john",
-      "make",
-      "matthew",
-      "points",
-      "psalm",
-      "struggle",
-      "tree"
-    ],
+    "tags": [],
     "duration": "3:09",
     "duration_seconds": 189,
     "scripture_references": [
@@ -999,25 +914,15 @@
     "slug": "make-a-good-tree-in-me",
     "artist": "Allen Parvin",
     "album": "Points of Struggle",
+    "genre": "worship, gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Make%20a%20Good%20Tree%20in%20Me.mp3",
     "playlists": [
       "Points of Struggle"
     ],
     "tags": [
-      "christian",
-      "colossians",
-      "galatians",
-      "good",
-      "hosea",
-      "jeremiah",
-      "john",
-      "make",
-      "matthew",
-      "points",
-      "psalm",
-      "struggle",
-      "tree"
+      "worship",
+      "gospel"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -1046,26 +951,16 @@
     "slug": "remember-me",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "Southern Gospel, country rock, blues",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Remember%20Me.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "christian",
-      "corinthians",
-      "ephesians",
-      "isaiah",
-      "john",
-      "luke",
-      "mark",
-      "matthew",
-      "points",
-      "psalm",
-      "remember",
-      "romans",
-      "titus",
-      "view"
+      "Southern Gospel",
+      "country rock",
+      "blues"
     ],
     "duration": "3:47",
     "duration_seconds": 227,
@@ -1094,26 +989,15 @@
     "slug": "remove-the-log",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "contemporary, alternative",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Remove%20the%20Log.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "139",
-      "christian",
-      "corinthians",
-      "galatians",
-      "james",
-      "log",
-      "luke",
-      "matthew",
-      "points",
-      "proverbs",
-      "psalm",
-      "remove",
-      "romans",
-      "view"
+      "contemporary",
+      "alternative"
     ],
     "duration": "3:26",
     "duration_seconds": 206,
@@ -1142,25 +1026,15 @@
     "slug": "same-mouth",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "hip hop, Modern Contemporary",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Same%20Mouth.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "141",
-      "christian",
-      "colossians",
-      "ephesians",
-      "james",
-      "luke",
-      "matthew",
-      "mouth",
-      "points",
-      "proverbs",
-      "psalm",
-      "same",
-      "view"
+      "hip hop",
+      "Modern Contemporary"
     ],
     "duration": "3:49",
     "duration_seconds": 229,
@@ -1189,17 +1063,16 @@
     "slug": "same-sky",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "cinematic, orchestral, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Same%20Sky.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "christian",
-      "points",
-      "same",
-      "sky",
-      "view"
+      "cinematic",
+      "orchestral",
+      "worship"
     ],
     "duration": "3:28",
     "duration_seconds": 208,
@@ -1216,17 +1089,16 @@
     "slug": "shape-of-sacrifice",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "gospel, inspirational, folk",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Shape%20of%20Sacrifice.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "christian",
-      "points",
-      "sacrifice",
-      "shape",
-      "view"
+      "gospel",
+      "inspirational",
+      "folk"
     ],
     "duration": "4:11",
     "duration_seconds": 251,
@@ -1243,25 +1115,16 @@
     "slug": "turn-that-other-cheek",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "Country, southern gospel, hip-hop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Turn%20That%20Other%20Cheek.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "cheek",
-      "christian",
-      "ephesians",
-      "luke",
-      "matthew",
-      "other",
-      "peter",
-      "points",
-      "proverbs",
-      "romans",
-      "that",
-      "turn",
-      "view"
+      "Country",
+      "southern gospel",
+      "hip-hop"
     ],
     "duration": "3:54",
     "duration_seconds": 234,
@@ -1290,26 +1153,14 @@
     "slug": "where-the-worm-does-not-die",
     "artist": "Allen Parvin",
     "album": "Points of View",
+    "genre": "doom metal",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Where%20the%20Worm%20Does%20not%20Die.mp3",
     "playlists": [
       "Points of View"
     ],
     "tags": [
-      "christian",
-      "die",
-      "does",
-      "isaiah",
-      "luke",
-      "mark",
-      "matthew",
-      "not",
-      "points",
-      "revelation",
-      "thessalonians",
-      "view",
-      "where",
-      "worm"
+      "doom metal"
     ],
     "duration": "4:19",
     "duration_seconds": 259,
@@ -1338,24 +1189,15 @@
     "slug": "praise-the-lord-o-my-soul",
     "artist": "Allen Parvin",
     "album": "Praise",
+    "genre": "gospel, traditional",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Praise%20the%20Lord%2C%20O%20My%20Soul.mp3",
     "playlists": [
       "Praise"
     ],
     "tags": [
-      "103",
-      "104",
-      "145",
-      "146",
-      "150",
-      "christian",
-      "hebrews",
-      "lord",
-      "luke",
-      "praise",
-      "psalm",
-      "soul"
+      "gospel",
+      "traditional"
     ],
     "duration": "3:22",
     "duration_seconds": 202,
@@ -1384,25 +1226,14 @@
     "slug": "step-out-and-go",
     "artist": "Allen Parvin",
     "album": "Praise",
+    "genre": "Southern gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Step%20Out%20and%20Go.mp3",
     "playlists": [
       "Praise"
     ],
     "tags": [
-      "acts",
-      "christian",
-      "hebrews",
-      "isaiah",
-      "james",
-      "joshua",
-      "mark",
-      "matthew",
-      "out",
-      "praise",
-      "romans",
-      "step",
-      "timothy"
+      "Southern gospel"
     ],
     "duration": "3:24",
     "duration_seconds": 204,
@@ -1431,25 +1262,16 @@
     "slug": "worth-it-all",
     "artist": "Allen Parvin",
     "album": "Praise",
+    "genre": "worship, arena rock, pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Worth%20It%20All.mp3",
     "playlists": [
       "Praise"
     ],
     "tags": [
-      "all",
-      "christian",
-      "corinthians",
-      "hebrews",
-      "james",
-      "matthew",
-      "peter",
-      "philippians",
-      "praise",
-      "revelation",
-      "romans",
-      "timothy",
-      "worth"
+      "worship",
+      "arena rock",
+      "pop"
     ],
     "duration": "3:51",
     "duration_seconds": 231,
@@ -1478,18 +1300,15 @@
     "slug": "a-man-like-him",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "Country, Honky Tonk",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/A%20Man%20Like%20Him.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "him",
-      "like",
-      "man",
-      "people",
-      "real"
+      "Country",
+      "Honky Tonk"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -1506,17 +1325,15 @@
     "slug": "wait-hold-up",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "hip hop, rap",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Wait%20Hold%20Up.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "hold",
-      "people",
-      "real",
-      "wait"
+      "hip hop",
+      "rap"
     ],
     "duration": "2:44",
     "duration_seconds": 164,
@@ -1533,16 +1350,15 @@
     "slug": "youre-done",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "pop, country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/You%27re%20Done%21.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "done",
-      "people",
-      "real"
+      "pop",
+      "country"
     ],
     "duration": "2:59",
     "duration_seconds": 179,
@@ -1559,18 +1375,15 @@
     "slug": "just-strollin-through",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "hip-hop, rap",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Just%20Strollin%20Through.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "just",
-      "people",
-      "real",
-      "strollin",
-      "through"
+      "hip-hop",
+      "rap"
     ],
     "duration": "3:09",
     "duration_seconds": 189,
@@ -1587,19 +1400,15 @@
     "slug": "let-it-all-hang-out",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "country, soul",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Let%20it%20All%20Hang%20Out.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "all",
-      "christian",
-      "hang",
-      "let",
-      "out",
-      "people",
-      "real"
+      "country",
+      "soul"
     ],
     "duration": "3:32",
     "duration_seconds": 212,
@@ -1616,17 +1425,15 @@
     "slug": "sugar-and-grace",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "country, gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Sugar%20and%20Grace.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "grace",
-      "people",
-      "real",
-      "sugar"
+      "country",
+      "gospel"
     ],
     "duration": "4:54",
     "duration_seconds": 294,
@@ -1643,19 +1450,14 @@
     "slug": "thats-just-how-she-is",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "Country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/That%27s%20Just%20How%20She%20Is.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "how",
-      "just",
-      "people",
-      "real",
-      "she",
-      "that"
+      "Country"
     ],
     "duration": "3:12",
     "duration_seconds": 192,
@@ -1672,17 +1474,14 @@
     "slug": "hands-of-a-man",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "Southern country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Hands%20of%20a%20Man.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "hands",
-      "man",
-      "people",
-      "real"
+      "Southern country"
     ],
     "duration": "3:22",
     "duration_seconds": 202,
@@ -1699,18 +1498,15 @@
     "slug": "please-stay-with-me-child",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "cinematic pop, ballad",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Please%20Stay%20With%20Me%20%28Child%29.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "child",
-      "christian",
-      "people",
-      "please",
-      "real",
-      "stay"
+      "cinematic pop",
+      "ballad"
     ],
     "duration": "3:58",
     "duration_seconds": 238,
@@ -1727,18 +1523,14 @@
     "slug": "please-stay-with-me-mom",
     "artist": "Allen Parvin",
     "album": "Real People",
+    "genre": "Country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Please%20Stay%20With%20Me%20%28Mom%29.mp3",
     "playlists": [
       "Real People"
     ],
     "tags": [
-      "christian",
-      "mom",
-      "people",
-      "please",
-      "real",
-      "stay"
+      "Country"
     ],
     "duration": "3:54",
     "duration_seconds": 234,
@@ -1755,15 +1547,16 @@
     "slug": "changed",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "Cinematic, Rap, Trap Worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Changed.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "changed",
-      "christian",
-      "testimony"
+      "Cinematic",
+      "Rap",
+      "Trap Worship"
     ],
     "duration": "3:07",
     "duration_seconds": 187,
@@ -1780,16 +1573,14 @@
     "slug": "dont-remember-me",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "Sourhern Country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Don%27t%20Remember%20Me.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "christian",
-      "don",
-      "remember",
-      "testimony"
+      "Sourhern Country"
     ],
     "duration": "4:30",
     "duration_seconds": 270,
@@ -1806,16 +1597,16 @@
     "slug": "finally-let-you-in",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "Contemporary Christian, Worship, Gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Finally%20Let%20You%20In.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "christian",
-      "finally",
-      "let",
-      "testimony"
+      "Contemporary Christian",
+      "Worship",
+      "Gospel"
     ],
     "duration": "4:15",
     "duration_seconds": 255,
@@ -1832,15 +1623,16 @@
     "slug": "on-my-body",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "Christian hip-hop, rock, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/On%20My%20Body.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "body",
-      "christian",
-      "testimony"
+      "Christian hip-hop",
+      "rock",
+      "worship"
     ],
     "duration": "3:28",
     "duration_seconds": 208,
@@ -1857,16 +1649,15 @@
     "slug": "out-of-ashes",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "contemporary Christian, gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Out%20of%20Ashes.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "ashes",
-      "christian",
-      "out",
-      "testimony"
+      "contemporary Christian",
+      "gospel"
     ],
     "duration": "3:48",
     "duration_seconds": 228,
@@ -1883,23 +1674,16 @@
     "slug": "you-see-me",
     "artist": "Allen Parvin",
     "album": "Testimony",
+    "genre": "cinematic, orchestral, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/You%20See%20Me.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "139",
-      "christian",
-      "genesis",
-      "hebrews",
-      "jeremiah",
-      "matthew",
-      "proverbs",
-      "psalm",
-      "samuel",
-      "see",
-      "testimony"
+      "cinematic",
+      "orchestral",
+      "worship"
     ],
     "duration": "3:34",
     "duration_seconds": 214,
@@ -1928,18 +1712,14 @@
     "slug": "before-anyone-else",
     "artist": "Allen Parvin",
     "album": "The Things Around Me",
+    "genre": "Retro Pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Before%20Anyone%20Else.mp3",
     "playlists": [
       "The Things Around Me"
     ],
     "tags": [
-      "anyone",
-      "around",
-      "before",
-      "christian",
-      "else",
-      "things"
+      "Retro Pop"
     ],
     "duration": "3:04",
     "duration_seconds": 184,
@@ -1956,16 +1736,14 @@
     "slug": "the-table",
     "artist": "Allen Parvin",
     "album": "The Things Around Me",
+    "genre": "modern country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/The%20Table.mp3",
     "playlists": [
       "The Things Around Me"
     ],
     "tags": [
-      "around",
-      "christian",
-      "table",
-      "things"
+      "modern country"
     ],
     "duration": "4:02",
     "duration_seconds": 242,
@@ -1982,22 +1760,16 @@
     "slug": "holy-beyond-measure",
     "artist": "Allen Parvin",
     "album": "Who He Is",
+    "genre": "orchestral, cinematic, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Holy%20Beyond%20Measure.mp3",
     "playlists": [
       "Who He Is"
     ],
     "tags": [
-      "145",
-      "beyond",
-      "christian",
-      "holy",
-      "isaiah",
-      "measure",
-      "psalm",
-      "revelation",
-      "samuel",
-      "who"
+      "orchestral",
+      "cinematic",
+      "worship"
     ],
     "duration": "4:44",
     "duration_seconds": 284,
@@ -2021,20 +1793,16 @@
     "slug": "moved-with-compassion",
     "artist": "Allen Parvin",
     "album": "Who He Is",
+    "genre": "Contemporary Christian, Gospel, Pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Moved%20with%20Compassion.mp3",
     "playlists": [
       "Who He Is"
     ],
     "tags": [
-      "christian",
-      "colossians",
-      "compassion",
-      "luke",
-      "mark",
-      "matthew",
-      "moved",
-      "who"
+      "Contemporary Christian",
+      "Gospel",
+      "Pop"
     ],
     "duration": "3:31",
     "duration_seconds": 211,
@@ -2063,26 +1831,16 @@
     "slug": "stones-dont-become-bread",
     "artist": "Allen Parvin",
     "album": "Who He Is",
+    "genre": "worship, cinematic hip-hop, rock",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Stones%20Don%E2%80%99t%20Become%20Bread.mp3",
     "playlists": [
       "Who He Is"
     ],
     "tags": [
-      "become",
-      "bread",
-      "christian",
-      "corinthians",
-      "deuteronomy",
-      "don",
-      "hebrews",
-      "isaiah",
-      "john",
-      "luke",
-      "matthew",
-      "psalm",
-      "stones",
-      "who"
+      "worship",
+      "cinematic hip-hop",
+      "rock"
     ],
     "duration": "3:27",
     "duration_seconds": 207,
@@ -2112,26 +1870,15 @@
     "slug": "upon-the-holy-mount",
     "artist": "Allen Parvin",
     "album": "Who He Is",
+    "genre": "Southern gospel, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Upon%20the%20Holy%20Mount.mp3",
     "playlists": [
       "Who He Is"
     ],
     "tags": [
-      "christian",
-      "exodus",
-      "hebrews",
-      "holy",
-      "isaiah",
-      "luke",
-      "mark",
-      "matthew",
-      "mount",
-      "peter",
-      "psalm",
-      "revelation",
-      "upon",
-      "who"
+      "Southern gospel",
+      "worship"
     ],
     "duration": "4:03",
     "duration_seconds": 243,
@@ -2160,22 +1907,15 @@
     "slug": "you-spoke",
     "artist": "Allen Parvin",
     "album": "Who He Is",
+    "genre": "contemporary Christian, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/You%20Spoke.mp3",
     "playlists": [
       "Who He Is"
     ],
     "tags": [
-      "christian",
-      "colossians",
-      "genesis",
-      "hebrews",
-      "isaiah",
-      "john",
-      "peter",
-      "psalm",
-      "spoke",
-      "who"
+      "contemporary Christian",
+      "worship"
     ],
     "duration": "3:44",
     "duration_seconds": 224,
@@ -2205,19 +1945,14 @@
     "slug": "agape-love",
     "artist": "Allen Parvin",
     "album": "Words",
+    "genre": "Southern Gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Agape%20Love.mp3",
     "playlists": [
       "Words"
     ],
     "tags": [
-      "agape",
-      "christian",
-      "john",
-      "love",
-      "matthew",
-      "romans",
-      "words"
+      "Southern Gospel"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
@@ -2242,22 +1977,15 @@
     "slug": "every-breath-your-name",
     "artist": "Allen Parvin",
     "album": "Words",
+    "genre": "Gospel, Worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/EVERY%20BREATH%2C%20YOUR%20NAME%20%281%29.mp3",
     "playlists": [
       "Words"
     ],
     "tags": [
-      "150",
-      "breath",
-      "christian",
-      "daniel",
-      "every",
-      "isaiah",
-      "job",
-      "name",
-      "psalm",
-      "words"
+      "Gospel",
+      "Worship"
     ],
     "duration": "3:28",
     "duration_seconds": 208,
