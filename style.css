@@ -1623,3 +1623,75 @@ footer {
 .church-icon {
   font-size: 1.1rem;
 }
+
+/* Church Feature Card */
+
+.church-card {
+  margin-top: 40px;
+  padding: 28px;
+
+  border-radius: 12px;
+  background: #f7f7f7;
+  border: 1px solid #e5e5e5;
+
+  text-align: center;
+
+  transition: box-shadow 0.2s ease;
+}
+
+.church-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.church-eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.church-title {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+}
+
+.church-logo img {
+  max-width: 120px;
+  margin-bottom: 16px;
+  opacity: 0.95;
+}
+
+.church-description {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.church-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 18px;
+
+  background: #2e7d32;
+  color: white;
+
+  text-decoration: none;
+  border-radius: 6px;
+
+  font-weight: 600;
+
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.church-button:hover {
+  background: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.church-icon {
+  font-size: 1.1rem;
+}
