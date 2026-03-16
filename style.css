@@ -1579,3 +1579,47 @@ footer {
 .church-button:hover {
   background: #1b5e20;
 }
+
+.church-badge {
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid #e5e5e5;
+  text-align: center;
+}
+
+.church-text {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.church-logo img {
+  max-width: 120px;
+  margin-bottom: 15px;
+  opacity: 0.9;
+}
+
+.church-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 18px;
+  background: #2e7d32;
+  color: white;
+  text-decoration: none;
+
+  border-radius: 6px;
+  font-weight: 600;
+
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.church-button:hover {
+  background: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.church-icon {
+  font-size: 1.1rem;
+}
