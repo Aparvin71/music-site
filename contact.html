@@ -3,143 +3,143 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Request a Song - Free Music Library</title>
-  <link rel="stylesheet" href="css/style.css">
+  <title>Request a Song - Allen Parvin Music</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-  <header>
-    <nav class="navbar">
-      <h1 class="logo">Free Music Library</h1>
+<header class="site-header">
+  <nav class="navbar">
+    <div class="logo">Allen Parvin Music</div>
 
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html" class="active">Request a Song</a></li>
-      </ul>
-    </nav>
-  </header>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html" class="active">Request a Song</a></li>
+    </ul>
+  </nav>
+</header>
 
-  <main class="page request-page">
+<main class="page">
 
-    <section class="request-hero">
-      <p class="eyebrow">Custom Song Requests</p>
-      <h2>Request a Song Idea</h2>
-      <p class="hero-text">
-        Have a theme, Scripture, or message you'd like turned into a song?
-        Send your idea below and I’ll review it for a possible custom creation.
-      </p>
-    </section>
+<section class="page-card">
 
-    <section class="request-card">
-      <form class="request-form" id="contactForm" novalidate>
+<p class="eyebrow">Custom Song Requests</p>
+<h2>Request a Song Idea</h2>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">Your Name</label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="Your name"
-              required
-            >
-          </div>
+<p>
+Have a theme, Scripture, or message you'd like turned into a song?
+Send your idea below and I’ll review it for a possible custom creation.
+</p>
 
-          <div class="form-group">
-            <label for="email">Your Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="your@email.com"
-              required
-            >
-          </div>
-        </div>
+<form class="request-form" id="contactForm" novalidate>
 
-        <div class="form-group">
-          <label for="subject">Request Title</label>
-          <input
-            id="subject"
-            name="subject"
-            type="text"
-            placeholder="Example: Song about trusting God in the storm"
-            required
-          >
-        </div>
+<div class="form-row">
 
-        <div class="request-box">
-          <h3>Song Request Details</h3>
-          <p>
-            Share the main idea for the song you’d like created.
-          </p>
+<div class="form-group">
+<label for="name">Your Name</label>
+<input
+id="name"
+name="name"
+type="text"
+placeholder="Your name"
+required>
+</div>
 
-          <div class="form-group">
-            <label for="theme">Theme</label>
-            <input
-              id="theme"
-              name="theme"
-              type="text"
-              placeholder="Example: Faith, surrender, praise, repentance, comfort"
-              required
-            >
-          </div>
+<div class="form-group">
+<label for="email">Your Email</label>
+<input
+id="email"
+name="email"
+type="email"
+placeholder="your@email.com"
+required>
+</div>
 
-          <div class="form-group">
-            <label for="scripture">Scripture Reference</label>
-            <input
-              id="scripture"
-              name="scripture"
-              type="text"
-              placeholder="Example: Matthew 14:28-31"
-            >
-          </div>
+</div>
 
-          <div class="form-group">
-            <label for="artistStyle">Artist / Style Inspiration</label>
-            <input
-              id="artistStyle"
-              name="artistStyle"
-              type="text"
-              placeholder="Example: Southern gospel, modern worship, hymn-like, country worship"
-            >
-          </div>
+<div class="form-group">
+<label for="subject">Request Title</label>
+<input
+id="subject"
+name="subject"
+type="text"
+placeholder="Example: Song about trusting God in the storm"
+required>
+</div>
 
-          <div class="form-group">
-            <label for="about">About the Song</label>
-            <textarea
-              id="about"
-              name="about"
-              rows="7"
-              placeholder="Describe what you want the song to say, the feeling it should have, point of view, message, structure, or anything important..."
-              required
-            ></textarea>
-          </div>
-        </div>
+<div class="request-box">
 
-        <div class="form-group">
-          <label for="message">Anything Else</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="4"
-            placeholder="Any extra notes, details, or special requests..."
-          ></textarea>
-        </div>
+<h3>Song Request Details</h3>
 
-        <div id="formMessage" class="form-message" aria-live="polite"></div>
+<p>Share the main idea for the song you'd like created.</p>
 
-        <button type="submit" class="btn-submit">Send Request</button>
-      </form>
-    </section>
+<div class="form-group">
+<label for="theme">Theme</label>
+<input
+id="theme"
+name="theme"
+type="text"
+placeholder="Example: Faith, surrender, praise"
+required>
+</div>
 
-  </main>
+<div class="form-group">
+<label for="scripture">Scripture Reference</label>
+<input
+id="scripture"
+name="scripture"
+type="text"
+placeholder="Example: Matthew 14:28-31">
+</div>
 
-  <footer>
-    <p>© 2026 Free Music Library</p>
-  </footer>
+<div class="form-group">
+<label for="artistStyle">Artist / Style Inspiration</label>
+<input
+id="artistStyle"
+name="artistStyle"
+type="text"
+placeholder="Example: Southern gospel, modern worship">
+</div>
 
-  <script src="js/contact.js"></script>
+<div class="form-group">
+<label for="about">About the Song</label>
+<textarea
+id="about"
+name="about"
+rows="7"
+placeholder="Describe what you want the song to say..."
+required></textarea>
+</div>
+
+</div>
+
+<div class="form-group">
+<label for="message">Anything Else</label>
+<textarea
+id="message"
+name="message"
+rows="4"
+placeholder="Extra notes or details..."></textarea>
+</div>
+
+<div id="formMessage" class="form-message"></div>
+
+<button type="submit" class="btn-submit">Send Request</button>
+
+</form>
+
+</section>
+
+</main>
+
+<footer class="site-footer">
+<p>© 2026 Allen Parvin Music</p>
+</footer>
+
+<script src="js/contact.js"></script>
+
 </body>
 </html>
