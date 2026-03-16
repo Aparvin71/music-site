@@ -550,9 +550,8 @@ function getVisibleTags(trackList) {
 }
 
 function getFeaturedAlbum() {
-  const albums = getVisibleAlbums(filteredTracks);
+  const albums = getVisibleAlbums(tracks);
   return albums.find(album => album.name === "Testimony") || albums[0] || null;
-}
 }
 
 function getCurrentTrack() {
