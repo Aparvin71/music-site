@@ -551,7 +551,8 @@ function getVisibleTags(trackList) {
 
 function getFeaturedAlbum() {
   const albums = getVisibleAlbums(filteredTracks);
-  return albums[0] || null;
+  return albums.find(album => album.name === "Testimony") || albums[0] || null;
+}
 }
 
 function getCurrentTrack() {
