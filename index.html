@@ -67,16 +67,17 @@
         </div>
       </section>
 
-      <section class="about-panel">
-        <h2>About This Music</h2>
-        <p>
-          Every song here begins with words I have written. I use AI as a creative tool to help shape the music, sound, and vocals, allowing these lyrics to grow into fully realized songs.
+     <section class="about-panel">
+  <h2>About This Music</h2>
 
-My hope is that this music offers something meaningful; Songs that are heartfelt, thought-provoking, and inspiring. Many of these pieces draw from themes found in Scripture and the Christian faith, pointing toward worship, praise, reflection, people, and the hope we find in the word.
+  <p>
+    Every song here begins with words I have written. I use AI as a creative tool to help shape the music, sound, and vocals, allowing those lyrics to become fully realized songs.
+  </p>
 
-Some songs are meant for quiet reflection, others for joyful praise, and some simply for fun. But in each one, my desire is the same: to share music that encourages the heart, stirs the mind, and gently points people toward faith and truth.
-        </p>
-      </section>
+  <p>
+    My hope is to share music that is heartfelt, thought-provoking, and encouraging. Many songs draw from Scripture and the Christian faith, pointing toward worship, reflection, hope, and truth.
+  </p>
+</section>
 
       <section class="featured-album-card" id="featuredAlbumCard">
         <div class="featured-cover-wrap">
@@ -87,17 +88,34 @@ Some songs are meant for quiet reflection, others for joyful praise, and some si
             alt="Featured album cover"
           />
         </div>
+
         <div class="featured-meta">
           <p class="eyebrow">Featured Album</p>
           <h2 id="featuredAlbumTitle">Loading album...</h2>
           <p id="featuredAlbumArtist">—</p>
           <p id="featuredAlbumCount">—</p>
+
           <div class="featured-actions">
             <button id="playAlbumBtn" class="action-btn" type="button">Play Album</button>
             <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
             <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Album</button>
             <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Album</button>
           </div>
+        </div>
+      </section>
+
+      <section class="library-panel featured-tracklist-panel">
+        <div class="section-header">
+          <h2 id="featuredTrackListTitle">Album Tracks</h2>
+        </div>
+
+        <div class="albums-toolbar">
+          <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
+          <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">Clear Filter</button>
+        </div>
+
+        <div id="featuredTrackList" class="featured-track-list">
+          <p class="empty-message">No tracks available.</p>
         </div>
       </section>
 
@@ -121,47 +139,6 @@ Some songs are meant for quiet reflection, others for joyful praise, and some si
         </div>
         <div id="recentlyPlayedList" class="mini-grid"></div>
       </section>
-
-  <div class="sticky-player">
-  <div class="sticky-player-left">
-    <img id="nowCover" src="" alt="Album cover" class="now-cover" />
-    <div class="now-meta">
-      <p class="label">Now Playing</p>
-      <h3 id="nowTitle">Select a song</h3>
-      <p id="nowArtist">—</p>
-      <p id="nowAlbum">—</p>
-      <p id="nowScripture" class="scripture-line">—</p>
-    </div>
-  </div>
-
-  <div class="sticky-player-center">
-    <div class="transport">
-      <button id="prevBtn" class="control-btn" type="button">⏮</button>
-      <button id="playBtn" class="control-btn play-btn" type="button">▶</button>
-      <button id="nextBtn" class="control-btn" type="button">⏭</button>
-    </div>
-
-    <div class="progress-wrap">
-      <span id="currentTime">0:00</span>
-      <input id="seekBar" type="range" min="0" max="100" value="0" />
-      <span id="duration">0:00</span>
-    </div>
-  </div>
-
-  <div class="sticky-player-right">
-    <div class="track-actions compact-actions">
-      <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
-      <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
-      <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
-      <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
-      <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
-      <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
-      <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
-    </div>
-
-    <audio id="audioPlayer" preload="metadata"></audio>
-  </div>
-</div>
 
       <section class="lyrics-panel">
         <div class="section-header">
@@ -191,6 +168,47 @@ Some songs are meant for quiet reflection, others for joyful praise, and some si
     </main>
   </div>
 
+  <div class="sticky-player">
+    <div class="sticky-player-left">
+      <img id="nowCover" src="" alt="Album cover" class="now-cover" />
+      <div class="now-meta">
+        <p class="label">Now Playing</p>
+        <h3 id="nowTitle">Select a song</h3>
+        <p id="nowArtist">—</p>
+        <p id="nowAlbum">—</p>
+        <p id="nowScripture" class="scripture-line">—</p>
+      </div>
+    </div>
+
+    <div class="sticky-player-center">
+      <div class="transport">
+        <button id="prevBtn" class="control-btn" type="button">⏮</button>
+        <button id="playBtn" class="control-btn play-btn" type="button">▶</button>
+        <button id="nextBtn" class="control-btn" type="button">⏭</button>
+      </div>
+
+      <div class="progress-wrap">
+        <span id="currentTime">0:00</span>
+        <input id="seekBar" type="range" min="0" max="100" value="0" />
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="sticky-player-right">
+      <div class="track-actions compact-actions">
+        <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
+        <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
+        <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
+        <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+        <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
+        <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
+        <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
+      </div>
+
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </div>
+  </div>
+
   <div id="lyricsModal" class="lyrics-modal hidden">
     <div class="lyrics-modal-backdrop" id="lyricsModalBackdrop"></div>
     <div class="lyrics-modal-content">
@@ -211,12 +229,15 @@ Some songs are meant for quiet reflection, others for joyful praise, and some si
         <h2 id="albumModalTitle">Album</h2>
         <button id="closeAlbumBtn" class="control-btn" type="button">✕</button>
       </div>
+
       <div class="album-modal-body">
         <div class="album-modal-top">
           <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover" />
+
           <div class="album-modal-meta">
             <p id="albumModalArtist">—</p>
             <p id="albumModalInfo">—</p>
+
             <div class="featured-actions">
               <button id="albumModalPlayBtn" class="action-btn" type="button">Play Album</button>
               <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
@@ -224,6 +245,7 @@ Some songs are meant for quiet reflection, others for joyful praise, and some si
             </div>
           </div>
         </div>
+
         <div id="albumModalTracks" class="album-modal-tracks"></div>
       </div>
     </div>
