@@ -1335,13 +1335,14 @@ a:hover {
 .church-card {
   margin-top: 40px;
   padding: 28px;
-  border-radius: 12px;
-  background: #f7f7f7;
-  border: 1px solid #e5e5e5;
-  text-align: center;
-  transition: box-shadow 0.2s ease;
-}
 
+  border-radius: 12px;
+
+  background: linear-gradient(180deg, #f8f9fb, #eef1f5);
+  border: 1px solid #d9dee5;
+
+  text-align: center;
+}
 .church-card:hover {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
@@ -1350,7 +1351,8 @@ a:hover {
   font-size: 0.75rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: #888;
+
+  color: #666;  /* darker */
   margin-bottom: 6px;
 }
 
@@ -1358,11 +1360,13 @@ a:hover {
   margin-top: 0;
   margin-bottom: 18px;
   font-size: 1.3rem;
+
+  color: #222;  /* strong readable title */
 }
 
 .church-description {
   font-size: 0.95rem;
-  color: #555;
+  color: #444;  /* darker for readability */
   margin-bottom: 20px;
 }
 
