@@ -559,6 +559,7 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   syncCurrentTrackIndex();
+  renderQueue();
 }
 
 /* =========================
@@ -767,17 +768,17 @@ function renderFeaturedAlbum() {
 function renderFeaturedTrackList() {
   if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
 
-  const album = getFeaturedAlbum();
+  const source = getFeaturedTrackSource();
+  const list = source.tracks || [];
 
-  if (!album) {
-    els.featuredTrackListTitle.textContent = "Album Tracks";
+  els.featuredTrackListTitle.textContent = source.title;
+
+  if (!list.length) {
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
 
-  els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
-
-  els.featuredTrackList.innerHTML = album.tracks
+  els.featuredTrackList.innerHTML = list
     .map((track, index) => {
       const isPlaying = getCurrentTrack()?.id === track.id ? "playing" : "";
       const isFav = isFavorite(track) ? "favorited" : "";
@@ -819,14 +820,14 @@ function renderFeaturedTrackList() {
   els.featuredTrackList.querySelectorAll("[data-featured-index]").forEach(btn => {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.featuredIndex);
-      setQueue(album.tracks, false);
+      setQueue(list, false);
       playFromQueueIndex(idx);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-favorite-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
+      const track = list.find(t => t.id === btn.dataset.favoriteTrack);
       if (!track) return;
       toggleFavorite(track);
       renderFeaturedTrackList();
@@ -835,7 +836,7 @@ function renderFeaturedTrackList() {
 
   els.featuredTrackList.querySelectorAll("[data-lyrics-track]").forEach(btn => {
     btn.addEventListener("click", e => {
-      const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack);
+      const track = list.find(t => t.id === btn.dataset.lyricsTrack);
       if (!track) return;
       openLyricsModalForTrack(track, e.currentTarget);
     });
@@ -843,7 +844,7 @@ function renderFeaturedTrackList() {
 
   els.featuredTrackList.querySelectorAll("[data-download-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack);
+      const track = list.find(t => t.id === btn.dataset.downloadTrack);
       if (!track?.src) return;
       triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     });
@@ -1273,20 +1274,24 @@ function bindMiniCardClicks(container, trackList) {
 ========================= */
 
 function renderQueue() {
+  const displayTracks = getQueueDisplayTracks();
+
   if (els.queueCount) {
-    els.queueCount.textContent = `${currentQueue.length} song${currentQueue.length === 1 ? "" : "s"}`;
+    els.queueCount.textContent = `${displayTracks.length} song${displayTracks.length === 1 ? "" : "s"}`;
   }
 
   if (!els.queueList) return;
 
-  if (!currentQueue.length) {
+  if (!displayTracks.length) {
     els.queueList.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
     return;
   }
 
-  els.queueList.innerHTML = currentQueue
+  els.queueList.innerHTML = displayTracks
     .map((track, index) => {
-      const active = index === currentQueueIndex ? "active" : "";
+      const activeQueue = currentQueue.length ? currentQueue : displayTracks;
+      const activeIndex = currentQueue.length ? currentQueueIndex : displayTracks.findIndex(t => t.id === getCurrentTrack()?.id);
+      const active = index === activeIndex ? "active" : "";
 
       return `
         <button class="queue-row ${active}" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
@@ -1322,7 +1327,13 @@ function renderQueue() {
 
   els.queueList.querySelectorAll("[data-queue-index]").forEach(btn => {
     btn.addEventListener("click", () => {
-      playFromQueueIndex(Number(btn.dataset.queueIndex));
+      const index = Number(btn.dataset.queueIndex);
+
+      if (!currentQueue.length) {
+        setQueue(displayTracks, false);
+      }
+
+      playFromQueueIndex(index);
       openAndScrollQueueToCurrentTrack();
     });
   });
@@ -1528,6 +1539,46 @@ function formatTime(seconds) {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
+function getFeaturedTrackSource() {
+  if (filters.selectedAlbum) {
+    const album = getFeaturedAlbum();
+    return {
+      title: album ? `${album.name} Tracks` : "Album Tracks",
+      tracks: album ? album.tracks : []
+    };
+  }
+
+  if (filters.selectedPlaylist) {
+    return {
+      title: `${filters.selectedPlaylist} Songs`,
+      tracks: [...filteredTracks]
+    };
+  }
+
+  if (filters.selectedTag) {
+    return {
+      title: `Tagged: ${filters.selectedTag}`,
+      tracks: [...filteredTracks]
+    };
+  }
+
+  if (filters.searchTerm) {
+    return {
+      title: `Search Results`,
+      tracks: [...filteredTracks]
+    };
+  }
+
+  return {
+    title: "All Songs",
+    tracks: [...filteredTracks]
+  };
+}
+
+function getQueueDisplayTracks() {
+  return currentQueue.length ? currentQueue : filteredTracks;
+}
+
 function nl2br(text) {
   return text.replace(/\n/g, "<br>");
 }
@@ -1565,6 +1616,7 @@ function escapeHtml(str = "") {
 function escapeHtmlAttr(str = "") {
   return escapeHtml(str);
 }
+
 
 /* =========================
    COLLAPSIBLE SECTIONS
