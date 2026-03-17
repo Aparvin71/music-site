@@ -600,7 +600,13 @@ function renderPlaylists(trackList) {
 function renderTags(trackList) {
   if (!els.tagList) return;
 
-  const tags = getVisibleTags(trackList);
+  let tags = getVisibleTags(trackList);
+
+if (window.innerWidth <= 640) {
+  tags = tags
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+}
 
   if (!tags.length) {
     els.tagList.innerHTML = `<p class="empty-message">No tags found.</p>`;

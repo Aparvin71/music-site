@@ -1576,6 +1576,27 @@ a:hover {
     position: static;
   }
 
+.album-card,
+.mini-card {
+  padding: 8px;
+}
+
+.album-card h3,
+.mini-card-meta strong {
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.album-card p,
+.mini-card-meta span {
+  font-size: 11px;
+}
+
+.album-card-cover,
+.mini-card-cover {
+  margin-bottom: 6px;
+}
+
   .navbar {
     align-items: stretch;
     text-align: left;
@@ -1588,6 +1609,31 @@ a:hover {
     gap: 12px;
     width: 100%;
   }
+
+.playlist-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.filter-chip,
+.tag-chip,
+.playlist-btn {
+  font-size: 12px;
+  padding: 0.4rem 0.7rem;
+}
 
   .mobile-nav-toggle {
     display: inline-flex;
@@ -1691,10 +1737,25 @@ a:hover {
     font-size: 16px;
   }
 
-  .album-grid,
-  .mini-grid {
-    grid-template-columns: 1fr;
+  .album-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mini-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 420px) {
+  .album-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
   .featured-actions,
   .resume-actions,
@@ -1938,5 +1999,86 @@ a:hover {
   #copyLyricsBtn,
   #shareSongBtn {
     display: none;
+  }
+}
+
+/* =========================================
+   MOBILE DENSITY IMPROVEMENTS
+========================================= */
+
+@media (max-width: 640px) {
+  .album-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .album-card,
+  .mini-card {
+    padding: 8px;
+  }
+
+  .album-card h3,
+  .mini-card-meta strong {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .album-card p,
+  .mini-card-meta span {
+    font-size: 11px;
+  }
+
+  .album-card-cover,
+  .mini-card-cover {
+    margin-bottom: 6px;
+  }
+
+  .playlist-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .playlist-list .filter-chip,
+  .playlist-list .playlist-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .filter-chip,
+  .tag-chip,
+  .playlist-btn {
+    font-size: 12px;
+    padding: 0.4rem 0.7rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .album-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playlist-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 }
