@@ -3,8 +3,8 @@ import re
 from pathlib import Path
 from urllib.parse import quote
 
-from mutagen.mp3 import MP3
 from mutagen.id3 import ID3
+from mutagen.mp3 import MP3
 
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
@@ -14,11 +14,6 @@ DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Singles"
 DEFAULT_YEAR = 2026
 DEFAULT_PLAYLIST = "Music"
-
-STOPWORDS = {
-    "the", "and", "a", "an", "of", "to", "in", "on", "for", "with", "allen", "parvin",
-    "my", "me", "your", "you", "i", "we", "our", "is", "are", "christian"
-}
 
 SITE_DIR = Path(__file__).resolve().parents[1]
 AUDIO_DIR = SITE_DIR / "audio"
@@ -59,14 +54,14 @@ ALBUM_METADATA = {
 }
 
 
-def clean_title(filename):
+def clean_title(filename: str) -> str:
     title = Path(filename).stem
     title = re.sub(r"^\d+[-_.\s]*", "", title)
     title = re.sub(r"\s+", " ", title)
     return title.strip()
 
 
-def slugify(text):
+def slugify(text: str) -> str:
     text = text.lower().strip()
     text = re.sub(r"^\d+[-_.\s]*", "", text)
     text = re.sub(r"[^a-z0-9\s-]", "", text)
@@ -75,32 +70,35 @@ def slugify(text):
     return text.strip("-")
 
 
-def build_audio_url(file_name):
+def build_audio_url(file_name: str) -> str:
     return f"{AUDIO_BASE_URL.rstrip('/')}/{quote(file_name)}"
 
 
-def build_cover_url(file_name):
+def build_cover_url(file_name: str) -> str:
     return f"{COVER_BASE_URL.rstrip('/')}/{quote(file_name)}"
 
 
-def build_album_zip_url(file_name):
+def build_album_zip_url(file_name: str) -> str:
     return f"{ALBUM_ZIP_BASE_URL.rstrip('/')}/{quote(file_name)}"
 
 
-def safe_tag_text(tag_value):
+def safe_tag_text(tag_value) -> str:
     if not tag_value:
         return ""
+
     if hasattr(tag_value, "text"):
         text = tag_value.text
         if isinstance(text, list):
             return " ".join(str(x).strip() for x in text if str(x).strip())
         return str(text).strip()
+
     if isinstance(tag_value, list):
         return " ".join(str(x).strip() for x in tag_value if str(x).strip())
+
     return str(tag_value).strip()
 
 
-def parse_year(tag_value):
+def parse_year(tag_value) -> int:
     text = safe_tag_text(tag_value)
     match = re.search(r"\d{4}", text)
     if match:
@@ -116,20 +114,49 @@ def parse_track_number(tag_value):
     return None
 
 
-def title_case_if_all_caps(text):
+def title_case_if_all_caps(text: str) -> str:
     if text and text.isupper():
         return text.title()
     return text
 
 
-def format_duration(seconds):
+def format_duration(seconds: int) -> str:
     seconds = int(seconds or 0)
     mins = seconds // 60
     secs = seconds % 60
     return f"{mins}:{secs:02d}"
 
 
-def get_mp3_metadata(mp3_path):
+def parse_genre_tags(genre_text: str) -> list[str]:
+    """
+    Build tags ONLY from MP3 Genre metadata.
+    Returns lowercase tags only.
+
+    Supports values like:
+    - Worship
+    - Christian, Hymn
+    - Country; Gospel
+    - Worship / Praise
+    """
+    if not genre_text:
+        return []
+
+    parts = re.split(r"[,;/|]+", genre_text)
+    cleaned = []
+    seen = set()
+
+    for part in parts:
+        value = re.sub(r"\s+", " ", part).strip().lower()
+        if not value:
+            continue
+
+        if value not in seen:
+            seen.add(value)
+            cleaned.append(value)
+
+    return cleaned
+
+def get_mp3_metadata(mp3_path: Path) -> dict:
     try:
         audio = MP3(mp3_path)
         tags = audio.tags
@@ -137,6 +164,7 @@ def get_mp3_metadata(mp3_path):
         title = ""
         artist = ""
         album = ""
+        genre = ""
         year = DEFAULT_YEAR
         track_number = None
         duration_seconds = int(audio.info.length) if audio.info and audio.info.length else 0
@@ -149,6 +177,8 @@ def get_mp3_metadata(mp3_path):
                 artist = safe_tag_text(tags["TPE1"])
             if "TALB" in tags:
                 album = safe_tag_text(tags["TALB"])
+            if "TCON" in tags:
+                genre = safe_tag_text(tags["TCON"])
             if "TDRC" in tags:
                 year = parse_year(tags["TDRC"])
             elif "TYER" in tags:
@@ -168,11 +198,13 @@ def get_mp3_metadata(mp3_path):
         title = title_case_if_all_caps(title)
         artist = title_case_if_all_caps(artist)
         album = title_case_if_all_caps(album)
+        genre = title_case_if_all_caps(genre)
 
         return {
             "title": title,
             "artist": artist,
             "album": album,
+            "genre": genre,
             "year": year,
             "track_number": track_number,
             "duration_seconds": duration_seconds,
@@ -185,6 +217,7 @@ def get_mp3_metadata(mp3_path):
             "title": "",
             "artist": "",
             "album": "",
+            "genre": "",
             "year": DEFAULT_YEAR,
             "track_number": None,
             "duration_seconds": 0,
@@ -192,7 +225,7 @@ def get_mp3_metadata(mp3_path):
         }
 
 
-def get_embedded_lyrics(mp3_path):
+def get_embedded_lyrics(mp3_path: Path):
     try:
         tags = ID3(mp3_path)
 
@@ -213,7 +246,7 @@ def get_embedded_lyrics(mp3_path):
     return None
 
 
-def extract_cover_art(mp3_path, slug):
+def extract_cover_art(mp3_path: Path, slug: str):
     """
     Extract embedded cover art from an MP3 and save it to /covers.
     Returns saved filename like 'my-song.jpg' or None.
@@ -249,7 +282,7 @@ def extract_cover_art(mp3_path, slug):
         return None
 
 
-def find_existing_cover(slug):
+def find_existing_cover(slug: str):
     for ext in [".jpg", ".jpeg", ".png"]:
         cover_path = COVERS_DIR / f"{slug}{ext}"
         if cover_path.exists():
@@ -257,29 +290,7 @@ def find_existing_cover(slug):
     return None
 
 
-def words_for_tags(text):
-    words = re.findall(r"[a-z0-9]+", text.lower())
-    return [w for w in words if w not in STOPWORDS and len(w) > 2]
-
-
-def build_tags(title, album, artist, scripture_refs):
-    tag_set = set()
-
-    for word in words_for_tags(title):
-        tag_set.add(word)
-    for word in words_for_tags(album):
-        tag_set.add(word)
-    for word in words_for_tags(artist):
-        tag_set.add(word)
-    for ref in scripture_refs:
-        for word in words_for_tags(ref):
-            tag_set.add(word)
-
-    tag_set.add("christian")
-    return sorted(tag_set)
-
-
-def choose_playlists(album):
+def choose_playlists(album: str) -> list[str]:
     album = (album or "").strip()
     album_meta = ALBUM_METADATA.get(album, {})
 
@@ -289,7 +300,7 @@ def choose_playlists(album):
     return [album] if album else [DEFAULT_PLAYLIST]
 
 
-def get_album_zip(album):
+def get_album_zip(album: str) -> str:
     album = (album or "").strip()
     album_meta = ALBUM_METADATA.get(album, {})
     zip_name = (album_meta.get("album_zip") or "").strip()
@@ -298,7 +309,7 @@ def get_album_zip(album):
     return ""
 
 
-def extract_scripture_references(text):
+def extract_scripture_references(text: str) -> list[str]:
     if not text:
         return []
 
@@ -317,7 +328,7 @@ def extract_scripture_references(text):
     return found
 
 
-def make_track_id(title, album, index):
+def make_track_id(title: str, album: str, index: int) -> str:
     return f"{slugify(album or DEFAULT_ALBUM)}__{slugify(title or 'track')}__{index}"
 
 
@@ -354,6 +365,7 @@ def main():
         title = mp3_meta.get("title") or fallback_title
         artist = mp3_meta.get("artist") or DEFAULT_ARTIST
         album = mp3_meta.get("album") or DEFAULT_ALBUM
+        genre = mp3_meta.get("genre") or ""
         year = mp3_meta.get("year") or DEFAULT_YEAR
         track_number = mp3_meta.get("track_number")
         duration_seconds = mp3_meta.get("duration_seconds", 0)
@@ -369,7 +381,7 @@ def main():
         )
 
         playlists = choose_playlists(album)
-        tags = build_tags(title, album, artist, scripture_references)
+        tags = parse_genre_tags(genre)
         album_zip = get_album_zip(album)
 
         existing_cover = find_existing_cover(slug)
@@ -381,6 +393,7 @@ def main():
             "slug": slug,
             "artist": artist,
             "album": album,
+            "genre": genre,
             "year": year,
             "src": build_audio_url(file.name),
             "playlists": playlists,
@@ -392,7 +405,7 @@ def main():
             "album_zip": album_zip
         }
 
-        # Compatibility fields for any older code still using them
+        # Compatibility fields for older code
         track["audio"] = track["src"]
         track["playlist"] = playlists[0] if playlists else DEFAULT_PLAYLIST
         track["scripture"] = scripture_references[0] if scripture_references else ""
@@ -403,15 +416,17 @@ def main():
         if lyrics:
             track["lyrics"] = lyrics
 
-        # Remove None values / empty optional values where it helps
         if track["trackNumber"] is None:
             del track["trackNumber"]
 
         if not track["album_zip"]:
             del track["album_zip"]
 
-        if not scripture_references:
+        if not track["scripture_references"]:
             del track["scripture_references"]
+
+        if not track["genre"]:
+            del track["genre"]
 
         tracks.append(track)
 
@@ -420,9 +435,10 @@ def main():
         print(f"  Slug: {track['slug']}")
         print(f"  Artist: {track['artist']}")
         print(f"  Album: {track['album']}")
+        print(f"  Genre: {genre or 'none'}")
         print(f"  Playlists: {', '.join(track['playlists'])}")
+        print(f"  Tags: {', '.join(track['tags']) if track['tags'] else 'none'}")
         print(f"  Scripture refs: {', '.join(scripture_references) if scripture_references else 'none'}")
-        print(f"  Tags: {', '.join(track['tags'])}")
         print(f"  Duration: {track['duration']}")
         print(f"  Lyrics found: {'yes' if lyrics else 'no'}")
         print(f"  Cover found: {track.get('cover', 'none')}")
