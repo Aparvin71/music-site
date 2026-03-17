@@ -105,7 +105,12 @@ const els = {
   resumeBanner: document.getElementById("resumeBanner"),
   resumeText: document.getElementById("resumeText"),
   resumeSongBtn: document.getElementById("resumeSongBtn"),
-  dismissResumeBtn: document.getElementById("dismissResumeBtn")
+  dismissResumeBtn: document.getElementById("dismissResumeBtn"),
+
+  stickyFilterBar: document.getElementById("stickyFilterBar"),
+  filterTypeBadge: document.getElementById("filterTypeBadge"),
+
+  queueSectionBody: document.getElementById("queueSectionBody")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -268,7 +273,7 @@ function bindUI() {
     els.audioPlayer.addEventListener("ended", playNextTrack);
   }
 
-  on(els.openLyricsBtn, "click", openLyricsModal);
+  on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -279,20 +284,24 @@ function bindUI() {
 
   on(els.playQueueBtn, "click", () => {
     startPlaybackFromList(filteredTracks, false);
+    openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.playQueueBtnDesktop, "click", () => {
     startPlaybackFromList(filteredTracks, false);
+    openAndScrollQueueToCurrentTrack();
   });
 
   on(els.shuffleQueueBtn, "click", () => {
     startPlaybackFromList(filteredTracks, true);
+    openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.shuffleQueueBtnDesktop, "click", () => {
     startPlaybackFromList(filteredTracks, true);
+    openAndScrollQueueToCurrentTrack();
   });
 
   on(els.playAlbumBtn, "click", () => {
@@ -329,12 +338,14 @@ function bindUI() {
     const album = getAlbumModalAlbum();
     if (!album) return;
     startPlaybackFromList(album.tracks, false);
+    scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalShuffleBtn, "click", () => {
     const album = getAlbumModalAlbum();
     if (!album) return;
     startPlaybackFromList(album.tracks, true);
+    scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalDownloadBtn, "click", () => {
@@ -373,6 +384,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
+  scrollToTop();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -382,6 +394,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
+  scrollToTop();
 }
 
 function setTagFilter(tagName) {
@@ -391,6 +404,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
+  scrollToTop();
 }
 
 function setSearchFilter(term) {
@@ -399,6 +413,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
+  scrollToTop();
 }
 
 function clearAllFilters() {
@@ -408,6 +423,7 @@ function clearAllFilters() {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
+  scrollToTop();
 }
 
 function getFilteredTracks() {
@@ -545,11 +561,12 @@ function updateLibraryView() {
   syncCurrentTrackIndex();
 }
 
+/* =========================
+   STICKY FILTER BAR
+========================= */
+
 function renderActiveFilterLabel() {
   if (!els.activeFilterLabel) return;
-
-  const stickyBar = document.getElementById("stickyFilterBar");
-  const badge = document.getElementById("filterTypeBadge");
 
   const active = hasActiveFilter();
 
@@ -586,42 +603,63 @@ function renderActiveFilterLabel() {
     els.clearFiltersBtn.textContent = buttonText;
   }
 
-  if (badge) {
-    badge.textContent = badgeText;
-    badge.className = `filter-type-badge ${badgeClass}`;
-    badge.style.display = active ? "inline-flex" : "none";
+  if (els.filterTypeBadge) {
+    els.filterTypeBadge.textContent = badgeText;
+    els.filterTypeBadge.className = `filter-type-badge ${badgeClass}`;
+    els.filterTypeBadge.style.display = active ? "inline-flex" : "none";
   }
 
-  if (stickyBar) {
-    stickyBar.classList.toggle("hidden", !active);
+  if (els.stickyFilterBar) {
+    els.stickyFilterBar.classList.toggle("hidden", !active);
   }
-}/* =========================
+}
+
+/* =========================
    PLAYLISTS + TAGS
 ========================= */
 
 function renderPlaylists(trackList) {
   if (!els.playlistList) return;
 
-  const playlists = getVisiblePlaylists(trackList);
+  let playlists = getVisiblePlaylists(trackList);
 
-  if (!playlists.length) {
-    els.playlistList.innerHTML = `<p class="empty-message">No playlists found.</p>`;
-    return;
-  }
+  const allSongsItem = {
+    name: "All Songs",
+    count: tracks.length
+  };
+
+  playlists = [allSongsItem, ...playlists];
 
   els.playlistList.innerHTML = playlists
     .map(playlist => {
-      const active = filters.selectedPlaylist === playlist.name ? "active" : "";
+      const isAllSongs = playlist.name === "All Songs";
+      const active =
+        (isAllSongs && !hasActiveFilter()) ||
+        filters.selectedPlaylist === playlist.name
+          ? "active"
+          : "";
+
       return `
-        <button class="filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button">
-          ${escapeHtml(playlist.name)} <span class="chip-count">(${playlist.count})</span>
+        <button
+          class="filter-chip ${active}"
+          data-playlist="${escapeHtmlAttr(playlist.name)}"
+          type="button"
+        >
+          ${isAllSongs ? "🎵 All Songs" : escapeHtml(playlist.name)}
+          <span class="chip-count">(${playlist.count})</span>
         </button>
       `;
     })
     .join("");
 
   els.playlistList.querySelectorAll("[data-playlist]").forEach(btn => {
-    btn.addEventListener("click", () => setPlaylistFilter(btn.dataset.playlist));
+    btn.addEventListener("click", () => {
+      if (btn.dataset.playlist === "All Songs") {
+        clearAllFilters();
+      } else {
+        setPlaylistFilter(btn.dataset.playlist);
+      }
+    });
   });
 }
 
@@ -630,11 +668,9 @@ function renderTags(trackList) {
 
   let tags = getVisibleTags(trackList);
 
-if (window.innerWidth <= 640) {
-  tags = tags
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 12);
-}
+  if (window.innerWidth <= 640) {
+    tags = tags.sort((a, b) => b.count - a.count).slice(0, 12);
+  }
 
   if (!tags.length) {
     els.tagList.innerHTML = `<p class="empty-message">No tags found.</p>`;
@@ -985,10 +1021,10 @@ function updateScripturePanel(track) {
   `;
 }
 
-function openLyricsModal() {
+function openLyricsModal(triggerEl = null) {
   const track = getCurrentTrack();
   if (!track) return;
-  openLyricsModalForTrack(track, els.openLyricsBtn);
+  openLyricsModalForTrack(track, triggerEl);
 }
 
 function openLyricsModalForTrack(track, triggerEl = null) {
@@ -1048,8 +1084,9 @@ function openAlbumModal(album, triggerEl = null) {
   if (els.albumModalTracks) {
     els.albumModalTracks.innerHTML = album.tracks
       .map((track, index) => {
+        const active = getCurrentTrack()?.id === track.id ? "active" : "";
         return `
-          <button class="album-track-row" data-album-track-index="${index}" type="button">
+          <button class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
             <div class="album-track-main">
               <div class="album-track-title-row">
                 <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
@@ -1082,6 +1119,7 @@ function openAlbumModal(album, triggerEl = null) {
 
   requestAnimationFrame(() => {
     els.closeAlbumBtn?.focus();
+    scrollAlbumModalToCurrentTrack();
   });
 }
 
@@ -1107,6 +1145,21 @@ function getAlbumModalAlbum() {
     getVisibleAlbums(tracks).find(album => album.name === name) ||
     null
   );
+}
+
+function scrollAlbumModalToCurrentTrack() {
+  if (!els.albumModalTracks) return;
+
+  const current = getCurrentTrack();
+  if (!current) return;
+
+  const activeRow = els.albumModalTracks.querySelector(`[data-track-id="${cssEscape(current.id)}"]`);
+  if (!activeRow) return;
+
+  activeRow.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
+  });
 }
 
 /* =========================
@@ -1236,7 +1289,7 @@ function renderQueue() {
       const active = index === currentQueueIndex ? "active" : "";
 
       return `
-        <button class="queue-row ${active}" data-queue-index="${index}" type="button">
+        <button class="queue-row ${active}" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
           ${
             track.cover
               ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />`
@@ -1270,7 +1323,41 @@ function renderQueue() {
   els.queueList.querySelectorAll("[data-queue-index]").forEach(btn => {
     btn.addEventListener("click", () => {
       playFromQueueIndex(Number(btn.dataset.queueIndex));
+      openAndScrollQueueToCurrentTrack();
     });
+  });
+}
+
+function openAndScrollQueueToCurrentTrack() {
+  const queueSection = document.querySelector('[data-collapsible="queue"]');
+  const toggle = queueSection?.querySelector(".section-toggle");
+
+  if (queueSection && !queueSection.classList.contains("open")) {
+    queueSection.classList.add("open");
+    toggle?.setAttribute("aria-expanded", "true");
+    localStorage.setItem("allen_parvin_section_queue", "open");
+  }
+
+  requestAnimationFrame(() => {
+    els.queueSectionBody?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+    setTimeout(scrollQueueToCurrentTrack, 180);
+  });
+}
+
+function scrollQueueToCurrentTrack() {
+  const current = getCurrentTrack();
+  if (!current || !els.queueList) return;
+
+  const activeRow = els.queueList.querySelector(`[data-track-id="${cssEscape(current.id)}"]`);
+  if (!activeRow) return;
+
+  activeRow.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest"
   });
 }
 
@@ -1400,6 +1487,18 @@ function restoreFocus() {
     lastFocusedElement.focus();
   }
   lastFocusedElement = null;
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === "function") {
+    return window.CSS.escape(value);
+  }
+
+  return String(value).replace(/["\\#.:;?+*~'<>=!^$[\](){}|/@]/g, "\\$&");
 }
 
 /* =========================
