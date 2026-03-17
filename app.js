@@ -548,6 +548,8 @@ function updateLibraryView() {
 function renderActiveFilterLabel() {
   if (!els.activeFilterLabel) return;
 
+  const toolbar = els.activeFilterLabel.closest(".albums-toolbar");
+
   let text = "Showing all music";
 
   if (filters.selectedAlbum) {
@@ -562,11 +564,16 @@ function renderActiveFilterLabel() {
 
   els.activeFilterLabel.textContent = text;
 
+  const active = hasActiveFilter();
+
   if (els.clearFiltersBtn) {
-    els.clearFiltersBtn.style.display = hasActiveFilter() ? "inline-flex" : "none";
+    els.clearFiltersBtn.style.display = active ? "inline-flex" : "none";
+  }
+
+  if (toolbar) {
+    toolbar.classList.toggle("has-active-filter", active);
   }
 }
-
 /* =========================
    PLAYLISTS + TAGS
 ========================= */

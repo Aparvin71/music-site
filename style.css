@@ -2082,3 +2082,46 @@ a:hover {
     gap: 6px;
   }
 }
+
+/* =========================================
+   STICKY ACTIVE FILTER BAR
+========================================= */
+
+.albums-toolbar {
+  position: relative;
+  z-index: 5;
+}
+
+.albums-toolbar.has-active-filter {
+  position: sticky;
+  top: 10px;
+  z-index: 950;
+  padding: 10px 12px;
+  background: rgba(23, 26, 33, 0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid #252a34;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.albums-toolbar.has-active-filter .active-filter-label {
+  font-weight: 700;
+  opacity: 1;
+}
+
+.albums-toolbar.has-active-filter #clearFiltersBtn {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 640px) {
+  .albums-toolbar.has-active-filter {
+    top: 8px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .albums-toolbar.has-active-filter #clearFiltersBtn {
+    width: 100%;
+  }
+}
