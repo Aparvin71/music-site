@@ -1598,14 +1598,14 @@
     "slug": "dont-remember-me",
     "artist": "Allen Parvin",
     "album": "Testimony",
-    "genre": "Sourhern, Country",
+    "genre": "Southern, Country",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Don%27t%20Remember%20Me.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
-      "sourhern",
+      "southern",
       "country"
     ],
     "duration": "4:30",
@@ -1979,14 +1979,15 @@
     "slug": "agape-love",
     "artist": "Allen Parvin",
     "album": "Words",
-    "genre": "Southern Gospel",
+    "genre": "Southern, Gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Agape%20Love.mp3",
     "playlists": [
       "Words"
     ],
     "tags": [
-      "southern gospel"
+      "southern",
+      "gospel"
     ],
     "duration": "3:19",
     "duration_seconds": 199,
