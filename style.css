@@ -1,4 +1,5 @@
 
+
 * {
   box-sizing: border-box;
 }
@@ -2250,4 +2251,36 @@ a:hover {
 .filter-chip[data-playlist="All Songs"].active {
   background: #3a4a66;
   box-shadow: 0 0 0 1px #5f7bb3 inset;
+}
+
+/* =========================================
+   CLEANUP ADDITIONS
+========================================= */
+
+.noscript-banner {
+  padding: 12px 16px;
+  text-align: center;
+  background: #8b2e2e;
+  color: #ffffff;
+  border-bottom: 1px solid #a24b4b;
+}
+
+.is-placeholder {
+  background: linear-gradient(135deg, #11161d, #1a2330);
+}
+
+.album-track-row.active,
+.album-modal-track.active {
+  background: #202c3b;
+  border-color: #7ea3d8;
+}
+
+@media (max-width: 640px) {
+  .sticky-player-right {
+    position: relative;
+  }
+
+  .mobile-actions-drawer.hidden {
+    display: none !important;
+  }
 }

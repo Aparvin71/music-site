@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks." />
+  <meta name="theme-color" content="#0f1115" />
   <title>Allen Parvin Music</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -34,6 +37,10 @@
     </nav>
   </header>
 
+  <noscript>
+    <div class="noscript-banner">This music library needs JavaScript enabled to load tracks and controls.</div>
+  </noscript>
+
   <div class="app-shell">
     <aside class="sidebar" aria-label="Library filters">
       <div class="brand">
@@ -44,10 +51,11 @@
       <div class="search-wrap">
         <label class="visually-hidden" for="searchInput">Search music library</label>
         <input
-          type="text"
+          type="search"
           id="searchInput"
           placeholder="Search songs, albums, tags, scripture..."
           autocomplete="off"
+          spellcheck="false"
         />
       </div>
 
@@ -63,7 +71,7 @@
         </button>
 
         <div id="playlistSectionBody" class="section-body">
-          <div id="playlistList" class="playlist-list"></div>
+          <div id="playlistList" class="playlist-list" aria-live="polite"></div>
         </div>
       </section>
 
@@ -79,7 +87,7 @@
         </button>
 
         <div id="tagSectionBody" class="section-body">
-          <div id="tagList" class="tag-list"></div>
+          <div id="tagList" class="tag-list" aria-live="polite"></div>
         </div>
       </section>
     </aside>
@@ -97,18 +105,18 @@
         </div>
       </section>
 
-     <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite">
-  <div class="sticky-filter-bar-inner">
-    <div class="filter-info">
-      <span id="filterTypeBadge" class="filter-type-badge">Filter</span>
-      <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
-    </div>
+      <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite">
+        <div class="sticky-filter-bar-inner">
+          <div class="filter-info">
+            <span id="filterTypeBadge" class="filter-type-badge">Filter</span>
+            <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
+          </div>
 
-    <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">
-      Show All Music
-    </button>
-  </div>
-</section>
+          <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">
+            Show All Music
+          </button>
+        </div>
+      </section>
 
       <section class="hero">
         <div class="hero-copy">
@@ -123,10 +131,12 @@
       <section class="about-panel" aria-labelledby="aboutMusicHeading">
         <h2 id="aboutMusicHeading">About This Music</h2>
         <p>
-          Every song here begins with words I have written. I use AI as a creative tool to help shape the music, sound, and vocals, allowing those lyrics to become fully realized songs.
+          Every song here begins with words I have written. I use AI as a creative tool to help shape the music,
+          sound, and vocals, allowing those lyrics to become fully realized songs.
         </p>
         <p>
-          My hope is to share music that is heartfelt, thought-provoking, and encouraging. Many songs draw from Scripture and the Christian faith, pointing toward worship, reflection, hope, and truth.
+          My hope is to share music that is heartfelt, thought-provoking, and encouraging. Many songs draw from
+          Scripture and the Christian faith, pointing toward worship, reflection, hope, and truth.
         </p>
       </section>
 
@@ -160,7 +170,7 @@
           <h2 id="featuredTrackListTitle">Album Tracks</h2>
         </div>
 
-        <div id="featuredTrackList" class="featured-track-list">
+        <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
           <p class="empty-message">No tracks available.</p>
         </div>
       </section>
@@ -169,21 +179,21 @@
         <div class="section-header">
           <h2 id="albumsHeading">Albums</h2>
         </div>
-        <div id="albumGrid" class="album-grid"></div>
+        <div id="albumGrid" class="album-grid" aria-live="polite"></div>
       </section>
 
       <section class="library-panel" aria-labelledby="favoritesHeading">
         <div class="section-header">
           <h2 id="favoritesHeading">Favorites</h2>
         </div>
-        <div id="favoritesList" class="mini-grid"></div>
+        <div id="favoritesList" class="mini-grid" aria-live="polite"></div>
       </section>
 
       <section class="library-panel" aria-labelledby="recentlyPlayedHeading">
         <div class="section-header">
           <h2 id="recentlyPlayedHeading">Recently Played</h2>
         </div>
-        <div id="recentlyPlayedList" class="mini-grid"></div>
+        <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
       </section>
 
       <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
@@ -214,7 +224,7 @@
             aria-expanded="true"
             aria-controls="scriptureSectionBody"
           >
-            <span>Scripture Reference</span>
+            <span>Scripture References</span>
             <span class="toggle-icon" aria-hidden="true">▾</span>
           </button>
         </div>
@@ -241,7 +251,7 @@
         </div>
 
         <div id="queueSectionBody" class="section-body">
-          <div id="queueList" class="queue-list"></div>
+          <div id="queueList" class="queue-list" aria-live="polite"></div>
         </div>
       </section>
     </main>
@@ -269,7 +279,7 @@
       <div class="progress-wrap">
         <span id="currentTime">0:00</span>
         <label class="visually-hidden" for="seekBar">Seek through track</label>
-        <input id="seekBar" type="range" min="0" max="100" value="0" />
+        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
         <span id="duration">0:00</span>
       </div>
     </div>
@@ -339,7 +349,7 @@
             <p id="albumModalArtist">—</p>
             <p id="albumModalInfo">—</p>
 
-            <div class="featured-actions">
+            <div class="album-modal-actions">
               <button id="albumModalPlayBtn" class="action-btn" type="button">Play Album</button>
               <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
               <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>
@@ -352,6 +362,8 @@
     </div>
   </div>
 
-  <script src="app.js"></script>
+  <footer class="site-footer">
+    <p>Allen Parvin Music</p>
+  </footer>
 </body>
 </html>
