@@ -97,6 +97,19 @@
         </div>
       </section>
 
+     <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite">
+  <div class="sticky-filter-bar-inner">
+    <div class="filter-info">
+      <span id="filterTypeBadge" class="filter-type-badge">Filter</span>
+      <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
+    </div>
+
+    <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">
+      Show All Music
+    </button>
+  </div>
+</section>
+
       <section class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Music Library</p>
@@ -145,11 +158,6 @@
       <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
         <div class="section-header">
           <h2 id="featuredTrackListTitle">Album Tracks</h2>
-        </div>
-
-        <div class="albums-toolbar">
-          <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
-          <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">Clear Filter</button>
         </div>
 
         <div id="featuredTrackList" class="featured-track-list">

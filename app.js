@@ -548,33 +548,54 @@ function updateLibraryView() {
 function renderActiveFilterLabel() {
   if (!els.activeFilterLabel) return;
 
-  const toolbar = els.activeFilterLabel.closest(".albums-toolbar");
+  const stickyBar = document.getElementById("stickyFilterBar");
+  const badge = document.getElementById("filterTypeBadge");
+
+  const active = hasActiveFilter();
 
   let text = "Showing all music";
+  let buttonText = "Show All Music";
+  let badgeText = "";
+  let badgeClass = "";
 
   if (filters.selectedAlbum) {
-    text = `Showing album: ${filters.selectedAlbum}`;
+    text = `Album: ${filters.selectedAlbum}`;
+    buttonText = "Clear Album";
+    badgeText = "Album";
+    badgeClass = "album";
   } else if (filters.selectedPlaylist) {
-    text = `Showing playlist: ${filters.selectedPlaylist}`;
+    text = `Playlist: ${filters.selectedPlaylist}`;
+    buttonText = "Clear Playlist";
+    badgeText = "Playlist";
+    badgeClass = "playlist";
   } else if (filters.selectedTag) {
-    text = `Showing tag: ${filters.selectedTag}`;
+    text = `Tag: ${filters.selectedTag}`;
+    buttonText = "Clear Tag";
+    badgeText = "Tag";
+    badgeClass = "tag";
   } else if (filters.searchTerm) {
-    text = `Search results for: ${filters.searchTerm}`;
+    text = `Search: ${filters.searchTerm}`;
+    buttonText = "Clear Search";
+    badgeText = "Search";
+    badgeClass = "search";
   }
 
   els.activeFilterLabel.textContent = text;
 
-  const active = hasActiveFilter();
-
   if (els.clearFiltersBtn) {
-    els.clearFiltersBtn.style.display = active ? "inline-flex" : "none";
+    els.clearFiltersBtn.textContent = buttonText;
   }
 
-  if (toolbar) {
-    toolbar.classList.toggle("has-active-filter", active);
+  if (badge) {
+    badge.textContent = badgeText;
+    badge.className = `filter-type-badge ${badgeClass}`;
+    badge.style.display = active ? "inline-flex" : "none";
   }
-}
-/* =========================
+
+  if (stickyBar) {
+    stickyBar.classList.toggle("hidden", !active);
+  }
+}/* =========================
    PLAYLISTS + TAGS
 ========================= */
 

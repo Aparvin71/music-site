@@ -2125,3 +2125,118 @@ a:hover {
     width: 100%;
   }
 }
+
+/* =========================================
+   STICKY FILTER BAR
+========================================= */
+
+.sticky-filter-bar {
+  position: sticky;
+  top: 10px;
+  z-index: 960;
+  margin-bottom: 14px;
+}
+
+.sticky-filter-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(23, 26, 33, 0.96);
+  backdrop-filter: blur(10px);
+  border: 1px solid #252a34;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sticky-filter-bar .active-filter-label {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .sticky-filter-bar {
+    top: 8px;
+  }
+
+  .sticky-filter-bar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .sticky-filter-bar .action-btn {
+    width: 100%;
+  }
+}
+
+.sticky-filter-bar .active-filter-label {
+  color: #f4f4f4;
+}
+
+/* =========================================
+   FILTER BADGE + POLISH
+========================================= */
+
+.filter-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-type-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #2f3642;
+  color: #cfd6e4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Color variations (optional but nice) */
+.filter-type-badge.album {
+  background: #2f3f5a;
+  color: #9cc3ff;
+}
+
+.filter-type-badge.playlist {
+  background: #2f5a44;
+  color: #9ff0c2;
+}
+
+.filter-type-badge.tag {
+  background: #5a3f2f;
+  color: #ffc89c;
+}
+
+.filter-type-badge.search {
+  background: #4b2f5a;
+  color: #e0b3ff;
+}
+
+@media (max-width: 640px) {
+  .filter-info {
+    justify-content: space-between;
+  }
+
+  .filter-type-badge {
+    font-size: 0.65rem;
+    padding: 3px 7px;
+  }
+}
+
+.sticky-filter-bar {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.sticky-filter-bar.hidden {
+  transform: translateY(-10px);
+  opacity: 0;
+  pointer-events: none;
+}
