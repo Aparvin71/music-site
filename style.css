@@ -2240,3 +2240,14 @@ a:hover {
   opacity: 0;
   pointer-events: none;
 }
+
+.filter-chip[data-playlist="All Songs"] {
+  font-weight: 700;
+  background: #2a3445;
+  color: #ffffff;
+}
+
+.filter-chip[data-playlist="All Songs"].active {
+  background: #3a4a66;
+  box-shadow: 0 0 0 1px #5f7bb3 inset;
+}
