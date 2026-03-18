@@ -2284,3 +2284,252 @@ a:hover {
     display: none !important;
   }
 }
+
+/* =========================================
+   TABLET TIGHTEN-UP
+   Make tablet feel closer to mobile
+========================================= */
+@media (min-width: 641px) and (max-width: 1024px) {
+  body {
+    padding-bottom: 260px;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #252a34;
+    padding: 14px;
+  }
+
+  .brand-title {
+    display: none;
+  }
+
+  .brand p {
+    margin-bottom: 14px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .search-wrap {
+    margin-bottom: 16px;
+  }
+
+  #searchInput {
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  .main-content,
+  .page {
+    max-width: 100%;
+    padding: 12px;
+  }
+
+  .hero {
+    margin-bottom: 12px;
+  }
+
+  .hero h2,
+  .page h2,
+  .request-hero h2 {
+    font-size: 1.45rem;
+    line-height: 1.2;
+  }
+
+  .hero-text,
+  .about-panel p,
+  .featured-meta p,
+  .queue-header p,
+  .lyrics-content,
+  .scripture-content {
+    font-size: 0.95rem;
+  }
+
+  .resume-banner,
+  .about-panel,
+  .featured-album-card,
+  .albums-panel,
+  .library-panel,
+  .lyrics-panel,
+  .scripture-panel,
+  .queue-panel,
+  .page-card,
+  .request-card,
+  .church-card {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .queue-panel {
+    padding: 12px;
+  }
+
+  .section-header {
+    margin-bottom: 10px;
+  }
+
+  .section-header h2,
+  .featured-meta h2,
+  .lyrics-modal-header h2,
+  .album-modal-header h2 {
+    font-size: 1.15rem;
+  }
+
+  .featured-album-card,
+  .album-modal-top {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .featured-cover,
+  .album-modal-cover,
+  #featuredAlbumCover,
+  #albumModalCover {
+    width: 100%;
+    max-width: 210px;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    display: block;
+  }
+
+  .featured-actions {
+    gap: 8px;
+  }
+
+  .featured-actions .action-btn,
+  .compact-actions .action-btn {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+
+  .album-grid,
+  .mini-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .album-card,
+  .mini-card {
+    padding: 8px;
+  }
+
+  .album-card h3,
+  .mini-card-meta strong {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .album-card p,
+  .mini-card-meta span {
+    font-size: 11px;
+  }
+
+  .album-card-cover,
+  .mini-card-cover {
+    margin-bottom: 6px;
+  }
+
+  .playlist-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .filter-chip,
+  .tag-chip,
+  .playlist-btn {
+    font-size: 12px;
+    padding: 0.4rem 0.7rem;
+  }
+
+  .sidebar-section {
+    margin-bottom: 10px;
+  }
+
+  .sidebar-section .section-toggle {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .section-body {
+    padding-top: 10px;
+  }
+
+  .featured-track-row,
+  .album-track-row,
+  .album-modal-track {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .featured-track-actions,
+  .queue-actions,
+  .album-modal-actions {
+    justify-content: flex-start;
+  }
+
+  .queue-row {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .queue-cover {
+    width: 54px;
+    height: 54px;
+  }
+
+  .queue-title-row,
+  .album-track-title-row,
+  .featured-track-title-line,
+  .featured-track-meta-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .lyrics-modal-content,
+  .album-modal-content {
+    width: calc(100% - 24px);
+    max-height: calc(100vh - 24px);
+    margin: 12px auto;
+  }
+
+  .lyrics-modal-header,
+  .album-modal-header,
+  .lyrics-modal-body,
+  .album-modal-body {
+    padding: 14px;
+  }
+
+  /* Main tablet sticky fix */
+  .sticky-filter-bar {
+    top: 76px; /* clears sticky header */
+    margin-bottom: 12px;
+  }
+
+  .sticky-filter-bar-inner {
+    padding: 10px;
+    border-radius: 12px;
+  }
+
+  .sticky-filter-bar .active-filter-label {
+    font-size: 0.92rem;
+  }
+}
