@@ -128,6 +128,7 @@ async function init() {
   renderQueue();
   showResumeBannerIfAvailable();
   handleSongQueryParam();
+  sendAudioUrlsToServiceWorker(tracks);
 }
 
 /* =========================
@@ -1730,3 +1731,61 @@ function closeMobileNav(forceDesktopState = false) {
     els.siteNavLinks.classList.remove("nav-open");
   }
 }
+
+/* =========================
+   PWA + SERVICE WORKER
+========================= */
+
+async function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+
+  try {
+    const registration = await navigator.serviceWorker.register('./service-worker.js');
+
+    if (registration.waiting) {
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing;
+      if (!newWorker) return;
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          newWorker.postMessage({ type: 'SKIP_WAITING' });
+        }
+      });
+    });
+  } catch (error) {
+    console.warn('Service worker registration failed:', error);
+  }
+}
+
+function sendAudioUrlsToServiceWorker(trackList) {
+  if (!("serviceWorker" in navigator)) return;
+
+  const urls = (trackList || []).map(track => track?.src).filter(Boolean);
+  if (!urls.length) return;
+
+  const postUrls = () => {
+    if (!navigator.serviceWorker.controller) return;
+    navigator.serviceWorker.controller.postMessage({
+      type: 'CACHE_AUDIO_URLS',
+      urls
+    });
+  };
+
+  if (navigator.serviceWorker.controller) {
+    postUrls();
+  } else {
+    navigator.serviceWorker.ready.then(postUrls).catch(() => {});
+  }
+}
+
+window.addEventListener('load', registerServiceWorker);
+
+navigator.serviceWorker?.addEventListener?.('controllerchange', () => {
+  if (tracks.length) {
+    sendAudioUrlsToServiceWorker(tracks);
+  }
+});
