@@ -4,25 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Request a Song - Allen Parvin Music</title>
-
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AP Music" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+<a class="skip-link" href="#mainContent">Skip to main content</a>
 
 <header class="site-header">
-  <nav class="navbar">
-    <div class="logo">Allen Parvin Music</div>
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-top-row">
+      <div class="logo">Allen Parvin Music</div>
+      <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+    </div>
 
-    <ul class="nav-links">
+    <ul id="siteNavLinks" class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="about.html">About</a></li>
-      <li><a href="contact.html" class="active">Request a Song</a></li>
+      <li><a href="contact.html" class="active" aria-current="page">Request a Song</a></li>
     </ul>
   </nav>
 </header>
 
-<main class="page">
+<main id="mainContent" class="page">
 
 <section class="page-card">
 
@@ -139,7 +150,8 @@ placeholder="Extra notes or details..."></textarea>
 <p>© 2026 Allen Parvin Music</p>
 </footer>
 
-<script src="js/contact.js"></script>
+<script src="pwa-init.js" defer></script>
+<script src="contact.js" defer></script>
 
 </body>
 </html>

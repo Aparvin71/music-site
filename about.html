@@ -3,93 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Learn more about Allen Parvin Music and the heart behind the songs." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AP Music" />
   <title>About - Allen Parvin Music</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="style.css" />
+  <script src="pwa-init.js" defer></script>
 </head>
 <body>
-  <header class="site-header">
-    <nav class="navbar">
-      <div class="logo">Allen Parvin Music</div>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
 
-      <ul class="nav-links">
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Allen Parvin Music</div>
+        <button
+          id="mobileNavToggle"
+          class="mobile-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNavLinks"
+          aria-label="Toggle navigation"
+        >☰</button>
+      </div>
+
+      <ul id="siteNavLinks" class="nav-links">
         <li><a href="index.html">Home</a></li>
-        <li><a href="about.html" class="active">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="about.html" class="active" aria-current="page">About</a></li>
+        <li><a href="contact.html">Request a Song</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="page">
+  <main id="mainContent" class="page">
     <section class="page-card">
-</div>
-  <p class="eyebrow">About</p>
-  <h2>About Allen Parvin Music</h2>
+      <p class="eyebrow">About</p>
+      <h2>About Allen Parvin Music</h2>
 
-  <p>
-    Every song on this site begins with words I have written. Many of these lyrics
-    come from personal reflection, time spent in scripture, conversations with
-    friends and family, or moments that simply sparked an idea worth exploring.
-    Writing the words is always the starting point.
-  </p>
+      <p>
+        Every song on this site begins with words I have written. Many of these lyrics
+        come from personal reflection, time spent in Scripture, conversations with
+        friends and family, or moments that simply sparked an idea worth exploring.
+        Writing the words is always the starting point.
+      </p>
 
-  <p>
-    From there, I use AI as a creative tool to help shape the music itself.
-    It allows me to experiment with sound, arrangement, instrumentation,
-    and vocal styles so the lyrics can grow into fully realized songs.
-    AI helps bring the music to life, but the heart and message behind each
-    song begins with the words and ideas that inspired it.
-  </p>
+      <p>
+        From there, I use AI as a creative tool to help shape the music itself.
+        It allows me to experiment with sound, arrangement, instrumentation,
+        and vocal styles so the lyrics can grow into fully realized songs.
+        AI helps bring the music to life, but the heart and message behind each
+        song begins with the words and ideas that inspired it.
+      </p>
 
-  <p>
-    Much of the music shared here is inspired by themes found in Scripture
-    and the Christian faith. Worship, praise, repentance, compassion,
-    grace, and the daily walk with God often find their way into these songs.
-    Some tracks draw directly from scripture, while others reflect on the
-    lessons and truths found within it.
-  </p>
+      <p>
+        Much of the music shared here is inspired by themes found in Scripture
+        and the Christian faith. Worship, praise, repentance, compassion,
+        grace, and the daily walk with God often find their way into these songs.
+        Some tracks draw directly from Scripture, while others reflect on the
+        lessons and truths found within it.
+      </p>
 
-  <p>
-    Not every song is serious or reflective though. Some songs are meant to
-    celebrate joy, capture moments of everyday life, reflect people, or simply be fun.
-    Music has a unique way of connecting people, and sometimes a simple,
-    lighthearted song can bring just as much meaning as a deeply reflective one.
-  </p>
+      <p>
+        Not every song is serious or reflective, though. Some songs are meant to
+        celebrate joy, capture moments of everyday life, reflect people, or simply be fun.
+        Music has a unique way of connecting people, and sometimes a simple,
+        lighthearted song can bring just as much meaning as a deeply reflective one.
+      </p>
 
-  <p>
-    My hope is that this site becomes a place where people can listen,
-    discover something new, reflect on truth, and enjoy music that
-    encourages the heart. Whether a song inspires worship, sparks
-    thought, brings a smile, or simply provides a moment of peace,
-    I’m grateful you took the time to listen.
-  </p>
+      <p>
+        My hope is that this site becomes a place where people can listen,
+        discover something new, reflect on truth, and enjoy music that
+        encourages the heart. Whether a song inspires worship, sparks
+        thought, brings a smile, or simply provides a moment of peace,
+        I’m grateful you took the time to listen.
+      </p>
 
-<div class="church-card">
+      <div class="church-card">
+        <p class="church-eyebrow">Faith Community</p>
+        <h3 class="church-title">Our Church Home</h3>
 
-  <p class="church-eyebrow">Faith Community</p>
+        <div class="church-logo">
+          <img src="images/Blue-and-White-with-black.PNG" alt="Church logo" />
+        </div>
 
-  <h3 class="church-title">Our Church Home</h3>
+        <p class="church-description">
+          I'm grateful for the church family that encourages my faith and
+          continues to point people toward Christ through worship, Scripture,
+          and community.
+        </p>
 
-  <div class="church-logo">
-    <img src="images/Blue-and-White-with-black.PNG" alt="Church Logo">
-  </div>
+        <a href="http://www.fbcmayflower.com" class="church-button" target="_blank" rel="noopener">
+          <span class="church-icon">⛪</span>
+          Visit Our Church
+        </a>
+      </div>
+    </section>
+  </main>
 
-  <p class="church-description">
-    I'm grateful for the church family that encourages my faith and
-    continues to point people toward Christ through worship, scripture,
-    and community.
-  </p>
-
-  <a href="http://www.fbcmayflower.com"
-     class="church-button"
-     target="_blank"
-     rel="noopener">
-
-     <span class="church-icon">⛪</span>
-     Visit Our Church
-  </a>
-
-</div>
-
-</p>
-
-</section>
+  <footer class="site-footer">
+    <p>© 2026 Allen Parvin Music</p>
+  </footer>
+</body>
+</html>
