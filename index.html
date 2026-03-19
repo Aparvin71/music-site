@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Stream original songs, worship music, family songs, and Scripture-inspired tracks." />
+  <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks." />
   <meta name="theme-color" content="#0f1115" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -12,7 +12,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <title>Aineo Music</title>
+  <title>Allen Parvin Music</title>
   <link rel="stylesheet" href="style.css" />
   <script src="app.js" defer></script>
 </head>
@@ -22,7 +22,7 @@
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
       <div class="nav-top-row">
-        <h1 class="logo">Aineo Music</h1>
+        <h1 class="logo">Allen Parvin Music</h1>
 
         <button
           id="mobileNavToggle"
@@ -39,7 +39,7 @@
       <ul id="siteNavLinks" class="nav-links">
         <li><a href="index.html" class="active" aria-current="page">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Request a Song</a></li>
+        <li><a href="contact.html">Contact</a></li>
       </ul>
     </nav>
   </header>
@@ -51,7 +51,7 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Library filters">
       <div class="brand">
-        <p class="brand-title">Aineo Music</p>
+        <p class="brand-title">Allen Parvin Music</p>
         <p>Inspired • Worship • Family • Scripture • Fun • Thoughtful Songs</p>
       </div>
 
@@ -79,6 +79,25 @@
 
         <div id="playlistSectionBody" class="section-body">
           <div id="playlistList" class="playlist-list" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="sidebar-section collapsible-section open" data-collapsible="my-playlists">
+        <button
+          class="section-toggle"
+          type="button"
+          aria-expanded="true"
+          aria-controls="customPlaylistSectionBody"
+        >
+          <span>My Playlists</span>
+          <span class="toggle-icon" aria-hidden="true">▾</span>
+        </button>
+
+        <div id="customPlaylistSectionBody" class="section-body">
+          <button id="newUserPlaylistBtn" class="action-btn new-playlist-btn" type="button">+ New Playlist</button>
+          <div id="customPlaylistList" class="custom-playlist-list" aria-live="polite">
+            <p class="empty-message">Create your first playlist.</p>
+          </div>
         </div>
       </section>
 
@@ -291,6 +310,12 @@
       </div>
     </div>
 
+<div class="sidebar-section">
+  <h3>My Playlists</h3>
+  <div id="customPlaylists"></div>
+  <button id="newPlaylistBtn">+ New Playlist</button>
+</div>
+
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
         <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
@@ -309,6 +334,7 @@
         <div id="mobileActionsDrawer" class="mobile-actions-drawer hidden">
           <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
+          <button id="addCurrentToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
           <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
           <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
@@ -317,6 +343,7 @@
         <div class="desktop-extra-actions">
           <button id="copyLyricsBtnDesktop" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtnDesktop" class="action-btn secondary-btn" type="button">Link</button>
+          <button id="addCurrentToPlaylistBtnDesktop" class="action-btn secondary-btn" type="button">+ Playlist</button>
           <button id="downloadSongBtnDesktop" class="action-btn secondary-btn" type="button">Download</button>
           <button id="playQueueBtnDesktop" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtnDesktop" class="action-btn secondary-btn" type="button">Shuffle</button>
@@ -370,7 +397,7 @@
   </div>
 
   <footer class="site-footer">
-    <p>Aineo Music</p>
+    <p>Allen Parvin Music</p>
   </footer>
 </body>
 </html>

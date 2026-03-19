@@ -2437,3 +2437,52 @@ a:hover {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+
+.custom-playlist-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.user-playlist-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.user-playlist-chip {
+  width: 100%;
+  text-align: left;
+}
+
+.new-playlist-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+.danger-btn {
+  background: #3a1f28;
+  color: #ffd9df;
+  border: 1px solid #6e3243;
+}
+
+.danger-btn:hover {
+  background: #4a2632;
+  border-color: #8f4157;
+}
+
+@media (max-width: 640px) {
+  .custom-playlist-list {
+    gap: 6px;
+  }
+
+  .user-playlist-row {
+    grid-template-columns: 1fr;
+  }
+
+  .user-playlist-row .danger-btn {
+    justify-self: end;
+  }
+}
