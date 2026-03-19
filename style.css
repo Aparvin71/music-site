@@ -2564,10 +2564,6 @@ a:hover {
    Keeps lyrics/scripture/queue inside their own scroll area
 ========================================= */
 @media (max-width: 640px) {
-  .player-sheet {
-    display: block !important;
-  }
-
   .player-sheet-content {
     position: fixed !important;
     left: 0 !important;
@@ -2676,5 +2672,19 @@ a:hover {
   .lyrics-block,
   .scripture-block {
     padding-bottom: 40px !important;
+  }
+}
+
+
+/* =========================================
+   MOBILE PLAYER VISIBILITY FIX
+========================================= */
+@media (max-width: 640px) {
+  .player-sheet.hidden {
+    display: none !important;
+  }
+
+  .player-sheet:not(.hidden) {
+    display: block !important;
   }
 }
