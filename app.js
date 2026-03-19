@@ -22,6 +22,12 @@ const STORAGE_KEYS = {
   lastQueue: "aineo_last_queue"
 };
 
+const LEGACY_STORAGE_KEYS = {
+  sectionPrefix: "allen_parvin_section_"
+};
+
+const SECTION_STORAGE_PREFIX = "aineo_section_";
+
 const filters = {
   selectedAlbum: null,
   selectedPlaylist: null,
@@ -186,7 +192,7 @@ async function init() {
 
 async function loadTracks() {
   try {
-    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch("tracks.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -1403,6 +1409,13 @@ function saveTrackOffline(track) {
       type: "CACHE_AUDIO_URLS",
       urls: [track.src]
     });
+
+    if (track.cover) {
+      navigator.serviceWorker.controller.postMessage({
+        type: "CACHE_MEDIA_URLS",
+        urls: [track.cover]
+      });
+    }
   }
 
   updateOfflineButtons(track);
@@ -1769,7 +1782,7 @@ function openAndScrollQueueToCurrentTrack() {
   if (queueSection && !queueSection.classList.contains("open")) {
     queueSection.classList.add("open");
     toggle?.setAttribute("aria-expanded", "true");
-    localStorage.setItem("allen_parvin_section_queue", "open");
+    localStorage.setItem(`${SECTION_STORAGE_PREFIX}queue`, "open");
   }
 
   requestAnimationFrame(() => {
@@ -2091,7 +2104,8 @@ function initCollapsibles() {
 
     if (!toggle || !key) return;
 
-    const savedState = localStorage.getItem(`allen_parvin_section_${key}`);
+    const savedState = localStorage.getItem(`${SECTION_STORAGE_PREFIX}${key}`)
+      ?? localStorage.getItem(`${LEGACY_STORAGE_KEYS.sectionPrefix}${key}`);
     const isOpen = savedState !== "closed";
 
     section.classList.toggle("open", isOpen);
@@ -2100,7 +2114,7 @@ function initCollapsibles() {
     toggle.addEventListener("click", () => {
       const nowOpen = section.classList.toggle("open");
       toggle.setAttribute("aria-expanded", nowOpen ? "true" : "false");
-      localStorage.setItem(`allen_parvin_section_${key}`, nowOpen ? "open" : "closed");
+      localStorage.setItem(`${SECTION_STORAGE_PREFIX}${key}`, nowOpen ? "open" : "closed");
     });
   });
 }

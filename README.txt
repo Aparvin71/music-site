@@ -1,6 +1,8 @@
-Allen Parvin Music - Standalone PWA Bundle
+Aineo Music - Clean Upload Bundle
 
-Files included:
+Upload this folder exactly as-is.
+
+Required structure:
 - index.html
 - about.html
 - contact.html
@@ -11,22 +13,14 @@ Files included:
 - manifest.webmanifest
 - service-worker.js
 - tracks.json
-- images/Blue-and-White-with-black.PNG
-- icons/icon-192.png
-- icons/icon-512.png
+- /icons/icon-64.png
+- /icons/icon-192.png
+- /icons/icon-512.png
+- /images/aineo-music.png
+- /images/church-logo.png
 
-What was updated:
-- Added PWA manifest and install metadata.
-- Added service worker for app shell caching.
-- Added audio caching for remote audio files.
-- Fixed contact.html to load contact.js from the correct path.
-- Fixed about.html structure and added footer/closing tags.
-- Added standalone service worker registration for About and Contact pages.
-- Added app icon files from the uploaded logo.
-
-Deployment notes:
-- Serve over HTTPS (or localhost for testing).
-- Keep all files in the same folder structure as provided here.
-- Audio and cover URLs can stay in your R2 bucket.
-- For best cross-origin media caching behavior, make sure your R2 bucket allows browser access to the audio and cover files.
-- If you update app shell files later, bump CACHE_VERSION inside service-worker.js.
+Notes:
+- Keep the covers and mp3 files on your R2 bucket exactly as referenced in tracks.json.
+- Keep the icons and local images on the SAME site/domain as the HTML files. That is the most reliable setup for PWA install icons.
+- If you ever update app shell files again, bump CACHE_VERSION in service-worker.js.
+- tracks.json now updates with a network-first service worker strategy, so you do not need the Date.now cache buster anymore.
