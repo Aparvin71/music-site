@@ -1,32 +1,22 @@
-Allen Parvin Music - Standalone PWA Bundle
+Aineo Music upgrade pack
 
 Files included:
-- index.html
-- about.html
-- contact.html
-- style.css
 - app.js
-- contact.js
-- pwa-init.js
-- manifest.webmanifest
-- service-worker.js
-- tracks.json
-- images/Blue-and-White-with-black.PNG
-- icons/icon-192.png
-- icons/icon-512.png
+- style.css
 
-What was updated:
-- Added PWA manifest and install metadata.
-- Added service worker for app shell caching.
-- Added audio caching for remote audio files.
-- Fixed contact.html to load contact.js from the correct path.
-- Fixed about.html structure and added footer/closing tags.
-- Added standalone service worker registration for About and Contact pages.
-- Added app icon files from the uploaded logo.
+What this adds:
+- Add to Queue button on track cards
+- Play Next button on track cards
+- Queue buttons on mini cards, featured tracks, and album modal rows
+- Synced lyrics support for timestamped lyrics in [mm:ss] or [mm:ss.xx] format
+- Fallback auto-scrolling lyric highlight for plain lyrics when duration is available
 
-Deployment notes:
-- Serve over HTTPS (or localhost for testing).
-- Keep all files in the same folder structure as provided here.
-- Audio and cover URLs can stay in your R2 bucket.
-- For best cross-origin media caching behavior, make sure your R2 bucket allows browser access to the audio and cover files.
-- If you update app shell files later, bump CACHE_VERSION inside service-worker.js.
+Important:
+- Upload both files together.
+- Hard refresh after upload.
+- If the old JS is still loading, clear cache / unregister the service worker and reload.
+
+Timed lyrics format example:
+[00:05.00]First line
+[00:10.50]Second line
+[00:16.00]Third line
