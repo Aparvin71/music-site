@@ -254,6 +254,18 @@ function makeTrackId(track, index) {
   return `${track.title || "track"}__${track.album || "album"}__${index}`;
 }
 
+function getQueueDisplayTracks() {
+  if (Array.isArray(currentQueue) && currentQueue.length) {
+    return currentQueue;
+  }
+
+  if (Array.isArray(filteredTracks) && filteredTracks.length) {
+    return filteredTracks;
+  }
+
+  return Array.isArray(tracks) ? tracks : [];
+}
+
 /* =========================
    STORAGE
 ========================= */
