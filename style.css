@@ -1568,95 +1568,18 @@ a:hover {
 ========================================= */
 
 @media (max-width: 640px) {
-  .queue-row {
-    grid-template-columns: auto 48px 1fr;
+  body {
+    padding-bottom: 300px;
   }
 
-  .queue-actions {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
+  .site-header {
+    position: static;
   }
 
-  .player-sheet-content {
-    width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    border-radius: 24px 24px 0 0;
-    position: absolute;
-    inset: auto 0 0 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .player-sheet-header {
-    padding: 14px 16px;
-    flex: 0 0 auto;
-  }
-
-  .player-sheet-body {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .player-sheet-now {
-    flex: 0 0 auto;
-    border-right: none;
-    border-bottom: 1px solid #1d2633;
-    padding: 16px;
-    gap: 14px;
-  }
-
-  .player-sheet-panel {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-    padding: 14px 16px 20px;
-  }
-
-  .player-sheet-tabs {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #0c1118;
-    padding-bottom: 10px;
-    margin-bottom: 12px;
-  }
-
-  .player-tab-panel {
-    height: 100%;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 28px;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 220px);
-  }
-
-  .player-sheet-progress {
-    grid-template-columns: 42px 1fr 42px;
-  }
-
-  .player-sheet-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .player-sheet-actions .action-btn {
-    flex: 1 1 calc(50% - 8px);
-  }
-
-  .lyrics-block,
-  .scripture-block {
-    padding-bottom: 24px;
-  }
+.album-card,
+.mini-card {
+  padding: 8px;
 }
-
 
 .album-card h3,
 .mini-card-meta strong {
@@ -2631,5 +2554,127 @@ a:hover {
 
   .player-sheet-actions .action-btn {
     flex: 1 1 calc(50% - 10px);
+  }
+}
+
+
+
+/* =========================================
+   MOBILE FULL PLAYER HOTFIX
+   Keeps lyrics/scripture/queue inside their own scroll area
+========================================= */
+@media (max-width: 640px) {
+  .player-sheet {
+    display: block !important;
+  }
+
+  .player-sheet-content {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+  }
+
+  .player-sheet-header {
+    flex: 0 0 auto !important;
+    padding: 12px 14px !important;
+  }
+
+  .player-sheet-body {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .player-sheet-now {
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    border-right: none !important;
+    border-bottom: 1px solid #1d2633 !important;
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 200px) !important;
+  }
+
+  .player-sheet-meta h3 {
+    font-size: 1.2rem !important;
+  }
+
+  .player-sheet-progress {
+    grid-template-columns: 40px 1fr 40px !important;
+    gap: 8px !important;
+  }
+
+  .player-sheet-transport {
+    gap: 10px !important;
+  }
+
+  .player-sheet-actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-top: 0 !important;
+    flex: 0 0 auto !important;
+  }
+
+  .player-sheet-actions .action-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .player-sheet-panel {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 12px 14px 18px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .player-sheet-tabs {
+    flex: 0 0 auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+    background: #0c1118 !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .player-tab-panel {
+    display: none;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: 56px !important;
+  }
+
+  .player-tab-panel.active {
+    display: block !important;
+  }
+
+  .player-sheet-queue-list,
+  .lyrics-block,
+  .scripture-block {
+    padding-bottom: 40px !important;
   }
 }
