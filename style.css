@@ -1568,18 +1568,95 @@ a:hover {
 ========================================= */
 
 @media (max-width: 640px) {
-  body {
-    padding-bottom: 300px;
+  .queue-row {
+    grid-template-columns: auto 48px 1fr;
   }
 
-  .site-header {
-    position: static;
+  .queue-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
   }
 
-.album-card,
-.mini-card {
-  padding: 8px;
+  .player-sheet-content {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    border-radius: 24px 24px 0 0;
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .player-sheet-header {
+    padding: 14px 16px;
+    flex: 0 0 auto;
+  }
+
+  .player-sheet-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .player-sheet-now {
+    flex: 0 0 auto;
+    border-right: none;
+    border-bottom: 1px solid #1d2633;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .player-sheet-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 14px 16px 20px;
+  }
+
+  .player-sheet-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #0c1118;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+  }
+
+  .player-tab-panel {
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 28px;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 220px);
+  }
+
+  .player-sheet-progress {
+    grid-template-columns: 42px 1fr 42px;
+  }
+
+  .player-sheet-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .player-sheet-actions .action-btn {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .lyrics-block,
+  .scripture-block {
+    padding-bottom: 24px;
+  }
 }
+
 
 .album-card h3,
 .mini-card-meta strong {
