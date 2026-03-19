@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v9.07";
+const CACHE_VERSION = "v8";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -41,11 +41,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (
-            key !== STATIC_CACHE &&
-            key !== RUNTIME_CACHE &&
-            key !== AUDIO_CACHE
-          ) {
+          if (key !== STATIC_CACHE && key !== RUNTIME_CACHE && key !== AUDIO_CACHE) {
             return caches.delete(key);
           }
         })
@@ -60,6 +56,26 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") {
     self.skipWaiting();
+    return;
+  }
+
+  if (event.data?.type === "CACHE_AUDIO_URLS" && Array.isArray(event.data.urls)) {
+    event.waitUntil(
+      caches.open(AUDIO_CACHE).then(async (cache) => {
+        await Promise.all(
+          event.data.urls
+            .filter(Boolean)
+            .map(async (url) => {
+              try {
+                const response = await fetch(url, { mode: "no-cors" });
+                await cache.put(url, response);
+              } catch (error) {
+                console.warn("Failed to cache media URL:", url, error);
+              }
+            })
+        );
+      })
+    );
   }
 });
 
@@ -67,19 +83,15 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Only handle GET requests
   if (req.method !== "GET") return;
 
-  // IMPORTANT:
-  // Never intercept byte-range requests.
-  // Mobile browsers often use Range requests for MP3 streaming.
+  // Never intercept byte-range audio requests. Mobile browsers need these.
   if (req.headers.has("range")) {
     return;
   }
 
   const url = new URL(req.url);
 
-  // ===== AUDIO FILES =====
   if (req.destination === "audio" || url.pathname.endsWith(".mp3")) {
     event.respondWith(
       caches.open(AUDIO_CACHE).then((cache) =>
@@ -100,7 +112,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ===== NAVIGATION REQUESTS =====
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -110,15 +121,12 @@ self.addEventListener("fetch", (event) => {
           return res;
         })
         .catch(() =>
-          caches.match(req).then((cached) => {
-            return cached || caches.match("/index.html");
-          })
+          caches.match(req).then((cached) => cached || caches.match("/index.html"))
         )
     );
     return;
   }
 
-  // ===== STATIC / OTHER ASSETS =====
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
@@ -129,7 +137,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => cached)
+        .catch(() => cached);
     })
   );
 });

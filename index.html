@@ -3,21 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks." />
   <meta name="theme-color" content="#0f1115" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icons/icon-64.png" sizes="64x64" type="image/png" />
-  <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="images/aineo-music.png" />
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:image" content="images/aineo-music.png" />
-  <meta name="description" content="Stream original songs, worship music, family songs, and Scripture-inspired tracks on Aineo Music." />
-  <meta property="og:title" content="Aineo Music" />
-  <meta property="og:description" content="Original music, worship songs, family songs, and Scripture-inspired tracks." />
   <title>Aineo Music</title>
   <link rel="stylesheet" href="style.css" />
-  <script src="pwa-init.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -43,7 +32,7 @@
       <ul id="siteNavLinks" class="nav-links">
         <li><a href="index.html" class="active" aria-current="page">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Request a Song</a></li>
+        <li><a href="contact.html">Request</a></li>
       </ul>
     </nav>
   </header>
@@ -215,10 +204,18 @@
 
 
       <section class="library-panel" aria-labelledby="downloadedHeading">
-        <div class="section-header">
-          <h2 id="downloadedHeading">Downloaded Songs</h2>
+        <div class="section-header downloaded-section-header">
+          <div>
+            <h2 id="downloadedHeading">Downloaded Songs</h2>
+            <p id="downloadedCount" class="section-subtext">0 songs saved</p>
+          </div>
+          <div class="section-actions">
+            <button id="playDownloadedBtn" class="action-btn secondary-btn" type="button">Play All</button>
+            <button id="shuffleDownloadedBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
+            <button id="clearDownloadedBtn" class="action-btn secondary-btn" type="button">Clear</button>
+          </div>
         </div>
-        <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
+        <div id="downloadedList" class="mini-grid downloaded-grid" aria-live="polite"></div>
       </section>
 
       <section class="library-panel" aria-labelledby="favoritesHeading">
@@ -294,6 +291,20 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div id="miniPlayer" class="mini-player hidden" aria-label="Mini player">
+    <button id="miniPlayerMain" class="mini-player-main" type="button">
+      <img id="miniPlayerCover" src="" alt="Current song cover" class="mini-player-cover" />
+      <div class="mini-player-meta">
+        <strong id="miniPlayerTitle">Select a song</strong>
+        <span id="miniPlayerArtist">—</span>
+      </div>
+    </button>
+    <div class="mini-player-actions">
+      <button id="miniPlayerPlayBtn" class="control-btn mini-player-btn" type="button" aria-label="Play or pause">▶</button>
+      <button id="miniPlayerNextBtn" class="control-btn mini-player-btn" type="button" aria-label="Next track">⏭</button>
+    </div>
   </div>
 
   <div class="sticky-player" aria-label="Audio player">

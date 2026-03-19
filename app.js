@@ -12,6 +12,7 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let mediaSessionReady = false;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -21,12 +22,6 @@ const STORAGE_KEYS = {
   downloadedTracks: "aineo_downloaded_tracks",
   lastQueue: "aineo_last_queue"
 };
-
-const LEGACY_STORAGE_KEYS = {
-  sectionPrefix: "allen_parvin_section_"
-};
-
-const SECTION_STORAGE_PREFIX = "aineo_section_";
 
 const filters = {
   selectedAlbum: null,
@@ -129,6 +124,18 @@ const els = {
   createPlaylistBtn: document.getElementById("createPlaylistBtn"),
   myPlaylistList: document.getElementById("myPlaylistList"),
   downloadedList: document.getElementById("downloadedList"),
+  downloadedCount: document.getElementById("downloadedCount"),
+  playDownloadedBtn: document.getElementById("playDownloadedBtn"),
+  shuffleDownloadedBtn: document.getElementById("shuffleDownloadedBtn"),
+  clearDownloadedBtn: document.getElementById("clearDownloadedBtn"),
+
+  miniPlayer: document.getElementById("miniPlayer"),
+  miniPlayerMain: document.getElementById("miniPlayerMain"),
+  miniPlayerCover: document.getElementById("miniPlayerCover"),
+  miniPlayerTitle: document.getElementById("miniPlayerTitle"),
+  miniPlayerArtist: document.getElementById("miniPlayerArtist"),
+  miniPlayerPlayBtn: document.getElementById("miniPlayerPlayBtn"),
+  miniPlayerNextBtn: document.getElementById("miniPlayerNextBtn"),
 
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
@@ -183,6 +190,8 @@ async function init() {
   renderQueue();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
+  updateMiniPlayer();
+  initMediaSession();
   handleSongQueryParam();
 }
 
@@ -252,18 +261,6 @@ function normalizeStringArray(value) {
 
 function makeTrackId(track, index) {
   return `${track.title || "track"}__${track.album || "album"}__${index}`;
-}
-
-function getQueueDisplayTracks() {
-  if (Array.isArray(currentQueue) && currentQueue.length) {
-    return currentQueue;
-  }
-
-  if (Array.isArray(filteredTracks) && filteredTracks.length) {
-    return filteredTracks;
-  }
-
-  return Array.isArray(tracks) ? tracks : [];
 }
 
 /* =========================
@@ -368,10 +365,26 @@ function bindUI() {
   });
 
   if (els.audioPlayer) {
-    els.audioPlayer.addEventListener("timeupdate", updateProgressUI);
-    els.audioPlayer.addEventListener("loadedmetadata", updateProgressUI);
-    els.audioPlayer.addEventListener("play", updatePlayButton);
-    els.audioPlayer.addEventListener("pause", updatePlayButton);
+    els.audioPlayer.addEventListener("timeupdate", () => {
+      updateProgressUI();
+      updateMediaSessionPositionState();
+    });
+    els.audioPlayer.addEventListener("loadedmetadata", () => {
+      updateProgressUI();
+      updateMediaSessionPositionState();
+    });
+    els.audioPlayer.addEventListener("play", () => {
+      updatePlayButton();
+      updateMiniPlayer();
+      updateMediaSessionPlaybackState();
+      updateMediaSessionPositionState();
+    });
+    els.audioPlayer.addEventListener("pause", () => {
+      updatePlayButton();
+      updateMiniPlayer();
+      updateMediaSessionPlaybackState();
+      updateMediaSessionPositionState();
+    });
     els.audioPlayer.addEventListener("ended", playNextTrack);
   }
 
@@ -459,6 +472,9 @@ function bindUI() {
   on(els.resumeSongBtn, "click", resumeSavedTrack);
   on(els.dismissResumeBtn, "click", hideResumeBanner);
 
+  on(els.playDownloadedBtn, "click", playDownloadedTracks);
+  on(els.shuffleDownloadedBtn, "click", shuffleDownloadedTracks);
+  on(els.clearDownloadedBtn, "click", clearDownloadedTracks);
   on(els.createPlaylistBtn, "click", createNewPlaylist);
   on(els.addToPlaylistBtn, "click", () => {
     const track = getCurrentTrack();
@@ -511,6 +527,19 @@ function bindUI() {
     openPlayerSheet();
   });
 
+  on(els.miniPlayerMain, "click", e => {
+    if (e.target.closest("button") || e.target.closest("input")) return;
+    openPlayerSheet(els.miniPlayerMain);
+  });
+  on(els.miniPlayerPlayBtn, "click", e => {
+    e.stopPropagation();
+    togglePlayPause();
+  });
+  on(els.miniPlayerNextBtn, "click", e => {
+    e.stopPropagation();
+    playNextTrack();
+  });
+
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       closeLyricsModal();
@@ -526,6 +555,161 @@ function bindUI() {
 function on(element, eventName, handler) {
   if (element) {
     element.addEventListener(eventName, handler);
+  }
+}
+
+
+function getDownloadedTrackObjects() {
+  return downloadedTracks
+    .map(id => tracks.find(track => track.id === id))
+    .filter(Boolean);
+}
+
+function updateMiniPlayer() {
+  const track = getCurrentTrack();
+
+  if (!els.miniPlayer) return;
+
+  if (!track) {
+    els.miniPlayer.classList.add("hidden");
+    return;
+  }
+
+  els.miniPlayer.classList.remove("hidden");
+
+  if (els.miniPlayerCover) {
+    els.miniPlayerCover.src = track.cover || "";
+    els.miniPlayerCover.alt = `${track.title} cover`;
+  }
+
+  if (els.miniPlayerTitle) els.miniPlayerTitle.textContent = track.title || "Untitled";
+  if (els.miniPlayerArtist) {
+    els.miniPlayerArtist.textContent = [track.artist, track.album].filter(Boolean).join(" • ");
+  }
+  if (els.miniPlayerPlayBtn && els.audioPlayer) {
+    els.miniPlayerPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
+  }
+}
+
+function playDownloadedTracks() {
+  const savedTracks = getDownloadedTrackObjects();
+  if (!savedTracks.length) return;
+  startPlaybackFromList(savedTracks, false);
+}
+
+function shuffleDownloadedTracks() {
+  const savedTracks = getDownloadedTrackObjects();
+  if (!savedTracks.length) return;
+  startPlaybackFromList(savedTracks, true);
+}
+
+function removeDownloadedTrack(trackId) {
+  downloadedTracks = downloadedTracks.filter(id => id !== trackId);
+  saveDownloadedTracks();
+  renderDownloadedSongs();
+  renderFeaturedTrackList();
+  updateOfflineButtons();
+}
+
+function clearDownloadedTracks() {
+  downloadedTracks = [];
+  saveDownloadedTracks();
+  renderDownloadedSongs();
+  renderFeaturedTrackList();
+  updateOfflineButtons();
+}
+
+function initMediaSession() {
+  if (!("mediaSession" in navigator) || mediaSessionReady) return;
+
+  try {
+    navigator.mediaSession.setActionHandler("play", () => {
+      els.audioPlayer?.play().catch(err => console.error("Playback failed:", err));
+    });
+    navigator.mediaSession.setActionHandler("pause", () => {
+      els.audioPlayer?.pause();
+    });
+    navigator.mediaSession.setActionHandler("previoustrack", playPreviousTrack);
+    navigator.mediaSession.setActionHandler("nexttrack", playNextTrack);
+    navigator.mediaSession.setActionHandler("seekbackward", details => {
+      if (!els.audioPlayer) return;
+      const offset = details?.seekOffset || 10;
+      els.audioPlayer.currentTime = Math.max(0, (els.audioPlayer.currentTime || 0) - offset);
+      updateProgressUI();
+      updateMediaSessionPositionState();
+    });
+    navigator.mediaSession.setActionHandler("seekforward", details => {
+      if (!els.audioPlayer) return;
+      const offset = details?.seekOffset || 10;
+      const duration = isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : 0;
+      els.audioPlayer.currentTime = Math.min(duration, (els.audioPlayer.currentTime || 0) + offset);
+      updateProgressUI();
+      updateMediaSessionPositionState();
+    });
+    navigator.mediaSession.setActionHandler("seekto", details => {
+      if (!els.audioPlayer || typeof details?.seekTime !== "number") return;
+      els.audioPlayer.currentTime = details.seekTime;
+      updateProgressUI();
+      updateMediaSessionPositionState();
+    });
+    mediaSessionReady = true;
+    updateMediaSessionPlaybackState();
+  } catch (error) {
+    console.warn("Media Session setup skipped:", error);
+  }
+}
+
+function updateMediaSession(track = getCurrentTrack()) {
+  if (!("mediaSession" in navigator) || !track) return;
+
+  try {
+    const artwork = [];
+    if (track.cover) {
+      artwork.push(
+        { src: track.cover, sizes: "96x96", type: "image/png" },
+        { src: track.cover, sizes: "192x192", type: "image/png" },
+        { src: track.cover, sizes: "512x512", type: "image/png" }
+      );
+    }
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title || "Untitled",
+      artist: track.artist || "Aineo Music",
+      album: track.album || "Singles",
+      artwork
+    });
+
+    updateMediaSessionPlaybackState();
+    updateMediaSessionPositionState();
+  } catch (error) {
+    console.warn("Media Session metadata skipped:", error);
+  }
+}
+
+function updateMediaSessionPlaybackState() {
+  if (!("mediaSession" in navigator) || !els.audioPlayer) return;
+
+  try {
+    navigator.mediaSession.playbackState = els.audioPlayer.paused ? "paused" : "playing";
+  } catch (error) {
+    console.warn("Media Session playback state skipped:", error);
+  }
+}
+
+function updateMediaSessionPositionState() {
+  if (!("mediaSession" in navigator) || !els.audioPlayer || typeof navigator.mediaSession.setPositionState !== "function") return;
+
+  const duration = els.audioPlayer.duration;
+  if (!isFinite(duration) || duration <= 0) return;
+
+  try {
+    navigator.mediaSession.setPositionState({
+      duration,
+      playbackRate: els.audioPlayer.playbackRate || 1,
+      position: Math.min(duration, Math.max(0, els.audioPlayer.currentTime || 0))
+    });
+  } catch (error) {
+    console.warn("Media Session position state skipped:", error);
   }
 }
 
@@ -1128,11 +1312,15 @@ function updateNowPlaying(track) {
   updatePlayButton();
   updateOfflineButtons(track);
   updatePlayerSheet();
+  updateMiniPlayer();
+  updateMediaSession(track);
 }
 
 function updatePlayButton() {
-  if (!els.playBtn || !els.audioPlayer) return;
-  els.playBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
+  if (!els.audioPlayer) return;
+  if (els.playBtn) els.playBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
+  if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
+  if (els.miniPlayerPlayBtn) els.miniPlayerPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
 }
 
 function updateProgressUI() {
@@ -1419,15 +1607,8 @@ function saveTrackOffline(track) {
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
       type: "CACHE_AUDIO_URLS",
-      urls: [track.src]
+      urls: [track.src, track.cover].filter(Boolean)
     });
-
-    if (track.cover) {
-      navigator.serviceWorker.controller.postMessage({
-        type: "CACHE_MEDIA_URLS",
-        urls: [track.cover]
-      });
-    }
   }
 
   updateOfflineButtons(track);
@@ -1438,18 +1619,56 @@ function saveTrackOffline(track) {
 function renderDownloadedSongs() {
   if (!els.downloadedList) return;
 
-  const savedTracks = downloadedTracks
-    .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean)
-    .slice(0, 12);
+  const savedTracks = getDownloadedTrackObjects();
+
+  if (els.downloadedCount) {
+    els.downloadedCount.textContent = `${savedTracks.length} song${savedTracks.length === 1 ? "" : "s"} saved`;
+  }
+
+  if (els.playDownloadedBtn) els.playDownloadedBtn.disabled = !savedTracks.length;
+  if (els.shuffleDownloadedBtn) els.shuffleDownloadedBtn.disabled = !savedTracks.length;
+  if (els.clearDownloadedBtn) els.clearDownloadedBtn.disabled = !savedTracks.length;
 
   if (!savedTracks.length) {
     els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
     return;
   }
 
-  els.downloadedList.innerHTML = savedTracks.map((track, index) => renderMiniCard(track, index)).join("");
+  els.downloadedList.innerHTML = savedTracks.slice(0, 24).map((track, index) => `
+    <div class="downloaded-card" data-mini-index="${index}">
+      <button class="downloaded-card-main" type="button" aria-label="Play ${escapeHtmlAttr(track.title)}">
+        ${track.cover
+          ? `<img class="mini-card-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" loading="lazy" />`
+          : `<div class="mini-card-cover mini-card-cover-placeholder">♪</div>`
+        }
+        <div class="mini-card-meta">
+          <strong>${escapeHtml(track.title)}</strong>
+          <span>${escapeHtml(track.album)}</span>
+        </div>
+      </button>
+      <div class="downloaded-card-actions">
+        <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">+ Playlist</button>
+        <button class="mini-action-btn" data-remove-downloaded="${escapeHtmlAttr(track.id)}" type="button">Remove</button>
+      </div>
+    </div>
+  `).join("");
+
   bindMiniCardClicks(els.downloadedList, savedTracks);
+
+  els.downloadedList.querySelectorAll("[data-add-playlist-track]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const track = tracks.find(t => t.id === btn.dataset.addPlaylistTrack);
+      if (track) openPlaylistModalForTrack(track, btn);
+    });
+  });
+
+  els.downloadedList.querySelectorAll("[data-remove-downloaded]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      removeDownloadedTrack(btn.dataset.removeDownloaded);
+    });
+  });
 }
 
 function createNewPlaylist() {
@@ -1474,7 +1693,11 @@ function renderMyPlaylists() {
       <button class="filter-chip" data-custom-playlist="${escapeHtmlAttr(name)}" type="button">
         ${escapeHtml(name)} <span class="chip-count">(${customPlaylists[name].length})</span>
       </button>
-      <button class="mini-action-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">✕</button>
+      <div class="playlist-chip-actions">
+        <button class="mini-action-btn" data-play-custom-playlist="${escapeHtmlAttr(name)}" type="button">Play</button>
+        <button class="mini-action-btn" data-shuffle-custom-playlist="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
+        <button class="mini-action-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">✕</button>
+      </div>
     </div>
   `).join("");
 
@@ -1499,6 +1722,30 @@ function renderMyPlaylists() {
       renderFeaturedTrackList();
       renderQueue();
       scrollToTop();
+    });
+  });
+
+  els.myPlaylistList.querySelectorAll("[data-play-custom-playlist]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const tracksForPlaylist = (customPlaylists[btn.dataset.playCustomPlaylist] || [])
+        .map(id => tracks.find(track => track.id === id))
+        .filter(Boolean);
+      if (tracksForPlaylist.length) {
+        startPlaybackFromList(tracksForPlaylist, false);
+      }
+    });
+  });
+
+  els.myPlaylistList.querySelectorAll("[data-shuffle-custom-playlist]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const tracksForPlaylist = (customPlaylists[btn.dataset.shuffleCustomPlaylist] || [])
+        .map(id => tracks.find(track => track.id === id))
+        .filter(Boolean);
+      if (tracksForPlaylist.length) {
+        startPlaybackFromList(tracksForPlaylist, true);
+      }
     });
   });
 
@@ -1621,6 +1868,19 @@ function bindMiniCardClicks(container, trackList) {
 /* =========================
    QUEUE UI
 ========================= */
+
+function getQueueDisplayTracks() {
+  if (Array.isArray(currentQueue) && currentQueue.length) {
+    return currentQueue;
+  }
+
+  if (Array.isArray(filteredTracks) && filteredTracks.length) {
+    return filteredTracks;
+  }
+
+  return Array.isArray(tracks) ? tracks : [];
+}
+
 
 function renderQueue() {
   const displayTracks = getQueueDisplayTracks();
@@ -1794,7 +2054,7 @@ function openAndScrollQueueToCurrentTrack() {
   if (queueSection && !queueSection.classList.contains("open")) {
     queueSection.classList.add("open");
     toggle?.setAttribute("aria-expanded", "true");
-    localStorage.setItem(`${SECTION_STORAGE_PREFIX}queue`, "open");
+    localStorage.setItem("allen_parvin_section_queue", "open");
   }
 
   requestAnimationFrame(() => {
@@ -2116,8 +2376,7 @@ function initCollapsibles() {
 
     if (!toggle || !key) return;
 
-    const savedState = localStorage.getItem(`${SECTION_STORAGE_PREFIX}${key}`)
-      ?? localStorage.getItem(`${LEGACY_STORAGE_KEYS.sectionPrefix}${key}`);
+    const savedState = localStorage.getItem(`allen_parvin_section_${key}`);
     const isOpen = savedState !== "closed";
 
     section.classList.toggle("open", isOpen);
@@ -2126,7 +2385,7 @@ function initCollapsibles() {
     toggle.addEventListener("click", () => {
       const nowOpen = section.classList.toggle("open");
       toggle.setAttribute("aria-expanded", nowOpen ? "true" : "false");
-      localStorage.setItem(`${SECTION_STORAGE_PREFIX}${key}`, nowOpen ? "open" : "closed");
+      localStorage.setItem(`allen_parvin_section_${key}`, nowOpen ? "open" : "closed");
     });
   });
 }
