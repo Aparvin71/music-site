@@ -5,14 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks." />
   <meta name="theme-color" content="#0f1115" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="AP Music" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <title>Allen Parvin Music</title>
+  <title>Aineo Music</title>
   <link rel="stylesheet" href="style.css" />
   <script src="app.js" defer></script>
 </head>
@@ -22,7 +15,7 @@
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
       <div class="nav-top-row">
-        <h1 class="logo">Allen Parvin Music</h1>
+        <h1 class="logo">Aineo Music</h1>
 
         <button
           id="mobileNavToggle"
@@ -39,7 +32,7 @@
       <ul id="siteNavLinks" class="nav-links">
         <li><a href="index.html" class="active" aria-current="page">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
+        <li><a href="contact.html">Request</a></li>
       </ul>
     </nav>
   </header>
@@ -51,7 +44,7 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Library filters">
       <div class="brand">
-        <p class="brand-title">Allen Parvin Music</p>
+        <p class="brand-title">Aineo Music</p>
         <p>Inspired • Worship • Family • Scripture • Fun • Thoughtful Songs</p>
       </div>
 
@@ -82,22 +75,23 @@
         </div>
       </section>
 
+
       <section class="sidebar-section collapsible-section open" data-collapsible="my-playlists">
         <button
           class="section-toggle"
           type="button"
           aria-expanded="true"
-          aria-controls="customPlaylistSectionBody"
+          aria-controls="myPlaylistSectionBody"
         >
           <span>My Playlists</span>
           <span class="toggle-icon" aria-hidden="true">▾</span>
         </button>
 
-        <div id="customPlaylistSectionBody" class="section-body">
-          <button id="newUserPlaylistBtn" class="action-btn new-playlist-btn" type="button">+ New Playlist</button>
-          <div id="customPlaylistList" class="custom-playlist-list" aria-live="polite">
-            <p class="empty-message">Create your first playlist.</p>
+        <div id="myPlaylistSectionBody" class="section-body">
+          <div class="playlist-toolbar">
+            <button id="createPlaylistBtn" class="action-btn secondary-btn small-action-btn" type="button">+ New Playlist</button>
           </div>
+          <div id="myPlaylistList" class="playlist-list" aria-live="polite"></div>
         </div>
       </section>
 
@@ -176,23 +170,6 @@
           />
         </div>
 
-<div id="playlistModal" class="modal">
-  <h3>Add to Playlist</h3>
-
-  <select id="playlistSelect"></select>
-
-  <input id="newPlaylistName" placeholder="New playlist name">
-
-  <button id="saveToPlaylistBtn">Save</button>
-</div>
-
-<h3>My Playlists</h3>
-<div id="myPlaylistList"></div>
-
-<h3>Downloaded</h3>
-<div id="downloadedList"></div>
-
-
         <div class="featured-meta">
           <p class="eyebrow">Featured Album</p>
           <h2 id="featuredAlbumTitle">Loading album...</h2>
@@ -223,6 +200,14 @@
           <h2 id="albumsHeading">Albums</h2>
         </div>
         <div id="albumGrid" class="album-grid" aria-live="polite"></div>
+      </section>
+
+
+      <section class="library-panel" aria-labelledby="downloadedHeading">
+        <div class="section-header">
+          <h2 id="downloadedHeading">Downloaded Songs</h2>
+        </div>
+        <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
       </section>
 
       <section class="library-panel" aria-labelledby="favoritesHeading">
@@ -327,16 +312,13 @@
       </div>
     </div>
 
-<div class="sidebar-section">
-  <h3>My Playlists</h3>
-  <div id="customPlaylists"></div>
-  <button id="newPlaylistBtn">+ New Playlist</button>
-</div>
-
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
         <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+        <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
+        <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+        <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button">Open Player</button>
 
         <button
           id="moreActionsBtn"
@@ -351,7 +333,6 @@
         <div id="mobileActionsDrawer" class="mobile-actions-drawer hidden">
           <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
-          <button id="addCurrentToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
           <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
           <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
@@ -360,7 +341,6 @@
         <div class="desktop-extra-actions">
           <button id="copyLyricsBtnDesktop" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtnDesktop" class="action-btn secondary-btn" type="button">Link</button>
-          <button id="addCurrentToPlaylistBtnDesktop" class="action-btn secondary-btn" type="button">+ Playlist</button>
           <button id="downloadSongBtnDesktop" class="action-btn secondary-btn" type="button">Download</button>
           <button id="playQueueBtnDesktop" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtnDesktop" class="action-btn secondary-btn" type="button">Shuffle</button>
@@ -413,8 +393,93 @@
     </div>
   </div>
 
+  <div id="playlistModal" class="lyrics-modal hidden" aria-hidden="true">
+    <div class="lyrics-modal-backdrop" id="playlistModalBackdrop"></div>
+    <div class="lyrics-modal-content playlist-modal-content" role="dialog" aria-modal="true" aria-labelledby="playlistModalTitle">
+      <div class="lyrics-modal-header">
+        <h2 id="playlistModalTitle">Add to Playlist</h2>
+        <button id="closePlaylistModalBtn" class="control-btn" type="button" aria-label="Close playlist modal">✕</button>
+      </div>
+      <div class="lyrics-modal-body">
+        <div class="form-group">
+          <label for="playlistSelect">Choose playlist</label>
+          <select id="playlistSelect" class="request-input"></select>
+        </div>
+        <div class="form-group">
+          <label for="newPlaylistName">Or create new playlist</label>
+          <input id="newPlaylistName" class="request-input" type="text" placeholder="New playlist name" />
+        </div>
+        <div class="featured-actions">
+          <button id="saveToPlaylistBtn" class="action-btn" type="button">Save to Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerSheet" class="player-sheet hidden" aria-hidden="true">
+    <div id="playerSheetBackdrop" class="player-sheet-backdrop"></div>
+    <div class="player-sheet-content" role="dialog" aria-modal="true" aria-labelledby="playerSheetTitle">
+      <div class="player-sheet-header">
+        <button id="closePlayerSheetBtn" class="control-btn" type="button" aria-label="Close full player">⌄</button>
+        <div class="player-sheet-heading">
+          <p class="eyebrow">Now Playing</p>
+          <h2 id="playerSheetTitle">Player</h2>
+        </div>
+        <button id="playerSheetFavoriteBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+      </div>
+
+      <div class="player-sheet-body">
+        <section class="player-sheet-now">
+          <div class="player-sheet-cover-wrap">
+            <img id="playerSheetCover" class="player-sheet-cover" src="" alt="Current song cover" />
+          </div>
+
+          <div class="player-sheet-meta">
+            <h3 id="playerSheetTrackTitle">Select a song</h3>
+            <p id="playerSheetTrackArtist">—</p>
+            <p id="playerSheetTrackAlbum">—</p>
+            <p id="playerSheetTrackScripture" class="scripture-line">—</p>
+          </div>
+
+          <div class="player-sheet-progress">
+            <span id="playerSheetCurrentTime">0:00</span>
+            <label class="visually-hidden" for="playerSheetSeekBar">Seek through track</label>
+            <input id="playerSheetSeekBar" type="range" min="0" max="100" value="0" step="0.1" />
+            <span id="playerSheetDuration">0:00</span>
+          </div>
+
+          <div class="player-sheet-transport">
+            <button id="playerSheetPrevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
+            <button id="playerSheetPlayBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
+            <button id="playerSheetNextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+          </div>
+
+          <div class="player-sheet-actions">
+            <button id="playerSheetLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
+            <button id="playerSheetAddToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
+            <button id="playerSheetSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+            <button id="playerSheetShareBtn" class="action-btn secondary-btn" type="button">Share</button>
+          </div>
+        </section>
+
+        <section class="player-sheet-panel">
+          <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
+            <button class="player-tab active" data-player-tab="lyrics" type="button" role="tab" aria-selected="true">Lyrics</button>
+            <button class="player-tab" data-player-tab="scripture" type="button" role="tab" aria-selected="false">Scripture</button>
+            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button>
+          </div>
+
+          <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
+          <div id="playerSheetScripturePanel" class="player-tab-panel" data-player-panel="scripture"></div>
+          <div id="playerSheetQueuePanel" class="player-tab-panel" data-player-panel="queue"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+
   <footer class="site-footer">
-    <p>Allen Parvin Music</p>
+    <p>Aineo Music</p>
   </footer>
 </body>
 </html>
