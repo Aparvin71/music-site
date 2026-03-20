@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v12.0";
+const CACHE_VERSION = "v15.0";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -21,8 +21,8 @@ const APP_SHELL = [
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
-  "/images/church-logo.png",
-  "/images/aineo-music.png"
+  "/images/aineo-music.png",
+  "/images/church-logo.png"
 ];
 
 // ===== INSTALL =====
@@ -34,7 +34,6 @@ self.addEventListener("install", (event) => {
       Promise.all(
         APP_SHELL.map((url) =>
           cache.add(url).catch(() => {
-            // prevents one failure from breaking install
             console.warn("Failed to cache:", url);
           })
         )
@@ -49,11 +48,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (
-            key !== STATIC_CACHE &&
-            key !== RUNTIME_CACHE &&
-            key !== AUDIO_CACHE
-          ) {
+          if (![STATIC_CACHE, RUNTIME_CACHE, AUDIO_CACHE].includes(key)) {
             return caches.delete(key);
           }
         })
@@ -64,23 +59,37 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-
+// ===== MESSAGES =====
 self.addEventListener("message", (event) => {
-  if (event.data?.type === "SKIP_WAITING") {
+  const data = event.data || {};
+
+  if (data.type === "SKIP_WAITING") {
     self.skipWaiting();
     return;
   }
 
-  if (event.data?.type === "CACHE_AUDIO_URLS" && Array.isArray(event.data.urls)) {
-    event.waitUntil((async () => {
-      const cache = await caches.open(AUDIO_CACHE);
-      await Promise.all(event.data.urls.map(async (url) => {
-        try {
-          const res = await fetch(url, { mode: "cors" });
-          if (res && res.ok) await cache.put(url, res.clone());
-        } catch {}
-      }));
-    })());
+  if (data.type === "CACHE_AUDIO_URLS" && Array.isArray(data.urls)) {
+    event.waitUntil(
+      caches.open(AUDIO_CACHE).then(async (cache) => {
+        await Promise.all(
+          data.urls
+            .filter(Boolean)
+            .map(async (url) => {
+              try {
+                const request = new Request(url, { mode: "cors" });
+                const existing = await cache.match(request);
+                if (existing) return;
+                const response = await fetch(request);
+                if (response && response.ok) {
+                  await cache.put(request, response.clone());
+                }
+              } catch (error) {
+                console.warn("Failed to cache audio URL:", url, error);
+              }
+            })
+        );
+      })
+    );
   }
 });
 
@@ -88,14 +97,16 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Only handle GET requests
   if (req.method !== "GET") return;
 
-  if (req.headers.has("range")) return;
+  // Never intercept byte-range requests used by mobile audio streaming.
+  if (req.headers.has("range")) {
+    return;
+  }
 
   const url = new URL(req.url);
 
-  // ===== AUDIO FILES (R2 or external) =====
+  // Audio files (R2 or external)
   if (req.destination === "audio" || url.pathname.endsWith(".mp3")) {
     event.respondWith(
       caches.open(AUDIO_CACHE).then((cache) =>
@@ -104,17 +115,33 @@ self.addEventListener("fetch", (event) => {
 
           return fetch(req)
             .then((res) => {
-              cache.put(req, res.clone());
+              if (res && res.ok) {
+                cache.put(req, res.clone());
+              }
               return res;
             })
-            .catch(() => cached);
+            .catch(() => cached)
         })
       )
     );
     return;
   }
 
-  // ===== NAVIGATION (HTML pages) =====
+  // tracks.json: network first so updates appear quickly
+  if (url.pathname.endsWith("/tracks.json") || url.pathname === "/tracks.json") {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          return res;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // HTML pages: network first
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
@@ -123,27 +150,25 @@ self.addEventListener("fetch", (event) => {
           caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() =>
-          caches.match(req).then((cached) => {
-            return cached || caches.match("/index.html");
-          })
-        )
+        .catch(() => caches.match(req).then((cached) => cached || caches.match("/index.html")))
     );
     return;
   }
 
-  // ===== STATIC ASSETS =====
+  // Static assets: cache first, then network
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
 
       return fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          }
           return res;
         })
-        .catch(() => cached);
+        .catch(() => cached)
     })
   );
 });

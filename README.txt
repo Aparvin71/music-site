@@ -1,6 +1,6 @@
-Allen Parvin Music - Standalone PWA Bundle
+Aineo Music - Clean Production Bundle
 
-Files included:
+Included:
 - index.html
 - about.html
 - contact.html
@@ -11,22 +11,25 @@ Files included:
 - manifest.webmanifest
 - service-worker.js
 - tracks.json
-- images/Blue-and-White-with-black.PNG
-- icons/icon-192.png
-- icons/icon-512.png
+- favicon.ico
+- icons/
+- images/
 
-What was updated:
-- Added PWA manifest and install metadata.
-- Added service worker for app shell caching.
-- Added audio caching for remote audio files.
-- Fixed contact.html to load contact.js from the correct path.
-- Fixed about.html structure and added footer/closing tags.
-- Added standalone service worker registration for About and Contact pages.
-- Added app icon files from the uploaded logo.
+Cleanup included:
+- Restored the missing getQueueDisplayTracks() helper in app.js
+- Kept playback stable
+- Fixed mobile audio streaming by skipping Range requests in the service worker
+- Added offline caching support for CACHE_AUDIO_URLS messages
+- Unified favicon, manifest, and Apple touch icon tags across all pages
+- Added mobile-web-app-capable plus Apple web app meta tags
+- Fixed the About page church logo path
+- Added local icons/images to service-worker app-shell caching
+- Added a stronger mobile fullscreen player CSS fix so lyrics stay below controls
 
-Deployment notes:
-- Serve over HTTPS (or localhost for testing).
-- Keep all files in the same folder structure as provided here.
-- Audio and cover URLs can stay in your R2 bucket.
-- For best cross-origin media caching behavior, make sure your R2 bucket allows browser access to the audio and cover files.
-- If you update app shell files later, bump CACHE_VERSION inside service-worker.js.
+Deployment:
+1. Upload the full folder structure as-is.
+2. Keep tracks.json at the site root.
+3. Keep audio and cover files on R2.
+4. After upload, hard refresh the site.
+5. Unregister the old service worker once, then reload.
+6. On iPhone, delete any previously installed home-screen app and reinstall so the new icon is used.

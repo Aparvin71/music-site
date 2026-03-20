@@ -186,7 +186,7 @@ async function init() {
 
 async function loadTracks() {
   try {
-    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch("tracks.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -1596,6 +1596,20 @@ function bindMiniCardClicks(container, trackList) {
 /* =========================
    QUEUE UI
 ========================= */
+
+
+function getQueueDisplayTracks() {
+  if (Array.isArray(currentQueue) && currentQueue.length) {
+    return currentQueue;
+  }
+
+  if (Array.isArray(filteredTracks) && filteredTracks.length) {
+    return filteredTracks;
+  }
+
+  return Array.isArray(tracks) ? tracks : [];
+}
+
 
 function renderQueue() {
   const displayTracks = getQueueDisplayTracks();
