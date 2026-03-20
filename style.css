@@ -2909,3 +2909,120 @@ a:hover {
     padding-bottom: 40px !important;
   }
 }
+
+
+/* =========================================
+   MINI PLAYER POLISH
+========================================= */
+.sticky-player {
+  touch-action: pan-x;
+}
+
+.sticky-player-left,
+.sticky-player-center {
+  cursor: pointer;
+}
+
+.sticky-player-left:active,
+.sticky-player-center:active {
+  opacity: 0.96;
+}
+
+@media (max-width: 768px) {
+  .sticky-player {
+    gap: 12px;
+  }
+
+  .sticky-player-left,
+  .sticky-player-center {
+    min-width: 0;
+  }
+
+  .sticky-player-left {
+    flex: 1 1 auto;
+  }
+
+  .sticky-player-center {
+    flex: 1 1 100%;
+    order: 3;
+  }
+
+  .sticky-player-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .compact-actions #openPlayerSheetBtn::after {
+    content: " ↑";
+    font-weight: 700;
+  }
+
+  .player-sheet-content {
+    touch-action: pan-x;
+  }
+}
+
+/* =========================================
+   DOWNLOADED HUB
+========================================= */
+.section-subtext {
+  margin: 6px 0 0;
+  color: #b7c0cf;
+  font-size: 13px;
+}
+
+.downloaded-header,
+.playlist-studio-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.section-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mini-card-wrap {
+  position: relative;
+}
+
+.mini-card-remove {
+  margin-top: 8px;
+  width: 100%;
+}
+
+@media (min-width: 641px) {
+  .mini-card-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: auto;
+    margin-top: 0;
+    opacity: 0;
+  }
+
+  .mini-card-wrap:hover .mini-card-remove,
+  .mini-card-wrap:focus-within .mini-card-remove {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-toolbar {
+    width: 100%;
+  }
+
+  .section-toolbar .small-action-btn,
+  .section-toolbar .action-btn {
+    flex: 1 1 calc(33.333% - 8px);
+    justify-content: center;
+  }
+
+  .mini-card-remove {
+    width: 100%;
+  }
+}

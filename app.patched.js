@@ -12,6 +12,7 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let activeCustomPlaylistName = null;
 let playerSheetTouchStartY = null;
 
 const STORAGE_KEYS = {
@@ -128,6 +129,15 @@ const els = {
   playDownloadedBtn: document.getElementById("playDownloadedBtn"),
   shuffleDownloadedBtn: document.getElementById("shuffleDownloadedBtn"),
   clearDownloadedBtn: document.getElementById("clearDownloadedBtn"),
+  playlistStudioSection: document.getElementById("playlistStudioSection"),
+  playlistStudioTitle: document.getElementById("playlistStudioTitle"),
+  playlistStudioMeta: document.getElementById("playlistStudioMeta"),
+  playlistStudioList: document.getElementById("playlistStudioList"),
+  playlistStudioPlayBtn: document.getElementById("playlistStudioPlayBtn"),
+  playlistStudioShuffleBtn: document.getElementById("playlistStudioShuffleBtn"),
+  playlistStudioRenameBtn: document.getElementById("playlistStudioRenameBtn"),
+  playlistStudioDeleteBtn: document.getElementById("playlistStudioDeleteBtn"),
+  closePlaylistStudioBtn: document.getElementById("closePlaylistStudioBtn"),
 
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
@@ -182,6 +192,7 @@ async function init() {
   renderQueue();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
+  renderPlaylistStudio();
   initMiniPlayerGestures();
   handleSongQueryParam();
 }
@@ -478,13 +489,18 @@ function bindUI() {
   on(els.saveToPlaylistBtn, "click", saveTrackToPlaylistFromModal);
   on(els.playDownloadedBtn, "click", () => {
     const savedTracks = getDownloadedTracks();
-    if (savedTracks.length) startPlaybackFromList(savedTracks, false, 0);
+    if (savedTracks.length) startPlaybackFromList(savedTracks, false);
   });
   on(els.shuffleDownloadedBtn, "click", () => {
     const savedTracks = getDownloadedTracks();
-    if (savedTracks.length) startPlaybackFromList(savedTracks, true, 0);
+    if (savedTracks.length) startPlaybackFromList(savedTracks, true);
   });
   on(els.clearDownloadedBtn, "click", clearDownloadedTracks);
+  on(els.playlistStudioPlayBtn, "click", playActiveCustomPlaylist);
+  on(els.playlistStudioShuffleBtn, "click", shuffleActiveCustomPlaylist);
+  on(els.playlistStudioRenameBtn, "click", renameActiveCustomPlaylist);
+  on(els.playlistStudioDeleteBtn, "click", deleteActiveCustomPlaylist);
+  on(els.closePlaylistStudioBtn, "click", closePlaylistStudio);
 
   if (els.playerSheetSeekBar) {
     els.playerSheetSeekBar.addEventListener("input", () => {
@@ -1487,28 +1503,47 @@ function renderMyPlaylists() {
 
   if (!names.length) {
     els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
+    closePlaylistStudio();
     return;
   }
 
-  els.myPlaylistList.innerHTML = names.map(name => `
-    <div class="playlist-chip-row">
-      <button class="filter-chip" data-custom-playlist="${escapeHtmlAttr(name)}" type="button">
-        ${escapeHtml(name)} <span class="chip-count">(${customPlaylists[name].length})</span>
-      </button>
-      <button class="mini-action-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">✕</button>
-    </div>
-  `).join("");
+  els.myPlaylistList.innerHTML = names.map(name => {
+    const trackCount = customPlaylists[name]?.length || 0;
+    const firstTrack = tracks.find(track => track.id === customPlaylists[name]?.[0]);
+    return `
+      <article class="playlist-card ${activeCustomPlaylistName === name ? "active" : ""}">
+        <button class="playlist-card-main" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
+          <div class="playlist-card-cover">
+            ${firstTrack?.cover
+              ? `<img src="${escapeHtmlAttr(firstTrack.cover)}" alt="${escapeHtmlAttr(name)} playlist cover" />`
+              : `<span>♪</span>`
+            }
+          </div>
+          <div class="playlist-card-meta">
+            <strong>${escapeHtml(name)}</strong>
+            <span>${trackCount} song${trackCount === 1 ? "" : "s"}</span>
+          </div>
+        </button>
+        <div class="playlist-card-actions">
+          <button class="mini-action-btn" data-play-custom-playlist="${escapeHtmlAttr(name)}" type="button">Play</button>
+          <button class="mini-action-btn" data-shuffle-custom-playlist="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
+          <button class="mini-action-btn" data-manage-custom-playlist="${escapeHtmlAttr(name)}" type="button">Manage</button>
+        </div>
+      </article>
+    `;
+  }).join("");
 
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist]").forEach(btn => {
+  els.myPlaylistList.querySelectorAll("[data-open-custom-playlist]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const ids = customPlaylists[btn.dataset.customPlaylist] || [];
+      const name = btn.dataset.openCustomPlaylist;
+      const ids = customPlaylists[name] || [];
       filteredTracks = ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
       filters.selectedAlbum = null;
       filters.selectedPlaylist = null;
       filters.selectedTag = null;
       filters.searchTerm = "";
       if (els.searchInput) els.searchInput.value = "";
-      if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${btn.dataset.customPlaylist}`;
+      if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${name}`;
       if (els.stickyFilterBar) els.stickyFilterBar.classList.remove("hidden");
       if (els.filterTypeBadge) {
         els.filterTypeBadge.textContent = "My Playlist";
@@ -1519,19 +1554,169 @@ function renderMyPlaylists() {
       renderFeaturedAlbum();
       renderFeaturedTrackList();
       renderQueue();
+      openCustomPlaylistStudio(name);
       scrollToTop();
     });
   });
 
-  els.myPlaylistList.querySelectorAll("[data-delete-custom-playlist]").forEach(btn => {
+  els.myPlaylistList.querySelectorAll("[data-play-custom-playlist]").forEach(btn => {
     btn.addEventListener("click", e => {
       e.stopPropagation();
-      const name = btn.dataset.deleteCustomPlaylist;
-      delete customPlaylists[name];
-      saveCustomPlaylists();
-      renderMyPlaylists();
+      const list = getCustomPlaylistTracks(btn.dataset.playCustomPlaylist);
+      if (list.length) startPlaybackFromList(list, false);
     });
   });
+
+  els.myPlaylistList.querySelectorAll("[data-shuffle-custom-playlist]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const list = getCustomPlaylistTracks(btn.dataset.shuffleCustomPlaylist);
+      if (list.length) startPlaybackFromList(list, true);
+    });
+  });
+
+  els.myPlaylistList.querySelectorAll("[data-manage-custom-playlist]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      openCustomPlaylistStudio(btn.dataset.manageCustomPlaylist);
+      els.playlistStudioSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}
+
+
+function getCustomPlaylistTracks(name) {
+  return (customPlaylists[name] || [])
+    .map(id => tracks.find(track => track.id === id))
+    .filter(Boolean);
+}
+
+function openCustomPlaylistStudio(name) {
+  if (!name || !customPlaylists[name]) return;
+  activeCustomPlaylistName = name;
+  renderMyPlaylists();
+  renderPlaylistStudio();
+}
+
+function closePlaylistStudio() {
+  activeCustomPlaylistName = null;
+  renderMyPlaylists();
+  renderPlaylistStudio();
+}
+
+function renderPlaylistStudio() {
+  if (!els.playlistStudioSection || !els.playlistStudioList) return;
+
+  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) {
+    els.playlistStudioSection.classList.add("hidden");
+    els.playlistStudioTitle.textContent = "Select a playlist";
+    els.playlistStudioMeta.textContent = "Choose one of your custom playlists to manage tracks.";
+    els.playlistStudioList.innerHTML = "";
+    return;
+  }
+
+  const playlistTracks = getCustomPlaylistTracks(activeCustomPlaylistName);
+  els.playlistStudioSection.classList.remove("hidden");
+  els.playlistStudioTitle.textContent = activeCustomPlaylistName;
+  els.playlistStudioMeta.textContent = `${playlistTracks.length} song${playlistTracks.length === 1 ? "" : "s"} in this playlist.`;
+
+  if (!playlistTracks.length) {
+    els.playlistStudioList.innerHTML = `<p class="empty-message">This playlist is empty.</p>`;
+    return;
+  }
+
+  els.playlistStudioList.innerHTML = playlistTracks.map((track, index) => `
+    <div class="playlist-studio-row" data-playlist-track-id="${escapeHtmlAttr(track.id)}">
+      <div class="playlist-studio-order">${index + 1}</div>
+      ${track.cover
+        ? `<img class="playlist-studio-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />`
+        : `<div class="playlist-studio-cover"></div>`
+      }
+      <button class="playlist-studio-main" data-playlist-row-play="${index}" type="button">
+        <strong>${escapeHtml(track.title)}</strong>
+        <span>${escapeHtml(track.artist)} • ${escapeHtml(track.album)}</span>
+      </button>
+      <div class="playlist-studio-actions">
+        <button class="mini-action-btn" data-playlist-move-up="${index}" type="button" ${index === 0 ? "disabled" : ""}>↑</button>
+        <button class="mini-action-btn" data-playlist-move-down="${index}" type="button" ${index === playlistTracks.length - 1 ? "disabled" : ""}>↓</button>
+        <button class="mini-action-btn" data-playlist-remove-track="${escapeHtmlAttr(track.id)}" type="button">Remove</button>
+      </div>
+    </div>
+  `).join("");
+
+  els.playlistStudioList.querySelectorAll("[data-playlist-row-play]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const index = Number(btn.dataset.playlistRowPlay);
+      startPlaybackFromList(playlistTracks, false, index);
+    });
+  });
+
+  els.playlistStudioList.querySelectorAll("[data-playlist-move-up]").forEach(btn => {
+    btn.addEventListener("click", () => moveActivePlaylistTrack(Number(btn.dataset.playlistMoveUp), -1));
+  });
+
+  els.playlistStudioList.querySelectorAll("[data-playlist-move-down]").forEach(btn => {
+    btn.addEventListener("click", () => moveActivePlaylistTrack(Number(btn.dataset.playlistMoveDown), 1));
+  });
+
+  els.playlistStudioList.querySelectorAll("[data-playlist-remove-track]").forEach(btn => {
+    btn.addEventListener("click", () => removeTrackFromActivePlaylist(btn.dataset.playlistRemoveTrack));
+  });
+}
+
+function moveActivePlaylistTrack(index, direction) {
+  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return;
+  const ids = [...customPlaylists[activeCustomPlaylistName]];
+  const target = index + direction;
+  if (index < 0 || target < 0 || index >= ids.length || target >= ids.length) return;
+  const [moved] = ids.splice(index, 1);
+  ids.splice(target, 0, moved);
+  customPlaylists[activeCustomPlaylistName] = ids;
+  saveCustomPlaylists();
+  renderMyPlaylists();
+  renderPlaylistStudio();
+}
+
+function removeTrackFromActivePlaylist(trackId) {
+  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return;
+  customPlaylists[activeCustomPlaylistName] = customPlaylists[activeCustomPlaylistName].filter(id => id !== trackId);
+  saveCustomPlaylists();
+  renderMyPlaylists();
+  renderPlaylistStudio();
+}
+
+function playActiveCustomPlaylist() {
+  const playlistTracks = activeCustomPlaylistName ? getCustomPlaylistTracks(activeCustomPlaylistName) : [];
+  if (playlistTracks.length) startPlaybackFromList(playlistTracks, false);
+}
+
+function shuffleActiveCustomPlaylist() {
+  const playlistTracks = activeCustomPlaylistName ? getCustomPlaylistTracks(activeCustomPlaylistName) : [];
+  if (playlistTracks.length) startPlaybackFromList(playlistTracks, true);
+}
+
+function renameActiveCustomPlaylist() {
+  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return;
+  const nextName = prompt("Rename playlist", activeCustomPlaylistName)?.trim();
+  if (!nextName || nextName === activeCustomPlaylistName) return;
+  if (customPlaylists[nextName]) {
+    alert("A playlist with that name already exists.");
+    return;
+  }
+  customPlaylists[nextName] = [...customPlaylists[activeCustomPlaylistName]];
+  delete customPlaylists[activeCustomPlaylistName];
+  activeCustomPlaylistName = nextName;
+  saveCustomPlaylists();
+  renderMyPlaylists();
+  renderPlaylistStudio();
+}
+
+function deleteActiveCustomPlaylist() {
+  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return;
+  if (!confirm(`Delete playlist "${activeCustomPlaylistName}"?`)) return;
+  delete customPlaylists[activeCustomPlaylistName];
+  saveCustomPlaylists();
+  closePlaylistStudio();
 }
 
 function openPlaylistModal(track = null, triggerEl = null) {
@@ -1585,7 +1770,9 @@ function saveTrackToPlaylistFromModal() {
   }
 
   saveCustomPlaylists();
+  if (playlistName) activeCustomPlaylistName = playlistName;
   renderMyPlaylists();
+  renderPlaylistStudio();
   closePlaylistModal();
 }
 
@@ -1626,7 +1813,10 @@ function renderMiniCard(track, index, options = {}) {
           <span>${escapeHtml(track.album)}</span>
         </div>
       </button>
-      ${options.removable ? `<button class="mini-card-remove mini-action-btn" data-remove-downloaded-track="${escapeHtmlAttr(track.id)}" type="button">Remove</button>` : ""}
+      <div class="mini-card-inline-actions">
+        ${options.removable ? `<button class="mini-action-btn" data-remove-downloaded-track="${escapeHtmlAttr(track.id)}" type="button">Remove</button>` : ""}
+        ${options.playlistName ? `<button class="mini-action-btn" data-open-custom-playlist="${escapeHtmlAttr(options.playlistName)}" type="button">Open</button>` : ""}
+      </div>
     </div>
   `;
 }
@@ -1637,7 +1827,7 @@ function bindMiniCardClicks(container, trackList) {
       const index = Number(btn.dataset.miniIndex);
       const track = trackList[index];
       if (!track) return;
-      startPlaybackFromList([track], false, 0);
+      startPlaybackFromList(trackList, false, index);
     });
   });
 }
@@ -1947,16 +2137,14 @@ function triggerDownload(url, filename) {
 function initMiniPlayerGestures() {
   const stickyPlayer = document.querySelector(".sticky-player");
   const sheetContent = document.querySelector(".player-sheet-content");
-
   if (stickyPlayer) {
     let startY = null;
     stickyPlayer.addEventListener("touchstart", e => {
       startY = e.touches[0]?.clientY ?? null;
     }, { passive: true });
-
     stickyPlayer.addEventListener("touchend", e => {
       const endY = e.changedTouches[0]?.clientY ?? startY;
-      if (startY !== null && endY !== null && startY - endY > 24) {
+      if (startY !== null && endY !== null && startY - endY > 30) {
         openPlayerSheet();
       }
       startY = null;
@@ -1970,12 +2158,12 @@ function initMiniPlayerGestures() {
 
     sheetContent.addEventListener("touchend", e => {
       const endY = e.changedTouches[0]?.clientY ?? playerSheetTouchStartY;
-      const scrollPanel = e.target.closest(".player-tab-panel");
-      if (scrollPanel && scrollPanel.scrollTop > 12) {
+      const panel = e.target.closest(".player-tab-panel");
+      if (panel && panel.scrollTop > 12) {
         playerSheetTouchStartY = null;
         return;
       }
-      if (playerSheetTouchStartY !== null && endY !== null && endY - playerSheetTouchStartY > 56) {
+      if (playerSheetTouchStartY !== null && endY !== null && endY - playerSheetTouchStartY > 60) {
         closePlayerSheet();
       }
       playerSheetTouchStartY = null;
