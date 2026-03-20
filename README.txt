@@ -1,41 +1,22 @@
-Aineo Music - Clean Production Bundle
+Aineo Music upgrade pack
 
-Included:
-- index.html
-- about.html
-- contact.html
-- style.css
+Files included:
 - app.js
-- contact.js
-- pwa-init.js
-- manifest.webmanifest
-- service-worker.js
-- tracks.json
-- favicon.ico
-- icons/
-- images/
+- style.css
 
-Cleanup included:
-- Restored the missing getQueueDisplayTracks() helper in app.js
-- Kept playback stable
-- Fixed mobile audio streaming by skipping Range requests in the service worker
-- Added offline caching support for CACHE_AUDIO_URLS messages
-- Unified favicon, manifest, and Apple touch icon tags across all pages
-- Added mobile-web-app-capable plus Apple web app meta tags
-- Fixed the About page church logo path
-- Added local icons/images to service-worker app-shell caching
-- Added a stronger mobile fullscreen player CSS fix so lyrics stay below controls
+What this adds:
+- Add to Queue button on track cards
+- Play Next button on track cards
+- Queue buttons on mini cards, featured tracks, and album modal rows
+- Synced lyrics support for timestamped lyrics in [mm:ss] or [mm:ss.xx] format
+- Fallback auto-scrolling lyric highlight for plain lyrics when duration is available
 
-Deployment:
-1. Upload the full folder structure as-is.
-2. Keep tracks.json at the site root.
-3. Keep audio and cover files on R2.
-4. After upload, hard refresh the site.
-5. Unregister the old service worker once, then reload.
-6. On iPhone, delete any previously installed home-screen app and reinstall so the new icon is used.
+Important:
+- Upload both files together.
+- Hard refresh after upload.
+- If the old JS is still loading, clear cache / unregister the service worker and reload.
 
-New in this bundle:
-- Added Album Pages via /album.html?album=...
-- Added Browse by Scripture sidebar filters
-- Added Play Next and Add to Queue actions on album tracks
-- Added album page script and service worker caching for album pages
+Timed lyrics format example:
+[00:05.00]First line
+[00:10.50]Second line
+[00:16.00]Third line

@@ -2560,203 +2560,113 @@ a:hover {
 
 
 /* =========================================
-   MOBILE FULLSCREEN PLAYER CLEAN FIX
-   Keeps lyrics/scripture/queue below the controls
+   QUEUE ACTIONS + SYNCED LYRICS UPGRADE
 ========================================= */
-@media (max-width: 640px) {
-  .player-sheet.hidden {
-    display: none !important;
-  }
 
-  .player-sheet:not(.hidden) {
-    display: block !important;
-  }
-
-  .player-sheet-content {
-    position: fixed !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    top: auto !important;
-    width: 100% !important;
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    margin: 0 !important;
-    border-radius: 22px 22px 0 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    overflow: hidden !important;
-  }
-
-  .player-sheet-header {
-    flex: 0 0 auto !important;
-    padding: 12px 14px !important;
-  }
-
-  .player-sheet-body {
-    display: flex !important;
-    flex-direction: column !important;
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    overflow: hidden !important;
-  }
-
-  .player-sheet-now {
-    flex: 0 0 auto !important;
-    min-height: auto !important;
-    overflow: visible !important;
-    border-right: none !important;
-    border-bottom: 1px solid #1d2633 !important;
-    padding: 14px !important;
-    gap: 12px !important;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 200px) !important;
-  }
-
-  .player-sheet-progress {
-    grid-template-columns: 40px 1fr 40px !important;
-    gap: 8px !important;
-  }
-
-  .player-sheet-transport {
-    gap: 10px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .player-sheet-actions {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
-    margin-top: 0 !important;
-    flex: 0 0 auto !important;
-  }
-
-  .player-sheet-actions .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .player-sheet-panel {
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    padding: 12px 14px 18px !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  .player-sheet-tabs {
-    flex: 0 0 auto !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 5 !important;
-    background: #0c1118 !important;
-    padding-bottom: 10px !important;
-    margin-bottom: 10px !important;
-  }
-
-  .player-tab-panel {
-    display: none;
-    flex: 1 1 auto !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding-bottom: 56px !important;
-  }
-
-  .player-tab-panel.active {
-    display: block !important;
-  }
-
-  .player-sheet-queue-list,
-  .lyrics-block,
-  .scripture-block {
-    padding-bottom: 40px !important;
-  }
+.mini-card-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
+.mini-card-stack .mini-card {
+  width: 100%;
+}
 
-/* =========================================
-   SCRIPTURE BROWSER / TOAST / ALBUM PAGE
-========================================= */
-
-.scripture-browser-list {
+.mini-card-actions,
+.album-track-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.app-toast {
-  position: fixed;
-  right: 18px;
-  bottom: 154px;
-  z-index: 4000;
-  padding: 11px 14px;
-  border-radius: 12px;
-  border: 1px solid #3c4b63;
-  background: rgba(17, 22, 29, 0.96);
-  color: #f4f4f4;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  opacity: 0;
-  transform: translateY(10px);
-  pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.mini-card-actions .mini-action-btn,
+.album-track-actions .mini-action-btn {
+  flex: 1 1 0;
 }
 
-.app-toast.show {
-  opacity: 1;
-  transform: translateY(0);
+.album-track-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.album-page-shell {
-  max-width: 1220px;
-  margin: 0 auto;
-  padding: 18px 16px 180px;
+.album-track-card .album-track-row {
+  width: 100%;
 }
 
-.album-page-back-link {
+.lyric-sync-label {
   display: inline-flex;
-  margin-bottom: 14px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(126, 163, 216, 0.12);
+  border: 1px solid rgba(126, 163, 216, 0.28);
+  color: #cfe2ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.album-page-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 16px;
-  align-items: start;
+.lyrics-sync {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.album-page-side {
-  display: grid;
-  gap: 14px;
-  position: sticky;
-  top: 88px;
+.lyric-line {
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 10px;
+  color: #cfd7e6;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.78;
 }
 
-.album-page-empty {
-  max-width: 760px;
-  margin: 48px auto;
+.lyric-line.active {
+  background: rgba(126, 163, 216, 0.16);
+  color: #ffffff;
+  opacity: 1;
+  transform: translateX(2px);
 }
 
-@media (max-width: 980px) {
-  .album-page-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .featured-track-actions,
+  .mini-card-actions,
+  .album-track-actions {
+    justify-content: flex-start;
   }
 
-  .album-page-side {
-    position: static;
+  .mini-card-actions .mini-action-btn,
+  .album-track-actions .mini-action-btn,
+  .featured-track-actions .mini-action-btn {
+    flex: 1 1 calc(50% - 8px);
   }
 }
 
 @media (max-width: 640px) {
-  .app-toast {
-    left: 14px;
-    right: 14px;
-    bottom: 146px;
+  .mini-card-stack {
+    gap: 6px;
+  }
+
+  .mini-card-actions,
+  .album-track-actions,
+  .featured-track-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .mini-card-actions .mini-action-btn,
+  .album-track-actions .mini-action-btn,
+  .featured-track-actions .mini-action-btn {
+    width: 100%;
+  }
+
+  .lyric-line {
+    padding: 7px 10px;
   }
 }
