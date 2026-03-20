@@ -32,8 +32,8 @@ Deployment notes:
 - If you update app shell files later, bump CACHE_VERSION inside service-worker.js.
 
 
-New in this package:
-- Sort menu for the current library view
-- Sleep timer (15/30/45/60 minutes)
-- Surprise Me random playback button
-- Listening Stats dashboard with total plays, favorites, downloads, and most-played songs
+March 2026 hotfixes:
+- Fixed mobile full-screen player lyrics overlap by making the lower panel the only scrollable area.
+- Restored app icon loading on the home page by adding manifest and icon links to index.html.
+- Updated manifest paths to relative icon URLs and added maskable icon purposes.
+- Cached icon/image assets in the service worker.

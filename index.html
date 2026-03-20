@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks." />
   <meta name="theme-color" content="#0f1115" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
+  <link rel="icon" href="icons/icon-512.png" sizes="512x512" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <title>Aineo Music</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="pwa-init.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -32,7 +37,7 @@
       <ul id="siteNavLinks" class="nav-links">
         <li><a href="index.html" class="active" aria-current="page">Home</a></li>
         <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Request</a></li>
+        <li><a href="contact.html">Request a Song</a></li>
       </ul>
     </nav>
   </header>
@@ -148,44 +153,6 @@
         </div>
       </section>
 
-      <section class="library-toolbar-panel" aria-labelledby="libraryToolsHeading">
-        <div class="section-header compact-header">
-          <h2 id="libraryToolsHeading">Library Tools</h2>
-        </div>
-        <div class="library-toolbar">
-          <div class="toolbar-group">
-            <label for="sortSelect">Sort</label>
-            <select id="sortSelect" class="toolbar-select">
-              <option value="default">Featured Order</option>
-              <option value="title-asc">Title A–Z</option>
-              <option value="title-desc">Title Z–A</option>
-              <option value="album-asc">Album A–Z</option>
-              <option value="year-desc">Newest Year</option>
-              <option value="year-asc">Oldest Year</option>
-              <option value="recent">Recently Played First</option>
-              <option value="favorites">Favorites First</option>
-            </select>
-          </div>
-
-          <div class="toolbar-group">
-            <label for="sleepTimerSelect">Sleep Timer</label>
-            <select id="sleepTimerSelect" class="toolbar-select">
-              <option value="0">Off</option>
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-              <option value="45">45 minutes</option>
-              <option value="60">60 minutes</option>
-            </select>
-          </div>
-
-          <div class="toolbar-actions">
-            <button id="surpriseMeBtn" class="action-btn" type="button">Surprise Me</button>
-            <button id="playFavoritesBtn" class="action-btn secondary-btn" type="button">Play Favorites</button>
-          </div>
-        </div>
-        <p id="sleepTimerStatus" class="toolbar-status">Sleep timer off.</p>
-      </section>
-
       <section class="about-panel" aria-labelledby="aboutMusicHeading">
         <h2 id="aboutMusicHeading">About This Music</h2>
         <p>
@@ -260,13 +227,6 @@
           <h2 id="recentlyPlayedHeading">Recently Played</h2>
         </div>
         <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
-      </section>
-
-      <section class="library-panel stats-panel" aria-labelledby="statsHeading">
-        <div class="section-header">
-          <h2 id="statsHeading">Listening Stats</h2>
-        </div>
-        <div id="statsGrid" class="stats-grid" aria-live="polite"></div>
       </section>
 
       <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
