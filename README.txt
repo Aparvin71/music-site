@@ -30,3 +30,10 @@ Deployment notes:
 - Audio and cover URLs can stay in your R2 bucket.
 - For best cross-origin media caching behavior, make sure your R2 bucket allows browser access to the audio and cover files.
 - If you update app shell files later, bump CACHE_VERSION inside service-worker.js.
+
+
+Playlist System V2:
+- richer custom playlist cards
+- playlist studio workspace with rename/delete/reorder
+- drag tracks inside a playlist to reorder
+- playlist play/shuffle/library actions
