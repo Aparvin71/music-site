@@ -1596,6 +1596,17 @@ function bindMiniCardClicks(container, trackList) {
 /* =========================
    QUEUE UI
 ========================= */
+function getQueueDisplayTracks() {
+  if (Array.isArray(currentQueue) && currentQueue.length) {
+    return currentQueue;
+  }
+
+  if (Array.isArray(filteredTracks) && filteredTracks.length) {
+    return filteredTracks;
+  }
+
+  return Array.isArray(tracks) ? tracks : [];
+}
 
 function renderQueue() {
   const displayTracks = getQueueDisplayTracks();
