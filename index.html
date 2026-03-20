@@ -148,6 +148,44 @@
         </div>
       </section>
 
+      <section class="library-toolbar-panel" aria-labelledby="libraryToolsHeading">
+        <div class="section-header compact-header">
+          <h2 id="libraryToolsHeading">Library Tools</h2>
+        </div>
+        <div class="library-toolbar">
+          <div class="toolbar-group">
+            <label for="sortSelect">Sort</label>
+            <select id="sortSelect" class="toolbar-select">
+              <option value="default">Featured Order</option>
+              <option value="title-asc">Title A–Z</option>
+              <option value="title-desc">Title Z–A</option>
+              <option value="album-asc">Album A–Z</option>
+              <option value="year-desc">Newest Year</option>
+              <option value="year-asc">Oldest Year</option>
+              <option value="recent">Recently Played First</option>
+              <option value="favorites">Favorites First</option>
+            </select>
+          </div>
+
+          <div class="toolbar-group">
+            <label for="sleepTimerSelect">Sleep Timer</label>
+            <select id="sleepTimerSelect" class="toolbar-select">
+              <option value="0">Off</option>
+              <option value="15">15 minutes</option>
+              <option value="30">30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60">60 minutes</option>
+            </select>
+          </div>
+
+          <div class="toolbar-actions">
+            <button id="surpriseMeBtn" class="action-btn" type="button">Surprise Me</button>
+            <button id="playFavoritesBtn" class="action-btn secondary-btn" type="button">Play Favorites</button>
+          </div>
+        </div>
+        <p id="sleepTimerStatus" class="toolbar-status">Sleep timer off.</p>
+      </section>
+
       <section class="about-panel" aria-labelledby="aboutMusicHeading">
         <h2 id="aboutMusicHeading">About This Music</h2>
         <p>
@@ -204,18 +242,10 @@
 
 
       <section class="library-panel" aria-labelledby="downloadedHeading">
-        <div class="section-header downloaded-section-header">
-          <div>
-            <h2 id="downloadedHeading">Downloaded Songs</h2>
-            <p id="downloadedCount" class="section-subtext">0 songs saved</p>
-          </div>
-          <div class="section-actions">
-            <button id="playDownloadedBtn" class="action-btn secondary-btn" type="button">Play All</button>
-            <button id="shuffleDownloadedBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
-            <button id="clearDownloadedBtn" class="action-btn secondary-btn" type="button">Clear</button>
-          </div>
+        <div class="section-header">
+          <h2 id="downloadedHeading">Downloaded Songs</h2>
         </div>
-        <div id="downloadedList" class="mini-grid downloaded-grid" aria-live="polite"></div>
+        <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
       </section>
 
       <section class="library-panel" aria-labelledby="favoritesHeading">
@@ -230,6 +260,13 @@
           <h2 id="recentlyPlayedHeading">Recently Played</h2>
         </div>
         <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
+      </section>
+
+      <section class="library-panel stats-panel" aria-labelledby="statsHeading">
+        <div class="section-header">
+          <h2 id="statsHeading">Listening Stats</h2>
+        </div>
+        <div id="statsGrid" class="stats-grid" aria-live="polite"></div>
       </section>
 
       <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
@@ -291,20 +328,6 @@
         </div>
       </section>
     </main>
-  </div>
-
-  <div id="miniPlayer" class="mini-player hidden" aria-label="Mini player">
-    <button id="miniPlayerMain" class="mini-player-main" type="button">
-      <img id="miniPlayerCover" src="" alt="Current song cover" class="mini-player-cover" />
-      <div class="mini-player-meta">
-        <strong id="miniPlayerTitle">Select a song</strong>
-        <span id="miniPlayerArtist">—</span>
-      </div>
-    </button>
-    <div class="mini-player-actions">
-      <button id="miniPlayerPlayBtn" class="control-btn mini-player-btn" type="button" aria-label="Play or pause">▶</button>
-      <button id="miniPlayerNextBtn" class="control-btn mini-player-btn" type="button" aria-label="Next track">⏭</button>
-    </div>
   </div>
 
   <div class="sticky-player" aria-label="Audio player">

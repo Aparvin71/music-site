@@ -12,7 +12,11 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
-let lastSyncedLyricIndex = -1;
+let currentSort = "default";
+let playCounts = {};
+let sleepTimerTimeout = null;
+let sleepTimerEndsAt = null;
+let sleepTimerStatusInterval = null;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -20,7 +24,9 @@ const STORAGE_KEYS = {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue"
+  lastQueue: "aineo_last_queue",
+  playCounts: "aineo_play_counts",
+  sortPreference: "aineo_sort_preference"
 };
 
 const filters = {
@@ -124,6 +130,12 @@ const els = {
   createPlaylistBtn: document.getElementById("createPlaylistBtn"),
   myPlaylistList: document.getElementById("myPlaylistList"),
   downloadedList: document.getElementById("downloadedList"),
+  sortSelect: document.getElementById("sortSelect"),
+  sleepTimerSelect: document.getElementById("sleepTimerSelect"),
+  sleepTimerStatus: document.getElementById("sleepTimerStatus"),
+  surpriseMeBtn: document.getElementById("surpriseMeBtn"),
+  playFavoritesBtn: document.getElementById("playFavoritesBtn"),
+  statsGrid: document.getElementById("statsGrid"),
 
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
@@ -176,6 +188,8 @@ async function init() {
   renderMyPlaylists();
   renderDownloadedSongs();
   renderQueue();
+  renderStats();
+  updateSleepTimerStatus();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
   handleSongQueryParam();
@@ -209,15 +223,6 @@ function normalizeTrack(track, index) {
   const scriptureRefs = normalizeStringArray(
     track.scripture_references || track.scriptureReferences || track.scripture
   );
-  const rawLyrics = typeof track.lyrics === "string" ? track.lyrics : "";
-  const durationSeconds =
-    Number(track.duration_seconds) ||
-    Number(track.durationSeconds) ||
-    parseDurationToSeconds(track.duration);
-  const parsedLyrics = parseTimedLyrics(rawLyrics);
-  const lyricTimeline = parsedLyrics.hasTimestamps
-    ? parsedLyrics.lines
-    : estimateLyricTimeline(parsedLyrics.plainText || rawLyrics, durationSeconds);
 
   return {
     id: track.id || makeTrackId(track, index),
@@ -227,13 +232,9 @@ function normalizeTrack(track, index) {
     year: track.year || "",
     genre: track.genre || "",
     duration: track.duration || "",
-    duration_seconds: durationSeconds,
     src: track.src || track.url || track.audio || "",
     cover: track.cover || track.artwork || track.image || "",
-    lyrics: rawLyrics,
-    plainLyrics: parsedLyrics.plainText || rawLyrics,
-    lyricTimeline,
-    hasTimedLyrics: parsedLyrics.hasTimestamps,
+    lyrics: track.lyrics || "",
     tags,
     playlists,
     scripture_references: scriptureRefs,
@@ -262,272 +263,6 @@ function makeTrackId(track, index) {
   return `${track.title || "track"}__${track.album || "album"}__${index}`;
 }
 
-
-function parseDurationToSeconds(value) {
-  if (typeof value === "number" && isFinite(value)) return value;
-  if (typeof value !== "string") return 0;
-
-  const parts = value.trim().split(":").map(Number).filter(n => !Number.isNaN(n));
-  if (!parts.length) return 0;
-
-  if (parts.length === 3) {
-    return (parts[0] * 3600) + (parts[1] * 60) + parts[2];
-  }
-
-  if (parts.length === 2) {
-    return (parts[0] * 60) + parts[1];
-  }
-
-  return parts[0] || 0;
-}
-
-function parseTimedLyrics(rawLyrics) {
-  const source = typeof rawLyrics === "string" ? rawLyrics.replace(/\r/g, "") : "";
-  const lines = [];
-  const plainLines = [];
-  let hasTimestamps = false;
-
-  source.split("\n").forEach((rawLine, lineIndex) => {
-    const matches = [...rawLine.matchAll(/\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/g)];
-    const textOnly = rawLine.replace(/\[(\d{1,2}):(\d{2})(?:[.:](\d{1,3}))?\]/g, "").trim();
-
-    if (!matches.length) {
-      plainLines.push(rawLine);
-      return;
-    }
-
-    hasTimestamps = true;
-    plainLines.push(textOnly);
-
-    matches.forEach(match => {
-      const minutes = Number(match[1]) || 0;
-      const seconds = Number(match[2]) || 0;
-      const fractionRaw = match[3] || "0";
-      const fraction = fractionRaw.length === 3
-        ? Number(fractionRaw) / 1000
-        : Number(fractionRaw) / 100;
-
-      lines.push({
-        start: minutes * 60 + seconds + fraction,
-        text: textOnly || "♪",
-        lineIndex
-      });
-    });
-  });
-
-  lines.sort((a, b) => a.start - b.start);
-
-  return {
-    hasTimestamps,
-    lines,
-    plainText: plainLines.join("\n").trim()
-  };
-}
-
-function estimateLyricTimeline(rawLyrics, durationSeconds = 0) {
-  if (typeof rawLyrics !== "string") return [];
-
-  const textLines = rawLyrics
-    .replace(/\r/g, "")
-    .split("\n")
-    .map(line => line.trim())
-    .filter(Boolean);
-
-  if (textLines.length < 2 || !durationSeconds) return [];
-
-  const usableDuration = Math.max(durationSeconds - 2, textLines.length);
-  const step = usableDuration / textLines.length;
-
-  return textLines.map((text, index) => ({
-    start: Math.max(0, index * step),
-    text,
-    estimated: true
-  }));
-}
-
-function getPlainLyricsText(track) {
-  return track?.plainLyrics || track?.lyrics || "";
-}
-
-function renderLyricsMarkup(track, containerName = "lyrics-panel") {
-  if (!track?.lyrics) {
-    return `<p class="empty-message">No lyrics available.</p>`;
-  }
-
-  const timeline = Array.isArray(track.lyricTimeline) ? track.lyricTimeline : [];
-  if (!timeline.length) {
-    return `<div class="lyrics-block">${nl2br(escapeHtml(getPlainLyricsText(track)))}</div>`;
-  }
-
-  const syncLabel = track.hasTimedLyrics ? "Synced lyrics" : "Auto-scrolling lyrics";
-
-  return `
-    <div class="lyric-sync-label">${escapeHtml(syncLabel)}</div>
-    <div class="lyrics-block lyrics-sync" data-lyrics-container="${escapeHtmlAttr(containerName)}" data-lyric-track-id="${escapeHtmlAttr(track.id)}">
-      ${timeline.map((line, index) => `
-        <p class="lyric-line" data-lyric-index="${index}" data-lyric-track="${escapeHtmlAttr(track.id)}">
-          ${escapeHtml(line.text || "♪")}
-        </p>
-      `).join("")}
-    </div>
-  `;
-}
-
-function getActiveLyricIndex(track, currentTime) {
-  const timeline = Array.isArray(track?.lyricTimeline) ? track.lyricTimeline : [];
-  if (!timeline.length) return -1;
-
-  let activeIndex = 0;
-  for (let i = 0; i < timeline.length; i += 1) {
-    if (currentTime >= timeline[i].start) {
-      activeIndex = i;
-    } else {
-      break;
-    }
-  }
-  return activeIndex;
-}
-
-function syncLyricsUI(force = false) {
-  const track = getCurrentTrack();
-  if (!track || !els.audioPlayer) return;
-
-  const timeline = Array.isArray(track.lyricTimeline) ? track.lyricTimeline : [];
-  if (!timeline.length) return;
-
-  const activeIndex = getActiveLyricIndex(track, els.audioPlayer.currentTime || 0);
-  if (activeIndex < 0) return;
-
-  document
-    .querySelectorAll(`[data-lyric-track-id="${cssEscape(track.id)}"]`)
-    .forEach(container => {
-      const previous = Number(container.dataset.activeLyricIndex || -1);
-      if (!force && previous == activeIndex) return;
-
-      container.dataset.activeLyricIndex = String(activeIndex);
-      container.querySelectorAll(".lyric-line.active").forEach(line => line.classList.remove("active"));
-
-      const activeLine = container.querySelector(`[data-lyric-index="${activeIndex}"]`);
-      if (!activeLine) return;
-
-      activeLine.classList.add("active");
-
-      const shouldScroll =
-        container.closest(".player-tab-panel.active") ||
-        container.closest(".lyrics-modal-body") ||
-        container.closest(".lyrics-content");
-
-      if (shouldScroll) {
-        activeLine.scrollIntoView({
-          block: "center",
-          behavior: force ? "auto" : "smooth"
-        });
-      }
-    });
-
-  lastSyncedLyricIndex = activeIndex;
-}
-
-function getQueueDisplayTracks() {
-  if (Array.isArray(currentQueue) && currentQueue.length) {
-    return currentQueue;
-  }
-
-  if (Array.isArray(filteredTracks) && filteredTracks.length) {
-    return filteredTracks;
-  }
-
-  return Array.isArray(tracks) ? tracks : [];
-}
-
-function addTrackToQueue(track) {
-  if (!track) return;
-
-  const baseQueue = currentQueue.length ? [...currentQueue] : [];
-  const current = getCurrentTrack();
-
-  if (!baseQueue.length) {
-    currentQueue = [track];
-    currentQueueIndex = current ? 0 : -1;
-    saveQueueState();
-    renderQueue();
-    return;
-  }
-
-  if (!baseQueue.some(item => item.id === track.id)) {
-    baseQueue.push(track);
-  }
-
-  currentQueue = baseQueue;
-  currentQueueIndex = current ? currentQueue.findIndex(item => item.id === current.id) : -1;
-  saveQueueState();
-  renderQueue();
-}
-
-function addTrackToPlayNext(track) {
-  if (!track) return;
-
-  const current = getCurrentTrack();
-
-  if (!current) {
-    setQueue([track], false);
-    playFromQueueIndex(0);
-    return;
-  }
-
-  const baseQueue = currentQueue.length ? [...currentQueue] : [current];
-  const currentIndex = Math.max(0, baseQueue.findIndex(item => item.id === current.id));
-  const existingIndex = baseQueue.findIndex(item => item.id === track.id);
-
-  if (existingIndex >= 0) {
-    const [existing] = baseQueue.splice(existingIndex, 1);
-    baseQueue.splice(currentIndex + 1, 0, existing);
-  } else {
-    baseQueue.splice(currentIndex + 1, 0, track);
-  }
-
-  currentQueue = baseQueue;
-  currentQueueIndex = currentQueue.findIndex(item => item.id === current.id);
-  saveQueueState();
-  renderQueue();
-}
-
-function bindTrackActionButtons(container, trackList) {
-  const getTrack = id => trackList.find(track => track.id === id) || tracks.find(track => track.id === id);
-
-  container.querySelectorAll("[data-add-playlist-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const track = getTrack(btn.dataset.addPlaylistTrack);
-      if (track) openPlaylistModalForTrack(track, btn);
-    });
-  });
-
-  container.querySelectorAll("[data-save-offline-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const track = getTrack(btn.dataset.saveOfflineTrack);
-      if (track) saveTrackOffline(track);
-    });
-  });
-
-  container.querySelectorAll("[data-add-queue-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const track = getTrack(btn.dataset.addQueueTrack);
-      if (track) addTrackToQueue(track);
-    });
-  });
-
-  container.querySelectorAll("[data-play-next-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const track = getTrack(btn.dataset.playNextTrack);
-      if (track) addTrackToPlayNext(track);
-    });
-  });
-}
-
 /* =========================
    STORAGE
 ========================= */
@@ -537,6 +272,8 @@ function loadStoredData() {
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
+  playCounts = loadJsonFromStorage(STORAGE_KEYS.playCounts, {});
+  currentSort = localStorage.getItem(STORAGE_KEYS.sortPreference) || "default";
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
@@ -564,6 +301,14 @@ function saveCustomPlaylists() {
 
 function saveDownloadedTracks() {
   localStorage.setItem(STORAGE_KEYS.downloadedTracks, JSON.stringify(downloadedTracks));
+}
+
+function savePlayCounts() {
+  localStorage.setItem(STORAGE_KEYS.playCounts, JSON.stringify(playCounts));
+}
+
+function saveSortPreference() {
+  localStorage.setItem(STORAGE_KEYS.sortPreference, currentSort);
 }
 
 function saveQueueState() {
@@ -618,6 +363,26 @@ function clearResume() {
 function bindUI() {
   on(els.searchInput, "input", e => setSearchFilter(e.target.value));
   on(els.clearFiltersBtn, "click", clearAllFilters);
+
+  if (els.sortSelect) {
+    els.sortSelect.value = currentSort;
+    els.sortSelect.addEventListener("change", e => {
+      currentSort = e.target.value;
+      saveSortPreference();
+      updateLibraryView();
+      renderQueue();
+      renderStats();
+    });
+  }
+
+  if (els.sleepTimerSelect) {
+    els.sleepTimerSelect.addEventListener("change", e => {
+      setSleepTimer(Number(e.target.value || 0));
+    });
+  }
+
+  on(els.surpriseMeBtn, "click", playRandomTrackFromCurrentView);
+  on(els.playFavoritesBtn, "click", playFavoriteTracks);
 
   on(els.playBtn, "click", togglePlayPause);
   on(els.prevBtn, "click", playPreviousTrack);
@@ -880,7 +645,153 @@ function getFilteredTracks() {
     });
   }
 
-  return result;
+  return applyTrackSort(result);
+}
+
+/* =========================
+   LIBRARY TOOLS
+========================= */
+
+function applyTrackSort(trackList) {
+  const list = [...trackList];
+
+  switch (currentSort) {
+    case "title-asc":
+      return list.sort((a, b) => a.title.localeCompare(b.title));
+    case "title-desc":
+      return list.sort((a, b) => b.title.localeCompare(a.title));
+    case "album-asc":
+      return list.sort((a, b) => `${a.album} ${a.title}`.localeCompare(`${b.album} ${b.title}`));
+    case "year-desc":
+      return list.sort((a, b) => Number(b.year || 0) - Number(a.year || 0) || a.title.localeCompare(b.title));
+    case "year-asc":
+      return list.sort((a, b) => Number(a.year || 0) - Number(b.year || 0) || a.title.localeCompare(b.title));
+    case "recent":
+      return list.sort((a, b) => getRecentRank(a.id) - getRecentRank(b.id) || a.title.localeCompare(b.title));
+    case "favorites":
+      return list.sort((a, b) => getFavoriteRank(a.id) - getFavoriteRank(b.id) || a.title.localeCompare(b.title));
+    default:
+      return list;
+  }
+}
+
+function getRecentRank(trackId) {
+  const index = recentlyPlayed.indexOf(trackId);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+function getFavoriteRank(trackId) {
+  const index = favorites.indexOf(trackId);
+  return index === -1 ? Number.MAX_SAFE_INTEGER : index;
+}
+
+function playRandomTrackFromCurrentView() {
+  const source = filteredTracks.length ? filteredTracks : tracks;
+  if (!source.length) return;
+  const randomIndex = Math.floor(Math.random() * source.length);
+  startPlaybackFromList(source, false, randomIndex);
+}
+
+function playFavoriteTracks() {
+  const favTracks = favorites.map(id => tracks.find(track => track.id === id)).filter(Boolean);
+  if (!favTracks.length) return;
+  startPlaybackFromList(favTracks, false, 0);
+}
+
+function incrementPlayCount(track) {
+  if (!track?.id) return;
+  playCounts[track.id] = (Number(playCounts[track.id]) || 0) + 1;
+  savePlayCounts();
+}
+
+function getTopPlayedTracks(limit = 5) {
+  return [...tracks]
+    .sort((a, b) => (Number(playCounts[b.id]) || 0) - (Number(playCounts[a.id]) || 0) || a.title.localeCompare(b.title))
+    .filter(track => Number(playCounts[track.id]) > 0)
+    .slice(0, limit);
+}
+
+function renderStats() {
+  if (!els.statsGrid) return;
+
+  const totalPlays = Object.values(playCounts).reduce((sum, value) => sum + (Number(value) || 0), 0);
+  const topPlayed = getTopPlayedTracks(3);
+  const topPlayedText = topPlayed.length
+    ? topPlayed.map(track => `${track.title} (${playCounts[track.id] || 0})`).join(" • ")
+    : "No songs played yet.";
+
+  const cards = [
+    { label: "Songs in Library", value: tracks.length, helper: "Total uploaded tracks" },
+    { label: "Favorite Songs", value: favorites.length, helper: "Marked with a star" },
+    { label: "Downloaded Songs", value: downloadedTracks.length, helper: "Saved for offline listening" },
+    { label: "Total Plays", value: totalPlays, helper: "Across this device" }
+  ];
+
+  els.statsGrid.innerHTML = cards.map(card => `
+    <article class="stat-card">
+      <span class="stat-label">${escapeHtml(card.label)}</span>
+      <strong class="stat-value">${escapeHtml(String(card.value))}</strong>
+      <span class="stat-helper">${escapeHtml(card.helper)}</span>
+    </article>
+  `).join("") + `
+    <article class="stat-card stat-card-wide">
+      <span class="stat-label">Most Played</span>
+      <strong class="stat-value stat-value-small">${escapeHtml(topPlayedText)}</strong>
+      <span class="stat-helper">Updates as you listen</span>
+    </article>
+  `;
+}
+
+function clearSleepTimer() {
+  if (sleepTimerTimeout) {
+    clearTimeout(sleepTimerTimeout);
+    sleepTimerTimeout = null;
+  }
+  if (sleepTimerStatusInterval) {
+    clearInterval(sleepTimerStatusInterval);
+    sleepTimerStatusInterval = null;
+  }
+  sleepTimerEndsAt = null;
+  if (els.sleepTimerSelect) els.sleepTimerSelect.value = "0";
+  updateSleepTimerStatus();
+}
+
+function setSleepTimer(minutes) {
+  if (sleepTimerTimeout) clearTimeout(sleepTimerTimeout);
+  if (sleepTimerStatusInterval) clearInterval(sleepTimerStatusInterval);
+
+  if (!minutes) {
+    sleepTimerTimeout = null;
+    sleepTimerStatusInterval = null;
+    sleepTimerEndsAt = null;
+    updateSleepTimerStatus();
+    return;
+  }
+
+  sleepTimerEndsAt = Date.now() + minutes * 60 * 1000;
+  sleepTimerTimeout = setTimeout(() => {
+    if (els.audioPlayer && !els.audioPlayer.paused) {
+      els.audioPlayer.pause();
+    }
+    clearSleepTimer();
+  }, minutes * 60 * 1000);
+
+  sleepTimerStatusInterval = setInterval(updateSleepTimerStatus, 1000);
+  updateSleepTimerStatus();
+}
+
+function updateSleepTimerStatus() {
+  if (!els.sleepTimerStatus) return;
+
+  if (!sleepTimerEndsAt) {
+    els.sleepTimerStatus.textContent = "Sleep timer off.";
+    return;
+  }
+
+  const remainingMs = Math.max(0, sleepTimerEndsAt - Date.now());
+  const minutes = Math.floor(remainingMs / 60000);
+  const seconds = Math.floor((remainingMs % 60000) / 1000);
+  els.sleepTimerStatus.textContent = `Sleep timer active: ${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")} remaining.`;
 }
 
 /* =========================
@@ -977,6 +888,7 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   syncCurrentTrackIndex();
+  renderStats();
 }
 
 /* =========================
@@ -1219,12 +1131,6 @@ function renderFeaturedTrackList() {
           </div>
 
           <div class="featured-track-actions">
-            <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">
-              Play Next
-            </button>
-            <button class="mini-action-btn" data-add-queue-track="${escapeHtmlAttr(track.id)}" type="button">
-              Add to Queue
-            </button>
             <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">
               ${isFavorite(track) ? "★" : "☆"}
             </button>
@@ -1278,8 +1184,6 @@ function renderFeaturedTrackList() {
       triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     });
   });
-
-  bindTrackActionButtons(els.featuredTrackList, album.tracks);
 }
 
 /* =========================
@@ -1312,6 +1216,7 @@ function playTrack(track) {
   els.audioPlayer.src = track.src;
   els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
 
+  incrementPlayCount(track);
   updateNowPlaying(track);
   updateLyricsPanel(track);
   updateScripturePanel(track);
@@ -1321,8 +1226,8 @@ function playTrack(track) {
   renderQueue();
   renderFavorites();
   renderFeaturedTrackList();
+  renderStats();
   updateUrlForTrack(track);
-  syncLyricsUI(true);
 }
 
 function playFromQueueIndex(index) {
@@ -1424,8 +1329,6 @@ function updateProgressUI() {
   if (els.playerSheetSeekBar) {
     els.playerSheetSeekBar.value = duration ? String((current / duration) * 100) : "0";
   }
-
-  syncLyricsUI();
 }
 
 function syncCurrentTrackIndex() {
@@ -1448,8 +1351,11 @@ function updateLyricsPanel(track) {
     return;
   }
 
-  els.lyricsContent.innerHTML = renderLyricsMarkup(track, "main-lyrics");
-  syncLyricsUI(true);
+  els.lyricsContent.innerHTML = `
+    <div class="lyrics-block">
+      ${nl2br(escapeHtml(track.lyrics))}
+    </div>
+  `;
 }
 
 function updateScripturePanel(track) {
@@ -1478,7 +1384,9 @@ function openLyricsModalForTrack(track, triggerEl = null) {
 
   lastFocusedElement = triggerEl || document.activeElement || null;
   els.lyricsModalTitle.textContent = `Lyrics — ${track.title}`;
-  els.lyricsModalBody.innerHTML = renderLyricsMarkup(track, "lyrics-modal");
+  els.lyricsModalBody.innerHTML = track.lyrics
+    ? `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`
+    : `<p class="empty-message">No lyrics available.</p>`;
 
   els.lyricsModal.classList.remove("hidden");
   els.lyricsModal.setAttribute("aria-hidden", "false");
@@ -1486,7 +1394,6 @@ function openLyricsModalForTrack(track, triggerEl = null) {
 
   requestAnimationFrame(() => {
     els.closeLyricsBtn?.focus();
-    syncLyricsUI(true);
   });
 }
 
@@ -1531,26 +1438,20 @@ function openAlbumModal(album, triggerEl = null) {
       .map((track, index) => {
         const active = getCurrentTrack()?.id === track.id ? "active" : "";
         return `
-          <div class="album-track-card ${active}" data-track-id="${escapeHtmlAttr(track.id)}">
-            <button class="album-track-row ${active}" data-album-track-index="${index}" type="button">
-              <div class="album-track-main">
-                <div class="album-track-title-row">
-                  <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
-                  <span class="album-track-duration">${escapeHtml(track.duration || "")}</span>
-                </div>
-                <p class="album-track-artist">${escapeHtml(track.artist)}</p>
-                ${
-                  track.scripture_references.length
-                    ? `<p class="album-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>`
-                    : ""
-                }
+          <button class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
+            <div class="album-track-main">
+              <div class="album-track-title-row">
+                <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
+                <span class="album-track-duration">${escapeHtml(track.duration || "")}</span>
               </div>
-            </button>
-            <div class="album-track-actions">
-              <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
-              <button class="mini-action-btn" data-add-queue-track="${escapeHtmlAttr(track.id)}" type="button">Add to Queue</button>
+              <p class="album-track-artist">${escapeHtml(track.artist)}</p>
+              ${
+                track.scripture_references.length
+                  ? `<p class="album-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>`
+                  : ""
+              }
             </div>
-          </div>
+          </button>
         `;
       })
       .join("");
@@ -1562,8 +1463,6 @@ function openAlbumModal(album, triggerEl = null) {
         closeAlbumModal();
       });
     });
-
-    bindTrackActionButtons(els.albumModalTracks, album.tracks);
   }
 
   els.albumModal.classList.remove("hidden");
@@ -1640,6 +1539,7 @@ function toggleFavorite(track) {
   saveFavorites();
   updateFavoriteButton();
   renderFavorites();
+  renderStats();
 }
 
 function updateFavoriteButton() {
@@ -1703,6 +1603,7 @@ function saveTrackOffline(track) {
   updateOfflineButtons(track);
   renderDownloadedSongs();
   renderFeaturedTrackList();
+  renderStats();
 }
 
 function renderDownloadedSongs() {
@@ -1863,23 +1764,17 @@ function renderRecentlyPlayed() {
 
 function renderMiniCard(track, index) {
   return `
-    <div class="mini-card-stack" data-mini-track-id="${escapeHtmlAttr(track.id)}">
-      <button class="mini-card" data-mini-index="${index}" type="button">
-        ${
-          track.cover
-            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="mini-card-cover" />`
-            : `<div class="mini-card-cover mini-card-placeholder">No Cover</div>`
-        }
-        <div class="mini-card-meta">
-          <strong>${escapeHtml(track.title)}</strong>
-          <span>${escapeHtml(track.album)}</span>
-        </div>
-      </button>
-      <div class="mini-card-actions">
-        <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
-        <button class="mini-action-btn" data-add-queue-track="${escapeHtmlAttr(track.id)}" type="button">Add to Queue</button>
+    <button class="mini-card" data-mini-index="${index}" type="button">
+      ${
+        track.cover
+          ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="mini-card-cover" />`
+          : `<div class="mini-card-cover mini-card-placeholder">No Cover</div>`
+      }
+      <div class="mini-card-meta">
+        <strong>${escapeHtml(track.title)}</strong>
+        <span>${escapeHtml(track.album)}</span>
       </div>
-    </div>
+    </button>
   `;
 }
 
@@ -1892,8 +1787,6 @@ function bindMiniCardClicks(container, trackList) {
       startPlaybackFromList([track], false, 0);
     });
   });
-
-  bindTrackActionButtons(container, trackList);
 }
 
 /* =========================
@@ -2135,7 +2028,7 @@ function copyCurrentLyrics() {
   const track = getCurrentTrack();
   if (!track?.lyrics) return;
 
-  navigator.clipboard.writeText(getPlainLyricsText(track)).then(() => {
+  navigator.clipboard.writeText(track.lyrics).then(() => {
     flashButtonText(els.copyLyricsBtn, "Copied!");
     flashButtonText(els.copyLyricsBtnDesktop, "Copied!");
   }).catch(err => {
@@ -2216,10 +2109,6 @@ function setPlayerSheetTab(tabName) {
   document.querySelectorAll("[data-player-panel]").forEach(panel => {
     panel.classList.toggle("active", panel.dataset.playerPanel === tabName);
   });
-
-  if (tabName === "lyrics") {
-    requestAnimationFrame(() => syncLyricsUI(true));
-  }
 }
 
 function updatePlayerSheet() {
@@ -2241,7 +2130,7 @@ function updatePlayerSheet() {
 
   if (els.playerSheetLyricsPanel) {
     els.playerSheetLyricsPanel.innerHTML = track?.lyrics
-      ? renderLyricsMarkup(track, "player-sheet")
+      ? `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`
       : `<p class="empty-message">No lyrics available.</p>`;
   }
 
@@ -2259,7 +2148,6 @@ function updatePlayerSheet() {
   updateFavoriteButton();
   updateProgressUI();
   setPlayerSheetTab(playerSheetTab);
-  syncLyricsUI(true);
 }
 
 /* =========================
@@ -2276,6 +2164,7 @@ function handleSongQueryParam() {
 
   setQueue([track], false);
   currentQueueIndex = 0;
+  incrementPlayCount(track);
   updateNowPlaying(track);
   updateLyricsPanel(track);
   updateScripturePanel(track);
