@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v11";
+const CACHE_VERSION = "v12.0";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -15,7 +15,14 @@ const APP_SHELL = [
   "/contact.js",
   "/tracks.json",
   "/manifest.webmanifest",
-  "/pwa-init.js"
+  "/pwa-init.js",
+  "/favicon.ico",
+  "/icons/icon-64.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
+  "/images/church-logo.png",
+  "/images/aineo-music.png"
 ];
 
 // ===== INSTALL =====
@@ -57,12 +64,34 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
+
+  if (event.data?.type === "CACHE_AUDIO_URLS" && Array.isArray(event.data.urls)) {
+    event.waitUntil((async () => {
+      const cache = await caches.open(AUDIO_CACHE);
+      await Promise.all(event.data.urls.map(async (url) => {
+        try {
+          const res = await fetch(url, { mode: "cors" });
+          if (res && res.ok) await cache.put(url, res.clone());
+        } catch {}
+      }));
+    })());
+  }
+});
+
 // ===== FETCH =====
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
   // Only handle GET requests
   if (req.method !== "GET") return;
+
+  if (req.headers.has("range")) return;
 
   const url = new URL(req.url);
 
