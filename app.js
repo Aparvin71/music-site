@@ -12,6 +12,14 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let preloadAudio = null;
+let preloadedTrackId = null;
+let audioContext = null;
+let analyserNode = null;
+let mediaSourceNode = null;
+let visualizerFrame = null;
+let visualizerConnected = false;
+let miniPlayerTouchStartY = null;
 let playerSheetTouchStartY = null;
 
 const STORAGE_KEYS = {
@@ -120,14 +128,14 @@ const els = {
   filterTypeBadge: document.getElementById("filterTypeBadge"),
 
   queueSectionBody: document.getElementById("queueSectionBody"),
+  stickyPlayer: document.getElementById("stickyPlayer"),
+  stickyPlayerLeft: document.querySelector(".sticky-player-left"),
+  stickyPlayerCenter: document.querySelector(".sticky-player-center"),
+  visualizerCanvas: document.getElementById("visualizerCanvas"),
 
   createPlaylistBtn: document.getElementById("createPlaylistBtn"),
   myPlaylistList: document.getElementById("myPlaylistList"),
   downloadedList: document.getElementById("downloadedList"),
-  downloadedCount: document.getElementById("downloadedCount"),
-  playDownloadedBtn: document.getElementById("playDownloadedBtn"),
-  shuffleDownloadedBtn: document.getElementById("shuffleDownloadedBtn"),
-  clearDownloadedBtn: document.getElementById("clearDownloadedBtn"),
 
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
@@ -161,7 +169,23 @@ const els = {
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
-  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel")
+  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
+  playerSheetVisualizerCanvas: document.getElementById("playerSheetVisualizerCanvas"),
+
+  albumPage: document.getElementById("albumPage"),
+  albumPageBackdrop: document.getElementById("albumPageBackdrop"),
+  closeAlbumPageBtn: document.getElementById("closeAlbumPageBtn"),
+  albumPageCover: document.getElementById("albumPageCover"),
+  albumPageTitle: document.getElementById("albumPageTitle"),
+  albumPageArtist: document.getElementById("albumPageArtist"),
+  albumPageInfo: document.getElementById("albumPageInfo"),
+  albumPageDescription: document.getElementById("albumPageDescription"),
+  albumPageTags: document.getElementById("albumPageTags"),
+  albumPagePlayBtn: document.getElementById("albumPagePlayBtn"),
+  albumPageShuffleBtn: document.getElementById("albumPageShuffleBtn"),
+  albumPageDownloadBtn: document.getElementById("albumPageDownloadBtn"),
+  albumPageOpenLibraryBtn: document.getElementById("albumPageOpenLibraryBtn"),
+  albumPageTracks: document.getElementById("albumPageTracks")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -172,6 +196,8 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
+  initMiniPlayerGestures();
+  initAudioPreload();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -180,9 +206,9 @@ async function init() {
   renderMyPlaylists();
   renderDownloadedSongs();
   renderQueue();
+  renderAlbumPageFromQuery();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
-  initMiniPlayerGestures();
   handleSongQueryParam();
 }
 
@@ -192,7 +218,7 @@ async function init() {
 
 async function loadTracks() {
   try {
-    const res = await fetch('tracks.json', { cache: 'no-store' });
+    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -357,10 +383,24 @@ function bindUI() {
 
   if (els.audioPlayer) {
     els.audioPlayer.addEventListener("timeupdate", updateProgressUI);
-    els.audioPlayer.addEventListener("loadedmetadata", updateProgressUI);
-    els.audioPlayer.addEventListener("play", updatePlayButton);
-    els.audioPlayer.addEventListener("pause", updatePlayButton);
-    els.audioPlayer.addEventListener("ended", playNextTrack);
+    els.audioPlayer.addEventListener("loadedmetadata", () => {
+      updateProgressUI();
+      updateAudioPreload();
+    });
+    els.audioPlayer.addEventListener("play", () => {
+      updatePlayButton();
+      startVisualizer();
+      ensureVisualizerSetup();
+      updateMediaSession(getCurrentTrack());
+    });
+    els.audioPlayer.addEventListener("pause", () => {
+      updatePlayButton();
+      stopVisualizer();
+    });
+    els.audioPlayer.addEventListener("ended", () => {
+      stopVisualizer();
+      playNextTrack();
+    });
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
@@ -415,7 +455,7 @@ function bindUI() {
   on(els.openAlbumBtn, "click", e => {
     const album = getFeaturedAlbum();
     if (!album) return;
-    openAlbumModal(album, e.currentTarget);
+    openAlbumPage(album.name, e.currentTarget);
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);
@@ -423,6 +463,30 @@ function bindUI() {
 
   on(els.closeAlbumBtn, "click", closeAlbumModal);
   on(els.albumModalBackdrop, "click", closeAlbumModal);
+
+  on(els.closeAlbumPageBtn, "click", closeAlbumPage);
+  on(els.albumPageBackdrop, "click", closeAlbumPage);
+  on(els.albumPagePlayBtn, "click", () => {
+    const album = getAlbumPageAlbum();
+    if (!album) return;
+    startPlaybackFromList(album.tracks, false);
+  });
+  on(els.albumPageShuffleBtn, "click", () => {
+    const album = getAlbumPageAlbum();
+    if (!album) return;
+    startPlaybackFromList(album.tracks, true);
+  });
+  on(els.albumPageDownloadBtn, "click", () => {
+    const album = getAlbumPageAlbum();
+    if (!album?.album_zip) return;
+    triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
+  });
+  on(els.albumPageOpenLibraryBtn, "click", () => {
+    const album = getAlbumPageAlbum();
+    if (!album) return;
+    closeAlbumPage();
+    setAlbumFilter(album.name);
+  });
 
   on(els.albumModalPlayBtn, "click", () => {
     const album = getAlbumModalAlbum();
@@ -476,15 +540,6 @@ function bindUI() {
   on(els.playlistModalBackdrop, "click", closePlaylistModal);
   on(els.closePlaylistModalBtn, "click", closePlaylistModal);
   on(els.saveToPlaylistBtn, "click", saveTrackToPlaylistFromModal);
-  on(els.playDownloadedBtn, "click", () => {
-    const savedTracks = getDownloadedTracks();
-    if (savedTracks.length) startPlaybackFromList(savedTracks, false, 0);
-  });
-  on(els.shuffleDownloadedBtn, "click", () => {
-    const savedTracks = getDownloadedTracks();
-    if (savedTracks.length) startPlaybackFromList(savedTracks, true, 0);
-  });
-  on(els.clearDownloadedBtn, "click", clearDownloadedTracks);
 
   if (els.playerSheetSeekBar) {
     els.playerSheetSeekBar.addEventListener("input", () => {
@@ -498,12 +553,12 @@ function bindUI() {
     btn.addEventListener("click", () => setPlayerSheetTab(btn.dataset.playerTab));
   });
 
-  document.querySelector(".sticky-player-left")?.addEventListener("click", e => {
+  els.stickyPlayerLeft?.addEventListener("click", e => {
     if (e.target.closest("button")) return;
     openPlayerSheet();
   });
 
-  document.querySelector(".sticky-player-center")?.addEventListener("click", e => {
+  els.stickyPlayerCenter?.addEventListener("click", e => {
     if (e.target.closest("button") || e.target.closest("input")) return;
     openPlayerSheet();
   });
@@ -512,12 +567,304 @@ function bindUI() {
     if (e.key === "Escape") {
       closeLyricsModal();
       closeAlbumModal();
+      closeAlbumPage();
       closePlaylistModal();
       closePlayerSheet();
       closeMobilePlayerDrawer();
       closeMobileNav();
     }
   });
+}
+
+
+function ensureVisualizerSetup() {
+  if (!els.audioPlayer || typeof window.AudioContext === "undefined" && typeof window.webkitAudioContext === "undefined") {
+    return;
+  }
+
+  if (!audioContext) {
+    const ContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!ContextCtor) return;
+    audioContext = new ContextCtor();
+  }
+
+  if (!analyserNode) {
+    analyserNode = audioContext.createAnalyser();
+    analyserNode.fftSize = 64;
+    analyserNode.smoothingTimeConstant = 0.85;
+  }
+
+  if (!mediaSourceNode) {
+    try {
+      mediaSourceNode = audioContext.createMediaElementSource(els.audioPlayer);
+    } catch (error) {
+      return;
+    }
+  }
+
+  if (!visualizerConnected) {
+    mediaSourceNode.connect(analyserNode);
+    analyserNode.connect(audioContext.destination);
+    visualizerConnected = true;
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume().catch(() => {});
+  }
+}
+
+function startVisualizer() {
+  ensureVisualizerSetup();
+  if (visualizerFrame) cancelAnimationFrame(visualizerFrame);
+  drawVisualizerFrame();
+}
+
+function stopVisualizer() {
+  if (visualizerFrame) {
+    cancelAnimationFrame(visualizerFrame);
+    visualizerFrame = null;
+  }
+  drawVisualizerFrame(true);
+}
+
+function drawVisualizerFrame(isIdle = false) {
+  const canvases = [els.visualizerCanvas, els.playerSheetVisualizerCanvas].filter(Boolean);
+  if (!canvases.length) return;
+
+  let dataArray = null;
+  if (!isIdle && analyserNode) {
+    dataArray = new Uint8Array(analyserNode.frequencyBinCount);
+    analyserNode.getByteFrequencyData(dataArray);
+  }
+
+  canvases.forEach(canvas => {
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.max(120, Math.floor(rect.width || canvas.clientWidth || 300));
+    const height = Math.max(32, Math.floor(rect.height || canvas.clientHeight || 48));
+
+    if (canvas.width !== width * 2) canvas.width = width * 2;
+    if (canvas.height !== height * 2) canvas.height = height * 2;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.setTransform(2, 0, 0, 2, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
+    const barCount = 24;
+    const gap = 4;
+    const barWidth = (width - gap * (barCount - 1)) / barCount;
+    const baseHeight = Math.max(4, height * 0.18);
+
+    for (let i = 0; i < barCount; i++) {
+      const value = dataArray ? dataArray[i % dataArray.length] / 255 : 0.22;
+      const barHeight = baseHeight + (height - baseHeight) * (isIdle ? 0.18 : value * 0.9);
+      const x = i * (barWidth + gap);
+      const y = height - barHeight;
+      const radius = Math.min(6, barWidth / 2);
+
+      ctx.fillStyle = i % 3 === 0 ? "rgba(144, 180, 232, 0.92)" : i % 3 === 1 ? "rgba(107, 183, 255, 0.8)" : "rgba(210, 228, 255, 0.65)";
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + barWidth, y, x + barWidth, y + radius, radius);
+      ctx.arcTo(x + barWidth, height, x + barWidth - radius, height, radius);
+      ctx.arcTo(x, height, x, height - radius, radius);
+      ctx.arcTo(x, y, x + radius, y, radius);
+      ctx.closePath();
+      ctx.fill();
+    }
+  });
+
+  if (!isIdle && !els.audioPlayer?.paused) {
+    visualizerFrame = requestAnimationFrame(() => drawVisualizerFrame(false));
+  } else {
+    visualizerFrame = null;
+  }
+}
+
+function updateMediaSession(track) {
+  if (!("mediaSession" in navigator) || !track) return;
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: track.title || "Untitled",
+    artist: track.artist || "Allen Parvin",
+    album: track.album || "Singles",
+    artwork: track.cover ? [
+      { src: track.cover, sizes: "512x512", type: "image/jpeg" }
+    ] : []
+  });
+
+  navigator.mediaSession.setActionHandler("play", () => togglePlayPause());
+  navigator.mediaSession.setActionHandler("pause", () => togglePlayPause());
+  navigator.mediaSession.setActionHandler("previoustrack", () => playPreviousTrack());
+  navigator.mediaSession.setActionHandler("nexttrack", () => playNextTrack());
+  navigator.mediaSession.setActionHandler("seekbackward", details => {
+    if (!els.audioPlayer) return;
+    els.audioPlayer.currentTime = Math.max(0, els.audioPlayer.currentTime - (details.seekOffset || 10));
+  });
+  navigator.mediaSession.setActionHandler("seekforward", details => {
+    if (!els.audioPlayer || !isFinite(els.audioPlayer.duration)) return;
+    els.audioPlayer.currentTime = Math.min(els.audioPlayer.duration, els.audioPlayer.currentTime + (details.seekOffset || 10));
+  });
+}
+
+function updateMediaSessionPosition(currentTime, duration) {
+  if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState || !isFinite(duration) || duration <= 0 || !els.audioPlayer) return;
+
+  try {
+    navigator.mediaSession.setPositionState({
+      duration,
+      playbackRate: els.audioPlayer.playbackRate || 1,
+      position: Math.min(currentTime, duration)
+    });
+  } catch {}
+}
+
+function initMiniPlayerGestures() {
+  const swipeThreshold = 45;
+
+  els.stickyPlayer?.addEventListener("touchstart", event => {
+    miniPlayerTouchStartY = event.touches[0]?.clientY ?? null;
+  }, { passive: true });
+
+  els.stickyPlayer?.addEventListener("touchend", event => {
+    if (miniPlayerTouchStartY === null) return;
+    const endY = event.changedTouches[0]?.clientY ?? miniPlayerTouchStartY;
+    const deltaY = miniPlayerTouchStartY - endY;
+    miniPlayerTouchStartY = null;
+
+    if (deltaY > swipeThreshold) {
+      openPlayerSheet();
+    }
+  }, { passive: true });
+
+  els.playerSheet?.addEventListener("touchstart", event => {
+    playerSheetTouchStartY = event.touches[0]?.clientY ?? null;
+  }, { passive: true });
+
+  els.playerSheet?.addEventListener("touchend", event => {
+    if (playerSheetTouchStartY === null) return;
+    const endY = event.changedTouches[0]?.clientY ?? playerSheetTouchStartY;
+    const deltaY = endY - playerSheetTouchStartY;
+    playerSheetTouchStartY = null;
+
+    if (deltaY > swipeThreshold) {
+      closePlayerSheet();
+    }
+  }, { passive: true });
+}
+
+function openAlbumPage(albumName, triggerEl = null) {
+  const album = getAlbumByName(albumName);
+  if (!album || !els.albumPage) return;
+
+  lastFocusedElement = triggerEl || document.activeElement || null;
+  els.albumPage.dataset.albumName = album.name;
+
+  if (els.albumPageCover) {
+    els.albumPageCover.src = album.cover || "";
+    els.albumPageCover.alt = `${album.name} cover`;
+  }
+  if (els.albumPageTitle) els.albumPageTitle.textContent = album.name;
+  if (els.albumPageArtist) els.albumPageArtist.textContent = album.artist || "Allen Parvin";
+  if (els.albumPageInfo) {
+    els.albumPageInfo.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"} • ${album.year || "Collection"}`;
+  }
+  if (els.albumPageDescription) {
+    els.albumPageDescription.textContent = album.tracks[0]?.description || "Open the album to explore the full track list.";
+  }
+  if (els.albumPageTags) {
+    const tagSet = [...new Set(album.tracks.flatMap(track => track.tags || []))].slice(0, 8);
+    els.albumPageTags.innerHTML = tagSet.length
+      ? tagSet.map(tag => `<button class="tag-chip" data-album-page-tag="${escapeHtmlAttr(tag)}" type="button">${escapeHtml(tag)}</button>`).join("")
+      : `<span class="empty-message">No tags for this album.</span>`;
+    els.albumPageTags.querySelectorAll("[data-album-page-tag]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        closeAlbumPage();
+        setTagFilter(btn.dataset.albumPageTag);
+      });
+    });
+  }
+  if (els.albumPageDownloadBtn) {
+    els.albumPageDownloadBtn.style.display = album.album_zip ? "inline-flex" : "none";
+  }
+  if (els.albumPageTracks) {
+    els.albumPageTracks.innerHTML = album.tracks.map((track, index) => {
+      const active = getCurrentTrack()?.id === track.id ? "active" : "";
+      return `
+        <div class="album-page-track ${active}" data-album-page-track="${index}">
+          <button class="album-page-track-main" type="button" data-album-page-play="${index}">
+            <div class="album-page-track-top">
+              <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
+              <span>${escapeHtml(track.duration || "")}</span>
+            </div>
+            <p>${escapeHtml(track.artist)}</p>
+            ${track.scripture_references.length ? `<p class="album-page-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>` : ""}
+          </button>
+          <div class="album-page-track-actions">
+            <button class="mini-action-btn" type="button" data-album-page-next="${index}">Play Next</button>
+            <button class="mini-action-btn" type="button" data-album-page-queue="${index}">Add Queue</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    els.albumPageTracks.querySelectorAll("[data-album-page-play]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const idx = Number(btn.dataset.albumPagePlay);
+        startPlaybackFromList(album.tracks, false, idx);
+      });
+    });
+    els.albumPageTracks.querySelectorAll("[data-album-page-next]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const track = album.tracks[Number(btn.dataset.albumPageNext)];
+        if (track) playTrackNext(track);
+      });
+    });
+    els.albumPageTracks.querySelectorAll("[data-album-page-queue]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const track = album.tracks[Number(btn.dataset.albumPageQueue)];
+        if (track) addTrackToQueue(track);
+      });
+    });
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  params.set("album", album.name);
+  history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+
+  els.albumPage.classList.remove("hidden");
+  els.albumPage.setAttribute("aria-hidden", "false");
+  lockBodyScroll(true);
+}
+
+function closeAlbumPage() {
+  if (!els.albumPage) return;
+  els.albumPage.classList.add("hidden");
+  els.albumPage.setAttribute("aria-hidden", "true");
+  const params = new URLSearchParams(window.location.search);
+  params.delete("album");
+  const query = params.toString();
+  history.replaceState({}, "", query ? `${window.location.pathname}?${query}` : window.location.pathname);
+  if (!isAnyModalOpen()) {
+    lockBodyScroll(false);
+    restoreFocus();
+  }
+}
+
+function getAlbumPageAlbum() {
+  return getAlbumByName(els.albumPage?.dataset.albumName || "");
+}
+
+function renderAlbumPageFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const albumName = params.get("album");
+  if (!albumName) return;
+  if (tracks.length) {
+    openAlbumPage(albumName);
+  }
 }
 
 function on(element, eventName, handler) {
@@ -882,7 +1229,7 @@ function renderAlbums(trackList) {
     .join("");
 
   els.albumGrid.querySelectorAll("[data-album]").forEach(btn => {
-    btn.addEventListener("click", () => setAlbumFilter(btn.dataset.album));
+    btn.addEventListener("click", () => openAlbumPage(btn.dataset.album, btn));
   });
 }
 
@@ -963,6 +1310,12 @@ function renderFeaturedTrackList() {
             <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">
               + Playlist
             </button>
+            <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">
+              Play Next
+            </button>
+            <button class="mini-action-btn" data-add-queue-track="${escapeHtmlAttr(track.id)}" type="button">
+              Add Queue
+            </button>
             <button class="mini-action-btn" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button">
               ${isDownloaded(track) ? "Saved" : "Offline"}
             </button>
@@ -1020,6 +1373,91 @@ function setQueue(trackList, shuffle = false) {
   renderQueue();
 }
 
+function addTrackToQueue(track) {
+  if (!track) return;
+
+  if (!currentQueue.length) {
+    const baseList = filteredTracks.length ? filteredTracks : tracks;
+    currentQueue = [...baseList];
+    const current = getCurrentTrack();
+    currentQueueIndex = current ? currentQueue.findIndex(t => t.id === current.id) : -1;
+  }
+
+  if (!currentQueue.some(t => t.id === track.id)) {
+    currentQueue.push(track);
+  }
+
+  if (currentQueueIndex < 0) {
+    currentQueueIndex = 0;
+  }
+
+  saveQueueState();
+  renderQueue();
+}
+
+function playTrackNext(track) {
+  if (!track) return;
+
+  if (!currentQueue.length) {
+    const current = getCurrentTrack();
+    if (current) {
+      currentQueue = [current];
+      currentQueueIndex = 0;
+    } else {
+      currentQueue = filteredTracks.length ? [...filteredTracks] : [...tracks];
+      currentQueueIndex = currentQueue.length ? 0 : -1;
+    }
+  }
+
+  const activeTrack = getCurrentTrack();
+  const activeId = activeTrack?.id || null;
+  currentQueue = currentQueue.filter(t => t.id !== track.id);
+
+  const insertIndex = activeId ? Math.max(currentQueue.findIndex(t => t.id === activeId) + 1, 1) : 0;
+  currentQueue.splice(insertIndex, 0, track);
+  currentQueueIndex = activeId ? currentQueue.findIndex(t => t.id === activeId) : 0;
+
+  saveQueueState();
+  renderQueue();
+}
+
+function getNextTrackInQueue() {
+  const displayTracks = getQueueDisplayTracks();
+  if (!displayTracks.length) return null;
+
+  if (currentQueue.length && currentQueueIndex >= 0) {
+    return currentQueue[(currentQueueIndex + 1) % currentQueue.length] || null;
+  }
+
+  const current = getCurrentTrack();
+  if (!current) return displayTracks[0] || null;
+  const idx = displayTracks.findIndex(track => track.id === current.id);
+  if (idx < 0) return displayTracks[0] || null;
+  return displayTracks[(idx + 1) % displayTracks.length] || null;
+}
+
+function initAudioPreload() {
+  preloadAudio = new Audio();
+  preloadAudio.preload = "metadata";
+  preloadAudio.crossOrigin = "anonymous";
+}
+
+function updateAudioPreload() {
+  if (!preloadAudio) return;
+  const nextTrack = getNextTrackInQueue();
+  if (!nextTrack?.src) {
+    preloadedTrackId = null;
+    preloadAudio.removeAttribute("src");
+    preloadAudio.load();
+    return;
+  }
+
+  if (preloadedTrackId === nextTrack.id) return;
+  preloadedTrackId = nextTrack.id;
+  preloadAudio.src = nextTrack.src;
+  preloadAudio.load();
+}
+
 function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
   if (!Array.isArray(trackList) || !trackList.length) return;
   setQueue(trackList, shuffle);
@@ -1037,9 +1475,12 @@ function playTrack(track) {
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
 
   els.audioPlayer.src = track.src;
+  ensureVisualizerSetup();
   els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
 
   updateNowPlaying(track);
+  updateAudioPreload();
+  updateMediaSession(track);
   updateLyricsPanel(track);
   updateScripturePanel(track);
   addToRecentlyPlayed(track);
@@ -1259,8 +1700,8 @@ function openAlbumModal(album, triggerEl = null) {
       .map((track, index) => {
         const active = getCurrentTrack()?.id === track.id ? "active" : "";
         return `
-          <button class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
-            <div class="album-track-main">
+          <div class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
+            <button class="album-track-main album-track-play-surface" data-album-track-index="${index}" type="button">
               <div class="album-track-title-row">
                 <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
                 <span class="album-track-duration">${escapeHtml(track.duration || "")}</span>
@@ -1271,17 +1712,43 @@ function openAlbumModal(album, triggerEl = null) {
                   ? `<p class="album-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>`
                   : ""
               }
+            </button>
+            <div class="album-track-actions">
+              <button class="mini-action-btn" data-album-track-next="${index}" type="button">Play Next</button>
+              <button class="mini-action-btn" data-album-track-queue="${index}" type="button">Add Queue</button>
             </div>
-          </button>
+          </div>
         `;
       })
       .join("");
 
-    els.albumModalTracks.querySelectorAll("[data-album-track-index]").forEach(btn => {
+    els.albumModalTracks.querySelectorAll(".album-track-play-surface").forEach(btn => {
       btn.addEventListener("click", () => {
         const idx = Number(btn.dataset.albumTrackIndex);
         startPlaybackFromList(album.tracks, false, idx);
         closeAlbumModal();
+      });
+    });
+
+    els.albumModalTracks.querySelectorAll("[data-album-track-next]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.albumTrackNext);
+        const track = album.tracks[idx];
+        if (track) {
+          playTrackNext(track);
+        }
+      });
+    });
+
+    els.albumModalTracks.querySelectorAll("[data-album-track-queue]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const idx = Number(btn.dataset.albumTrackQueue);
+        const track = album.tracks[idx];
+        if (track) {
+          addTrackToQueue(track);
+        }
       });
     });
   }
@@ -1416,7 +1883,7 @@ function saveTrackOffline(track) {
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
       type: "CACHE_AUDIO_URLS",
-      urls: [track.src, track.cover].filter(Boolean)
+      urls: [track.src]
     });
   }
 
@@ -1425,52 +1892,21 @@ function saveTrackOffline(track) {
   renderFeaturedTrackList();
 }
 
-function getDownloadedTracks() {
-  return downloadedTracks
-    .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean);
-}
-
-function removeDownloadedTrack(trackId) {
-  downloadedTracks = downloadedTracks.filter(id => id !== trackId);
-  saveDownloadedTracks();
-  updateOfflineButtons(getCurrentTrack());
-  renderDownloadedSongs();
-  renderFeaturedTrackList();
-}
-
-function clearDownloadedTracks() {
-  if (!downloadedTracks.length) return;
-  downloadedTracks = [];
-  saveDownloadedTracks();
-  updateOfflineButtons(getCurrentTrack());
-  renderDownloadedSongs();
-  renderFeaturedTrackList();
-}
-
 function renderDownloadedSongs() {
   if (!els.downloadedList) return;
 
-  const savedTracks = getDownloadedTracks();
-
-  if (els.downloadedCount) {
-    els.downloadedCount.textContent = `${savedTracks.length} song${savedTracks.length === 1 ? "" : "s"} saved for offline listening`;
-  }
+  const savedTracks = downloadedTracks
+    .map(id => tracks.find(track => track.id === id))
+    .filter(Boolean)
+    .slice(0, 12);
 
   if (!savedTracks.length) {
     els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
     return;
   }
 
-  els.downloadedList.innerHTML = savedTracks.map((track, index) => renderMiniCard(track, index, { removable: true })).join("");
+  els.downloadedList.innerHTML = savedTracks.map((track, index) => renderMiniCard(track, index)).join("");
   bindMiniCardClicks(els.downloadedList, savedTracks);
-
-  els.downloadedList.querySelectorAll("[data-remove-downloaded-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      removeDownloadedTrack(btn.dataset.removeDownloadedTrack);
-    });
-  });
 }
 
 function createNewPlaylist() {
@@ -1612,22 +2048,19 @@ function renderRecentlyPlayed() {
   bindMiniCardClicks(els.recentlyPlayedList, recentTracks);
 }
 
-function renderMiniCard(track, index, options = {}) {
+function renderMiniCard(track, index) {
   return `
-    <div class="mini-card-wrap">
-      <button class="mini-card" data-mini-index="${index}" type="button">
-        ${
-          track.cover
-            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="mini-card-cover" />`
-            : `<div class="mini-card-cover mini-card-placeholder">No Cover</div>`
-        }
-        <div class="mini-card-meta">
-          <strong>${escapeHtml(track.title)}</strong>
-          <span>${escapeHtml(track.album)}</span>
-        </div>
-      </button>
-      ${options.removable ? `<button class="mini-card-remove mini-action-btn" data-remove-downloaded-track="${escapeHtmlAttr(track.id)}" type="button">Remove</button>` : ""}
-    </div>
+    <button class="mini-card" data-mini-index="${index}" type="button">
+      ${
+        track.cover
+          ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="mini-card-cover" />`
+          : `<div class="mini-card-cover mini-card-placeholder">No Cover</div>`
+      }
+      <div class="mini-card-meta">
+        <strong>${escapeHtml(track.title)}</strong>
+        <span>${escapeHtml(track.album)}</span>
+      </div>
+    </button>
   `;
 }
 
@@ -1645,6 +2078,7 @@ function bindMiniCardClicks(container, trackList) {
 /* =========================
    QUEUE UI
 ========================= */
+
 function getQueueDisplayTracks() {
   if (Array.isArray(currentQueue) && currentQueue.length) {
     return currentQueue;
@@ -1943,46 +2377,6 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
-
-function initMiniPlayerGestures() {
-  const stickyPlayer = document.querySelector(".sticky-player");
-  const sheetContent = document.querySelector(".player-sheet-content");
-
-  if (stickyPlayer) {
-    let startY = null;
-    stickyPlayer.addEventListener("touchstart", e => {
-      startY = e.touches[0]?.clientY ?? null;
-    }, { passive: true });
-
-    stickyPlayer.addEventListener("touchend", e => {
-      const endY = e.changedTouches[0]?.clientY ?? startY;
-      if (startY !== null && endY !== null && startY - endY > 24) {
-        openPlayerSheet();
-      }
-      startY = null;
-    }, { passive: true });
-  }
-
-  if (sheetContent) {
-    sheetContent.addEventListener("touchstart", e => {
-      playerSheetTouchStartY = e.touches[0]?.clientY ?? null;
-    }, { passive: true });
-
-    sheetContent.addEventListener("touchend", e => {
-      const endY = e.changedTouches[0]?.clientY ?? playerSheetTouchStartY;
-      const scrollPanel = e.target.closest(".player-tab-panel");
-      if (scrollPanel && scrollPanel.scrollTop > 12) {
-        playerSheetTouchStartY = null;
-        return;
-      }
-      if (playerSheetTouchStartY !== null && endY !== null && endY - playerSheetTouchStartY > 56) {
-        closePlayerSheet();
-      }
-      playerSheetTouchStartY = null;
-    }, { passive: true });
-  }
-}
-
 function openPlayerSheet(triggerEl = null) {
   if (!els.playerSheet) return;
   lastFocusedElement = triggerEl || document.activeElement || null;
@@ -2085,9 +2479,10 @@ function updateUrlForTrack(track) {
 function isAnyModalOpen() {
   const lyricsOpen = els.lyricsModal && !els.lyricsModal.classList.contains("hidden");
   const albumOpen = els.albumModal && !els.albumModal.classList.contains("hidden");
+  const albumPageOpen = els.albumPage && !els.albumPage.classList.contains("hidden");
   const playlistOpen = els.playlistModal && !els.playlistModal.classList.contains("hidden");
   const playerSheetOpen = els.playerSheet && !els.playerSheet.classList.contains("hidden");
-  return Boolean(lyricsOpen || albumOpen || playlistOpen || playerSheetOpen);
+  return Boolean(lyricsOpen || albumOpen || albumPageOpen || playlistOpen || playerSheetOpen);
 }
 
 function lockBodyScroll(locked) {
@@ -2289,441 +2684,4 @@ function closeMobileNav(forceDesktopState = false) {
   if (forceDesktopState && window.innerWidth > 640) {
     els.siteNavLinks.classList.remove("nav-open");
   }
-}
-
-/* =========================
-   PLAYLIST SYSTEM V2
-========================= */
-
-let activeCustomPlaylistName = null;
-let playlistItemDragIndex = null;
-
-function normalizeCustomPlaylistState() {
-  if (!customPlaylists || typeof customPlaylists !== "object") {
-    customPlaylists = {};
-    return;
-  }
-
-  Object.keys(customPlaylists).forEach(name => {
-    const ids = Array.isArray(customPlaylists[name]) ? customPlaylists[name] : [];
-    customPlaylists[name] = ids.filter(Boolean);
-  });
-}
-
-function getCustomPlaylistTracks(name) {
-  const ids = customPlaylists[name] || [];
-  return ids
-    .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean);
-}
-
-function ensurePlaylistWorkspace() {
-  if (!els.myPlaylistList) return null;
-
-  let workspace = document.getElementById("playlistWorkspace");
-  if (workspace) return workspace;
-
-  workspace = document.createElement("section");
-  workspace.id = "playlistWorkspace";
-  workspace.className = "playlist-workspace hidden";
-  workspace.innerHTML = `
-    <div class="playlist-workspace-header">
-      <div id="playlistWorkspaceCover" class="playlist-workspace-cover" aria-hidden="true"></div>
-
-      <div class="playlist-workspace-meta">
-        <p class="eyebrow">Playlist Studio</p>
-        <h3 id="playlistWorkspaceTitle">Select a playlist</h3>
-        <p id="playlistWorkspaceInfo" class="playlist-workspace-info">Build playlists, reorder tracks, and play your favorites.</p>
-
-        <div class="playlist-workspace-actions">
-          <button id="playlistWorkspacePlayBtn" class="action-btn" type="button">Play</button>
-          <button id="playlistWorkspaceShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
-          <button id="playlistWorkspaceFocusBtn" class="action-btn secondary-btn" type="button">Open in Library</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="playlist-workspace-toolbar">
-      <label class="visually-hidden" for="playlistRenameInput">Rename playlist</label>
-      <input id="playlistRenameInput" class="request-input" type="text" placeholder="Rename playlist" />
-      <button id="playlistRenameBtn" class="action-btn secondary-btn" type="button">Rename</button>
-      <button id="playlistDeleteBtn" class="action-btn danger-btn" type="button">Delete</button>
-    </div>
-
-    <div class="playlist-workspace-helper">
-      Drag songs to reorder this playlist. Use remove to take a song out.
-    </div>
-
-    <div id="playlistWorkspaceTracks" class="playlist-workspace-tracks" aria-live="polite"></div>
-  `;
-
-  els.myPlaylistList.parentElement.appendChild(workspace);
-  bindPlaylistWorkspaceUI();
-  return workspace;
-}
-
-function bindPlaylistWorkspaceUI() {
-  const playBtn = document.getElementById("playlistWorkspacePlayBtn");
-  const shuffleBtn = document.getElementById("playlistWorkspaceShuffleBtn");
-  const focusBtn = document.getElementById("playlistWorkspaceFocusBtn");
-  const renameBtn = document.getElementById("playlistRenameBtn");
-  const deleteBtn = document.getElementById("playlistDeleteBtn");
-  const renameInput = document.getElementById("playlistRenameInput");
-
-  on(playBtn, "click", () => {
-    if (!activeCustomPlaylistName) return;
-    const list = getCustomPlaylistTracks(activeCustomPlaylistName);
-    if (!list.length) return;
-    startPlaybackFromList(list, false, 0);
-  });
-
-  on(shuffleBtn, "click", () => {
-    if (!activeCustomPlaylistName) return;
-    const list = getCustomPlaylistTracks(activeCustomPlaylistName);
-    if (!list.length) return;
-    startPlaybackFromList(list, true, 0);
-  });
-
-  on(focusBtn, "click", () => {
-    if (!activeCustomPlaylistName) return;
-    applyCustomPlaylistFilter(activeCustomPlaylistName);
-  });
-
-  on(renameBtn, "click", () => {
-    if (!activeCustomPlaylistName) return;
-    const nextName = renameInput?.value?.trim();
-    renameCustomPlaylist(activeCustomPlaylistName, nextName);
-  });
-
-  on(renameInput, "keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      renameBtn?.click();
-    }
-  });
-
-  on(deleteBtn, "click", () => {
-    if (!activeCustomPlaylistName) return;
-    const name = activeCustomPlaylistName;
-    delete customPlaylists[name];
-    saveCustomPlaylists();
-    activeCustomPlaylistName = null;
-    renderMyPlaylists();
-    renderPlaylistWorkspace();
-  });
-}
-
-function buildPlaylistCoverCollage(trackList) {
-  if (!trackList.length) {
-    return `<div class="playlist-collage-empty">♪</div>`;
-  }
-
-  const covers = trackList
-    .map(track => track.cover)
-    .filter(Boolean)
-    .slice(0, 4);
-
-  if (!covers.length) {
-    return `<div class="playlist-collage-empty">♪</div>`;
-  }
-
-  return covers
-    .map(src => `<img loading="lazy" src="${escapeHtmlAttr(src)}" alt="" />`)
-    .join("");
-}
-
-function applyCustomPlaylistFilter(name) {
-  const ids = customPlaylists[name] || [];
-  filteredTracks = ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
-  filters.selectedAlbum = null;
-  filters.selectedPlaylist = null;
-  filters.selectedTag = null;
-  filters.searchTerm = "";
-  if (els.searchInput) els.searchInput.value = "";
-  if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${name}`;
-  if (els.stickyFilterBar) els.stickyFilterBar.classList.remove("hidden");
-  if (els.filterTypeBadge) {
-    els.filterTypeBadge.textContent = "My Playlist";
-    els.filterTypeBadge.className = "filter-type-badge playlist";
-    els.filterTypeBadge.style.display = "inline-flex";
-  }
-  renderAlbums(filteredTracks);
-  renderFeaturedAlbum();
-  renderFeaturedTrackList();
-  renderQueue();
-  scrollToTop();
-}
-
-function setActiveCustomPlaylist(name) {
-  activeCustomPlaylistName = name && customPlaylists[name] ? name : null;
-  renderMyPlaylists();
-  renderPlaylistWorkspace();
-}
-
-function renameCustomPlaylist(oldName, newName) {
-  if (!oldName || !customPlaylists[oldName]) return;
-  if (!newName || newName === oldName) {
-    renderPlaylistWorkspace();
-    return;
-  }
-
-  if (customPlaylists[newName]) {
-    const merged = [...customPlaylists[newName], ...customPlaylists[oldName]];
-    customPlaylists[newName] = Array.from(new Set(merged));
-    delete customPlaylists[oldName];
-  } else {
-    customPlaylists[newName] = [...customPlaylists[oldName]];
-    delete customPlaylists[oldName];
-  }
-
-  activeCustomPlaylistName = newName;
-  saveCustomPlaylists();
-  renderMyPlaylists();
-  renderPlaylistWorkspace();
-}
-
-function renderPlaylistWorkspace() {
-  const workspace = ensurePlaylistWorkspace();
-  if (!workspace) return;
-
-  const title = document.getElementById("playlistWorkspaceTitle");
-  const info = document.getElementById("playlistWorkspaceInfo");
-  const cover = document.getElementById("playlistWorkspaceCover");
-  const renameInput = document.getElementById("playlistRenameInput");
-  const tracksWrap = document.getElementById("playlistWorkspaceTracks");
-  const deleteBtn = document.getElementById("playlistDeleteBtn");
-  const playBtn = document.getElementById("playlistWorkspacePlayBtn");
-  const shuffleBtn = document.getElementById("playlistWorkspaceShuffleBtn");
-  const focusBtn = document.getElementById("playlistWorkspaceFocusBtn");
-
-  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) {
-    workspace.classList.add("hidden");
-    return;
-  }
-
-  workspace.classList.remove("hidden");
-
-  const list = getCustomPlaylistTracks(activeCustomPlaylistName);
-  if (title) title.textContent = activeCustomPlaylistName;
-  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • reorder, remove, or jump back into the library view`;
-  if (cover) cover.innerHTML = buildPlaylistCoverCollage(list);
-  if (renameInput) renameInput.value = activeCustomPlaylistName;
-  if (playBtn) playBtn.disabled = !list.length;
-  if (shuffleBtn) shuffleBtn.disabled = !list.length;
-  if (focusBtn) focusBtn.disabled = !list.length;
-  if (deleteBtn) deleteBtn.disabled = false;
-
-  if (!tracksWrap) return;
-
-  if (!list.length) {
-    tracksWrap.innerHTML = `<p class="empty-message">This playlist is empty. Add songs with the + Playlist button from any track card.</p>`;
-    return;
-  }
-
-  tracksWrap.innerHTML = list.map((track, index) => `
-    <div class="playlist-track-row ${getCurrentTrack()?.id === track.id ? "active" : ""}" draggable="true" data-playlist-track-index="${index}">
-      <button class="playlist-track-drag" type="button" aria-label="Drag to reorder">☰</button>
-      ${track.cover ? `<img class="playlist-track-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" loading="lazy" />` : `<div class="playlist-track-cover playlist-track-cover-fallback">♪</div>`}
-      <button class="playlist-track-main" type="button" data-playlist-track-play="${index}">
-        <strong>${escapeHtml(track.title)}</strong>
-        <span>${escapeHtml(track.artist)} • ${escapeHtml(track.album)}</span>
-      </button>
-      <div class="playlist-track-row-actions">
-        <button class="mini-action-btn" data-playlist-track-queue="${index}" type="button">Queue</button>
-        <button class="mini-action-btn" data-playlist-track-remove="${index}" type="button">Remove</button>
-      </div>
-    </div>
-  `).join("");
-
-  tracksWrap.querySelectorAll("[data-playlist-track-play]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackPlay);
-      const currentList = getCustomPlaylistTracks(activeCustomPlaylistName);
-      startPlaybackFromList(currentList, false, index);
-    });
-  });
-
-  tracksWrap.querySelectorAll("[data-playlist-track-queue]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackQueue);
-      const currentList = getCustomPlaylistTracks(activeCustomPlaylistName);
-      const track = currentList[index];
-      if (!track) return;
-      if (!currentQueue.length) {
-        setQueue(currentList, false);
-      } else {
-        currentQueue.push(track);
-        saveQueueState();
-        renderQueue();
-      }
-    });
-  });
-
-  tracksWrap.querySelectorAll("[data-playlist-track-remove]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackRemove);
-      const ids = [...(customPlaylists[activeCustomPlaylistName] || [])];
-      if (index < 0 || index >= ids.length) return;
-      ids.splice(index, 1);
-      customPlaylists[activeCustomPlaylistName] = ids;
-      saveCustomPlaylists();
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-    });
-  });
-
-  tracksWrap.querySelectorAll("[data-playlist-track-index]").forEach(row => {
-    row.addEventListener("dragstart", () => {
-      playlistItemDragIndex = Number(row.dataset.playlistTrackIndex);
-      row.classList.add("dragging");
-    });
-
-    row.addEventListener("dragend", () => {
-      row.classList.remove("dragging");
-      playlistItemDragIndex = null;
-    });
-
-    row.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
-
-    row.addEventListener("drop", e => {
-      e.preventDefault();
-      const dropIndex = Number(row.dataset.playlistTrackIndex);
-      if (playlistItemDragIndex === null || playlistItemDragIndex === dropIndex || !activeCustomPlaylistName) {
-        return;
-      }
-
-      const ids = [...(customPlaylists[activeCustomPlaylistName] || [])];
-      const [moved] = ids.splice(playlistItemDragIndex, 1);
-      ids.splice(dropIndex, 0, moved);
-      customPlaylists[activeCustomPlaylistName] = ids;
-      saveCustomPlaylists();
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-    });
-  });
-}
-
-function renderMyPlaylists() {
-  normalizeCustomPlaylistState();
-  ensurePlaylistWorkspace();
-
-  if (!els.myPlaylistList) return;
-
-  const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
-
-  if (!names.length) {
-    els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
-    activeCustomPlaylistName = null;
-    renderPlaylistWorkspace();
-    return;
-  }
-
-  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) {
-    activeCustomPlaylistName = names[0];
-  }
-
-  els.myPlaylistList.classList.add("playlist-v2-grid");
-
-  els.myPlaylistList.innerHTML = names.map(name => {
-    const list = getCustomPlaylistTracks(name);
-    const active = name === activeCustomPlaylistName ? "active" : "";
-    return `
-      <article class="playlist-card ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-        <button class="playlist-card-cover" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" aria-label="Open ${escapeHtmlAttr(name)}">
-          ${buildPlaylistCoverCollage(list)}
-        </button>
-
-        <div class="playlist-card-body">
-          <button class="playlist-card-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
-            ${escapeHtml(name)}
-          </button>
-          <p class="playlist-card-meta">${list.length} song${list.length === 1 ? "" : "s"}</p>
-
-          <div class="playlist-card-actions">
-            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
-            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
-            <button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button>
-            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button>
-          </div>
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  els.myPlaylistList.querySelectorAll("[data-open-custom-playlist]").forEach(btn => {
-    btn.addEventListener("click", () => setActiveCustomPlaylist(btn.dataset.openCustomPlaylist));
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-play]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistPlay;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setActiveCustomPlaylist(name);
-      startPlaybackFromList(list, false, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-shuffle]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistShuffle;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setActiveCustomPlaylist(name);
-      startPlaybackFromList(list, true, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-focus]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistFocus;
-      setActiveCustomPlaylist(name);
-      applyCustomPlaylistFilter(name);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-delete-custom-playlist]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const name = btn.dataset.deleteCustomPlaylist;
-      delete customPlaylists[name];
-      if (activeCustomPlaylistName === name) activeCustomPlaylistName = null;
-      saveCustomPlaylists();
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-    });
-  });
-
-  renderPlaylistWorkspace();
-}
-
-function createNewPlaylist() {
-  playlistPickerTrackId = null;
-  if (els.playlistSelect) els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>`;
-  if (els.newPlaylistName) els.newPlaylistName.value = "";
-  openPlaylistModal(null, els.createPlaylistBtn);
-}
-
-function saveTrackToPlaylistFromModal() {
-  const typedName = els.newPlaylistName?.value?.trim();
-  const selectedName = els.playlistSelect?.value?.trim();
-  const playlistName = typedName || selectedName;
-
-  if (!playlistName) return;
-
-  if (!customPlaylists[playlistName]) {
-    customPlaylists[playlistName] = [];
-  }
-
-  if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
-    customPlaylists[playlistName].push(playlistPickerTrackId);
-  }
-
-  saveCustomPlaylists();
-  activeCustomPlaylistName = playlistName;
-  renderMyPlaylists();
-  renderPlaylistWorkspace();
-  closePlaylistModal();
 }

@@ -159,7 +159,7 @@
     "artist": "Allen Parvin",
     "album": "About Them",
     "genre": "Southern, Blue Collar, Rock",
-    "year": 2026,
+    "year": 2027,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Remington%20the%20Pump%20Truck%20Guy.mp3",
     "playlists": [
       "About Them"
@@ -1599,13 +1599,14 @@
     "slug": "on-my-body",
     "artist": "Allen Parvin",
     "album": "Testimony",
-    "genre": "hip hop, rock, worship",
+    "genre": "Christian, hip hop, rock, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/On%20My%20Body.mp3",
     "playlists": [
       "Testimony"
     ],
     "tags": [
+      "christian",
       "hip hop",
       "rock",
       "worship"
@@ -1625,7 +1626,7 @@
     "slug": "out-of-ashes",
     "artist": "Allen Parvin",
     "album": "Testimony",
-    "genre": "contemporary, gospel",
+    "genre": "contemporary, Christian, gospel",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Out%20of%20Ashes.mp3",
     "playlists": [
@@ -1633,6 +1634,7 @@
     ],
     "tags": [
       "contemporary",
+      "christian",
       "gospel"
     ],
     "duration": "3:48",
@@ -1771,7 +1773,7 @@
     "slug": "moved-with-compassion",
     "artist": "Allen Parvin",
     "album": "Who He Is",
-    "genre": "Contemporary, Gospel, Pop",
+    "genre": "Contemporary, Christian, Gospel, Pop",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/Moved%20with%20Compassion.mp3",
     "playlists": [
@@ -1779,6 +1781,7 @@
     ],
     "tags": [
       "contemporary",
+      "christian",
       "gospel",
       "pop"
     ],
@@ -1887,7 +1890,7 @@
     "slug": "you-spoke",
     "artist": "Allen Parvin",
     "album": "Who He Is",
-    "genre": "contemporary, worship",
+    "genre": "contemporary, Christian, worship",
     "year": 2026,
     "src": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio/You%20Spoke.mp3",
     "playlists": [
@@ -1895,6 +1898,7 @@
     ],
     "tags": [
       "contemporary",
+      "christian",
       "worship"
     ],
     "duration": "3:44",
