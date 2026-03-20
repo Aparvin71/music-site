@@ -186,7 +186,7 @@ async function init() {
 
 async function loadTracks() {
   try {
-    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch('tracks.json', { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -1401,7 +1401,7 @@ function saveTrackOffline(track) {
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
       type: "CACHE_AUDIO_URLS",
-      urls: [track.src]
+      urls: [track.src, track.cover].filter(Boolean)
     });
   }
 

@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v9.18";
+const CACHE_VERSION = "v10.0";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -15,7 +15,13 @@ const APP_SHELL = [
   "/contact.js",
   "/tracks.json",
   "/manifest.webmanifest",
-  "/pwa-init.js"
+  "/pwa-init.js",
+  "/favicon.ico",
+  "/icons/icon-64.png",
+  "/icons/icon-192.png",
+  "/icons/icon-512.png",
+  "/images/aineo-music.png",
+  "/images/church-logo.png"
 ];
 
 // ===== INSTALL =====
@@ -27,7 +33,6 @@ self.addEventListener("install", (event) => {
       Promise.all(
         APP_SHELL.map((url) =>
           cache.add(url).catch(() => {
-            // prevents one failure from breaking install
             console.warn("Failed to cache:", url);
           })
         )
@@ -42,11 +47,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (
-            key !== STATIC_CACHE &&
-            key !== RUNTIME_CACHE &&
-            key !== AUDIO_CACHE
-          ) {
+          if (key !== STATIC_CACHE && key !== RUNTIME_CACHE && key !== AUDIO_CACHE) {
             return caches.delete(key);
           }
         })
@@ -57,12 +58,42 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// ===== MESSAGES =====
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
+
+  if (event.data?.type === "CACHE_AUDIO_URLS" && Array.isArray(event.data.urls)) {
+    event.waitUntil(
+      caches.open(AUDIO_CACHE).then(async (cache) => {
+        for (const url of event.data.urls.filter(Boolean)) {
+          try {
+            const req = new Request(url, { mode: "cors" });
+            const res = await fetch(req);
+            if (res && res.ok) {
+              await cache.put(req, res.clone());
+            }
+          } catch (error) {
+            console.warn("Failed to cache media URL:", url, error);
+          }
+        }
+      })
+    );
+  }
+});
+
 // ===== FETCH =====
 self.addEventListener("fetch", (event) => {
   const req = event.request;
 
-  // Only handle GET requests
   if (req.method !== "GET") return;
+
+  // Never intercept byte-range requests. Mobile browsers commonly use these for audio.
+  if (req.headers.has("range")) {
+    return;
+  }
 
   const url = new URL(req.url);
 
@@ -75,10 +106,12 @@ self.addEventListener("fetch", (event) => {
 
           return fetch(req)
             .then((res) => {
-              cache.put(req, res.clone());
+              if (res && res.ok) {
+                cache.put(req, res.clone());
+              }
               return res;
             })
-            .catch(() => cached);
+            .catch(() => cached)
         })
       )
     );
@@ -110,11 +143,13 @@ self.addEventListener("fetch", (event) => {
 
       return fetch(req)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          }
           return res;
         })
-        .catch(() => cached);
+        .catch(() => cached)
     })
   );
 });
