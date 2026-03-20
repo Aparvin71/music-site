@@ -33,3 +33,9 @@ Deployment:
 4. After upload, hard refresh the site.
 5. Unregister the old service worker once, then reload.
 6. On iPhone, delete any previously installed home-screen app and reinstall so the new icon is used.
+
+New in this bundle:
+- Added Album Pages via /album.html?album=...
+- Added Browse by Scripture sidebar filters
+- Added Play Next and Add to Queue actions on album tracks
+- Added album page script and service worker caching for album pages

@@ -121,6 +121,22 @@
           <div id="tagList" class="tag-list" aria-live="polite"></div>
         </div>
       </section>
+
+      <section class="sidebar-section collapsible-section open" data-collapsible="scripture-browser">
+        <button
+          class="section-toggle"
+          type="button"
+          aria-expanded="true"
+          aria-controls="scriptureBrowserSectionBody"
+        >
+          <span>Browse by Scripture</span>
+          <span class="toggle-icon" aria-hidden="true">▾</span>
+        </button>
+
+        <div id="scriptureBrowserSectionBody" class="section-body">
+          <div id="scriptureBrowserList" class="tag-list scripture-browser-list" aria-live="polite"></div>
+        </div>
+      </section>
     </aside>
 
     <main id="mainContent" class="main-content">
@@ -191,7 +207,7 @@
             <button id="playAlbumBtn" class="action-btn" type="button">Play Album</button>
             <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
             <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Album</button>
-            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Album</button>
+            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Album Page</button>
           </div>
         </div>
       </section>
@@ -395,6 +411,7 @@
               <button id="albumModalPlayBtn" class="action-btn" type="button">Play Album</button>
               <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
               <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>
+              <button id="albumModalOpenPageBtn" class="action-btn secondary-btn" type="button">Album Page</button>
             </div>
           </div>
         </div>
