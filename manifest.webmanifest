@@ -1,4 +1,5 @@
 {
+  "id": "./",
   "name": "Aineo Music",
   "short_name": "Aineo",
   "start_url": "./index.html",
@@ -6,11 +7,13 @@
   "display": "standalone",
   "background_color": "#0f1115",
   "theme_color": "#0f1115",
+  "description": "Stream original songs, worship tracks, family songs, and Scripture-inspired music.",
   "icons": [
     {
       "src": "icons/icon-64.png",
       "sizes": "64x64",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-192.png",

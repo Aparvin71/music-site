@@ -12,6 +12,8 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let deferredInstallPrompt = null;
+let installState = { isIOS: false, isStandalone: false };
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -156,7 +158,12 @@ const els = {
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
-  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel")
+  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
+  installPanel: document.getElementById("installPanel"),
+  installAppBtn: document.getElementById("installAppBtn"),
+  installStatus: document.getElementById("installStatus"),
+  iosInstallHelp: document.getElementById("iosInstallHelp"),
+  copyInstallLinkBtn: document.getElementById("copyInstallLinkBtn")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -167,6 +174,7 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
+  setupInstallExperience();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -186,7 +194,7 @@ async function init() {
 
 async function loadTracks() {
   try {
-    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch("tracks.json?v=installfix1", { cache: "no-store" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
@@ -331,12 +339,106 @@ function clearResume() {
   resumeTrackSrc = null;
 }
 
+
+function setupInstallExperience() {
+  const ua = navigator.userAgent || "";
+  installState.isIOS = /iphone|ipad|ipod/i.test(ua);
+  installState.isStandalone =
+    window.matchMedia?.("(display-mode: standalone)")?.matches ||
+    window.navigator.standalone === true;
+
+  window.addEventListener("beforeinstallprompt", event => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallUI();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    installState.isStandalone = true;
+    updateInstallUI("App installed.");
+  });
+
+  updateInstallUI();
+}
+
+function updateInstallUI(message = "") {
+  if (!els.installPanel) return;
+
+  const canPrompt = Boolean(deferredInstallPrompt);
+  const isIOS = installState.isIOS;
+  const isInstalled = installState.isStandalone;
+
+  els.installPanel.classList.remove("hidden");
+
+  if (els.installAppBtn) {
+    els.installAppBtn.disabled = isInstalled || (!canPrompt && !isIOS);
+    els.installAppBtn.textContent = isInstalled
+      ? "Installed"
+      : canPrompt
+        ? "Install App"
+        : isIOS
+          ? "Add to Home Screen"
+          : "Install Not Ready";
+  }
+
+  if (els.iosInstallHelp) {
+    els.iosInstallHelp.classList.toggle("hidden", !isIOS || isInstalled);
+  }
+
+  if (els.installStatus) {
+    if (message) {
+      els.installStatus.textContent = message;
+    } else if (isInstalled) {
+      els.installStatus.textContent = "This app is already installed on this device.";
+    } else if (canPrompt) {
+      els.installStatus.textContent = "Android users can install the app directly from this page.";
+    } else if (isIOS) {
+      els.installStatus.textContent = "On iPhone or iPad, open this site in Safari and use Share → Add to Home Screen.";
+    } else {
+      els.installStatus.textContent = "Install becomes available after the browser finishes checking app requirements.";
+    }
+  }
+}
+
+async function triggerInstallFlow() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const choice = await deferredInstallPrompt.userChoice.catch(() => null);
+    if (choice?.outcome !== "accepted") {
+      updateInstallUI("Install prompt dismissed.");
+      return;
+    }
+    deferredInstallPrompt = null;
+    updateInstallUI("Install accepted. Finishing setup...");
+    return;
+  }
+
+  if (installState.isIOS) {
+    updateInstallUI("In Safari, tap Share and then Add to Home Screen.");
+    els.iosInstallHelp?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    return;
+  }
+
+  updateInstallUI("Install is not ready yet. Reload once after the page fully loads.");
+}
+
 /* =========================
    UI BINDINGS
 ========================= */
 
 function bindUI() {
   on(els.searchInput, "input", e => setSearchFilter(e.target.value));
+  on(els.installAppBtn, "click", () => { triggerInstallFlow(); });
+  on(els.copyInstallLinkBtn, "click", async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      updateInstallUI("Link copied. You can send it to your phone or open it in Safari.");
+    } catch (error) {
+      console.warn("Could not copy install link:", error);
+      updateInstallUI("Could not copy link on this device.");
+    }
+  });
   on(els.clearFiltersBtn, "click", clearAllFilters);
 
   on(els.playBtn, "click", togglePlayPause);
@@ -968,6 +1070,17 @@ function renderFeaturedTrackList() {
     });
   });
 
+  els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
+    row.addEventListener("click", event => {
+      if (event.target.closest("button")) return;
+      const trackId = row.dataset.trackId;
+      const idx = album.tracks.findIndex(track => track.id === trackId);
+      if (idx < 0) return;
+      setQueue(album.tracks, false);
+      playFromQueueIndex(idx);
+    });
+  });
+
   els.featuredTrackList.querySelectorAll("[data-favorite-track]").forEach(btn => {
     btn.addEventListener("click", () => {
       const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
@@ -1401,7 +1514,7 @@ function saveTrackOffline(track) {
   if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
     navigator.serviceWorker.controller.postMessage({
       type: "CACHE_AUDIO_URLS",
-      urls: [track.src]
+      urls: [track.src, track.cover].filter(Boolean)
     });
   }
 
@@ -1596,6 +1709,13 @@ function bindMiniCardClicks(container, trackList) {
 /* =========================
    QUEUE UI
 ========================= */
+
+function getQueueDisplayTracks() {
+  if (Array.isArray(currentQueue) && currentQueue.length) return currentQueue;
+  if (Array.isArray(filteredTracks) && filteredTracks.length) return filteredTracks;
+  return Array.isArray(tracks) ? tracks : [];
+}
+
 
 function renderQueue() {
   const displayTracks = getQueueDisplayTracks();

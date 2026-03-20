@@ -1568,118 +1568,17 @@ a:hover {
 ========================================= */
 
 @media (max-width: 640px) {
-  .queue-row {
-    grid-template-columns: auto 48px 1fr;
+  body {
+    padding-bottom: 300px;
   }
 
-  .queue-actions {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
+  .site-header {
+    position: static;
   }
 
-  .player-sheet.hidden {
-    display: none !important;
-  }
-
-  .player-sheet:not(.hidden) {
-    display: block !important;
-  }
-
-  .player-sheet-content {
-    width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    margin: 0;
-    border-radius: 24px 24px 0 0;
-    position: absolute;
-    inset: auto 0 0 0;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  .player-sheet-header {
-    flex: 0 0 auto;
-    padding: 14px 16px;
-  }
-
-  .player-sheet-body {
-    display: flex;
-    flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .player-sheet-now {
-    flex: 0 0 auto;
-    min-height: auto;
-    border-right: none;
-    border-bottom: 1px solid #1d2633;
-    padding: 16px;
-    gap: 14px;
-    overflow: visible;
-  }
-
-  .player-sheet-panel {
-    flex: 1 1 auto;
-    min-height: 0;
-    height: 0;
-    overflow: hidden;
-    padding: 14px 16px 20px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .player-sheet-tabs {
-    flex: 0 0 auto;
-    position: sticky;
-    top: 0;
-    z-index: 4;
-    background: #0c1118;
-    padding-bottom: 10px;
-    margin-bottom: 12px;
-  }
-
-  .player-tab-panel {
-    display: none;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 52px;
-  }
-
-  .player-tab-panel.active {
-    display: block;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 220px);
-  }
-
-  .player-sheet-progress {
-    grid-template-columns: 42px 1fr 42px;
-  }
-
-  .player-sheet-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .player-sheet-actions .action-btn {
-    width: 100%;
-    min-width: 0;
-    margin: 0;
-  }
-
-  .lyrics-block,
-  .scripture-block,
-  .player-sheet-queue-list {
-    padding-bottom: 32px;
-  }
+.album-card,
+.mini-card {
+  padding: 8px;
 }
 
 .album-card h3,
@@ -2655,5 +2554,65 @@ a:hover {
 
   .player-sheet-actions .action-btn {
     flex: 1 1 calc(50% - 10px);
+  }
+}
+
+
+/* =========================================
+   INSTALL PANEL
+========================================= */
+.install-panel {
+  margin: 20px 0 24px;
+  padding: 22px;
+  border: 1px solid #252a34;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(15, 17, 21, 0.98), rgba(12, 17, 24, 0.98));
+  display: grid;
+  gap: 16px;
+}
+
+.install-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.install-status {
+  margin: 0;
+  color: #c3d3e8;
+}
+
+.install-help {
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(142, 197, 255, 0.08);
+  border: 1px solid rgba(142, 197, 255, 0.2);
+}
+
+.install-help ol {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+.featured-track-row {
+  cursor: pointer;
+}
+
+.featured-track-main {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .install-panel {
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .install-panel-actions {
+    flex-direction: column;
+  }
+
+  .install-panel-actions .action-btn {
+    width: 100%;
   }
 }
