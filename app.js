@@ -359,18 +359,10 @@ function renderLyricsMarkup(track, containerName = "lyrics-panel") {
     return `<div class="lyrics-block">${nl2br(escapeHtml(getPlainLyricsText(track)))}</div>`;
   }
 
-  const syncLabel = track.hasTimedLyrics ? "Synced lyrics" : "Auto-scrolling lyrics";
+ let syncLabel = "";
 
-  return `
-    <div class="lyric-sync-label">${escapeHtml(syncLabel)}</div>
-    <div class="lyrics-block lyrics-sync" data-lyrics-container="${escapeHtmlAttr(containerName)}" data-lyric-track-id="${escapeHtmlAttr(track.id)}">
-      ${timeline.map((line, index) => `
-        <p class="lyric-line" data-lyric-index="${index}" data-lyric-track="${escapeHtmlAttr(track.id)}">
-          ${escapeHtml(line.text || "♪")}
-        </p>
-      `).join("")}
-    </div>
-  `;
+if (track.hasTimedLyrics) {
+  syncLabel = "Synced lyrics";
 }
 
 function getActiveLyricIndex(track, currentTime) {
@@ -427,6 +419,32 @@ function syncLyricsUI(force = false) {
 
   lastSyncedLyricIndex = activeIndex;
 }
+
+els.audioPlayer.addEventListener("play", updatePlayButtons);
+els.audioPlayer.addEventListener("pause", updatePlayButtons);
+
+function updatePlayButtons() {
+  const isPlaying = !els.audioPlayer.paused;
+
+  if (els.playBtn) {
+    els.playBtn.textContent = isPlaying ? "❚❚" : "▶";
+  }
+
+  if (els.playerSheetPlayBtn) {
+    els.playerSheetPlayBtn.textContent = isPlaying ? "❚❚" : "▶";
+  }
+}
+
+function togglePlay() {
+  if (els.audioPlayer.paused) {
+    els.audioPlayer.play();
+  } else {
+    els.audioPlayer.pause();
+  }
+}
+
+if (els.playBtn) els.playBtn.addEventListener("click", togglePlay);
+if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.addEventListener("click", togglePlay);
 
 function getQueueDisplayTracks() {
   if (Array.isArray(currentQueue) && currentQueue.length) {
