@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v17.00";
+const CACHE_VERSION = "v17.04";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -98,72 +98,77 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
 
   if (req.method !== "GET") return;
-  if (req.headers.has("range")) return;
+
+  // Never intercept byte-range requests used by mobile audio streaming.
+  if (req.headers.has("range")) {
+    return;
+  }
 
   const url = new URL(req.url);
 
-  const cacheNetworkResponse = (cacheName, request, response) => {
-    if (!response || !response.ok) return;
-    const copy = response.clone();
-    event.waitUntil(
-      caches.open(cacheName)
-        .then((cache) => cache.put(request, copy))
-        .catch((error) => console.warn("Cache put failed:", error))
-    );
-  };
-
+  // Audio files (R2 or external)
   if (req.destination === "audio" || url.pathname.endsWith(".mp3")) {
     event.respondWith(
-      caches.open(AUDIO_CACHE).then(async (cache) => {
-        const cached = await cache.match(req);
-        if (cached) return cached;
+      caches.open(AUDIO_CACHE).then((cache) =>
+        cache.match(req).then((cached) => {
+          if (cached) return cached;
 
-        try {
-          const networkResponse = await fetch(req);
-          cacheNetworkResponse(AUDIO_CACHE, req, networkResponse);
-          return networkResponse;
-        } catch (error) {
-          return cached || Response.error();
-        }
-      })
+          return fetch(req)
+            .then((res) => {
+              if (res && res.ok) {
+                cache.put(req, res.clone());
+              }
+              return res;
+            })
+            .catch(() => cached)
+        })
+      )
     );
     return;
   }
 
+  // tracks.json: network first so updates appear quickly
   if (url.pathname.endsWith("/tracks.json") || url.pathname === "/tracks.json") {
     event.respondWith(
       fetch(req)
-        .then((networkResponse) => {
-          cacheNetworkResponse(RUNTIME_CACHE, req, networkResponse);
-          return networkResponse;
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          return res;
         })
         .catch(() => caches.match(req))
     );
     return;
   }
 
+  // HTML pages: network first
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
-        .then((networkResponse) => {
-          cacheNetworkResponse(RUNTIME_CACHE, req, networkResponse);
-          return networkResponse;
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          return res;
         })
         .catch(() => caches.match(req).then((cached) => cached || caches.match("/index.html")))
     );
     return;
   }
 
+  // Static assets: cache first, then network
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
 
       return fetch(req)
-        .then((networkResponse) => {
-          cacheNetworkResponse(RUNTIME_CACHE, req, networkResponse);
-          return networkResponse;
+        .then((res) => {
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
+          }
+          return res;
         })
-        .catch(() => cached || Response.error());
+        .catch(() => cached)
     })
   );
 });
