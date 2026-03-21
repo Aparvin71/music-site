@@ -2828,3 +2828,55 @@ a:hover {
     padding: 12px 14px calc(22px + env(safe-area-inset-bottom));
   }
 }
+
+/* =========================================
+   MANUAL LYRICS SCROLL ONLY
+========================================= */
+
+html,
+body,
+.player-sheet,
+.player-sheet-content,
+.player-sheet-body,
+.player-sheet-panel,
+.player-tab-panel,
+#playerSheetLyricsPanel,
+#playerSheetScripturePanel,
+#lyricsContent,
+.lyrics-content,
+.lyrics-block,
+.lyrics-modal-body {
+  scroll-behavior: auto !important;
+}
+
+#playerSheetLyricsPanel,
+#playerSheetScripturePanel,
+.lyrics-content,
+.scripture-content,
+.lyrics-modal-body,
+.player-tab-panel {
+  overscroll-behavior: contain;
+  overflow-anchor: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Make the fullscreen player lyrics area a normal manual scroll region */
+@media (max-width: 900px) {
+  #playerSheetLyricsPanel,
+  #playerSheetScripturePanel,
+  #playerSheetQueuePanel,
+  .player-tab-panel {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scroll-behavior: auto !important;
+    touch-action: pan-y !important;
+    scroll-snap-type: none !important;
+  }
+
+  .lyrics-block,
+  .scripture-block,
+  .player-sheet-queue-list {
+    scroll-behavior: auto !important;
+    scroll-snap-align: none !important;
+  }
+}
