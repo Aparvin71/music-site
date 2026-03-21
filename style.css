@@ -894,6 +894,10 @@ a:hover {
 .scripture-line {
   color: #90b4e8 !important;
   font-size: 11px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
 }
 
 .transport {
@@ -2882,4 +2886,66 @@ a:hover {
     padding-left: 10px;
     padding-right: 10px;
   }
+}
+
+
+/* =========================================
+   SCRIPTURE LINKS
+========================================= */
+.scripture-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.scripture-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(120, 160, 255, 0.14);
+  border: 1px solid rgba(120, 160, 255, 0.34);
+  color: #a9c4ff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+}
+
+.scripture-link:hover,
+.scripture-link:focus-visible {
+  background: rgba(120, 160, 255, 0.24);
+  border-color: rgba(120, 160, 255, 0.62);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.scripture-link-compact {
+  padding: 4px 9px;
+  font-size: 11px;
+  box-shadow: none;
+}
+
+.scripture-line .scripture-link-list {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.scripture-line .scripture-link {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-track-scripture.scripture-link-list {
+  margin-top: 6px;
 }

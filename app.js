@@ -1129,8 +1129,8 @@ function updateNowPlaying(track) {
   if (els.nowArtist) els.nowArtist.textContent = track.artist || "Allen Parvin";
   if (els.nowAlbum) els.nowAlbum.textContent = track.album || "Singles";
   if (els.nowScripture) {
-    els.nowScripture.textContent = track.scripture_references.length
-      ? track.scripture_references.join(" • ")
+    els.nowScripture.innerHTML = track.scripture_references.length
+      ? renderScriptureLinks(track.scripture_references.slice(0, 2), { compact: true })
       : "—";
   }
 
@@ -1230,8 +1230,8 @@ function updateScripturePanel(track) {
   }
 
   els.scriptureContent.innerHTML = `
-    <div class="scripture-block">
-      ${track.scripture_references.map(ref => `<p>${escapeHtml(ref)}</p>`).join("")}
+    <div class="scripture-block scripture-link-list">
+      ${renderScriptureLinks(track.scripture_references)}
     </div>
   `;
 }
@@ -1310,7 +1310,7 @@ function openAlbumModal(album, triggerEl = null) {
               <p class="album-track-artist">${escapeHtml(track.artist)}</p>
               ${
                 track.scripture_references.length
-                  ? `<p class="album-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>`
+                  ? `<div class="album-track-scripture scripture-link-list">${renderScriptureLinks(track.scripture_references, { compact: true })}</div>`
                   : ""
               }
             </div>
@@ -2032,8 +2032,8 @@ function updatePlayerSheet() {
   if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || "—";
   if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || "—";
   if (els.playerSheetTrackScripture) {
-    els.playerSheetTrackScripture.textContent = track?.scripture_references?.length
-      ? track.scripture_references.join(" • ")
+    els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length
+      ? renderScriptureLinks(track.scripture_references.slice(0, 3), { compact: true })
       : "—";
   }
 
@@ -2058,7 +2058,7 @@ function updatePlayerSheet() {
 
   if (els.playerSheetScripturePanel) {
     els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length
-      ? `<div class="scripture-block">${track.scripture_references.map(ref => `<p>${escapeHtml(ref)}</p>`).join("")}</div>`
+      ? `<div class="scripture-block scripture-link-list">${renderScriptureLinks(track.scripture_references)}</div>`
       : `<p class="empty-message">No scripture references available.</p>`;
   }
 
