@@ -1119,6 +1119,27 @@ function togglePlayPause() {
   }
 }
 
+
+function renderScriptureLinks(refs, options = {}) {
+  if (!refs) return "";
+
+  const list = Array.isArray(refs)
+    ? refs
+    : String(refs)
+        .split(/[,;]+/)
+        .map(ref => ref.trim())
+        .filter(Boolean);
+
+  return list
+    .map(ref => {
+      const safeRef = escapeHtml(ref);
+      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
+      const compactClass = options.compact ? " scripture-link-compact" : "";
+      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${safeRef}</a>`;
+    })
+    .join("");
+}
+
 function updateNowPlaying(track) {
   if (els.nowCover) {
     els.nowCover.src = track.cover || "";
