@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v20.04";
+const CACHE_VERSION = "v15.04";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -10,8 +10,10 @@ const APP_SHELL = [
   "/index.html",
   "/about.html",
   "/contact.html",
+  "/album.html",
   "/style.css",
   "/app.js",
+  "/album-page.js",
   "/contact.js",
   "/tracks.json",
   "/manifest.webmanifest",
@@ -93,6 +95,15 @@ self.addEventListener("message", (event) => {
   }
 });
 
+function cacheResponse(cacheName, request, response) {
+  if (!response || !response.ok) return Promise.resolve(response);
+  const copy = response.clone();
+  return caches.open(cacheName).then((cache) => {
+    cache.put(request, copy).catch(() => {});
+    return response;
+  });
+}
+
 // ===== FETCH =====
 self.addEventListener("fetch", (event) => {
   const req = event.request;
@@ -114,12 +125,7 @@ self.addEventListener("fetch", (event) => {
           if (cached) return cached;
 
           return fetch(req)
-            .then((res) => {
-              if (res && res.ok) {
-                cache.put(req, res.clone());
-              }
-              return res;
-            })
+            .then((res) => cacheResponse(AUDIO_CACHE, req, res))
             .catch(() => cached)
         })
       )
@@ -131,11 +137,7 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.endsWith("/tracks.json") || url.pathname === "/tracks.json") {
     event.respondWith(
       fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
-          return res;
-        })
+        .then((res) => cacheResponse(RUNTIME_CACHE, req, res))
         .catch(() => caches.match(req))
     );
     return;
@@ -145,11 +147,7 @@ self.addEventListener("fetch", (event) => {
   if (req.mode === "navigate") {
     event.respondWith(
       fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
-          return res;
-        })
+        .then((res) => cacheResponse(RUNTIME_CACHE, req, res))
         .catch(() => caches.match(req).then((cached) => cached || caches.match("/index.html")))
     );
     return;
@@ -161,13 +159,7 @@ self.addEventListener("fetch", (event) => {
       if (cached) return cached;
 
       return fetch(req)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(RUNTIME_CACHE).then((cache) => cache.put(req, copy));
-          }
-          return res;
-        })
+        .then((res) => cacheResponse(RUNTIME_CACHE, req, res))
         .catch(() => cached)
     })
   );

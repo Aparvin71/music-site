@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <title>Album - Aineo Music</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="pwa-init.js" defer></script>
+  <script src="album-page.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/contact.html">Request</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="album-page-shell">
+    <a href="/index.html" class="action-btn secondary-btn album-page-back-link">← Back to Library</a>
+    <div id="albumPageRoot" class="album-page-root">
+      <section class="page-card album-page-empty">
+        <p class="eyebrow">Album Page</p>
+        <h2>Loading album…</h2>
+      </section>
+    </div>
+  </main>
+
+  <div id="lyricsModal" class="lyrics-modal hidden" aria-hidden="true">
+    <div id="lyricsModalBackdrop" class="lyrics-modal-backdrop"></div>
+    <div class="lyrics-modal-content" role="dialog" aria-modal="true" aria-labelledby="lyricsModalTitle">
+      <div class="lyrics-modal-header">
+        <h2 id="lyricsModalTitle">Lyrics</h2>
+        <button id="closeLyricsBtn" class="control-btn" type="button" aria-label="Close lyrics">✕</button>
+      </div>
+      <div id="lyricsModalBody" class="lyrics-modal-body"></div>
+    </div>
+  </div>
+
+  <div class="sticky-player" aria-label="Audio player">
+    <div class="sticky-player-left">
+      <img id="nowCover" src="" alt="Album cover" class="now-cover" />
+      <div class="now-meta">
+        <p class="label">Now Playing</p>
+        <h3 id="nowTitle">Select a song</h3>
+        <p id="nowArtist">—</p>
+        <p id="nowAlbum">—</p>
+        <p id="nowScripture" class="scripture-line">—</p>
+      </div>
+    </div>
+    <div class="sticky-player-center">
+      <div class="transport">
+        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
+        <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
+        <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+      </div>
+      <div class="progress-wrap">
+        <span id="currentTime">0:00</span>
+        <label class="visually-hidden" for="seekBar">Seek through track</label>
+        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+    <div class="sticky-player-right">
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </div>
+  </div>
+
+  <footer class="site-footer"><p>Aineo Music</p></footer>
+</body>
+</html>
