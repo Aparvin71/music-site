@@ -8,12 +8,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
   <title>Request a Song - Aineo Music</title>
   <link rel="stylesheet" href="style.css" />
   <script src="pwa-init.js" defer></script>
@@ -37,9 +37,9 @@
     </div>
 
     <ul id="siteNavLinks" class="nav-links">
-      <li><a href="/index.html">Home</a></li>
-      <li><a href="/about.html">About</a></li>
-      <li><a href="/contact.html" class="active" aria-current="page">Request a Song</a></li>
+      <li><a href="./index.html">Home</a></li>
+      <li><a href="./about.html">About</a></li>
+      <li><a href="./contact.html" class="active" aria-current="page">Request a Song</a></li>
     </ul>
   </nav>
 </header>
@@ -56,7 +56,8 @@
 
     <form class="request-form" id="contactForm" novalidate>
       <input type="hidden" name="accessKey" value="sf_587f45c8128caab3e591b597">
-      <input type="hidden" name="replyTo" value="">
+      <input type="hidden" name="subject" value="New Song Request - Aineo Music">
+      <input type="hidden" name="replyTo" value="@email">
       <input type="hidden" name="botcheck" value="" tabindex="-1" autocomplete="off">
       <div class="form-row">
         <div class="form-group">
@@ -138,12 +139,15 @@
         ></textarea>
       </div>
 
-      <div id="formMessage" class="form-message"></div>
+      <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
 
       <button type="submit" class="btn-submit">Send Request</button>
     </form>
   </section>
 </main>
+
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
 <footer class="site-footer">
   <p>© 2026 Aineo Music</p>

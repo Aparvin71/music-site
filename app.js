@@ -144,6 +144,8 @@ const els = {
   playerSheetTrackArtist: document.getElementById("playerSheetTrackArtist"),
   playerSheetTrackAlbum: document.getElementById("playerSheetTrackAlbum"),
   playerSheetTrackScripture: document.getElementById("playerSheetTrackScripture"),
+  playerSheetTagChips: document.getElementById("playerSheetTagChips"),
+  playerSheetQueueMeta: document.getElementById("playerSheetQueueMeta"),
   playerSheetCurrentTime: document.getElementById("playerSheetCurrentTime"),
   playerSheetSeekBar: document.getElementById("playerSheetSeekBar"),
   playerSheetDuration: document.getElementById("playerSheetDuration"),
@@ -151,13 +153,17 @@ const els = {
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
+  playerSheetScriptureBtn: document.getElementById("playerSheetScriptureBtn"),
+  playerSheetQueueBtn: document.getElementById("playerSheetQueueBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
-  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel")
+  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
+
+  toastRegion: document.getElementById("toastRegion")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -458,6 +464,8 @@ function bindUI() {
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
   on(els.playerSheetLyricsBtn, "click", () => setPlayerSheetTab("lyrics"));
+  on(els.playerSheetScriptureBtn, "click", () => setPlayerSheetTab("scripture"));
+  on(els.playerSheetQueueBtn, "click", () => setPlayerSheetTab("queue"));
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
@@ -493,6 +501,8 @@ function bindUI() {
     if (e.target.closest("button") || e.target.closest("input")) return;
     openPlayerSheet();
   });
+
+  initPlayerSheetGestures();
 
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
@@ -1378,8 +1388,10 @@ function isFavorite(track) {
 function toggleCurrentFavorite() {
   const track = getCurrentTrack();
   if (!track) return;
+  const alreadyFavorite = isFavorite(track);
   toggleFavorite(track);
   renderFeaturedTrackList();
+  showToast(alreadyFavorite ? `Removed ${track.title} from favorites` : `Added ${track.title} to favorites`, alreadyFavorite ? "info" : "success");
 }
 
 function toggleFavorite(track) {
@@ -1440,7 +1452,9 @@ function updateOfflineButtons(track = getCurrentTrack()) {
 function saveTrackOffline(track) {
   if (!track?.src) return;
 
-  if (!downloadedTracks.includes(track.id)) {
+  const alreadySaved = downloadedTracks.includes(track.id);
+
+  if (!alreadySaved) {
     downloadedTracks.unshift(track.id);
     saveDownloadedTracks();
   }
@@ -1455,6 +1469,7 @@ function saveTrackOffline(track) {
   updateOfflineButtons(track);
   renderDownloadedSongs();
   renderFeaturedTrackList();
+  showToast(alreadySaved ? `${track.title} is already saved offline` : `${track.title} saved for offline listening`, alreadySaved ? "info" : "success");
 }
 
 function renderDownloadedSongs() {
@@ -1575,19 +1590,35 @@ function saveTrackToPlaylistFromModal() {
   const selectedName = els.playlistSelect?.value?.trim();
   const playlistName = typedName || selectedName;
 
-  if (!playlistName) return;
+  if (!playlistName) {
+    showToast("Choose or create a playlist first", "warning");
+    return;
+  }
 
   if (!customPlaylists[playlistName]) {
     customPlaylists[playlistName] = [];
   }
 
-  if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
-    customPlaylists[playlistName].push(playlistPickerTrackId);
+  let addedTrack = null;
+  let wasDuplicate = false;
+
+  if (playlistPickerTrackId) {
+    addedTrack = tracks.find(track => track.id === playlistPickerTrackId) || null;
+    if (!customPlaylists[playlistName].includes(playlistPickerTrackId)) {
+      customPlaylists[playlistName].push(playlistPickerTrackId);
+    } else {
+      wasDuplicate = true;
+    }
   }
 
   saveCustomPlaylists();
   renderMyPlaylists();
   closePlaylistModal();
+  if (addedTrack) {
+    showToast(wasDuplicate ? `${addedTrack.title} is already in ${playlistName}` : `${addedTrack.title} added to ${playlistName}`, wasDuplicate ? "info" : "success");
+  } else {
+    showToast(`Playlist ${playlistName} is ready`, "success");
+  }
 }
 
 function addToRecentlyPlayed(track) {
@@ -1888,19 +1919,27 @@ function resumeSavedTrack() {
 
 function copyCurrentLyrics() {
   const track = getCurrentTrack();
-  if (!track?.lyrics) return;
+  if (!track?.lyrics) {
+    showToast("No lyrics available for this song", "warning");
+    return;
+  }
 
   navigator.clipboard.writeText(track.lyrics).then(() => {
     flashButtonText(els.copyLyricsBtn, "Copied!");
     flashButtonText(els.copyLyricsBtnDesktop, "Copied!");
+    showToast(`Lyrics copied for ${track.title}`, "success");
   }).catch(err => {
     console.error("Copy failed:", err);
+    showToast("Could not copy lyrics", "error");
   });
 }
 
 function shareCurrentSong() {
   const track = getCurrentTrack();
-  if (!track) return;
+  if (!track) {
+    showToast("Pick a song to share first", "warning");
+    return;
+  }
 
   const url = new URL(window.location.href);
   url.searchParams.set("song", track.title);
@@ -1910,21 +1949,29 @@ function shareCurrentSong() {
       title: track.title,
       text: `${track.title} — ${track.artist}`,
       url: url.toString()
+    }).then(() => {
+      showToast(`Shared ${track.title}`, "success");
     }).catch(() => {});
   } else {
     navigator.clipboard.writeText(url.toString()).then(() => {
       flashButtonText(els.shareSongBtn, "Link Copied!");
       flashButtonText(els.shareSongBtnDesktop, "Link Copied!");
+      showToast(`Link copied for ${track.title}`, "success");
     }).catch(err => {
       console.error("Share fallback failed:", err);
+      showToast("Could not copy song link", "error");
     });
   }
 }
 
 function downloadCurrentSong() {
   const track = getCurrentTrack();
-  if (!track?.src) return;
+  if (!track?.src) {
+    showToast("Pick a song to download first", "warning");
+    return;
+  }
   triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
+  showToast(`Downloading ${track.title}`, "info");
 }
 
 function triggerDownload(url, filename) {
@@ -1988,6 +2035,19 @@ function updatePlayerSheet() {
     els.playerSheetTrackScripture.textContent = track?.scripture_references?.length
       ? track.scripture_references.join(" • ")
       : "—";
+  }
+
+  if (els.playerSheetTagChips) {
+    const chips = [];
+    if (track?.duration) chips.push(`<span class="player-sheet-chip">${escapeHtml(track.duration)}</span>`);
+    if (track?.year) chips.push(`<span class="player-sheet-chip">${escapeHtml(String(track.year))}</span>`);
+    (track?.tags || []).slice(0, 3).forEach(tag => chips.push(`<span class="player-sheet-chip">${escapeHtml(tag)}</span>`));
+    els.playerSheetTagChips.innerHTML = chips.join("");
+  }
+
+  if (els.playerSheetQueueMeta) {
+    const count = currentQueue.length || filteredTracks.length || tracks.length || 0;
+    els.playerSheetQueueMeta.textContent = `Queue • ${count} song${count === 1 ? "" : "s"}`;
   }
 
   if (els.playerSheetLyricsPanel) {
@@ -2108,6 +2168,58 @@ function shuffleArray(arr) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+
+function showToast(message, type = "info") {
+  if (!els.toastRegion || !message) return;
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", type === "error" ? "alert" : "status");
+
+  const icon = type === "success" ? "✓" : type === "warning" ? "!" : type === "error" ? "⚠" : "•";
+  toast.innerHTML = `
+    <div class="toast-icon" aria-hidden="true">${icon}</div>
+    <div class="toast-body">${escapeHtml(message)}</div>
+    <button class="toast-close" type="button" aria-label="Dismiss notification">✕</button>
+    <div class="toast-progress"></div>
+  `;
+
+  const dismiss = () => {
+    toast.classList.add("leaving");
+    setTimeout(() => toast.remove(), 220);
+  };
+
+  toast.querySelector(".toast-close")?.addEventListener("click", dismiss);
+  els.toastRegion.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add("visible"));
+  setTimeout(dismiss, 2800);
+}
+
+function initPlayerSheetGestures() {
+  if (!els.playerSheetContent && !document.querySelector(".player-sheet-content")) {}
+  const sheet = document.querySelector(".player-sheet-content");
+  if (!sheet) return;
+
+  let startY = 0;
+  let tracking = false;
+
+  sheet.addEventListener("touchstart", event => {
+    if (window.innerWidth > 640) return;
+    if (event.touches.length !== 1) return;
+    startY = event.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  sheet.addEventListener("touchend", event => {
+    if (!tracking || window.innerWidth > 640) return;
+    const endY = event.changedTouches[0]?.clientY || startY;
+    const diff = endY - startY;
+    tracking = false;
+    if (diff > 90) closePlayerSheet();
+  }, { passive: true });
 }
 
 function flashButtonText(button, text) {
@@ -2669,14 +2781,25 @@ function saveTrackToPlaylistFromModal() {
   const selectedName = els.playlistSelect?.value?.trim();
   const playlistName = typedName || selectedName;
 
-  if (!playlistName) return;
+  if (!playlistName) {
+    showToast("Choose or create a playlist first", "warning");
+    return;
+  }
 
   if (!customPlaylists[playlistName]) {
     customPlaylists[playlistName] = [];
   }
 
-  if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
-    customPlaylists[playlistName].push(playlistPickerTrackId);
+  let addedTrack = null;
+  let wasDuplicate = false;
+
+  if (playlistPickerTrackId) {
+    addedTrack = tracks.find(track => track.id === playlistPickerTrackId) || null;
+    if (!customPlaylists[playlistName].includes(playlistPickerTrackId)) {
+      customPlaylists[playlistName].push(playlistPickerTrackId);
+    } else {
+      wasDuplicate = true;
+    }
   }
 
   saveCustomPlaylists();
@@ -2684,4 +2807,9 @@ function saveTrackToPlaylistFromModal() {
   renderMyPlaylists();
   renderPlaylistWorkspace();
   closePlaylistModal();
+  if (addedTrack) {
+    showToast(wasDuplicate ? `${addedTrack.title} is already in ${playlistName}` : `${addedTrack.title} added to ${playlistName}`, wasDuplicate ? "info" : "success");
+  } else {
+    showToast(`Playlist ${playlistName} is ready`, "success");
+  }
 }

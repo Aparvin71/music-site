@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v20.04";
+const CACHE_VERSION = "v20.05";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -10,8 +10,10 @@ const APP_SHELL = [
   "/index.html",
   "/about.html",
   "/contact.html",
+  "/album.html",
   "/style.css",
   "/app.js",
+  "/album-page.js",
   "/contact.js",
   "/tracks.json",
   "/manifest.webmanifest",
