@@ -35,13 +35,20 @@ function initBasicMobileNav() {
   });
 
   nav.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
+    link.addEventListener("click", (event) => {
+      const href = link.getAttribute("href");
       nav.classList.remove("nav-open");
       toggle.setAttribute("aria-expanded", "false");
       toggle.textContent = "☰";
+
+      if (!href) return;
+
+      const absoluteUrl = new URL(href, window.location.origin).toString();
+
+      event.preventDefault();
+      window.location.assign(absoluteUrl);
     });
   });
 }
-
 window.addEventListener("load", registerStandaloneServiceWorker);
 document.addEventListener("DOMContentLoaded", initBasicMobileNav);
