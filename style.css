@@ -17,6 +17,18 @@ body {
   overflow-x: hidden;
 }
 
+:root {
+  --ui-accent: #90b4e8;
+  --ui-accent-strong: #a6c5f2;
+  --ui-surface: #171a21;
+  --ui-surface-2: #1c212b;
+  --ui-surface-3: #232b38;
+  --ui-border: #2a3341;
+  --ui-border-strong: #4f6483;
+  --ui-text-soft: #c2cad6;
+  --ui-shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
 a {
   color: #8ec5ff;
   text-decoration: none;
@@ -362,30 +374,53 @@ a:hover {
 }
 
 .action-btn {
-  border: none;
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: #90b4e8;
+  background: var(--ui-accent);
   color: #0f1115;
-  padding: 8px 13px;
+  padding: 9px 14px;
   font-weight: 700;
   font-size: 13px;
+  line-height: 1.15;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 
 .action-btn:hover {
   transform: translateY(-1px);
-  opacity: 0.96;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+  opacity: 0.98;
+  background: var(--ui-accent-strong);
+  box-shadow: var(--ui-shadow-soft);
+}
+
+.action-btn:focus-visible,
+.mini-action-btn:focus-visible,
+.filter-chip:focus-visible,
+.playlist-btn:focus-visible,
+.tag-chip:focus-visible,
+.featured-track-play:focus-visible,
+.album-related-card:focus-visible {
+  outline: 2px solid rgba(144, 180, 232, 0.85);
+  outline-offset: 2px;
 }
 
 .secondary-btn {
-  background: #273243;
+  background: var(--ui-surface-3);
   color: #ffffff;
+  border-color: var(--ui-border);
 }
 
 .secondary-btn:hover {
   background: #34445c;
+}
+
+.action-btn:disabled,
+.mini-action-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* =========================================
@@ -656,13 +691,22 @@ a:hover {
 }
 
 .mini-action-btn {
-  border: 1px solid #3a3a3a;
-  background: #181818;
+  border: 1px solid var(--ui-border);
+  background: rgba(255, 255, 255, 0.04);
   color: #fff;
-  border-radius: 8px;
-  padding: 0.35rem 0.55rem;
+  border-radius: 10px;
+  padding: 0.45rem 0.68rem;
   font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mini-action-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--ui-border-strong);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 }
 
 .mini-action-btn.favorited {
@@ -3105,5 +3149,130 @@ a:hover {
     width: 32px;
     min-width: 32px;
     height: 32px;
+  }
+}
+
+
+/* =========================================
+   POLISH PASS: BUTTONS + ALBUM PAGE
+========================================= */
+
+.featured-track-row,
+.queue-row,
+.album-page-info-card,
+.album-related-card,
+.album-card,
+.mini-card {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.album-page-theme-line {
+  margin: 2px 0 10px;
+  color: #d7e6ff;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.album-page-description {
+  margin: 0 0 12px;
+  max-width: 760px;
+  color: var(--ui-text-soft);
+}
+
+.album-page-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+
+.album-badge-chip {
+  background: rgba(144, 180, 232, 0.12);
+  border-color: rgba(144, 180, 232, 0.28);
+}
+
+.album-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.album-highlight-pill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ui-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.album-highlight-pill strong {
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.album-highlight-pill span {
+  color: var(--ui-text-soft);
+  font-size: 12px;
+}
+
+.album-page-story {
+  margin: 14px 0 0;
+  color: #d7deea;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.album-page-story.muted {
+  color: #aeb8c8;
+}
+
+.album-page-info-card h2,
+.album-page-main-panel h2 {
+  letter-spacing: -0.01em;
+}
+
+.album-related-card {
+  border: 1px solid var(--ui-border);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.album-related-card:hover {
+  border-color: var(--ui-border-strong);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.album-page-track-row {
+  border-color: var(--ui-border);
+}
+
+.album-page-track-row.playing {
+  border-color: rgba(144, 180, 232, 0.55);
+  background: rgba(144, 180, 232, 0.07);
+}
+
+.app-toast {
+  border: 1px solid rgba(144, 180, 232, 0.24);
+  box-shadow: var(--ui-shadow-soft);
+}
+
+@media (max-width: 900px) {
+  .album-highlight-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .album-page-description {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .album-highlight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-btn {
+    padding: 9px 13px;
   }
 }

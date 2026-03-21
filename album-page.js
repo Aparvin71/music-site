@@ -98,7 +98,13 @@ function normalizeTrack(track) {
     lyrics: track.lyrics || "",
     scripture_references: toArray(track.scripture_references || track.scriptureReferences || track.scripture),
     tags: toArray(track.tags),
-    album_zip: track.album_zip || ""
+    album_zip: track.album_zip || "",
+    album_description: track.album_description || "",
+    album_theme: track.album_theme || "",
+    album_story: track.album_story || "",
+    album_badges: toArray(track.album_badges),
+    has_lyrics: Boolean(track.has_lyrics || track.lyrics),
+    has_scripture_refs: Boolean(track.has_scripture_refs || toArray(track.scripture_references || track.scriptureReferences || track.scripture).length)
   };
 }
 
@@ -120,13 +126,19 @@ function renderAlbumPage() {
     name: albumTracks[0].album,
     artist: albumTracks[0].artist,
     cover: albumTracks.find(track => track.cover)?.cover || "",
-    album_zip: albumTracks.find(track => track.album_zip)?.album_zip || ""
+    album_zip: albumTracks.find(track => track.album_zip)?.album_zip || "",
+    description: albumTracks.find(track => track.album_description)?.album_description || "",
+    theme: albumTracks.find(track => track.album_theme)?.album_theme || "",
+    story: albumTracks.find(track => track.album_story)?.album_story || "",
+    badges: [...new Set(albumTracks.flatMap(track => track.album_badges || []))].slice(0, 8)
   };
 
   const scriptureSummary = getAlbumScriptureSummary(albumTracks);
   const tagSummary = [...new Set(albumTracks.flatMap(track => track.tags || []))].slice(0, 6);
   const totalDuration = formatDurationLabel(albumTracks);
   const relatedSongs = getAlbumRelatedSongs(albumTracks).slice(0, 6);
+  const trackCountWithLyrics = albumTracks.filter(track => track.has_lyrics).length;
+  const trackCountWithScripture = albumTracks.filter(track => track.has_scripture_refs).length;
 
   document.title = `${album.name} - Aineo Music`;
 
@@ -145,7 +157,11 @@ function renderAlbumPage() {
             <span class="album-stat-pill">${albumTracks.length} song${albumTracks.length === 1 ? "" : "s"}</span>
             ${totalDuration ? `<span class="album-stat-pill">${escapeHtml(totalDuration)}</span>` : ""}
             ${albumTracks[0].year ? `<span class="album-stat-pill">${escapeHtml(String(albumTracks[0].year))}</span>` : ""}
+            <span class="album-stat-pill">${trackCountWithLyrics} with lyrics</span>
           </div>
+          ${album.theme ? `<p class="album-page-theme-line">${escapeHtml(album.theme)}</p>` : ""}
+          ${album.description ? `<p class="album-page-description">${escapeHtml(album.description)}</p>` : ""}
+          ${album.badges.length ? `<div class="album-page-badge-row">${album.badges.map(badge => `<span class="album-inline-chip album-badge-chip">${escapeHtml(badge)}</span>`).join("")}</div>` : ""}
           ${tagSummary.length ? `<div class="album-page-tag-row">${tagSummary.map(tag => `<span class="album-inline-chip">#${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
           <div class="featured-actions album-page-hero-actions">
             <button id="albumPagePlayBtn" class="action-btn" type="button">Play Album</button>
@@ -190,6 +206,22 @@ function renderAlbumPage() {
       </section>
 
       <aside class="album-page-side polished-album-page-side">
+        <section class="queue-panel album-page-info-card album-page-highlight-card">
+          <div class="queue-header">
+            <div>
+              <h2>Album highlights</h2>
+              <p>At-a-glance details</p>
+            </div>
+          </div>
+          <div class="album-highlight-grid">
+            <div class="album-highlight-pill"><strong>${albumTracks.length}</strong><span>Tracks</span></div>
+            <div class="album-highlight-pill"><strong>${escapeHtml(totalDuration || '—')}</strong><span>Runtime</span></div>
+            <div class="album-highlight-pill"><strong>${trackCountWithScripture}</strong><span>Scripture songs</span></div>
+            <div class="album-highlight-pill"><strong>${tagSummary.length}</strong><span>Theme tags</span></div>
+          </div>
+          ${album.story ? `<p class="album-page-story">${escapeHtml(album.story)}</p>` : `<p class="album-page-story muted">Add an album story in <code>ALBUM_METADATA</code> to enrich this page even more.</p>`}
+        </section>
+
         <section class="queue-panel album-page-info-card">
           <div class="queue-header">
             <div>

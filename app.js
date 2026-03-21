@@ -1625,7 +1625,9 @@ function toggleCurrentFavorite() {
 }
 
 function toggleFavorite(track) {
-  if (isFavorite(track)) {
+  const removing = isFavorite(track);
+
+  if (removing) {
     favorites = favorites.filter(id => id !== track.id);
   } else {
     favorites.unshift(track.id);
@@ -1634,6 +1636,7 @@ function toggleFavorite(track) {
   saveFavorites();
   updateFavoriteButton();
   renderFavorites();
+  showToast(removing ? `Removed from favorites: ${track.title}` : `Added to favorites: ${track.title}`);
 }
 
 function updateFavoriteButton() {
@@ -1682,7 +1685,9 @@ function updateOfflineButtons(track = getCurrentTrack()) {
 function saveTrackOffline(track) {
   if (!track?.src) return;
 
-  if (!downloadedTracks.includes(track.id)) {
+  const alreadySaved = downloadedTracks.includes(track.id);
+
+  if (!alreadySaved) {
     downloadedTracks.unshift(track.id);
     saveDownloadedTracks();
   }
@@ -1697,6 +1702,7 @@ function saveTrackOffline(track) {
   updateOfflineButtons(track);
   renderDownloadedSongs();
   renderFeaturedTrackList();
+  showToast(alreadySaved ? `${track.title} is already saved offline.` : `Saved offline: ${track.title}`);
 }
 
 function renderDownloadedSongs() {
@@ -1774,6 +1780,7 @@ function renderMyPlaylists() {
       delete customPlaylists[name];
       saveCustomPlaylists();
       renderMyPlaylists();
+      showToast(`Deleted playlist: ${name}`);
     });
   });
 }
@@ -1820,17 +1827,27 @@ function saveTrackToPlaylistFromModal() {
 
   if (!playlistName) return;
 
+  const isNewPlaylist = !customPlaylists[playlistName];
   if (!customPlaylists[playlistName]) {
     customPlaylists[playlistName] = [];
   }
 
+  let addedTrackTitle = "";
   if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
     customPlaylists[playlistName].push(playlistPickerTrackId);
+    const addedTrack = tracks.find(track => track.id === playlistPickerTrackId);
+    addedTrackTitle = addedTrack?.title || "";
   }
 
   saveCustomPlaylists();
   renderMyPlaylists();
   closePlaylistModal();
+
+  if (playlistPickerTrackId) {
+    showToast(addedTrackTitle ? `${addedTrackTitle} saved to ${playlistName}` : `Updated playlist: ${playlistName}`);
+  } else {
+    showToast(isNewPlaylist ? `Created playlist: ${playlistName}` : `Updated playlist: ${playlistName}`);
+  }
 }
 
 function addToRecentlyPlayed(track) {
@@ -2214,6 +2231,7 @@ function copyCurrentLyrics() {
   navigator.clipboard.writeText(track.lyrics).then(() => {
     flashButtonText(els.copyLyricsBtn, "Copied!");
     flashButtonText(els.copyLyricsBtnDesktop, "Copied!");
+    showToast(`Copied lyrics: ${track.title}`);
   }).catch(err => {
     console.error("Copy failed:", err);
   });
@@ -2231,11 +2249,14 @@ function shareCurrentSong() {
       title: track.title,
       text: `${track.title} — ${track.artist}`,
       url: url.toString()
+    }).then(() => {
+      showToast(`Shared: ${track.title}`);
     }).catch(() => {});
   } else {
     navigator.clipboard.writeText(url.toString()).then(() => {
       flashButtonText(els.shareSongBtn, "Link Copied!");
       flashButtonText(els.shareSongBtnDesktop, "Link Copied!");
+      showToast(`Copied song link: ${track.title}`);
     }).catch(err => {
       console.error("Share fallback failed:", err);
     });
@@ -2246,6 +2267,7 @@ function downloadCurrentSong() {
   const track = getCurrentTrack();
   if (!track?.src) return;
   triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
+  showToast(`Downloading: ${track.title}`);
 }
 
 function triggerDownload(url, filename) {
@@ -3051,6 +3073,7 @@ function renderMyPlaylists() {
       saveCustomPlaylists();
       renderMyPlaylists();
       renderPlaylistWorkspace();
+      showToast(`Deleted playlist: ${name}`);
     });
   });
 
@@ -3071,12 +3094,16 @@ function saveTrackToPlaylistFromModal() {
 
   if (!playlistName) return;
 
+  const isNewPlaylist = !customPlaylists[playlistName];
   if (!customPlaylists[playlistName]) {
     customPlaylists[playlistName] = [];
   }
 
+  let addedTrackTitle = "";
   if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
     customPlaylists[playlistName].push(playlistPickerTrackId);
+    const addedTrack = tracks.find(track => track.id === playlistPickerTrackId);
+    addedTrackTitle = addedTrack?.title || "";
   }
 
   saveCustomPlaylists();
@@ -3084,4 +3111,10 @@ function saveTrackToPlaylistFromModal() {
   renderMyPlaylists();
   renderPlaylistWorkspace();
   closePlaylistModal();
+
+  if (playlistPickerTrackId) {
+    showToast(addedTrackTitle ? `${addedTrackTitle} saved to ${playlistName}` : `Updated playlist: ${playlistName}`);
+  } else {
+    showToast(isNewPlaylist ? `Created playlist: ${playlistName}` : `Updated playlist: ${playlistName}`);
+  }
 }
