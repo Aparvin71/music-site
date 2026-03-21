@@ -359,10 +359,18 @@ function renderLyricsMarkup(track, containerName = "lyrics-panel") {
     return `<div class="lyrics-block">${nl2br(escapeHtml(getPlainLyricsText(track)))}</div>`;
   }
 
- let syncLabel = "";
+const syncLabel = track.hasTimedLyrics ? "Synced lyrics" : "Lyrics";
 
-if (track.hasTimedLyrics) {
-  syncLabel = "Synced lyrics";
+  return `
+    <div class="lyric-sync-label">${escapeHtml(syncLabel)}</div>
+    <div class="lyrics-block lyrics-sync" data-lyrics-container="${escapeHtmlAttr(containerName)}" data-lyric-track-id="${escapeHtmlAttr(track.id)}">
+      ${timeline.map((line, index) => `
+        <p class="lyric-line" data-lyric-index="${index}" data-lyric-track="${escapeHtmlAttr(track.id)}">
+          ${escapeHtml(line.text || "♪")}
+        </p>
+      `).join("")}
+    </div>
+  `;
 }
 
 function getActiveLyricIndex(track, currentTime) {
