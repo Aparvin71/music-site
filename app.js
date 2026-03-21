@@ -12,6 +12,9 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let toastTimer = null;
+let playerSheetSwipeStartY = null;
+let activeQueueTouchDrag = null;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -26,7 +29,8 @@ const filters = {
   selectedAlbum: null,
   selectedPlaylist: null,
   selectedTag: null,
-  searchTerm: ""
+  searchTerm: "",
+  selectedScripture: null
 };
 
 const els = {
@@ -36,6 +40,7 @@ const els = {
   searchInput: document.getElementById("searchInput"),
   playlistList: document.getElementById("playlistList"),
   tagList: document.getElementById("tagList"),
+  scriptureBrowserList: document.getElementById("scriptureBrowserList"),
   albumGrid: document.getElementById("albumGrid"),
 
   activeFilterLabel: document.getElementById("activeFilterLabel"),
@@ -108,6 +113,7 @@ const els = {
   albumModalPlayBtn: document.getElementById("albumModalPlayBtn"),
   albumModalShuffleBtn: document.getElementById("albumModalShuffleBtn"),
   albumModalDownloadBtn: document.getElementById("albumModalDownloadBtn"),
+  albumModalOpenPageBtn: document.getElementById("albumModalOpenPageBtn"),
   closeAlbumBtn: document.getElementById("closeAlbumBtn"),
 
   resumeBanner: document.getElementById("resumeBanner"),
@@ -136,6 +142,7 @@ const els = {
   saveToPlaylistBtn: document.getElementById("saveToPlaylistBtn"),
 
   playerSheet: document.getElementById("playerSheet"),
+  playerSheetContent: document.querySelector(".player-sheet-content"),
   playerSheetBackdrop: document.getElementById("playerSheetBackdrop"),
   closePlayerSheetBtn: document.getElementById("closePlayerSheetBtn"),
   playerSheetCover: document.getElementById("playerSheetCover"),
@@ -177,6 +184,7 @@ async function init() {
   renderQueue();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
+  handleInitialQueryParams();
   handleSongQueryParam();
 }
 
@@ -354,7 +362,7 @@ function bindUI() {
     els.audioPlayer.addEventListener("loadedmetadata", updateProgressUI);
     els.audioPlayer.addEventListener("play", updatePlayButton);
     els.audioPlayer.addEventListener("pause", updatePlayButton);
-    els.audioPlayer.addEventListener("ended", playNextTrack);
+    els.audioPlayer.addEventListener("ended", handleTrackEnded);
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
@@ -406,10 +414,10 @@ function bindUI() {
     triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
   });
 
-  on(els.openAlbumBtn, "click", e => {
+  on(els.openAlbumBtn, "click", () => {
     const album = getFeaturedAlbum();
     if (!album) return;
-    openAlbumModal(album, e.currentTarget);
+    openAlbumPage(album.name);
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);
@@ -438,6 +446,12 @@ function bindUI() {
     triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
   });
 
+  on(els.albumModalOpenPageBtn, "click", () => {
+    const album = getAlbumModalAlbum();
+    if (!album) return;
+    openAlbumPage(album.name);
+  });
+
   on(els.resumeSongBtn, "click", resumeSavedTrack);
   on(els.dismissResumeBtn, "click", hideResumeBanner);
 
@@ -453,6 +467,7 @@ function bindUI() {
   on(els.openPlayerSheetBtn, "click", () => openPlayerSheet(els.openPlayerSheetBtn));
   on(els.closePlayerSheetBtn, "click", closePlayerSheet);
   on(els.playerSheetBackdrop, "click", closePlayerSheet);
+  initPlayerSheetSwipeToClose();
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
@@ -519,6 +534,7 @@ function setAlbumFilter(albumName) {
   filters.selectedAlbum = albumName;
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
+  filters.selectedScripture = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
@@ -529,6 +545,7 @@ function setPlaylistFilter(playlistName) {
   filters.selectedAlbum = null;
   filters.selectedPlaylist = playlistName;
   filters.selectedTag = null;
+  filters.selectedScripture = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
@@ -539,6 +556,7 @@ function setTagFilter(tagName) {
   filters.selectedAlbum = null;
   filters.selectedPlaylist = null;
   filters.selectedTag = tagName;
+  filters.selectedScripture = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
@@ -549,6 +567,7 @@ function setSearchFilter(term) {
   filters.selectedAlbum = null;
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
+  filters.selectedScripture = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
   scrollToTop();
@@ -558,6 +577,18 @@ function clearAllFilters() {
   filters.selectedAlbum = null;
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
+  filters.selectedScripture = null;
+  filters.searchTerm = "";
+  if (els.searchInput) els.searchInput.value = "";
+  updateLibraryView();
+  scrollToTop();
+}
+
+function setScriptureFilter(bookName) {
+  filters.selectedAlbum = null;
+  filters.selectedPlaylist = null;
+  filters.selectedTag = null;
+  filters.selectedScripture = bookName;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
@@ -577,6 +608,12 @@ function getFilteredTracks() {
 
   if (filters.selectedTag) {
     result = result.filter(track => track.tags.includes(filters.selectedTag));
+  }
+
+  if (filters.selectedScripture) {
+    result = result.filter(track =>
+      track.scripture_references.some(ref => getScriptureBook(ref) === filters.selectedScripture)
+    );
   }
 
   if (filters.searchTerm) {
@@ -606,6 +643,58 @@ function getFilteredTracks() {
 /* =========================
    DERIVED DATA
 ========================= */
+
+function getScriptureBook(reference) {
+  const text = String(reference || "").trim();
+  if (!text) return "";
+  const cleaned = text.replace(/[–-].*$/, "").trim();
+  const match = cleaned.match(/^((?:[1-3]\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*?)(?=\s+\d|$)/);
+  return match ? match[1].trim() : cleaned;
+}
+
+function getVisibleScriptureGroups(trackList) {
+  const books = new Map();
+
+  trackList.forEach(track => {
+    track.scripture_references.forEach(ref => {
+      const book = getScriptureBook(ref);
+      if (!book) return;
+      if (!books.has(book)) {
+        books.set(book, {
+          name: book,
+          count: 0,
+          testament: isNewTestamentBook(book) ? "New Testament" : "Old Testament"
+        });
+      }
+      books.get(book).count += 1;
+    });
+  });
+
+  const grouped = new Map();
+  [...books.values()]
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .forEach(book => {
+      if (!grouped.has(book.testament)) {
+        grouped.set(book.testament, { name: book.testament, total: 0, books: [] });
+      }
+      const group = grouped.get(book.testament);
+      group.books.push(book);
+      group.total += book.count;
+    });
+
+  return ["Old Testament", "New Testament"]
+    .filter(name => grouped.has(name))
+    .map(name => grouped.get(name));
+}
+
+function isNewTestamentBook(book) {
+  return new Set([
+    "Matthew", "Mark", "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians",
+    "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians", "2 Thessalonians",
+    "1 Timothy", "2 Timothy", "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter",
+    "1 John", "2 John", "3 John", "Jude", "Revelation"
+  ]).has(book);
+}
 
 function getVisibleAlbums(trackList) {
   const map = new Map();
@@ -693,6 +782,7 @@ function updateLibraryView() {
   renderActiveFilterLabel();
   renderPlaylists(filteredTracks);
   renderTags(filteredTracks);
+  renderScriptureBrowser(filteredTracks);
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
@@ -727,6 +817,11 @@ function renderActiveFilterLabel() {
     text = `Tag: ${filters.selectedTag}`;
     buttonText = "Clear Tag";
     badgeText = "Tag";
+    badgeClass = "tag";
+  } else if (filters.selectedScripture) {
+    text = `Scripture: ${filters.selectedScripture}`;
+    buttonText = "Clear Scripture";
+    badgeText = "Scripture";
     badgeClass = "tag";
   } else if (filters.searchTerm) {
     text = `Search: ${filters.searchTerm}`;
@@ -831,6 +926,47 @@ function renderTags(trackList) {
   });
 }
 
+function renderScriptureBrowser(trackList) {
+  if (!els.scriptureBrowserList) return;
+
+  const groups = getVisibleScriptureGroups(trackList);
+
+  if (!groups.length) {
+    els.scriptureBrowserList.innerHTML = `<p class="empty-message">No scripture references found.</p>`;
+    return;
+  }
+
+  els.scriptureBrowserList.innerHTML = groups
+    .map(group => {
+      const items = group.books
+        .map(book => {
+          const active = filters.selectedScripture === book.name ? "active" : "";
+          return `
+            <button class="filter-chip scripture-chip ${active}" data-scripture-book="${escapeHtmlAttr(book.name)}" type="button">
+              <span class="scripture-chip-name">${escapeHtml(book.name)}</span>
+              <span class="chip-count">${book.count}</span>
+            </button>
+          `;
+        })
+        .join("");
+
+      return `
+        <div class="scripture-browser-group">
+          <div class="scripture-browser-heading">
+            <strong>${escapeHtml(group.name)}</strong>
+            <span>${group.total} reference${group.total === 1 ? "" : "s"}</span>
+          </div>
+          <div class="scripture-browser-chips">${items}</div>
+        </div>
+      `;
+    })
+    .join("");
+
+  els.scriptureBrowserList.querySelectorAll("[data-scripture-book]").forEach(btn => {
+    btn.addEventListener("click", () => setScriptureFilter(btn.dataset.scriptureBook));
+  });
+}
+
 /* =========================
    ALBUMS
 ========================= */
@@ -848,26 +984,42 @@ function renderAlbums(trackList) {
   els.albumGrid.innerHTML = albums
     .map(album => {
       const isActive = filters.selectedAlbum === album.name ? "active" : "";
+      const scriptureBooks = [...new Set(album.tracks.flatMap(track => track.scripture_references.map(getScriptureBook)).filter(Boolean))];
       return `
-        <button class="album-card ${isActive}" data-album="${escapeHtmlAttr(album.name)}" type="button">
-          <div class="album-card-cover-wrap">
-            ${
-              album.cover
-                ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />`
-                : `<div class="album-card-cover album-card-placeholder">No Cover</div>`
-            }
+        <article class="album-card-wrap ${isActive}">
+          <button class="album-card ${isActive}" data-album="${escapeHtmlAttr(album.name)}" type="button">
+            <div class="album-card-cover-wrap">
+              ${
+                album.cover
+                  ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />`
+                  : `<div class="album-card-cover album-card-placeholder">No Cover</div>`
+              }
+            </div>
+            <div class="album-card-meta">
+              <h3>${escapeHtml(album.name)}</h3>
+              <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
+              ${scriptureBooks.length ? `<p class="album-card-scripture">${escapeHtml(scriptureBooks.slice(0, 3).join(" • "))}${scriptureBooks.length > 3 ? ` • +${scriptureBooks.length - 3} more` : ""}</p>` : ""}
+            </div>
+          </button>
+          <div class="album-card-footer">
+            <button class="mini-action-btn" data-open-album-page="${escapeHtmlAttr(album.name)}" type="button">Open Page</button>
           </div>
-          <div class="album-card-meta">
-            <h3>${escapeHtml(album.name)}</h3>
-            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
-          </div>
-        </button>
+        </article>
       `;
     })
     .join("");
 
   els.albumGrid.querySelectorAll("[data-album]").forEach(btn => {
     btn.addEventListener("click", () => setAlbumFilter(btn.dataset.album));
+  });
+
+  els.albumGrid.querySelectorAll("[data-open-album-page]").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const albumName = btn.dataset.openAlbumPage;
+      if (!albumName) return;
+      window.location.href = `album.html?album=${encodeURIComponent(albumName)}`;
+    });
   });
 }
 
@@ -945,6 +1097,12 @@ function renderFeaturedTrackList() {
             <button class="mini-action-btn" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button">
               Lyrics
             </button>
+            <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">
+              Play Next
+            </button>
+            <button class="mini-action-btn" data-add-queue-track="${escapeHtmlAttr(track.id)}" type="button">
+              Add Queue
+            </button>
             <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">
               + Playlist
             </button>
@@ -985,6 +1143,22 @@ function renderFeaturedTrackList() {
     });
   });
 
+  els.featuredTrackList.querySelectorAll("[data-play-next-track]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.playNextTrack);
+      if (!track) return;
+      addTrackToQueue(track, { playNext: true });
+    });
+  });
+
+  els.featuredTrackList.querySelectorAll("[data-add-queue-track]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.addQueueTrack);
+      if (!track) return;
+      addTrackToQueue(track);
+    });
+  });
+
   els.featuredTrackList.querySelectorAll("[data-download-track]").forEach(btn => {
     btn.addEventListener("click", () => {
       const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack);
@@ -1009,6 +1183,39 @@ function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
   if (!Array.isArray(trackList) || !trackList.length) return;
   setQueue(trackList, shuffle);
   playFromQueueIndex(Math.max(0, Math.min(startIndex, currentQueue.length - 1)));
+}
+
+function addTrackToQueue(track, options = {}) {
+  if (!track) return;
+
+  const playNext = Boolean(options.playNext);
+  const current = getCurrentTrack();
+
+  if (!current) {
+    currentQueue = [track];
+    currentQueueIndex = 0;
+    saveQueueState();
+    renderQueue();
+    playTrack(track);
+    showToast(playNext ? `Playing next: ${track.title}` : `Added and playing: ${track.title}`);
+    return;
+  }
+
+  const queue = currentQueue.length ? [...currentQueue] : [current];
+  const existingIndex = queue.findIndex(item => item.id === track.id);
+  if (existingIndex >= 0) {
+    queue.splice(existingIndex, 1);
+  }
+
+  const currentIndex = Math.max(queue.findIndex(item => item.id === current.id), 0);
+  const insertIndex = playNext ? currentIndex + 1 : queue.length;
+  queue.splice(insertIndex, 0, track);
+
+  currentQueue = queue;
+  currentQueueIndex = currentQueue.findIndex(item => item.id === current.id);
+  saveQueueState();
+  renderQueue();
+  showToast(playNext ? `Play next set: ${track.title}` : `Added to queue: ${track.title}`);
 }
 
 function playTrack(track) {
@@ -1088,6 +1295,64 @@ function togglePlayPause() {
   }
 }
 
+function handleTrackEnded() {
+  const current = getCurrentTrack();
+  if (!current) return;
+
+  const atQueueEnd = !currentQueue.length || currentQueueIndex >= currentQueue.length - 1;
+
+  if (atQueueEnd) {
+    const radioTracks = getRelatedTracks(current, { limit: 12, excludeIds: currentQueue.map(track => track.id) });
+    if (radioTracks.length) {
+      currentQueue = [...currentQueue, ...radioTracks];
+      saveQueueState();
+      renderQueue();
+      showToast(`Radio mode added ${radioTracks.length} related song${radioTracks.length === 1 ? "" : "s"}.`);
+    }
+  }
+
+  playNextTrack();
+}
+
+function getRelatedTracks(track, options = {}) {
+  if (!track) return [];
+  const excludeIds = new Set(options.excludeIds || []);
+  excludeIds.add(track.id);
+
+  const currentAlbum = String(track.album || "").toLowerCase();
+  const currentArtist = String(track.artist || "").toLowerCase();
+  const currentTags = new Set((track.tags || []).map(tag => String(tag).toLowerCase()));
+  const currentRefs = new Set((track.scripture_references || []).map(ref => getScriptureBook(ref).toLowerCase()));
+  const currentPlaylists = new Set((track.playlists || []).map(name => String(name).toLowerCase()));
+
+  return tracks
+    .filter(candidate => candidate?.src && !excludeIds.has(candidate.id))
+    .map(candidate => {
+      let score = 0;
+      if (String(candidate.artist || "").toLowerCase() === currentArtist) score += 4;
+      if (String(candidate.album || "").toLowerCase() === currentAlbum) score += 2;
+
+      (candidate.tags || []).forEach(tag => {
+        if (currentTags.has(String(tag).toLowerCase())) score += 3;
+      });
+
+      (candidate.playlists || []).forEach(name => {
+        if (currentPlaylists.has(String(name).toLowerCase())) score += 2;
+      });
+
+      (candidate.scripture_references || []).forEach(ref => {
+        if (currentRefs.has(getScriptureBook(ref).toLowerCase())) score += 3;
+      });
+
+      if (score === 0 && candidate.genre && track.genre && candidate.genre === track.genre) score += 1;
+      return { candidate, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.candidate.title.localeCompare(b.candidate.title))
+    .slice(0, options.limit || 8)
+    .map(item => item.candidate);
+}
+
 function updateNowPlaying(track) {
   if (els.nowCover) {
     els.nowCover.src = track.cover || "";
@@ -1114,16 +1379,9 @@ function updateNowPlaying(track) {
 
 function updatePlayButton() {
   if (!els.audioPlayer) return;
-
   const label = els.audioPlayer.paused ? "▶" : "❚❚";
-
-  if (els.playBtn) {
-    els.playBtn.textContent = label;
-  }
-
-  if (els.playerSheetPlayBtn) {
-    els.playerSheetPlayBtn.textContent = label;
-  }
+  if (els.playBtn) els.playBtn.textContent = label;
+  if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
 }
 
 function updateProgressUI() {
@@ -1253,8 +1511,8 @@ function openAlbumModal(album, triggerEl = null) {
       .map((track, index) => {
         const active = getCurrentTrack()?.id === track.id ? "active" : "";
         return `
-          <button class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
-            <div class="album-track-main">
+          <div class="album-track-row ${active}" data-track-id="${escapeHtmlAttr(track.id)}">
+            <button class="album-track-main" data-album-track-index="${index}" type="button">
               <div class="album-track-title-row">
                 <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
                 <span class="album-track-duration">${escapeHtml(track.duration || "")}</span>
@@ -1265,8 +1523,12 @@ function openAlbumModal(album, triggerEl = null) {
                   ? `<p class="album-track-scripture">${escapeHtml(track.scripture_references.join(" • "))}</p>`
                   : ""
               }
+            </button>
+            <div class="featured-track-actions">
+              <button class="mini-action-btn" data-album-play-next="${index}" type="button">Play Next</button>
+              <button class="mini-action-btn" data-album-add-queue="${index}" type="button">Add Queue</button>
             </div>
-          </button>
+          </div>
         `;
       })
       .join("");
@@ -1276,6 +1538,24 @@ function openAlbumModal(album, triggerEl = null) {
         const idx = Number(btn.dataset.albumTrackIndex);
         startPlaybackFromList(album.tracks, false, idx);
         closeAlbumModal();
+      });
+    });
+
+    els.albumModalTracks.querySelectorAll("[data-album-play-next]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const track = album.tracks[Number(btn.dataset.albumPlayNext)];
+        if (!track) return;
+        addTrackToQueue(track, { playNext: true });
+      });
+    });
+
+    els.albumModalTracks.querySelectorAll("[data-album-add-queue]").forEach(btn => {
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        const track = album.tracks[Number(btn.dataset.albumAddQueue)];
+        if (!track) return;
+        addTrackToQueue(track);
       });
     });
   }
@@ -1469,6 +1749,7 @@ function renderMyPlaylists() {
       filters.selectedAlbum = null;
       filters.selectedPlaylist = null;
       filters.selectedTag = null;
+      filters.selectedScripture = null;
       filters.searchTerm = "";
       if (els.searchInput) els.searchInput.value = "";
       if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${btn.dataset.customPlaylist}`;
@@ -1645,6 +1926,7 @@ function renderQueue() {
       return `
         <div class="queue-row ${active}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
           <button class="queue-play-btn" data-queue-play="${index}" type="button" aria-label="Play ${escapeHtmlAttr(track.title)}">▶</button>
+          <button class="queue-drag-handle" data-queue-drag-handle="${index}" type="button" aria-label="Drag to reorder ${escapeHtmlAttr(track.title)}" title="Drag to reorder">↕</button>
           ${
             track.cover
               ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />`
@@ -1741,7 +2023,8 @@ function bindQueueInteractions(container, displayTracks) {
   });
 
   container.querySelectorAll(".queue-row").forEach(row => {
-    row.addEventListener("click", () => {
+    row.addEventListener("click", e => {
+      if (e.target.closest("button")) return;
       const index = Number(row.dataset.queueIndex);
       if (!currentQueue.length) {
         setQueue(displayTracks, false);
@@ -1750,7 +2033,11 @@ function bindQueueInteractions(container, displayTracks) {
       openAndScrollQueueToCurrentTrack();
     });
 
-    row.addEventListener("dragstart", () => {
+    row.addEventListener("dragstart", e => {
+      if (e.target && !e.target.closest(".queue-drag-handle")) {
+        e.preventDefault();
+        return;
+      }
       queueDragIndex = Number(row.dataset.queueIndex);
       row.classList.add("dragging");
     });
@@ -1779,6 +2066,13 @@ function bindQueueInteractions(container, displayTracks) {
       renderQueue();
       queueDragIndex = null;
     });
+  });
+
+  container.querySelectorAll("[data-queue-drag-handle]").forEach(handle => {
+    handle.addEventListener("touchstart", e => startQueueTouchDrag(e, container, displayTracks), { passive: true });
+    handle.addEventListener("touchmove", e => updateQueueTouchDrag(e), { passive: false });
+    handle.addEventListener("touchend", e => finishQueueTouchDrag(e, displayTracks));
+    handle.addEventListener("touchcancel", cancelQueueTouchDrag);
   });
 }
 
@@ -1813,6 +2107,71 @@ function scrollQueueToCurrentTrack() {
     behavior: "smooth",
     block: "nearest"
   });
+}
+
+
+function startQueueTouchDrag(event, container, displayTracks) {
+  const touch = event.touches?.[0];
+  const handle = event.currentTarget;
+  const row = handle?.closest(".queue-row");
+  if (!touch || !row) return;
+
+  activeQueueTouchDrag = {
+    container,
+    displayTracks,
+    sourceIndex: Number(row.dataset.queueIndex),
+    targetIndex: Number(row.dataset.queueIndex)
+  };
+
+  container.querySelectorAll(".queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+  row.classList.add("dragging");
+}
+
+function updateQueueTouchDrag(event) {
+  if (!activeQueueTouchDrag) return;
+  const touch = event.touches?.[0];
+  if (!touch) return;
+
+  event.preventDefault();
+
+  const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest(".queue-row");
+  if (!target) return;
+
+  activeQueueTouchDrag.targetIndex = Number(target.dataset.queueIndex);
+  activeQueueTouchDrag.container.querySelectorAll(".queue-row").forEach(item => item.classList.remove("drag-target"));
+  target.classList.add("drag-target");
+}
+
+function finishQueueTouchDrag(event, displayTracks) {
+  if (!activeQueueTouchDrag) return;
+
+  const sourceIndex = activeQueueTouchDrag.sourceIndex;
+  const targetIndex = activeQueueTouchDrag.targetIndex;
+  const container = activeQueueTouchDrag.container;
+
+  container.querySelectorAll(".queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+
+  if (Number.isInteger(sourceIndex) && Number.isInteger(targetIndex) && sourceIndex !== targetIndex) {
+    const baseQueue = currentQueue.length ? [...currentQueue] : [...(displayTracks || activeQueueTouchDrag.displayTracks || [])];
+    const moved = baseQueue.splice(sourceIndex, 1)[0];
+    if (moved) {
+      baseQueue.splice(targetIndex, 0, moved);
+      const current = getCurrentTrack();
+      currentQueue = baseQueue;
+      currentQueueIndex = current ? currentQueue.findIndex(track => track.id === current.id) : 0;
+      saveQueueState();
+      renderQueue();
+      showToast(`Moved: ${moved.title}`);
+    }
+  }
+
+  activeQueueTouchDrag = null;
+}
+
+function cancelQueueTouchDrag() {
+  if (!activeQueueTouchDrag) return;
+  activeQueueTouchDrag.container.querySelectorAll(".queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+  activeQueueTouchDrag = null;
 }
 
 /* =========================
@@ -1903,6 +2262,48 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
+function initPlayerSheetSwipeToClose() {
+  if (!els.playerSheetContent || els.playerSheetSwipeHandleBound) return;
+  els.playerSheetSwipeHandleBound = true;
+
+  els.playerSheetContent.addEventListener("touchstart", event => {
+    if (els.playerSheet?.classList.contains("hidden")) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+
+    const scroller = event.target.closest(".player-tab-panel");
+    if (scroller && scroller.scrollTop > 0) return;
+
+    playerSheetSwipeStartY = touch.clientY;
+  }, { passive: true });
+
+  els.playerSheetContent.addEventListener("touchmove", event => {
+    if (playerSheetSwipeStartY === null) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    const deltaY = touch.clientY - playerSheetSwipeStartY;
+    if (deltaY > 10) {
+      els.playerSheetContent.style.transform = `translateY(${Math.min(deltaY, 120)}px)`;
+    }
+  }, { passive: true });
+
+  els.playerSheetContent.addEventListener("touchend", event => {
+    if (playerSheetSwipeStartY === null) return;
+    const touch = event.changedTouches?.[0];
+    const deltaY = touch ? touch.clientY - playerSheetSwipeStartY : 0;
+    els.playerSheetContent.style.transform = "";
+    playerSheetSwipeStartY = null;
+    if (deltaY > 90) {
+      closePlayerSheet();
+    }
+  });
+
+  els.playerSheetContent.addEventListener("touchcancel", () => {
+    els.playerSheetContent.style.transform = "";
+    playerSheetSwipeStartY = null;
+  });
+}
+
 function openPlayerSheet(triggerEl = null) {
   if (!els.playerSheet) return;
   lastFocusedElement = triggerEl || document.activeElement || null;
@@ -1964,7 +2365,9 @@ function updatePlayerSheet() {
       : `<p class="empty-message">No scripture references available.</p>`;
   }
 
-  updatePlayButton();
+  if (els.playerSheetPlayBtn && els.audioPlayer) {
+    els.playerSheetPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
+  }
 
   updateOfflineButtons(track);
   updateFavoriteButton();
@@ -1972,9 +2375,45 @@ function updatePlayerSheet() {
   setPlayerSheetTab(playerSheetTab);
 }
 
+function getAlbumPageUrl(albumName) {
+  return `album.html?album=${encodeURIComponent(albumName || "")}`;
+}
+
+function openAlbumPage(albumName) {
+  if (!albumName) return;
+  window.location.href = getAlbumPageUrl(albumName);
+}
+
+function showToast(message) {
+  if (!message) return;
+
+  let toast = document.getElementById("appToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "appToast";
+    toast.className = "app-toast";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("show");
+  }, 1800);
+}
+
 /* =========================
    URL / STATE HELPERS
 ========================= */
+
+function handleInitialQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const scripture = params.get("scripture");
+  if (scripture) {
+    setScriptureFilter(scripture);
+  }
+}
 
 function handleSongQueryParam() {
   const params = new URLSearchParams(window.location.search);
@@ -2356,6 +2795,7 @@ function applyCustomPlaylistFilter(name) {
   filters.selectedAlbum = null;
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
+  filters.selectedScripture = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${name}`;
