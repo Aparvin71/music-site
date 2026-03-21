@@ -117,6 +117,7 @@ const els = {
   dismissResumeBtn: document.getElementById("dismissResumeBtn"),
 
   stickyFilterBar: document.getElementById("stickyFilterBar"),
+  stickyFilterBarInner: document.querySelector("#stickyFilterBar .sticky-filter-bar-inner"),
   filterTypeBadge: document.getElementById("filterTypeBadge"),
 
   queueSectionBody: document.getElementById("queueSectionBody"),
@@ -168,6 +169,7 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
+  initTabletStickyFilterBar();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -751,6 +753,103 @@ function renderActiveFilterLabel() {
   if (els.stickyFilterBar) {
     els.stickyFilterBar.classList.toggle("hidden", !active);
   }
+
+  window.requestAnimationFrame(() => updateTabletStickyFilterBar(true));
+}
+
+
+function renderScriptureLinks(refs, options = {}) {
+  if (!refs) return "";
+
+  const list = Array.isArray(refs)
+    ? refs.map(ref => String(ref).trim()).filter(Boolean)
+    : String(refs)
+        .split(/[,;]+/)
+        .map(ref => ref.trim())
+        .filter(Boolean);
+
+  return list
+    .map(ref => {
+      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
+      const compactClass = options.compact ? " scripture-link--compact" : "";
+      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
+    })
+    .join("");
+}
+
+function isTabletLibraryViewport() {
+  return window.matchMedia("(min-width: 641px) and (max-width: 1100px)").matches;
+}
+
+function getStickyFilterTopOffset() {
+  const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+  return Math.round(headerHeight + 12);
+}
+
+function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
+  if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
+
+  const barRect = els.stickyFilterBar.getBoundingClientRect();
+  const width = Math.round(barRect.width);
+  const left = Math.round(barRect.left);
+  const height = Math.ceil(els.stickyFilterBarInner.offsetHeight);
+
+  if (!els.stickyFilterBar.classList.contains("is-fixed") || resetAnchor) {
+    els.stickyFilterBar.dataset.anchorTop = String(Math.round(window.scrollY + barRect.top));
+  }
+
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-left", `${left}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-width", `${width}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-height", `${height}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${getStickyFilterTopOffset()}px`);
+  els.stickyFilterBar.style.minHeight = `${height}px`;
+}
+
+function updateTabletStickyFilterBar(resetAnchor = false) {
+  if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
+
+  const active = hasActiveFilter() && !els.stickyFilterBar.classList.contains("hidden");
+  if (!active || !isTabletLibraryViewport()) {
+    els.stickyFilterBar.classList.remove("is-fixed");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-width");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
+    els.stickyFilterBar.style.minHeight = "";
+    return;
+  }
+
+  syncTabletStickyFilterBarMetrics(resetAnchor);
+
+  const anchorTop = Number(els.stickyFilterBar.dataset.anchorTop || 0);
+  const threshold = Math.max(anchorTop - getStickyFilterTopOffset(), 0);
+  const shouldFix = window.scrollY >= threshold;
+
+  els.stickyFilterBar.classList.toggle("is-fixed", shouldFix);
+
+  if (shouldFix) {
+    syncTabletStickyFilterBarMetrics(false);
+  }
+}
+
+function initTabletStickyFilterBar() {
+  if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
+
+  let ticking = false;
+  const requestUpdate = (resetAnchor = false) => {
+    if (ticking) return;
+    ticking = true;
+    window.requestAnimationFrame(() => {
+      updateTabletStickyFilterBar(resetAnchor);
+      ticking = false;
+    });
+  };
+
+  window.addEventListener("scroll", () => requestUpdate(false), { passive: true });
+  window.addEventListener("resize", () => requestUpdate(true));
+  window.addEventListener("orientationchange", () => requestUpdate(true));
+
+  requestUpdate(true);
 }
 
 /* =========================
@@ -1985,8 +2084,8 @@ function updatePlayerSheet() {
   if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || "—";
   if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || "—";
   if (els.playerSheetTrackScripture) {
-    els.playerSheetTrackScripture.textContent = track?.scripture_references?.length
-      ? track.scripture_references.join(" • ")
+    els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length
+      ? renderScriptureLinks(track.scripture_references, { compact: true })
       : "—";
   }
 
@@ -1998,7 +2097,7 @@ function updatePlayerSheet() {
 
   if (els.playerSheetScripturePanel) {
     els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length
-      ? `<div class="scripture-block">${track.scripture_references.map(ref => `<p>${escapeHtml(ref)}</p>`).join("")}</div>`
+      ? `<div class="scripture-block scripture-link-list">${renderScriptureLinks(track.scripture_references)}</div>`
       : `<p class="empty-message">No scripture references available.</p>`;
   }
 
