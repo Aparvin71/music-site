@@ -894,10 +894,6 @@ a:hover {
 .scripture-line {
   color: #90b4e8 !important;
   font-size: 11px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
 }
 
 .transport {
@@ -2686,266 +2682,93 @@ a:hover {
 
 
 /* =========================================
-   TOASTS
+   TABLET FULLSCREEN PLAYER POLISH FIX
+   Prevent lyrics/scripture content from sliding under controls
 ========================================= */
-.toast-region {
-  position: fixed;
-  right: 18px;
-  bottom: calc(135px + 18px);
-  z-index: 11050;
-  display: grid;
-  gap: 10px;
-  width: min(360px, calc(100vw - 24px));
-  pointer-events: none;
-}
-
-.toast {
-  position: relative;
-  display: grid;
-  grid-template-columns: 36px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 14px 16px;
-  border-radius: 18px;
-  border: 1px solid rgba(144, 180, 232, 0.2);
-  background: rgba(10, 15, 24, 0.94);
-  color: #f4f4f4;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
-  backdrop-filter: blur(16px);
-  opacity: 0;
-  transform: translateY(10px) scale(0.98);
-  transition: opacity 0.22s ease, transform 0.22s ease;
-  overflow: hidden;
-  pointer-events: auto;
-}
-
-.toast.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.toast.leaving {
-  opacity: 0;
-  transform: translateY(8px) scale(0.98);
-}
-
-.toast-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  font-weight: 700;
-  background: rgba(144, 180, 232, 0.18);
-  border: 1px solid rgba(144, 180, 232, 0.22);
-}
-
-.toast-body {
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.toast-close {
-  border: none;
-  background: transparent;
-  color: #d7deea;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.toast-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 3px;
-  background: linear-gradient(90deg, rgba(144, 180, 232, 0.85), rgba(95, 141, 205, 0.35));
-  transform-origin: left center;
-  animation: toast-progress 2.8s linear forwards;
-}
-
-.toast-success .toast-icon { background: rgba(66, 181, 129, 0.16); border-color: rgba(66, 181, 129, 0.22); }
-.toast-warning .toast-icon { background: rgba(223, 177, 76, 0.18); border-color: rgba(223, 177, 76, 0.26); }
-.toast-error .toast-icon { background: rgba(220, 90, 90, 0.18); border-color: rgba(220, 90, 90, 0.24); }
-
-@keyframes toast-progress {
-  from { transform: scaleX(1); }
-  to { transform: scaleX(0); }
-}
-
-.player-sheet-drag-handle {
-  display: none;
-  width: 56px;
-  height: 5px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  margin: 10px auto 0;
-}
-
-.player-sheet-queue-meta {
-  margin: 6px 0 0;
-  color: #8fa9cc;
-  font-size: 13px;
-}
-
-.player-sheet-tag-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-.player-sheet-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 11px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #d8e5f7;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.player-sheet-content::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 20% 0%, rgba(111, 166, 241, 0.16), transparent 34%), radial-gradient(circle at 100% 100%, rgba(110, 86, 204, 0.12), transparent 28%);
-  pointer-events: none;
-}
-
-.player-sheet-now::after {
-  content: "";
-  position: absolute;
-  inset: 22px;
-  border-radius: 28px;
-  background: radial-gradient(circle at center, rgba(111, 166, 241, 0.09), transparent 60%);
-  pointer-events: none;
-}
-
-.player-sheet-now {
-  position: relative;
-}
-
-.player-sheet-cover {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.player-sheet .queue-row,
-.player-sheet-queue-list .queue-row {
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-
-.player-sheet .queue-row:hover,
-.player-sheet-queue-list .queue-row:hover {
-  transform: translateY(-1px);
-  border-color: rgba(144, 180, 232, 0.28);
-  background: #131d29;
-}
-
-.player-tab-panel .lyrics-block,
-.player-tab-panel .scripture-block {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 18px;
-  padding: 16px;
-}
-
-@media (max-width: 640px) {
-  .toast-region {
-    right: 12px;
-    left: 12px;
-    width: auto;
-    bottom: calc(142px + env(safe-area-inset-bottom));
-  }
-
-  .player-sheet-drag-handle {
-    display: block;
-  }
-
+@media (min-width: 641px) and (max-width: 1100px), (max-height: 900px) and (min-width: 641px) {
   .player-sheet-content {
-    padding-bottom: env(safe-area-inset-bottom);
+    width: min(980px, calc(100% - 20px)) !important;
+    max-height: min(100dvh - 20px, 980px) !important;
+    margin: 10px auto !important;
+    border-radius: 24px !important;
   }
 
-  .player-sheet-header {
-    padding-top: 8px !important;
+  .player-sheet-body {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto minmax(0, 1fr) !important;
+    overflow: hidden !important;
   }
 
-  .player-sheet-now::after {
-    inset: 12px;
+  .player-sheet-now {
+    border-right: none !important;
+    border-bottom: 1px solid #1d2633 !important;
+    padding: 18px 20px 16px !important;
+    gap: 14px !important;
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(180deg, rgba(12, 17, 24, 0.98) 0%, rgba(12, 17, 24, 0.96) 100%) !important;
+  }
+
+  .player-sheet-cover-wrap {
+    align-items: center;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 220px) !important;
+  }
+
+  .player-sheet-meta h3 {
+    font-size: clamp(1.25rem, 2.1vw, 1.8rem) !important;
+  }
+
+  .player-sheet-progress {
+    grid-template-columns: 42px 1fr 42px !important;
+  }
+
+  .player-sheet-transport {
+    gap: 12px !important;
+    flex-wrap: wrap !important;
   }
 
   .player-sheet-actions {
-    grid-template-columns: 1fr 1fr 1fr !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
   }
 
   .player-sheet-actions .action-btn {
-    font-size: 12px;
-    padding-left: 10px;
-    padding-right: 10px;
+    width: 100% !important;
+    min-width: 0 !important;
   }
-}
 
+  .player-sheet-panel {
+    padding: 14px 18px 20px !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
 
-/* =========================================
-   SCRIPTURE LINKS
-========================================= */
-.scripture-link-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
+  .player-sheet-tabs {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 4 !important;
+    background: linear-gradient(180deg, rgba(12, 17, 24, 0.98) 0%, rgba(12, 17, 24, 0.92) 100%) !important;
+    padding-bottom: 10px !important;
+    margin-bottom: 10px !important;
+  }
 
-.scripture-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(120, 160, 255, 0.14);
-  border: 1px solid rgba(120, 160, 255, 0.34);
-  color: #a9c4ff;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-decoration: none;
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
-}
+  .player-tab-panel {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-right: 6px !important;
+    padding-bottom: 64px !important;
+  }
 
-.scripture-link:hover,
-.scripture-link:focus-visible {
-  background: rgba(120, 160, 255, 0.24);
-  border-color: rgba(120, 160, 255, 0.62);
-  color: #ffffff;
-  transform: translateY(-1px);
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.2);
-  outline: none;
-}
-
-.scripture-link-compact {
-  padding: 4px 9px;
-  font-size: 11px;
-  box-shadow: none;
-}
-
-.scripture-line .scripture-link-list {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.scripture-line .scripture-link {
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.album-track-scripture.scripture-link-list {
-  margin-top: 6px;
+  .player-sheet-queue-list,
+  .lyrics-block,
+  .scripture-block {
+    padding-bottom: 44px !important;
+  }
 }
