@@ -2,7 +2,7 @@ async function registerStandaloneServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const registration = await navigator.serviceWorker.register("/service-worker.js");
+    const registration = await navigator.serviceWorker.register("./service-worker.js");
 
     if (registration.waiting) {
       registration.waiting.postMessage({ type: "SKIP_WAITING" });
@@ -30,20 +30,6 @@ function closeMobileNav(toggle, nav) {
   toggle.textContent = "☰";
 }
 
-function navigateToLink(link) {
-  const href = link?.getAttribute("href");
-  if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-
-  const url = new URL(href, window.location.origin);
-  if (url.origin !== window.location.origin) {
-    window.location.href = url.toString();
-    return;
-  }
-
-  // Force navigation in installed PWA mode where default anchor behavior can be flaky.
-  window.location.assign(url.pathname + url.search + url.hash);
-}
-
 function initBasicMobileNav() {
   const toggle = document.getElementById("mobileNavToggle");
   const nav = document.getElementById("siteNavLinks");
@@ -56,11 +42,15 @@ function initBasicMobileNav() {
   });
 
   nav.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
+    link.addEventListener("click", () => {
       closeMobileNav(toggle, nav);
-      requestAnimationFrame(() => navigateToLink(link));
     });
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 640) {
+      closeMobileNav(toggle, nav);
+    }
   });
 }
 

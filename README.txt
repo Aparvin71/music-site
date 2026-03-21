@@ -1,41 +1,32 @@
-Aineo Music - Clean Production Bundle
+Aineo Music - Mobile/PWA Navigation Fix Bundle
 
-Included:
+Files replaced:
 - index.html
 - about.html
 - contact.html
-- style.css
-- app.js
-- contact.js
-- pwa-init.js
+- album.html
 - manifest.webmanifest
+- pwa-init.js
 - service-worker.js
-- tracks.json
-- favicon.ico
-- icons/
-- images/
 
-Cleanup included:
-- Restored the missing getQueueDisplayTracks() helper in app.js
-- Kept playback stable
-- Fixed mobile audio streaming by skipping Range requests in the service worker
-- Added offline caching support for CACHE_AUDIO_URLS messages
-- Unified favicon, manifest, and Apple touch icon tags across all pages
-- Added mobile-web-app-capable plus Apple web app meta tags
-- Fixed the About page church logo path
-- Added local icons/images to service-worker app-shell caching
-- Added a stronger mobile fullscreen player CSS fix so lyrics stay below controls
+What was cleaned up:
+- Unified all internal page links to portable relative paths (./index.html, ./about.html, ./contact.html)
+- Fixed album page nav/back links to use the same path strategy
+- Removed forced JavaScript navigation interception from pwa-init.js
+- Kept mobile nav open/close behavior, but let normal anchor navigation handle page changes
+- Made the service worker scope-aware so it works better whether the site is hosted at the domain root or inside a subfolder
+- Added album.html and album-page.js to app-shell caching
+- Updated manifest start_url and scope to portable relative values
+- Bumped service-worker cache version to v15.03
 
-Deployment:
-1. Upload the full folder structure as-is.
-2. Keep tracks.json at the site root.
-3. Keep audio and cover files on R2.
-4. After upload, hard refresh the site.
-5. Unregister the old service worker once, then reload.
-6. On iPhone, delete any previously installed home-screen app and reinstall so the new icon is used.
+Why this fix was needed:
+- Your files were mixing root-relative links, document-relative links, and forced JavaScript navigation.
+- album.html was still using older relative nav links while the other pages had already changed.
+- The manifest and service worker were still locked to root paths, which can break installed PWA navigation if the site is not deployed at the domain root.
 
-New in this bundle:
-- Added Album Pages via /album.html?album=...
-- Added Browse by Scripture sidebar filters
-- Added Play Next and Add to Queue actions on album tracks
-- Added album page script and service worker caching for album pages
+After upload:
+1. Replace these files on the server.
+2. Hard refresh the site in the browser.
+3. Unregister the old service worker once.
+4. Delete the previously installed home-screen app.
+5. Reinstall the PWA so the new manifest scope/start_url are used.
