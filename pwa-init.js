@@ -2,7 +2,8 @@ async function registerStandaloneServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
 
   try {
-    const registration = await navigator.serviceWorker.register("./service-worker.js");
+    const swUrl = new URL("./service-worker.js", window.location.href).pathname;
+    const registration = await navigator.serviceWorker.register(swUrl);
 
     if (registration.waiting) {
       registration.waiting.postMessage({ type: "SKIP_WAITING" });
@@ -31,6 +32,8 @@ function closeMobileNav(toggle, nav) {
 }
 
 function initBasicMobileNav() {
+  if (window.__AINEO_APP_JS_NAV__) return;
+
   const toggle = document.getElementById("mobileNavToggle");
   const nav = document.getElementById("siteNavLinks");
   if (!toggle || !nav) return;

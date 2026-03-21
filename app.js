@@ -1,3 +1,5 @@
+window.__AINEO_APP_JS_NAV__ = true;
+
 let tracks = [];
 let filteredTracks = [];
 let currentTrackIndex = -1;
