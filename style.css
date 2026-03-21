@@ -2772,3 +2772,44 @@ a:hover {
     padding-bottom: 44px !important;
   }
 }
+
+
+/* =========================================
+   TABLET STICKY CLEAR/FILTER BAR FIX
+   Keep the clear control pinned while scrolling on tablets
+========================================= */
+@media (min-width: 641px) and (max-width: 1100px) {
+  .main-content {
+    overflow: visible !important;
+  }
+
+  .sticky-filter-bar {
+    position: sticky !important;
+    top: 12px !important;
+    z-index: 970 !important;
+    align-self: start;
+  }
+
+  .sticky-filter-bar-inner {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+
+  .sticky-filter-bar .filter-info {
+    min-width: 0;
+  }
+
+  .sticky-filter-bar .active-filter-label {
+    white-space: normal;
+  }
+
+  .sticky-filter-bar .action-btn,
+  .sticky-filter-bar #clearFiltersBtn {
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+}
