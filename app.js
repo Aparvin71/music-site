@@ -138,6 +138,12 @@ const els = {
 
   playerSheet: document.getElementById("playerSheet"),
   playerSheetBackdrop: document.getElementById("playerSheetBackdrop"),
+  playerSheetContent: document.querySelector("#playerSheet .player-sheet-content"),
+  playerSheetHeader: document.querySelector("#playerSheet .player-sheet-header"),
+  playerSheetBodyWrap: document.querySelector("#playerSheet .player-sheet-body"),
+  playerSheetNowSection: document.querySelector("#playerSheet .player-sheet-now"),
+  playerSheetPanelSection: document.querySelector("#playerSheet .player-sheet-panel"),
+  playerSheetTabs: document.querySelector("#playerSheet .player-sheet-tabs"),
   closePlayerSheetBtn: document.getElementById("closePlayerSheetBtn"),
   playerSheetCover: document.getElementById("playerSheetCover"),
   playerSheetTrackTitle: document.getElementById("playerSheetTrackTitle"),
@@ -168,6 +174,7 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
+  initPlayerSheetGestures();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -1941,6 +1948,115 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
+const PLAYER_SHEET_TABS = ["lyrics", "scripture", "queue"];
+
+function initPlayerSheetGestures() {
+  if (!els.playerSheetContent) return;
+
+  const interactiveSelector = 'button, a, input, select, textarea, label, [role="tab"]';
+  let gesture = null;
+
+  const resetPlayerSheetTransform = () => {
+    if (!els.playerSheetContent) return;
+    els.playerSheetContent.style.transform = "";
+    els.playerSheetContent.style.transition = "";
+  };
+
+  els.playerSheetContent.addEventListener("touchstart", event => {
+    if (!els.playerSheet || els.playerSheet.classList.contains("hidden")) return;
+    if (event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    const target = event.target;
+    const inNow = Boolean(els.playerSheetNowSection && els.playerSheetNowSection.contains(target));
+    const inPanelSection = Boolean(els.playerSheetPanelSection && els.playerSheetPanelSection.contains(target));
+    const onCover = Boolean(target.closest(".player-sheet-cover-wrap"));
+    const onHeader = Boolean(target.closest(".player-sheet-header"));
+    const inScrollablePanel = Boolean(target.closest(".player-tab-panel"));
+    const activePanel = document.querySelector('#playerSheet [data-player-panel].active');
+    const panelAtTop = !activePanel || activePanel.scrollTop <= 4;
+
+    let mode = null;
+    if (onCover && !target.closest(interactiveSelector)) {
+      mode = "track";
+    } else if (onHeader || (inNow && !target.closest(interactiveSelector))) {
+      mode = "dismiss";
+    } else if (inPanelSection && !inScrollablePanel && !target.closest(interactiveSelector)) {
+      mode = "tabs";
+    } else if (inScrollablePanel && panelAtTop && !target.closest(interactiveSelector)) {
+      mode = "dismiss";
+    }
+
+    if (!mode) return;
+
+    gesture = {
+      mode,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      dx: 0,
+      dy: 0
+    };
+  }, { passive: true });
+
+  els.playerSheetContent.addEventListener("touchmove", event => {
+    if (!gesture || event.touches.length !== 1) return;
+
+    const touch = event.touches[0];
+    gesture.dx = touch.clientX - gesture.startX;
+    gesture.dy = touch.clientY - gesture.startY;
+
+    if (gesture.mode === "dismiss") {
+      if (gesture.dy > 0 && Math.abs(gesture.dy) > Math.abs(gesture.dx)) {
+        if (event.cancelable) event.preventDefault();
+        els.playerSheetContent.style.transition = "none";
+        els.playerSheetContent.style.transform = `translateY(${Math.min(gesture.dy, 220)}px)`;
+      }
+    }
+  }, { passive: false });
+
+  els.playerSheetContent.addEventListener("touchend", () => {
+    if (!gesture) return;
+
+    const { mode, dx, dy } = gesture;
+    const absX = Math.abs(dx);
+    const absY = Math.abs(dy);
+
+    if (mode === "dismiss") {
+      els.playerSheetContent.style.transition = "transform 180ms ease";
+      if (dy > 110 && absY > absX * 1.15) {
+        closePlayerSheet();
+      }
+      resetPlayerSheetTransform();
+    }
+
+    if (mode === "tabs") {
+      if (absX > 70 && absX > absY * 1.2) {
+        const currentIndex = Math.max(0, PLAYER_SHEET_TABS.indexOf(playerSheetTab));
+        const nextIndex = dx < 0
+          ? Math.min(PLAYER_SHEET_TABS.length - 1, currentIndex + 1)
+          : Math.max(0, currentIndex - 1);
+        if (nextIndex !== currentIndex) {
+          setPlayerSheetTab(PLAYER_SHEET_TABS[nextIndex]);
+        }
+      }
+    }
+
+    if (mode === "track") {
+      if (absX > 80 && absX > absY * 1.2) {
+        if (dx < 0) playNextTrack();
+        else playPreviousTrack();
+      }
+    }
+
+    gesture = null;
+  }, { passive: true });
+
+  els.playerSheetContent.addEventListener("touchcancel", () => {
+    gesture = null;
+    resetPlayerSheetTransform();
+  }, { passive: true });
+}
+
 function openPlayerSheet(triggerEl = null) {
   if (!els.playerSheet) return;
   lastFocusedElement = triggerEl || document.activeElement || null;
@@ -1985,8 +2101,8 @@ function updatePlayerSheet() {
   if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || "—";
   if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || "—";
   if (els.playerSheetTrackScripture) {
-    els.playerSheetTrackScripture.textContent = track?.scripture_references?.length
-      ? track.scripture_references.join(" • ")
+    els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length
+      ? renderScriptureLinks(track.scripture_references, { compact: true })
       : "—";
   }
 
@@ -1998,7 +2114,7 @@ function updatePlayerSheet() {
 
   if (els.playerSheetScripturePanel) {
     els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length
-      ? `<div class="scripture-block">${track.scripture_references.map(ref => `<p>${escapeHtml(ref)}</p>`).join("")}</div>`
+      ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
       : `<p class="empty-message">No scripture references available.</p>`;
   }
 

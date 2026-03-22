@@ -2395,6 +2395,60 @@ a:hover {
   justify-content: center;
 }
 
+.player-sheet-drag-handle {
+  width: 56px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(223, 231, 245, 0.32);
+  margin: 10px auto 0;
+}
+
+.player-sheet-swipe-hint {
+  margin: 12px 2px 0;
+  color: #9eadc1;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.player-sheet-cover-wrap {
+  touch-action: pan-y;
+}
+
+.player-sheet-panel {
+  overscroll-behavior: contain;
+}
+
+.scripture-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 8px 8px 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 142, 205, 0.4);
+  background: rgba(24, 38, 56, 0.92);
+  color: #dfe7f5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.scripture-link:hover {
+  background: rgba(43, 76, 120, 0.95);
+}
+
+.scripture-link--compact {
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.scripture-block--links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
 .player-sheet-cover {
   width: min(100%, 360px);
   aspect-ratio: 1 / 1;
@@ -2536,7 +2590,11 @@ a:hover {
   }
 
   .player-sheet-header {
-    padding: 14px 16px;
+    padding: 10px 16px 14px;
+  }
+
+  .player-sheet-drag-handle {
+    margin-top: 8px;
   }
 
   .player-sheet-now,
@@ -2796,4 +2854,50 @@ a:hover {
 body.orientation-guard-active {
   overflow: hidden;
   touch-action: none;
+}
+
+@media (max-width: 900px) {
+  .player-sheet-swipe-hint {
+    font-size: 0.78rem;
+  }
+}
+
+
+.mission-page .mission-actions .action-btn,
+.mission-page .mission-actions .secondary-btn {
+  background: #273243;
+  color: #ffffff;
+  border: 1px solid rgba(144, 180, 232, 0.22);
+}
+
+.mission-page .mission-actions .action-btn:hover,
+.mission-page .mission-actions .secondary-btn:hover {
+  background: #34445c;
+  color: #ffffff;
+}
+
+.mission-page .page-card {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+.mission-section-head {
+  max-width: 760px;
+  margin-bottom: 18px;
+}
+
+.mission-section-head h2 {
+  margin-top: 0;
+}
+
+.mission-church-wrap {
+  margin-top: 18px;
+}
+
+.mission-page .church-card {
+  margin-top: 0;
+}
+
+.mission-church-card {
+  max-width: 540px;
+  margin-inline: auto;
 }
