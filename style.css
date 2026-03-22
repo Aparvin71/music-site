@@ -2395,6 +2395,60 @@ a:hover {
   justify-content: center;
 }
 
+.player-sheet-drag-handle {
+  width: 56px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(223, 231, 245, 0.32);
+  margin: 10px auto 0;
+}
+
+.player-sheet-swipe-hint {
+  margin: 12px 2px 0;
+  color: #9eadc1;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.player-sheet-cover-wrap {
+  touch-action: pan-y;
+}
+
+.player-sheet-panel {
+  overscroll-behavior: contain;
+}
+
+.scripture-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 8px 8px 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(94, 142, 205, 0.4);
+  background: rgba(24, 38, 56, 0.92);
+  color: #dfe7f5;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.scripture-link:hover {
+  background: rgba(43, 76, 120, 0.95);
+}
+
+.scripture-link--compact {
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.scripture-block--links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
 .player-sheet-cover {
   width: min(100%, 360px);
   aspect-ratio: 1 / 1;
@@ -2536,7 +2590,11 @@ a:hover {
   }
 
   .player-sheet-header {
-    padding: 14px 16px;
+    padding: 10px 16px 14px;
+  }
+
+  .player-sheet-drag-handle {
+    margin-top: 8px;
   }
 
   .player-sheet-now,
@@ -2681,37 +2739,184 @@ a:hover {
 }
 
 
-.scripture-link-list {
+.mission-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-top: 16px;
 }
 
-.scripture-link {
-  display: inline-flex;
+.mission-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.mission-hero-card {
+  margin-bottom: 18px;
+}
+
+.mission-page-title {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.12;
+}
+
+.mission-page-lead {
+  margin-top: 0;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: #e8eef8;
+}
+
+.mission-page-lead--small {
+  font-size: 1rem;
+}
+
+.mission-grid--stacked {
+  grid-template-columns: 1.05fr 1.15fr;
+}
+
+.mission-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mission-mini-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .mission-grid--stacked,
+  .mission-grid--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================
+   PORTRAIT LOCK / LANDSCAPE FALLBACK
+========================================= */
+
+.orientation-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: none;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(74, 144, 226, 0.18);
-  border: 1px solid rgba(142, 197, 255, 0.35);
-  color: #e7f2ff;
-  text-decoration: none;
-  font-size: 0.95rem;
-  line-height: 1.2;
-  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+  padding: 24px;
+  background: rgba(7, 10, 16, 0.96);
+  backdrop-filter: blur(16px);
 }
 
-.scripture-link:hover,
-.scripture-link:focus-visible {
-  background: rgba(74, 144, 226, 0.28);
-  border-color: rgba(142, 197, 255, 0.65);
-  transform: translateY(-1px);
+.orientation-guard.show {
+  display: flex;
 }
 
-.scripture-link--compact {
-  min-height: 32px;
-  padding: 6px 10px;
-  font-size: 0.85rem;
+.orientation-guard-card {
+  width: min(440px, 100%);
+  padding: 28px 24px;
+  border-radius: 24px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(24, 29, 39, 0.98), rgba(14, 17, 24, 0.98));
+  border: 1px solid rgba(112, 146, 255, 0.24);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.orientation-guard-icon {
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.orientation-guard-eyebrow {
+  margin: 0 0 8px;
+  color: #9fb7ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.orientation-guard-card h2 {
+  margin: 0 0 10px;
+  color: #f5f7fb;
+  font-size: clamp(24px, 4vw, 32px);
+}
+
+.orientation-guard-card p {
+  margin: 0;
+  color: #d0d8e6;
+  line-height: 1.6;
+}
+
+body.orientation-guard-active {
+  overflow: hidden;
+  touch-action: none;
+}
+
+@media (max-width: 900px) {
+  .player-sheet-swipe-hint {
+    font-size: 0.78rem;
+  }
+}
+
+
+.mission-page .mission-actions .action-btn,
+.mission-page .mission-actions .secondary-btn {
+  background: #273243;
+  color: #ffffff;
+  border: 1px solid rgba(144, 180, 232, 0.22);
+}
+
+.mission-page .mission-actions .action-btn:hover,
+.mission-page .mission-actions .secondary-btn:hover {
+  background: #34445c;
+  color: #ffffff;
+}
+
+.mission-page .page-card {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+
+.mission-section-head {
+  max-width: 760px;
+  margin-bottom: 18px;
+}
+
+.mission-section-head h2 {
+  margin-top: 0;
+}
+
+.mission-church-wrap {
+  margin-top: 18px;
+}
+
+.mission-page .church-card {
+  margin-top: 0;
+}
+
+.mission-church-card {
+  max-width: 540px;
+  margin-inline: auto;
+}
+
+
+.church-logo-fallback {
+  min-height: 108px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(142, 197, 255, 0.28);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(42, 76, 126, 0.34), rgba(15, 17, 21, 0.8));
+  color: #d9e7ff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.church-logo-fallback span {
+  padding: 0 1rem;
+  text-align: center;
 }
