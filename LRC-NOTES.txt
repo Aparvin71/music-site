@@ -1,0 +1,4 @@
+Generated LRC files for all uploaded songs.
+Method: embedded MP3 lyrics (USLT) split into lines and distributed across track duration for first-pass sync.
+tracks.json updated with lyrics_file for each track.
+Tracks with no embedded lyrics found: None
