@@ -2681,187 +2681,119 @@ a:hover {
 }
 
 
-/* =========================================
-   TABLET FULLSCREEN PLAYER POLISH FIX
-   Prevent lyrics/scripture content from sliding under controls
-========================================= */
-@media (min-width: 641px) and (max-width: 1100px), (max-height: 900px) and (min-width: 641px) {
-  .player-sheet-content {
-    width: min(980px, calc(100% - 20px)) !important;
-    max-height: min(100dvh - 20px, 980px) !important;
-    margin: 10px auto !important;
-    border-radius: 24px !important;
-  }
-
-  .player-sheet-body {
-    grid-template-columns: 1fr !important;
-    grid-template-rows: auto minmax(0, 1fr) !important;
-    overflow: hidden !important;
-  }
-
-  .player-sheet-now {
-    border-right: none !important;
-    border-bottom: 1px solid #1d2633 !important;
-    padding: 18px 20px 16px !important;
-    gap: 14px !important;
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(180deg, rgba(12, 17, 24, 0.98) 0%, rgba(12, 17, 24, 0.96) 100%) !important;
-  }
-
-  .player-sheet-cover-wrap {
-    align-items: center;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 220px) !important;
-  }
-
-  .player-sheet-meta h3 {
-    font-size: clamp(1.25rem, 2.1vw, 1.8rem) !important;
-  }
-
-  .player-sheet-progress {
-    grid-template-columns: 42px 1fr 42px !important;
-  }
-
-  .player-sheet-transport {
-    gap: 12px !important;
-    flex-wrap: wrap !important;
-  }
-
-  .player-sheet-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-  }
-
-  .player-sheet-actions .action-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-  }
-
-  .player-sheet-panel {
-    padding: 14px 18px 20px !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-  }
-
-  .player-sheet-tabs {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 4 !important;
-    background: linear-gradient(180deg, rgba(12, 17, 24, 0.98) 0%, rgba(12, 17, 24, 0.92) 100%) !important;
-    padding-bottom: 10px !important;
-    margin-bottom: 10px !important;
-  }
-
-  .player-tab-panel {
-    height: 100% !important;
-    min-height: 0 !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    padding-right: 6px !important;
-    padding-bottom: 64px !important;
-  }
-
-  .player-sheet-queue-list,
-  .lyrics-block,
-  .scripture-block {
-    padding-bottom: 44px !important;
-  }
-}
-
-
-/* =========================================
-   TABLET STICKY CLEAR/FILTER BAR FIX
-   Keep the clear control pinned while scrolling on tablets
-========================================= */
-@media (min-width: 641px) and (max-width: 1100px) {
-  .app-shell {
-    align-items: start;
-  }
-
-  .main-content {
-    overflow: visible !important;
-    min-width: 0;
-  }
-
-  .sticky-filter-bar {
-    position: relative !important;
-    z-index: 970 !important;
-  }
-
-  .sticky-filter-bar.is-fixed {
-    min-height: var(--tablet-sticky-height, 72px);
-  }
-
-  .sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
-    position: fixed !important;
-    top: var(--tablet-sticky-top, 82px) !important;
-    left: var(--tablet-sticky-left, 0) !important;
-    width: var(--tablet-sticky-width, 100%) !important;
-    z-index: 970 !important;
-  }
-
-  .sticky-filter-bar-inner {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    align-items: center !important;
-    gap: 12px !important;
-  }
-
-  .sticky-filter-bar .filter-info {
-    min-width: 0;
-  }
-
-  .sticky-filter-bar .active-filter-label {
-    white-space: normal;
-  }
-
-  .sticky-filter-bar .action-btn,
-  .sticky-filter-bar #clearFiltersBtn {
-    position: relative;
-    z-index: 1;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-}
-
-
-/* =========================================
-   SCRIPTURE LINKS
-========================================= */
-.scripture-link-list {
+.mission-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.scripture-link {
-  display: inline-flex;
+.mission-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+.mission-hero-card {
+  margin-bottom: 18px;
+}
+
+.mission-page-title {
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 4vw, 2.9rem);
+  line-height: 1.12;
+}
+
+.mission-page-lead {
+  margin-top: 0;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: #e8eef8;
+}
+
+.mission-page-lead--small {
+  font-size: 1rem;
+}
+
+.mission-grid--stacked {
+  grid-template-columns: 1.05fr 1.15fr;
+}
+
+.mission-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mission-mini-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 900px) {
+  .mission-grid--stacked,
+  .mission-grid--three {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================
+   PORTRAIT LOCK / LANDSCAPE FALLBACK
+========================================= */
+
+.orientation-guard {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: none;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(91, 134, 199, 0.18);
-  border: 1px solid rgba(122, 168, 238, 0.34);
-  color: #d9e9ff;
-  text-decoration: none;
-  font-size: 0.92rem;
-  font-weight: 600;
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+  padding: 24px;
+  background: rgba(7, 10, 16, 0.96);
+  backdrop-filter: blur(16px);
 }
 
-.scripture-link:hover {
-  text-decoration: none;
-  transform: translateY(-1px);
-  background: rgba(91, 134, 199, 0.28);
-  border-color: rgba(144, 190, 255, 0.55);
+.orientation-guard.show {
+  display: flex;
 }
 
-.scripture-link--compact {
-  padding: 5px 10px;
-  font-size: 0.8rem;
+.orientation-guard-card {
+  width: min(440px, 100%);
+  padding: 28px 24px;
+  border-radius: 24px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(24, 29, 39, 0.98), rgba(14, 17, 24, 0.98));
+  border: 1px solid rgba(112, 146, 255, 0.24);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
+}
+
+.orientation-guard-icon {
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.orientation-guard-eyebrow {
+  margin: 0 0 8px;
+  color: #9fb7ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.orientation-guard-card h2 {
+  margin: 0 0 10px;
+  color: #f5f7fb;
+  font-size: clamp(24px, 4vw, 32px);
+}
+
+.orientation-guard-card p {
+  margin: 0;
+  color: #d0d8e6;
+  line-height: 1.6;
+}
+
+body.orientation-guard-active {
+  overflow: hidden;
+  touch-action: none;
 }
