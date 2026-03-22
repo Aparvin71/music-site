@@ -2169,7 +2169,7 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
-const PLAYER_SHEET_TABS = ["lyrics", "scripture", "queue"];
+const PLAYER_SHEET_TABS = ["lyrics", "queue"];
 
 function initPlayerSheetGestures() {
   if (!els.playerSheetContent) return;
@@ -2298,6 +2298,9 @@ function closePlayerSheet() {
 }
 
 function setPlayerSheetTab(tabName) {
+  if (!PLAYER_SHEET_TABS.includes(tabName)) {
+    tabName = "lyrics";
+  }
   playerSheetTab = tabName;
   document.querySelectorAll("[data-player-tab]").forEach(btn => {
     const active = btn.dataset.playerTab === tabName;
