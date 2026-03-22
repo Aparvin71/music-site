@@ -43,6 +43,7 @@
       <ul id="siteNavLinks" class="nav-links">
         <li><a href="./index.html" class="active" aria-current="page">Home</a></li>
         <li><a href="./about.html">About</a></li>
+        <li><a href="./mission.html">Mission</a></li>
         <li><a href="./contact.html">Request</a></li>
       </ul>
     </nav>
@@ -157,6 +158,49 @@
             Browse by album, search by theme, filter by tag, and listen through curated collections.
           </p>
         </div>
+      </section>
+
+      <section class="mission-grid" aria-labelledby="missionHeading">
+        <article class="mission-card page-card">
+          <p class="eyebrow">Mission</p>
+          <h2 id="missionHeading">The Great Commission</h2>
+          <p class="mission-statement">
+            My mission is to use music, lyrics, and creative tools to point people toward Jesus Christ,
+            encourage believers in truth, and support the call to go into all the world and make disciples.
+          </p>
+          <p>
+            I want this site to be more than a music library. I want it to be a place that stirs worship,
+            renews the mind, and helps keep our hearts focused on what is true, pure, and life-giving.
+          </p>
+          <div class="scripture-pill-row" aria-label="Mission scriptures">
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Matthew%2028%3A19-20" target="_blank" rel="noopener noreferrer">Matthew 28:19–20</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Mark%2016%3A15" target="_blank" rel="noopener noreferrer">Mark 16:15</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Romans%2010%3A14-15" target="_blank" rel="noopener noreferrer">Romans 10:14–15</a>
+          </div>
+          <a class="mission-section-link" href="./mission.html">Read the full mission →</a>
+        </article>
+
+        <article class="mind-card page-card" aria-labelledby="mindHeading">
+          <p class="eyebrow">Fill Your Mind</p>
+          <h2 id="mindHeading">Trash In, Trash Out</h2>
+          <p>
+            What we allow into our minds and hearts eventually shapes our words, choices, attitudes, and desires.
+            If we continually take in what is empty, corrupt, bitter, or unclean, that fruit will eventually show.
+            But when we fill our minds with truth, scripture, worship, gratitude, and things that honor God,
+            those things begin to come back out of us in daily life.
+          </p>
+          <ul class="mind-list">
+            <li><strong>Guard what enters.</strong> Be thoughtful about what you watch, hear, repeat, and dwell on.</li>
+            <li><strong>Fill up on what is good.</strong> Choose truth, worship, scripture, encouragement, and wisdom.</li>
+            <li><strong>Let the overflow speak.</strong> A heart filled with good treasure produces good fruit.</li>
+          </ul>
+          <div class="scripture-pill-row" aria-label="Mindset scriptures">
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Philippians%204%3A8" target="_blank" rel="noopener noreferrer">Philippians 4:8</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Luke%206%3A45" target="_blank" rel="noopener noreferrer">Luke 6:45</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Proverbs%204%3A23" target="_blank" rel="noopener noreferrer">Proverbs 4:23</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Romans%2012%3A2" target="_blank" rel="noopener noreferrer">Romans 12:2</a>
+          </div>
+        </article>
       </section>
 
       <section class="about-panel" aria-labelledby="aboutMusicHeading">
@@ -430,6 +474,7 @@
   <div id="playerSheet" class="player-sheet hidden" aria-hidden="true">
     <div id="playerSheetBackdrop" class="player-sheet-backdrop"></div>
     <div class="player-sheet-content" role="dialog" aria-modal="true" aria-labelledby="playerSheetTitle">
+      <div class="player-sheet-drag-handle" aria-hidden="true"></div>
       <div class="player-sheet-header">
         <button id="closePlayerSheetBtn" class="control-btn" type="button" aria-label="Close full player">⌄</button>
         <div class="player-sheet-heading">
@@ -483,6 +528,7 @@
           <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
           <div id="playerSheetScripturePanel" class="player-tab-panel" data-player-panel="scripture"></div>
           <div id="playerSheetQueuePanel" class="player-tab-panel" data-player-panel="queue"></div>
+          <p class="player-sheet-swipe-hint">Swipe cover left or right for next and previous. Swipe the tab area to switch panels. Swipe down to close.</p>
         </section>
       </div>
     </div>
@@ -490,7 +536,7 @@
 
 
   <footer class="site-footer">
-    <p>Aineo Music</p>
+    <p>© 2026 Aineo Music · <a href="./mission.html">Mission</a></p>
   </footer>
 </body>
 </html>

@@ -144,8 +144,9 @@
         <p class="church-eyebrow">Faith Community</p>
         <h3 class="church-title">Our Church Home</h3>
 
-        <div class="church-logo">
-          <img src="images/church-logo.png" alt="Church Logo" />
+        <div class="church-logo" aria-label="Church home">
+          <img src="images/church-logo.png" alt="Church Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="church-logo-fallback">Church Home</div>
         </div>
 
         <p class="church-description">
