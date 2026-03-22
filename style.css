@@ -3166,3 +3166,99 @@ body.orientation-guard-active {
 .modal-open { overflow: hidden; }
 @media (max-width: 760px) { .install-banner { inset: auto 12px 90px 12px; flex-direction: column; align-items: stretch; } .artist-hero-layout { grid-template-columns: 1fr; } .catalog-list-row { flex-direction: column; align-items: stretch; } }
 
+
+
+/* v31.1 polish fixes */
+.install-guide-btn {
+  color: #f3f7ff;
+  border: 1px solid rgba(144, 180, 232, 0.22);
+}
+
+.player-sheet-meta {
+  padding-top: 8px;
+}
+
+.player-sheet-meta p {
+  line-height: 1.45;
+}
+
+@media (min-width: 900px) {
+  .player-sheet-cover {
+    width: min(100%, 332px);
+  }
+
+  .player-sheet-meta {
+    padding-top: 10px;
+  }
+
+  .player-sheet-track-artist,
+  #playerSheetTrackArtist {
+    padding-top: 4px;
+  }
+}
+
+@media (max-width: 640px) {
+  .player-sheet-now {
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 168px) !important;
+  }
+
+  .player-sheet-meta {
+    padding-top: 2px !important;
+  }
+
+  .player-sheet-meta h3 {
+    margin-bottom: 6px !important;
+    font-size: clamp(1.2rem, 5.6vw, 1.55rem) !important;
+  }
+
+  .player-sheet-meta p {
+    margin-bottom: 4px !important;
+    line-height: 1.38 !important;
+  }
+
+  #playerSheetTrackScripture {
+    max-height: 52px;
+    overflow: auto;
+    padding-right: 2px;
+  }
+
+  .player-sheet-progress {
+    margin-top: -2px !important;
+  }
+
+  .player-sheet-transport .control-btn {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .player-sheet-actions .action-btn {
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+  }
+
+  .player-sheet-swipe-hint {
+    display: none !important;
+  }
+
+  .player-sheet-tabs {
+    margin-bottom: 8px !important;
+  }
+
+  .player-tab-panel {
+    padding-bottom: 72px !important;
+  }
+
+  .player-sheet .synced-lyrics {
+    gap: 6px;
+  }
+
+  .player-sheet .lyric-line {
+    padding: 10px 12px;
+    line-height: 1.55;
+  }
+}
