@@ -13,6 +13,7 @@ let downloadedTracks = [];
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
+let syncedLyricsRequestToken = 0;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -230,6 +231,8 @@ function normalizeTrack(track, index) {
     src: track.src || track.url || track.audio || "",
     cover: track.cover || track.artwork || track.image || "",
     lyrics: track.lyrics || "",
+    lyrics_file: track.lyrics_file || track.lyricsFile || "",
+    syncedLyrics: [],
     tags,
     playlists,
     scripture_references: scriptureRefs,
@@ -274,6 +277,119 @@ function renderScriptureLinks(refs, options = {}) {
     const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
     return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
   }).join("");
+}
+
+function parseLrcText(lrcText) {
+  return String(lrcText || "")
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map(line => {
+      const match = line.match(/^\[(\d{1,2}):(\d{2}(?:\.\d{1,3})?)\](.*)$/);
+      if (!match) return null;
+      const minutes = Number(match[1]);
+      const seconds = Number(match[2]);
+      const text = match[3].trim();
+      return Number.isFinite(minutes) && Number.isFinite(seconds) && text
+        ? { time: minutes * 60 + seconds, text }
+        : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.time - b.time);
+}
+
+function findActiveLyricIndex(lines, currentTime) {
+  if (!Array.isArray(lines) || !lines.length) return -1;
+
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    if (currentTime >= lines[i].time) return i;
+  }
+
+  return -1;
+}
+
+function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
+  if (!track) {
+    return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
+  }
+
+  if (Array.isArray(track.syncedLyrics) && track.syncedLyrics.length) {
+    return `
+      <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
+        ${track.syncedLyrics.map((line, index) => `
+          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  if (track.lyrics) {
+    return `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`;
+  }
+
+  return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
+}
+
+function renderLyricsInto(container, track, emptyMessage) {
+  if (!container) return;
+
+  container.dataset.trackId = track?.id || "";
+  container.innerHTML = buildLyricsMarkup(track, emptyMessage);
+  updateSyncedLyricsProgress();
+
+  if (!track?.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) return;
+
+  const requestToken = ++syncedLyricsRequestToken;
+  track._syncedLyricsLoading = true;
+
+  fetch(`${track.lyrics_file}?v=1`, { cache: "no-store" })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    })
+    .then(text => {
+      track.syncedLyrics = parseLrcText(text);
+      track._syncedLyricsLoaded = true;
+    })
+    .catch(error => {
+      console.warn(`Could not load synced lyrics for ${track.title}:`, error);
+      track.syncedLyrics = [];
+      track._syncedLyricsLoaded = true;
+    })
+    .finally(() => {
+      track._syncedLyricsLoading = false;
+      if (container.dataset.trackId === track.id && requestToken <= syncedLyricsRequestToken) {
+        container.innerHTML = buildLyricsMarkup(track, emptyMessage);
+        updateSyncedLyricsProgress();
+      }
+    });
+}
+
+function updateSyncedLyricsProgress() {
+  const track = getCurrentTrack();
+  const currentTime = els.audioPlayer?.currentTime || 0;
+  const activeIndex = findActiveLyricIndex(track?.syncedLyrics || [], currentTime);
+
+  document.querySelectorAll('.synced-lyrics').forEach(container => {
+    const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
+    const lineEls = container.querySelectorAll('.lyric-line');
+
+    lineEls.forEach((lineEl, index) => {
+      lineEl.classList.toggle('active', isCurrentTrack && index === activeIndex);
+    });
+
+    if (!isCurrentTrack || activeIndex < 0) return;
+    if (container.dataset.activeIndex === String(activeIndex)) return;
+
+    container.dataset.activeIndex = String(activeIndex);
+
+    const activeLine = lineEls[activeIndex];
+    if (!activeLine) return;
+
+    const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
+    if (panel && panel.offsetParent !== null) {
+      activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
 }
 
 /* =========================
@@ -378,14 +494,32 @@ function bindUI() {
   });
 
   if (els.audioPlayer) {
-    els.audioPlayer.addEventListener("timeupdate", updateProgressUI);
-    els.audioPlayer.addEventListener("loadedmetadata", updateProgressUI);
+    els.audioPlayer.addEventListener("timeupdate", () => {
+      updateProgressUI();
+      updateSyncedLyricsProgress();
+    });
+    els.audioPlayer.addEventListener("loadedmetadata", () => {
+      updateProgressUI();
+      updateSyncedLyricsProgress();
+    });
     els.audioPlayer.addEventListener("play", updatePlayButton);
     els.audioPlayer.addEventListener("pause", updatePlayButton);
     els.audioPlayer.addEventListener("ended", playNextTrack);
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
+
+  document.addEventListener("click", event => {
+    const lyricButton = event.target.closest("[data-lyric-time]");
+    if (!lyricButton || !els.audioPlayer) return;
+
+    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
+    if (!Number.isFinite(targetTime)) return;
+
+    els.audioPlayer.currentTime = targetTime;
+    updateProgressUI();
+    updateSyncedLyricsProgress();
+  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -1286,6 +1420,8 @@ function updateProgressUI() {
   if (els.playerSheetSeekBar) {
     els.playerSheetSeekBar.value = duration ? String((current / duration) * 100) : "0";
   }
+
+  updateSyncedLyricsProgress();
 }
 
 function syncCurrentTrackIndex() {
@@ -1302,17 +1438,7 @@ function syncCurrentTrackIndex() {
 
 function updateLyricsPanel(track) {
   if (!els.lyricsContent) return;
-
-  if (!track?.lyrics) {
-    els.lyricsContent.innerHTML = `<p class="empty-message">Select a song to view lyrics.</p>`;
-    return;
-  }
-
-  els.lyricsContent.innerHTML = `
-    <div class="lyrics-block">
-      ${nl2br(escapeHtml(track.lyrics))}
-    </div>
-  `;
+  renderLyricsInto(els.lyricsContent, track, "Select a song to view lyrics.");
 }
 
 function updateScripturePanel(track) {
@@ -1341,9 +1467,7 @@ function openLyricsModalForTrack(track, triggerEl = null) {
 
   lastFocusedElement = triggerEl || document.activeElement || null;
   els.lyricsModalTitle.textContent = `Lyrics — ${track.title}`;
-  els.lyricsModalBody.innerHTML = track.lyrics
-    ? `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`
-    : `<p class="empty-message">No lyrics available.</p>`;
+  renderLyricsInto(els.lyricsModalBody, track, "No lyrics available.");
 
   els.lyricsModal.classList.remove("hidden");
   els.lyricsModal.setAttribute("aria-hidden", "false");
@@ -2204,9 +2328,7 @@ function updatePlayerSheet() {
   }
 
   if (els.playerSheetLyricsPanel) {
-    els.playerSheetLyricsPanel.innerHTML = track?.lyrics
-      ? `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`
-      : `<p class="empty-message">No lyrics available.</p>`;
+    renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
   }
 
   if (els.playerSheetScripturePanel) {

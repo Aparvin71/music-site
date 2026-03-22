@@ -1,0 +1,492 @@
+[
+  {
+    "title": "Holy Beyond Measure",
+    "mp3": "Holy Beyond Measure.mp3",
+    "lyrics_file": "lyrics/holy-beyond-measure.lrc",
+    "lines": 60,
+    "duration_seconds": 284.78
+  },
+  {
+    "title": "You See Me",
+    "mp3": "You See Me.mp3",
+    "lyrics_file": "lyrics/you-see-me.lrc",
+    "lines": 38,
+    "duration_seconds": 214.99
+  },
+  {
+    "title": "Genesis",
+    "mp3": "Genesis.mp3",
+    "lyrics_file": "lyrics/genesis.lrc",
+    "lines": 58,
+    "duration_seconds": 257.54
+  },
+  {
+    "title": "Worth It All",
+    "mp3": "Worth It All.mp3",
+    "lyrics_file": "lyrics/worth-it-all.lrc",
+    "lines": 57,
+    "duration_seconds": 231.31
+  },
+  {
+    "title": "Moved with Compassion",
+    "mp3": "Moved with Compassion.mp3",
+    "lyrics_file": "lyrics/moved-with-compassion.lrc",
+    "lines": 45,
+    "duration_seconds": 211.82
+  },
+  {
+    "title": "Praise the Lord, O My Soul",
+    "mp3": "Praise the Lord, O My Soul.mp3",
+    "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc",
+    "lines": 64,
+    "duration_seconds": 202.1
+  },
+  {
+    "title": "Every Breath, Your Name",
+    "mp3": "EVERY BREATH, YOUR NAME (1).mp3",
+    "lyrics_file": "lyrics/every-breath-your-name.lrc",
+    "lines": 56,
+    "duration_seconds": 208.03
+  },
+  {
+    "title": "You Spoke",
+    "mp3": "You Spoke.mp3",
+    "lyrics_file": "lyrics/you-spoke.lrc",
+    "lines": 31,
+    "duration_seconds": 224.88
+  },
+  {
+    "title": "Alivia - Play with Me",
+    "mp3": "Alivia - Play with Me.mp3",
+    "lyrics_file": "lyrics/alivia-play-with-me.lrc",
+    "lines": 69,
+    "duration_seconds": 277.34
+  },
+  {
+    "title": "At Work",
+    "mp3": "At Work.mp3",
+    "lyrics_file": "lyrics/at-work.lrc",
+    "lines": 43,
+    "duration_seconds": 164.88
+  },
+  {
+    "title": "Watching you Grow",
+    "mp3": "Watching you Grow.mp3",
+    "lyrics_file": "lyrics/watching-you-grow.lrc",
+    "lines": 46,
+    "duration_seconds": 193.63
+  },
+  {
+    "title": "Please Stay With Me (Child)",
+    "mp3": "Please Stay With Me (Child).mp3",
+    "lyrics_file": "lyrics/please-stay-with-me-child.lrc",
+    "lines": 56,
+    "duration_seconds": 238.32
+  },
+  {
+    "title": "Please Stay With Me (Mom)",
+    "mp3": "Please Stay With Me (Mom).mp3",
+    "lyrics_file": "lyrics/please-stay-with-me-mom.lrc",
+    "lines": 56,
+    "duration_seconds": 234.98
+  },
+  {
+    "title": "Step Out and Go",
+    "mp3": "Step Out and Go.mp3",
+    "lyrics_file": "lyrics/step-out-and-go.lrc",
+    "lines": 57,
+    "duration_seconds": 204.98
+  },
+  {
+    "title": "Wide Awake",
+    "mp3": "Wide Awake.mp3",
+    "lyrics_file": "lyrics/wide-awake.lrc",
+    "lines": 77,
+    "duration_seconds": 124.99
+  },
+  {
+    "title": "Spiritual Gym Anthem",
+    "mp3": "Spiritual Gym Anthem.mp3",
+    "lyrics_file": "lyrics/spiritual-gym-anthem.lrc",
+    "lines": 63,
+    "duration_seconds": 242.11
+  },
+  {
+    "title": "Shape of Sacrifice",
+    "mp3": "Shape of Sacrifice.mp3",
+    "lyrics_file": "lyrics/shape-of-sacrifice.lrc",
+    "lines": 56,
+    "duration_seconds": 251.9
+  },
+  {
+    "title": "Remove the Log",
+    "mp3": "Remove the Log.mp3",
+    "lyrics_file": "lyrics/remove-the-log.lrc",
+    "lines": 40,
+    "duration_seconds": 206.16
+  },
+  {
+    "title": "Same Mouth",
+    "mp3": "Same Mouth.mp3",
+    "lyrics_file": "lyrics/same-mouth.lrc",
+    "lines": 64,
+    "duration_seconds": 229.15
+  },
+  {
+    "title": "Upon the Holy Mount",
+    "mp3": "Upon the Holy Mount.mp3",
+    "lyrics_file": "lyrics/upon-the-holy-mount.lrc",
+    "lines": 76,
+    "duration_seconds": 243.62
+  },
+  {
+    "title": "Turn That Other Cheek",
+    "mp3": "Turn That Other Cheek.mp3",
+    "lyrics_file": "lyrics/turn-that-other-cheek.lrc",
+    "lines": 72,
+    "duration_seconds": 234.6
+  },
+  {
+    "title": "Lead Me Home, Good Shepherd",
+    "mp3": "Lead Me Home, Good Shepherd.mp3",
+    "lyrics_file": "lyrics/lead-me-home-good-shepherd.lrc",
+    "lines": 52,
+    "duration_seconds": 197.64
+  },
+  {
+    "title": "Make Me a Faithful Tree",
+    "mp3": "Make Me a Faithful Tree (1).mp3",
+    "lyrics_file": "lyrics/make-me-a-faithful-tree.lrc",
+    "lines": 49,
+    "duration_seconds": 189.91
+  },
+  {
+    "title": "Make a Good Tree in Me",
+    "mp3": "Make a Good Tree in Me.mp3",
+    "lyrics_file": "lyrics/make-a-good-tree-in-me.lrc",
+    "lines": 57,
+    "duration_seconds": 199.68
+  },
+  {
+    "title": "Same Sky",
+    "mp3": "Same Sky.mp3",
+    "lyrics_file": "lyrics/same-sky.lrc",
+    "lines": 36,
+    "duration_seconds": 208.7
+  },
+  {
+    "title": "Chop it like it’s hot!",
+    "mp3": "Chop it like it’s hot!.mp3",
+    "lyrics_file": "lyrics/chop-it-like-it-s-hot.lrc",
+    "lines": 59,
+    "duration_seconds": 187.8
+  },
+  {
+    "title": "Lake House Weekend",
+    "mp3": "Lake House Weekend.mp3",
+    "lyrics_file": "lyrics/lake-house-weekend.lrc",
+    "lines": 59,
+    "duration_seconds": 169.7
+  },
+  {
+    "title": "Deck 9 Kind of Love",
+    "mp3": "Deck 9 Kind of Love.mp3",
+    "lyrics_file": "lyrics/deck-9-kind-of-love.lrc",
+    "lines": 52,
+    "duration_seconds": 176.3
+  },
+  {
+    "title": "Who's Driving this Bus",
+    "mp3": "Who's Driving this Bus.mp3",
+    "lyrics_file": "lyrics/who-s-driving-this-bus.lrc",
+    "lines": 49,
+    "duration_seconds": 172.8
+  },
+  {
+    "title": "Card Drop",
+    "mp3": "Card Drop.mp3",
+    "lyrics_file": "lyrics/card-drop.lrc",
+    "lines": 62,
+    "duration_seconds": 152.83
+  },
+  {
+    "title": "Lake house! (Chant)",
+    "mp3": "Lake house! (Chant).mp3",
+    "lyrics_file": "lyrics/lake-house-chant.lrc",
+    "lines": 58,
+    "duration_seconds": 144.24
+  },
+  {
+    "title": "Don't Drop the Bar Bro",
+    "mp3": "Don't Drop the Bar Bro.mp3",
+    "lyrics_file": "lyrics/don-t-drop-the-bar-bro.lrc",
+    "lines": 96,
+    "duration_seconds": 212.3
+  },
+  {
+    "title": "Iron Don’t Lie",
+    "mp3": "Iron Don’t Lie.mp3",
+    "lyrics_file": "lyrics/iron-don-t-lie.lrc",
+    "lines": 113,
+    "duration_seconds": 196.58
+  },
+  {
+    "title": "Forever and Ever (Gritty)",
+    "mp3": "Forever and Ever (Gritty).mp3",
+    "lyrics_file": "lyrics/forever-and-ever-gritty.lrc",
+    "lines": 32,
+    "duration_seconds": 188.47
+  },
+  {
+    "title": "It's You",
+    "mp3": "It's You.mp3",
+    "lyrics_file": "lyrics/it-s-you.lrc",
+    "lines": 43,
+    "duration_seconds": 152.83
+  },
+  {
+    "title": "Mi Luna",
+    "mp3": "Mi Luna.mp3",
+    "lyrics_file": "lyrics/mi-luna.lrc",
+    "lines": 48,
+    "duration_seconds": 201.62
+  },
+  {
+    "title": "Rearview Memories",
+    "mp3": "Rearview Memories.mp3",
+    "lyrics_file": "lyrics/rearview-memories.lrc",
+    "lines": 41,
+    "duration_seconds": 189.91
+  },
+  {
+    "title": "Haunting Blue",
+    "mp3": "Haunting Blue.mp3",
+    "lyrics_file": "lyrics/haunting-blue.lrc",
+    "lines": 43,
+    "duration_seconds": 199.92
+  },
+  {
+    "title": "By Your Hands",
+    "mp3": "By Your Hands.mp3",
+    "lyrics_file": "lyrics/by-your-hands.lrc",
+    "lines": 55,
+    "duration_seconds": 241.27
+  },
+  {
+    "title": "Theres Always Enough",
+    "mp3": "Theres Always Enough.mp3",
+    "lyrics_file": "lyrics/theres-always-enough.lrc",
+    "lines": 39,
+    "duration_seconds": 237.24
+  },
+  {
+    "title": "Things I Carry",
+    "mp3": "Things I Carry.mp3",
+    "lyrics_file": "lyrics/things-i-carry.lrc",
+    "lines": 45,
+    "duration_seconds": 176.95
+  },
+  {
+    "title": "My Son",
+    "mp3": "My Son.mp3",
+    "lyrics_file": "lyrics/my-son.lrc",
+    "lines": 64,
+    "duration_seconds": 239.54
+  },
+  {
+    "title": "Higher Aim",
+    "mp3": "Higher Aim.mp3",
+    "lyrics_file": "lyrics/higher-aim.lrc",
+    "lines": 52,
+    "duration_seconds": 207.96
+  },
+  {
+    "title": "Keeper of the Pines",
+    "mp3": "Keeper of the Pines.mp3",
+    "lyrics_file": "lyrics/keeper-of-the-pines.lrc",
+    "lines": 46,
+    "duration_seconds": 199.99
+  },
+  {
+    "title": "Remington the Pump Truck Guy",
+    "mp3": "Remington the Pump Truck Guy.mp3",
+    "lyrics_file": "lyrics/remington-the-pump-truck-guy.lrc",
+    "lines": 64,
+    "duration_seconds": 199.99
+  },
+  {
+    "title": "The Table",
+    "mp3": "The Table.mp3",
+    "lyrics_file": "lyrics/the-table.lrc",
+    "lines": 59,
+    "duration_seconds": 242.23
+  },
+  {
+    "title": "Mother of Two",
+    "mp3": "Mother of Two.mp3",
+    "lyrics_file": "lyrics/mother-of-two.lrc",
+    "lines": 48,
+    "duration_seconds": 256.56
+  },
+  {
+    "title": "Little Brother",
+    "mp3": "Little Brother.mp3",
+    "lyrics_file": "lyrics/little-brother.lrc",
+    "lines": 52,
+    "duration_seconds": 291.96
+  },
+  {
+    "title": "A Man Like Him",
+    "mp3": "A Man Like Him.mp3",
+    "lyrics_file": "lyrics/a-man-like-him.lrc",
+    "lines": 50,
+    "duration_seconds": 199.99
+  },
+  {
+    "title": "Before Anyone Else",
+    "mp3": "Before Anyone Else.mp3",
+    "lyrics_file": "lyrics/before-anyone-else.lrc",
+    "lines": 44,
+    "duration_seconds": 184.82
+  },
+  {
+    "title": "Foot of the Cross",
+    "mp3": "Foot of the Cross.mp3",
+    "lyrics_file": "lyrics/foot-of-the-cross.lrc",
+    "lines": 50,
+    "duration_seconds": 236.52
+  },
+  {
+    "title": "On My Body",
+    "mp3": "On My Body.mp3",
+    "lyrics_file": "lyrics/on-my-body.lrc",
+    "lines": 58,
+    "duration_seconds": 208.1
+  },
+  {
+    "title": "Where the Worm Does not Die",
+    "mp3": "Where the Worm Does not Die.mp3",
+    "lyrics_file": "lyrics/where-the-worm-does-not-die.lrc",
+    "lines": 52,
+    "duration_seconds": 259.68
+  },
+  {
+    "title": "Remember Me",
+    "mp3": "Remember Me.mp3",
+    "lyrics_file": "lyrics/remember-me.lrc",
+    "lines": 38,
+    "duration_seconds": 227.23
+  },
+  {
+    "title": "Don't Remember Me",
+    "mp3": "Don't Remember Me.mp3",
+    "lyrics_file": "lyrics/don-t-remember-me.lrc",
+    "lines": 81,
+    "duration_seconds": 270.0
+  },
+  {
+    "title": "Changed",
+    "mp3": "Changed.mp3",
+    "lyrics_file": "lyrics/changed.lrc",
+    "lines": 51,
+    "duration_seconds": 187.39
+  },
+  {
+    "title": "Stones Don’t Become Bread",
+    "mp3": "Stones Don’t Become Bread.mp3",
+    "lyrics_file": "lyrics/stones-don-t-become-bread.lrc",
+    "lines": 42,
+    "duration_seconds": 207.55
+  },
+  {
+    "title": "Agape Love",
+    "mp3": "Agape Love.mp3",
+    "lyrics_file": "lyrics/agape-love.lrc",
+    "lines": 57,
+    "duration_seconds": 199.27
+  },
+  {
+    "title": "Out of Ashes",
+    "mp3": "Out of Ashes.mp3",
+    "lyrics_file": "lyrics/out-of-ashes.lrc",
+    "lines": 50,
+    "duration_seconds": 228.14
+  },
+  {
+    "title": "Finally Let You In",
+    "mp3": "Finally Let You In.mp3",
+    "lyrics_file": "lyrics/finally-let-you-in.lrc",
+    "lines": 58,
+    "duration_seconds": 255.0
+  },
+  {
+    "title": "Sugar and Grace",
+    "mp3": "Sugar and Grace.mp3",
+    "lyrics_file": "lyrics/sugar-and-grace.lrc",
+    "lines": 94,
+    "duration_seconds": 294.98
+  },
+  {
+    "title": "Wait Hold Up",
+    "mp3": "Wait Hold Up.mp3",
+    "lyrics_file": "lyrics/wait-hold-up.lrc",
+    "lines": 55,
+    "duration_seconds": 164.83
+  },
+  {
+    "title": "You're Done!",
+    "mp3": "You're Done!.mp3",
+    "lyrics_file": "lyrics/you-re-done.lrc",
+    "lines": 50,
+    "duration_seconds": 179.06
+  },
+  {
+    "title": "Just Strollin Through",
+    "mp3": "Just Strollin Through.mp3",
+    "lyrics_file": "lyrics/just-strollin-through.lrc",
+    "lines": 48,
+    "duration_seconds": 189.84
+  },
+  {
+    "title": "Let it All Hang Out",
+    "mp3": "Let it All Hang Out.mp3",
+    "lyrics_file": "lyrics/let-it-all-hang-out.lrc",
+    "lines": 50,
+    "duration_seconds": 212.3
+  },
+  {
+    "title": "That's Just How She Is",
+    "mp3": "That's Just How She Is.mp3",
+    "lyrics_file": "lyrics/that-s-just-how-she-is.lrc",
+    "lines": 50,
+    "duration_seconds": 192.19
+  },
+  {
+    "title": "Hands of a Man",
+    "mp3": "Hands of a Man.mp3",
+    "lyrics_file": "lyrics/hands-of-a-man.lrc",
+    "lines": 30,
+    "duration_seconds": 202.15
+  },
+  {
+    "title": "Bent My Mind",
+    "mp3": "Bent My Mind.mp3",
+    "lyrics_file": "lyrics/bent-my-mind.lrc",
+    "lines": 40,
+    "duration_seconds": 259.94
+  },
+  {
+    "title": "Breathe",
+    "mp3": "Breathe.mp3",
+    "lyrics_file": "lyrics/breathe.lrc",
+    "lines": 46,
+    "duration_seconds": 217.8
+  },
+  {
+    "title": "I'm Still Here",
+    "mp3": "I'm Still Here.mp3",
+    "lyrics_file": "lyrics/i-m-still-here.lrc",
+    "lines": 40,
+    "duration_seconds": 197.11
+  }
+]
