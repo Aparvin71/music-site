@@ -3677,3 +3677,109 @@ body.orientation-guard-active {
     text-align: center;
   }
 }
+
+
+/* ===== v32.1 stability fixes ===== */
+#closePlayerSheetBtn {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.player-sheet-header {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  background: linear-gradient(180deg, rgba(12, 17, 24, 0.98), rgba(12, 17, 24, 0.94));
+}
+
+.player-sheet-panel {
+  overflow: hidden;
+}
+
+.player-sheet-swipe-hint {
+  margin-top: 10px;
+  font-size: 0.78rem;
+}
+
+.synced-lyrics .lyric-line {
+  cursor: default;
+}
+
+@media (min-width: 901px) {
+  .player-sheet-content {
+    width: min(1080px, calc(100% - 36px));
+    max-height: calc(100vh - 32px);
+    margin: 16px auto;
+  }
+
+  .player-sheet-body {
+    grid-template-columns: minmax(280px, 340px) 1fr;
+  }
+
+  .player-sheet-now {
+    padding: 16px 18px 22px;
+    gap: 12px;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 240px);
+  }
+
+  .player-sheet-meta h3 {
+    font-size: clamp(1.2rem, 2vw, 1.65rem);
+  }
+
+  .player-tab-panel {
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .player-sheet-content {
+    border-radius: 20px 20px 0 0 !important;
+  }
+
+  .player-sheet-header {
+    padding: 10px 14px 12px !important;
+  }
+
+  .player-sheet-now {
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 172px) !important;
+  }
+
+  .player-sheet-meta h3 {
+    font-size: 1.1rem !important;
+  }
+
+  .player-sheet-meta p {
+    font-size: 0.9rem !important;
+    margin-bottom: 4px !important;
+  }
+
+  .player-sheet-utility-bar {
+    gap: 8px !important;
+  }
+
+  .player-sheet-panel {
+    padding: 10px 14px 16px !important;
+  }
+
+  .player-tab-panel {
+    padding-bottom: 76px !important;
+  }
+}
+
+.visualizer-disabled .visualizer-wrap {
+  display: none !important;
+}

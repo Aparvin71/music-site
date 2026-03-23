@@ -27,6 +27,9 @@ let visualizerSource = null;
 let visualizerAnimationFrame = null;
 let crossfadeTriggered = false;
 let isTransitioningTrack = false;
+let fadeOutIntervalId = null;
+let fadeInIntervalId = null;
+let visualizerDisabled = false;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -343,7 +346,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
+          <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
         `).join("")}
       </div>
     `;
@@ -414,7 +417,8 @@ function updateSyncedLyricsProgress() {
 
     const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
     if (playerPreferences.autoScrollLyrics && panel && panel.offsetParent !== null) {
-      activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const targetTop = Math.max(0, activeLine.offsetTop - (panel.clientHeight * 0.35));
+      panel.scrollTo({ top: targetTop, behavior: 'smooth' });
     }
   });
 }
@@ -549,17 +553,6 @@ function bindUI() {
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
 
-  document.addEventListener("click", event => {
-    const lyricButton = event.target.closest("[data-lyric-time]");
-    if (!lyricButton || !els.audioPlayer) return;
-
-    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
-    if (!Number.isFinite(targetTime)) return;
-
-    els.audioPlayer.currentTime = targetTime;
-    updateProgressUI();
-    updateSyncedLyricsProgress();
-  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -761,7 +754,7 @@ function setPlayerVolume(value, options = {}) {
   if (!Number.isFinite(volume)) return;
 
   playerPreferences.volume = volume;
-  if (els.audioPlayer && !isTransitioningTrack) {
+  if (els.audioPlayer) {
     els.audioPlayer.volume = volume;
   }
   if (els.volumeSlider) els.volumeSlider.value = String(volume);
@@ -878,6 +871,7 @@ function getUpcomingTrack() {
 
 function handleTrackEnded() {
   if (isTransitioningTrack) return;
+  clearCrossfadeTimers();
   crossfadeTriggered = false;
   const nextTrack = getUpcomingTrack();
   if (nextTrack) {
@@ -893,42 +887,79 @@ function maybeTriggerCrossfade() {
   const currentTime = els.audioPlayer.currentTime;
   if (!isFinite(duration) || !duration || duration <= 6) return;
   const remaining = duration - currentTime;
-  if (remaining > 2.25) return;
+  if (remaining > 3) return;
   const nextTrack = getUpcomingTrack();
   if (!nextTrack) return;
   crossfadeTriggered = true;
   transitionToTrack(nextTrack);
 }
 
+function clearCrossfadeTimers() {
+  if (fadeOutIntervalId) {
+    window.clearInterval(fadeOutIntervalId);
+    fadeOutIntervalId = null;
+  }
+  if (fadeInIntervalId) {
+    window.clearInterval(fadeInIntervalId);
+    fadeInIntervalId = null;
+  }
+}
+
 function transitionToTrack(track) {
   if (!track || !els.audioPlayer || isTransitioningTrack) return;
-  const targetVolume = playerPreferences.volume;
-  isTransitioningTrack = true;
-  const startVolume = els.audioPlayer.volume;
-  const fadeOutStep = Math.max(startVolume / 8, 0.01);
 
-  const fadeOut = window.setInterval(() => {
-    const nextVolume = Math.max(0, els.audioPlayer.volume - fadeOutStep);
-    els.audioPlayer.volume = nextVolume;
-    if (nextVolume > 0.02) return;
-    window.clearInterval(fadeOut);
+  clearCrossfadeTimers();
+  isTransitioningTrack = true;
+  const fadeStepMs = 60;
+  const fadeOutDuration = 360;
+  const fadeInDuration = 420;
+  const fadeOutSteps = Math.max(1, Math.round(fadeOutDuration / fadeStepMs));
+  const fadeInSteps = Math.max(1, Math.round(fadeInDuration / fadeStepMs));
+  const getTargetVolume = () => Math.min(1, Math.max(0, Number(playerPreferences.volume || 1)));
+  let remainingOutSteps = fadeOutSteps;
+
+  fadeOutIntervalId = window.setInterval(() => {
+    remainingOutSteps -= 1;
+    const ratio = Math.max(0, remainingOutSteps / fadeOutSteps);
+    els.audioPlayer.volume = getTargetVolume() * ratio;
+
+    if (remainingOutSteps > 0) return;
+
+    clearCrossfadeTimers();
     playTrack(track, { skipAutoPlay: false, preserveVolume: true, skipResetTransition: true });
     els.audioPlayer.volume = 0;
-    const fadeInStep = Math.max(targetVolume / 10, 0.01);
-    const fadeIn = window.setInterval(() => {
-      const nextInVolume = Math.min(targetVolume, els.audioPlayer.volume + fadeInStep);
-      els.audioPlayer.volume = nextInVolume;
-      if (nextInVolume < targetVolume - 0.01) return;
-      window.clearInterval(fadeIn);
+
+    let currentInStep = 0;
+    fadeInIntervalId = window.setInterval(() => {
+      currentInStep += 1;
+      const ratioIn = Math.min(1, currentInStep / fadeInSteps);
+      els.audioPlayer.volume = getTargetVolume() * ratioIn;
+
+      if (currentInStep < fadeInSteps) return;
+
+      clearCrossfadeTimers();
       isTransitioningTrack = false;
       crossfadeTriggered = false;
-      setPlayerVolume(targetVolume, { persist: false });
-    }, 60);
-  }, 60);
+      setPlayerVolume(getTargetVolume(), { persist: false });
+    }, fadeStepMs);
+  }, fadeStepMs);
+}
+
+function shouldDisableVisualizer() {
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  return isIOS || isAndroid || coarsePointer;
 }
 
 function initVisualizer() {
   if (!els.audioPlayer || !window.AudioContext) return;
+  visualizerDisabled = shouldDisableVisualizer();
+  if (visualizerDisabled) {
+    document.documentElement.classList.add('visualizer-disabled');
+    return;
+  }
   if (visualizerContext) {
     drawVisualizer();
     return;
@@ -1591,6 +1622,10 @@ function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
 function playTrack(track, options = {}) {
   if (!track || !track.src || !els.audioPlayer) return;
 
+  if (!options.skipResetTransition) {
+    clearCrossfadeTimers();
+  }
+
   const queueIndex = currentQueue.findIndex(t => t.id === track.id);
   if (queueIndex >= 0) {
     currentQueueIndex = queueIndex;
@@ -1607,7 +1642,12 @@ function playTrack(track, options = {}) {
     els.audioPlayer.volume = playerPreferences.volume;
   }
   if (!options.skipAutoPlay) {
-    els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
+    els.audioPlayer.play().catch(err => {
+      isTransitioningTrack = false;
+      crossfadeTriggered = false;
+      clearCrossfadeTimers();
+      console.error("Playback failed:", err);
+    });
   }
 
   updateNowPlaying(track);
