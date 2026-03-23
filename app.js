@@ -71,6 +71,7 @@ const els = {
   nowArtist: document.getElementById("nowArtist"),
   nowAlbum: document.getElementById("nowAlbum"),
   nowScripture: document.getElementById("nowScripture"),
+  nowStateBadge: document.getElementById("nowStateBadge"),
 
   prevBtn: document.getElementById("prevBtn"),
   playBtn: document.getElementById("playBtn"),
@@ -160,6 +161,8 @@ const els = {
   playerSheetTrackArtist: document.getElementById("playerSheetTrackArtist"),
   playerSheetTrackAlbum: document.getElementById("playerSheetTrackAlbum"),
   playerSheetTrackScripture: document.getElementById("playerSheetTrackScripture"),
+  playerSheetStateBadge: document.getElementById("playerSheetStateBadge"),
+  playerSheetQueueBadge: document.getElementById("playerSheetQueueBadge"),
   playerSheetCurrentTime: document.getElementById("playerSheetCurrentTime"),
   playerSheetSeekBar: document.getElementById("playerSheetSeekBar"),
   playerSheetDuration: document.getElementById("playerSheetDuration"),
@@ -1586,6 +1589,29 @@ function syncQueuePlaybackUI() {
   });
 }
 
+function updatePlaybackVisualState() {
+  const currentTrack = getCurrentTrack();
+  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+  const hasTrack = Boolean(currentTrack);
+  const statusLabel = !hasTrack ? "Idle" : (isPlaying ? "Playing" : "Paused");
+  const queueCount = Array.isArray(currentQueue) ? currentQueue.length : 0;
+
+  if (els.nowStateBadge) els.nowStateBadge.textContent = statusLabel;
+  if (els.playerSheetStateBadge) els.playerSheetStateBadge.textContent = statusLabel;
+  if (els.playerSheetQueueBadge) els.playerSheetQueueBadge.textContent = `Queue ${queueCount}`;
+
+  document.querySelectorAll('.sticky-player, .player-sheet-content').forEach(node => {
+    node.classList.toggle('is-playing', isPlaying);
+    node.classList.toggle('is-paused', hasTrack && !isPlaying);
+    node.classList.toggle('is-idle', !hasTrack);
+  });
+
+  document.querySelectorAll('.now-cover, .player-sheet-cover').forEach(node => {
+    node.classList.toggle('is-playing', isPlaying);
+    node.classList.toggle('is-paused', hasTrack && !isPlaying);
+  });
+}
+
 function updatePlayButton() {
   if (!els.audioPlayer) return;
   const label = els.audioPlayer.paused ? "▶" : "❚❚";
@@ -1593,6 +1619,7 @@ function updatePlayButton() {
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
   syncFeaturedTrackPlayButtons();
   syncQueuePlaybackUI();
+  updatePlaybackVisualState();
 }
 
 
@@ -1658,6 +1685,7 @@ function queueTrackNext(track) {
   currentQueueIndex = current ? currentQueue.findIndex(item => item.id === current.id) : 0;
   saveQueueState();
   renderQueue();
+  openAndScrollQueueToCurrentTrack();
 }
 
 function moveQueueTrackToTop(index, displayTracks = []) {
@@ -1673,10 +1701,12 @@ function moveQueueTrackToTop(index, displayTracks = []) {
 }
 
 function clearQueue() {
+  if (!currentQueue.length) return;
   currentQueue = [];
   currentQueueIndex = -1;
   saveQueueState();
   renderQueue();
+  flashButtonText(els.queueClearBtn, "Cleared!");
 }
 
 function clearPlayedTracksFromQueue() {
@@ -1688,6 +1718,7 @@ function clearPlayedTracksFromQueue() {
   currentQueueIndex = 0;
   saveQueueState();
   renderQueue();
+  flashButtonText(els.queueClearPlayedBtn, "Cleared!");
 }
 
 function saveQueueAsPlaylist() {
@@ -2337,6 +2368,7 @@ function bindQueueInteractions(container, displayTracks) {
       }
       saveQueueState();
       renderQueue();
+      openAndScrollQueueToCurrentTrack();
     });
   });
 
@@ -2766,6 +2798,7 @@ function updatePlayerSheet() {
   updateOfflineButtons(track);
   updateFavoriteButton();
   updateProgressUI();
+  updatePlaybackVisualState();
   setPlayerSheetTab(playerSheetTab);
 }
 
