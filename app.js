@@ -14,7 +14,6 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
-let autoScrollLyricsEnabled = true;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -22,8 +21,7 @@ const STORAGE_KEYS = {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue",
-  autoScrollLyrics: "aineo_auto_scroll_lyrics"
+  lastQueue: "aineo_last_queue"
 };
 
 const filters = {
@@ -101,8 +99,6 @@ const els = {
   lyricsModalTitle: document.getElementById("lyricsModalTitle"),
   lyricsModalBody: document.getElementById("lyricsModalBody"),
   closeLyricsBtn: document.getElementById("closeLyricsBtn"),
-  autoScrollToggleBtn: document.getElementById("autoScrollToggleBtn"),
-  lyricsModalAutoScrollToggleBtn: document.getElementById("lyricsModalAutoScrollToggleBtn"),
 
   albumModal: document.getElementById("albumModal"),
   albumModalBackdrop: document.getElementById("albumModalBackdrop"),
@@ -163,7 +159,6 @@ const els = {
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
-  playerSheetAutoScrollToggleBtn: document.getElementById("playerSheetAutoScrollToggleBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
@@ -175,38 +170,9 @@ const els = {
 
 document.addEventListener("DOMContentLoaded", init);
 
-function getAutoScrollToggleLabel() {
-  return `Auto-scroll: ${autoScrollLyricsEnabled ? "On" : "Off"}`;
-}
-
-function syncAutoScrollToggleButtons() {
-  [
-    els.autoScrollToggleBtn,
-    els.lyricsModalAutoScrollToggleBtn,
-    els.playerSheetAutoScrollToggleBtn
-  ].forEach(btn => {
-    if (!btn) return;
-    btn.textContent = getAutoScrollToggleLabel();
-    btn.setAttribute("aria-pressed", autoScrollLyricsEnabled ? "true" : "false");
-    btn.classList.toggle("is-off", !autoScrollLyricsEnabled);
-  });
-}
-
-function setAutoScrollLyricsEnabled(enabled) {
-  autoScrollLyricsEnabled = Boolean(enabled);
-  localStorage.setItem(STORAGE_KEYS.autoScrollLyrics, JSON.stringify(autoScrollLyricsEnabled));
-  syncAutoScrollToggleButtons();
-}
-
-function toggleAutoScrollLyrics() {
-  setAutoScrollLyricsEnabled(!autoScrollLyricsEnabled);
-}
-
-
 async function init() {
   loadStoredData();
   bindUI();
-  syncAutoScrollToggleButtons();
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
@@ -350,7 +316,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
+          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
         `).join("")}
       </div>
     `;
@@ -417,7 +383,7 @@ function updateSyncedLyricsProgress() {
     container.dataset.activeIndex = String(activeIndex);
 
     const activeLine = lineEls[activeIndex];
-    if (!activeLine || !autoScrollLyricsEnabled) return;
+    if (!activeLine) return;
 
     const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
     if (panel && panel.offsetParent !== null) {
@@ -435,7 +401,6 @@ function loadStoredData() {
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
-  autoScrollLyricsEnabled = loadJsonFromStorage(STORAGE_KEYS.autoScrollLyrics, true);
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
@@ -543,9 +508,18 @@ function bindUI() {
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
-  on(els.autoScrollToggleBtn, "click", toggleAutoScrollLyrics);
-  on(els.lyricsModalAutoScrollToggleBtn, "click", toggleAutoScrollLyrics);
-  on(els.playerSheetAutoScrollToggleBtn, "click", toggleAutoScrollLyrics);
+
+  document.addEventListener("click", event => {
+    const lyricButton = event.target.closest("[data-lyric-time]");
+    if (!lyricButton || !els.audioPlayer) return;
+
+    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
+    if (!Number.isFinite(targetTime)) return;
+
+    els.audioPlayer.currentTime = targetTime;
+    updateProgressUI();
+    updateSyncedLyricsProgress();
+  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -722,7 +696,7 @@ function setAlbumFilter(albumName) {
   filters.selectedTag = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
-  updateLibraryView();
+  updateLibraryView({ focusFirstTrack: true });
   scrollToTop();
 }
 
@@ -732,7 +706,7 @@ function setPlaylistFilter(playlistName) {
   filters.selectedTag = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
-  updateLibraryView();
+  updateLibraryView({ focusFirstTrack: true });
   scrollToTop();
 }
 
@@ -742,7 +716,7 @@ function setTagFilter(tagName) {
   filters.selectedTag = tagName;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
-  updateLibraryView();
+  updateLibraryView({ focusFirstTrack: true });
   scrollToTop();
 }
 
@@ -751,7 +725,7 @@ function setSearchFilter(term) {
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
-  updateLibraryView();
+  updateLibraryView({ focusFirstTrack: true });
   scrollToTop();
 }
 
@@ -761,7 +735,7 @@ function clearAllFilters() {
   filters.selectedTag = null;
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
-  updateLibraryView();
+  updateLibraryView({ focusFirstTrack: true });
   scrollToTop();
 }
 
@@ -889,7 +863,9 @@ function getCurrentTrack() {
    MASTER RENDER
 ========================= */
 
-function updateLibraryView() {
+function updateLibraryView(options = {}) {
+  const shouldFocusFirstTrack = Boolean(options.focusFirstTrack);
+
   filteredTracks = getFilteredTracks();
   renderActiveFilterLabel();
   renderPlaylists(filteredTracks);
@@ -898,6 +874,11 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   syncCurrentTrackIndex();
+  renderQueue();
+
+  if (shouldFocusFirstTrack) {
+    focusFirstVisibleTrack();
+  }
 }
 
 /* =========================
@@ -2167,6 +2148,38 @@ function scrollQueueToCurrentTrack() {
   activeRow.scrollIntoView({
     behavior: "smooth",
     block: "nearest"
+  });
+}
+
+function focusFirstVisibleTrack() {
+  const album = getFeaturedAlbum();
+  const firstTrack = album?.tracks?.[0] || filteredTracks?.[0] || null;
+
+  if (!firstTrack) return;
+
+  requestAnimationFrame(() => {
+    const featuredRow = els.featuredTrackList?.querySelector(`[data-track-id="${cssEscape(firstTrack.id)}"]`);
+    if (featuredRow) {
+      featuredRow.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+      return;
+    }
+
+    const queueRow = els.queueList?.querySelector(`[data-track-id="${cssEscape(firstTrack.id)}"]`);
+    if (queueRow) {
+      queueRow.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+      });
+      return;
+    }
+
+    els.featuredTrackList?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
   });
 }
 
