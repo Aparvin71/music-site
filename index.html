@@ -369,12 +369,10 @@
     </div>
 
     <div class="sticky-player-center">
-      <div class="transport transport--enhanced">
-        <button id="shuffleBtn" class="control-btn toggle-control-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false" title="Shuffle">🔀</button>
+      <div class="transport">
         <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
         <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
         <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
-        <button id="repeatBtn" class="control-btn toggle-control-btn" type="button" aria-label="Repeat off" aria-pressed="false" title="Repeat">↻</button>
       </div>
 
       <div class="progress-wrap">
@@ -382,10 +380,6 @@
         <label class="visually-hidden" for="seekBar">Seek through track</label>
         <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
         <span id="duration">0:00</span>
-      </div>
-
-      <div class="player-utility-bar">
-        <button id="toggleAutoScrollBtn" class="mini-pill-btn" type="button" aria-pressed="true">Auto-Scroll On</button>
       </div>
     </div>
 
@@ -424,7 +418,7 @@
         </div>
       </div>
 
-      <audio id="audioPlayer" preload="metadata"></audio>
+      <audio id="audioPlayer" preload="metadata" crossorigin="anonymous"></audio>
     </div>
   </div>
 
@@ -526,16 +520,10 @@
             <span id="playerSheetDuration">0:00</span>
           </div>
 
-          <div class="player-sheet-transport player-sheet-transport--enhanced">
-            <button id="playerSheetShuffleBtn" class="control-btn toggle-control-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false">🔀</button>
+          <div class="player-sheet-transport">
             <button id="playerSheetPrevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
             <button id="playerSheetPlayBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
             <button id="playerSheetNextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
-            <button id="playerSheetRepeatBtn" class="control-btn toggle-control-btn" type="button" aria-label="Repeat off" aria-pressed="false">↻</button>
-          </div>
-
-          <div class="player-sheet-utility-bar">
-            <button id="playerSheetAutoScrollBtn" class="mini-pill-btn" type="button" aria-pressed="true">Auto-Scroll On</button>
           </div>
 
           <div class="player-sheet-actions">
@@ -562,7 +550,7 @@
 
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v32.2</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v31</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>
