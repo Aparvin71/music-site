@@ -445,7 +445,7 @@ function normalizePlayerPreferences(value) {
     repeatMode,
     volume,
     autoScrollLyrics: safe.autoScrollLyrics !== false,
-    crossfade: Boolean(safe.crossfade)
+    crossfade: false
   };
 }
 
@@ -810,9 +810,9 @@ function cycleRepeatMode() {
 }
 
 function toggleCrossfade() {
-  playerPreferences.crossfade = !playerPreferences.crossfade;
+  playerPreferences.crossfade = false;
+  updatePlayerPreferenceUI();
   savePlayerPreferences();
-  updateTransportToggleButtons();
 }
 
 function toggleAutoScrollLyrics() {
@@ -918,16 +918,7 @@ function handleTrackEnded() {
 }
 
 function maybeTriggerCrossfade() {
-  if (!playerPreferences.crossfade || crossfadeTriggered || isTransitioningTrack || !els.audioPlayer) return;
-  const duration = els.audioPlayer.duration;
-  const currentTime = els.audioPlayer.currentTime;
-  if (!isFinite(duration) || !duration || duration <= 6) return;
-  const remaining = duration - currentTime;
-  if (remaining > 3) return;
-  const nextTrack = getUpcomingTrack();
-  if (!nextTrack) return;
-  crossfadeTriggered = true;
-  transitionToTrack(nextTrack);
+  return;
 }
 
 function clearCrossfadeTimers() {
@@ -982,11 +973,7 @@ function transitionToTrack(track) {
 }
 
 function shouldDisableVisualizer() {
-  const ua = navigator.userAgent || '';
-  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isAndroid = /Android/i.test(ua);
-  const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
-  return isIOS || isAndroid || coarsePointer;
+  return true;
 }
 
 function initVisualizer() {
