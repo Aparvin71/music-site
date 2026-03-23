@@ -296,7 +296,7 @@
       </section>
 
       <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
-        <div class="section-header section-header-collapsible">
+        <div class="section-header section-header-collapsible lyrics-header-row">
           <button
             class="section-toggle"
             type="button"
@@ -306,6 +306,7 @@
             <span>Lyrics</span>
             <span class="toggle-icon" aria-hidden="true">▾</span>
           </button>
+          <button id="autoScrollToggleBtn" class="action-btn secondary-btn small-action-btn lyrics-toggle-btn" type="button" aria-pressed="true">Auto-scroll: On</button>
         </div>
 
         <div id="lyricsSectionBody" class="section-body">
@@ -426,7 +427,7 @@
     <div class="lyrics-modal-backdrop" id="lyricsModalBackdrop"></div>
     <div class="lyrics-modal-content" role="dialog" aria-modal="true" aria-labelledby="lyricsModalTitle">
       <div class="lyrics-modal-header">
-        <h2 id="lyricsModalTitle">Lyrics</h2>
+        <div class="lyrics-modal-title-wrap"><h2 id="lyricsModalTitle">Lyrics</h2><button id="lyricsModalAutoScrollToggleBtn" class="action-btn secondary-btn small-action-btn lyrics-toggle-btn" type="button" aria-pressed="true">Auto-scroll: On</button></div>
         <button id="closeLyricsBtn" class="control-btn" type="button" aria-label="Close lyrics">✕</button>
       </div>
       <div id="lyricsModalBody" class="lyrics-modal-body">
@@ -528,6 +529,7 @@
 
           <div class="player-sheet-actions">
             <button id="playerSheetLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
+            <button id="playerSheetAutoScrollToggleBtn" class="action-btn secondary-btn" type="button" aria-pressed="true">Auto-scroll: On</button>
             <button id="playerSheetAddToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
             <button id="playerSheetSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
             <button id="playerSheetShareBtn" class="action-btn secondary-btn" type="button">Share</button>
