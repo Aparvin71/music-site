@@ -3783,3 +3783,122 @@ body.orientation-guard-active {
 .visualizer-disabled .visualizer-wrap {
   display: none !important;
 }
+
+
+/* ===== v32.2 QA polish pass ===== */
+#closePlayerSheetBtn {
+  position: relative;
+  z-index: 9;
+  border-color: rgba(144, 180, 232, 0.34);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+#closePlayerSheetBtn:hover,
+#closePlayerSheetBtn:focus-visible {
+  background: rgba(111, 160, 255, 0.16);
+  border-color: rgba(144, 180, 232, 0.5);
+}
+
+.player-sheet-header {
+  padding-right: 18px;
+}
+
+.player-sheet-heading {
+  min-width: 0;
+}
+
+.player-sheet-heading h2,
+#playerSheetTrackTitle,
+#nowTitle {
+  overflow-wrap: anywhere;
+}
+
+.player-sheet-panel,
+.player-sheet .player-tab-panel.active {
+  min-height: 0;
+}
+
+.player-sheet .player-tab-panel.active {
+  display: block;
+}
+
+.player-sheet .synced-lyrics,
+.player-sheet .lyrics-block {
+  padding-bottom: 24px;
+}
+
+.player-sheet-utility-bar {
+  align-items: stretch;
+}
+
+.player-sheet-utility-bar .mini-pill-btn,
+.player-sheet-utility-bar .player-volume-group {
+  min-height: 42px;
+}
+
+.player-sheet-now::-webkit-scrollbar,
+.player-tab-panel::-webkit-scrollbar {
+  width: 10px;
+}
+
+.player-sheet-now::-webkit-scrollbar-thumb,
+.player-tab-panel::-webkit-scrollbar-thumb {
+  background: rgba(127, 180, 255, 0.22);
+  border-radius: 999px;
+}
+
+@media (min-width: 901px) {
+  .player-sheet-content {
+    width: min(1100px, calc(100% - 32px));
+  }
+
+  .player-sheet-header {
+    padding: 16px 20px;
+  }
+
+  .player-sheet-body {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  }
+
+  .player-sheet-panel {
+    padding: 18px 18px 20px;
+  }
+}
+
+@media (max-width: 900px) {
+  .player-utility-bar {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 640px) {
+  .player-sheet-header {
+    gap: 10px !important;
+    align-items: center !important;
+  }
+
+  #closePlayerSheetBtn {
+    margin-left: 0;
+  }
+
+  .player-sheet-heading h2 {
+    font-size: 1rem;
+  }
+
+  .player-sheet-body {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  .player-sheet-panel {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  .player-sheet .player-tab-panel.active {
+    min-height: 36vh;
+  }
+
+  .player-sheet-utility-bar .mini-pill-btn {
+    flex: 1 1 100%;
+  }
+}

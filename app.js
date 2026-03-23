@@ -415,7 +415,7 @@ function updateSyncedLyricsProgress() {
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
+    const panel = activeLine.closest('.player-tab-panel, .lyrics-modal-body, .lyrics-content, .content-panel, .panel-card-body, .panel-card');
     if (playerPreferences.autoScrollLyrics && panel && panel.offsetParent !== null) {
       const targetTop = Math.max(0, activeLine.offsetTop - (panel.clientHeight * 0.35));
       panel.scrollTo({ top: targetTop, behavior: 'smooth' });
@@ -427,11 +427,42 @@ function updateSyncedLyricsProgress() {
    STORAGE
 ========================= */
 
+function normalizePlayerPreferences(value) {
+  const defaults = {
+    shuffle: false,
+    repeatMode: "off",
+    volume: 1,
+    autoScrollLyrics: true,
+    crossfade: false
+  };
+
+  const safe = value && typeof value === "object" ? value : {};
+  const repeatMode = ["off", "all", "one"].includes(safe.repeatMode) ? safe.repeatMode : defaults.repeatMode;
+  const volume = Number.isFinite(Number(safe.volume)) ? Math.min(1, Math.max(0, Number(safe.volume))) : defaults.volume;
+
+  return {
+    shuffle: Boolean(safe.shuffle),
+    repeatMode,
+    volume,
+    autoScrollLyrics: safe.autoScrollLyrics !== false,
+    crossfade: Boolean(safe.crossfade)
+  };
+}
+
+function savePlayerPreferences() {
+  try {
+    localStorage.setItem(STORAGE_KEYS.playerPreferences, JSON.stringify(normalizePlayerPreferences(playerPreferences)));
+  } catch (error) {
+    console.warn("Could not save player preferences:", error);
+  }
+}
+
 function loadStoredData() {
   favorites = loadJsonFromStorage(STORAGE_KEYS.favorites, []);
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
+  playerPreferences = normalizePlayerPreferences(loadJsonFromStorage(STORAGE_KEYS.playerPreferences, playerPreferences));
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
@@ -549,6 +580,7 @@ function bindUI() {
 
   if (els.volumeSlider) {
     on(els.volumeSlider, "input", () => setPlayerVolume(els.volumeSlider.value));
+    on(els.volumeSlider, "change", () => setPlayerVolume(els.volumeSlider.value));
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
@@ -693,6 +725,7 @@ function bindUI() {
 
   if (els.playerSheetVolumeSlider) {
     on(els.playerSheetVolumeSlider, "input", () => setPlayerVolume(els.playerSheetVolumeSlider.value));
+    on(els.playerSheetVolumeSlider, "change", () => setPlayerVolume(els.playerSheetVolumeSlider.value));
   }
 
   document.querySelectorAll("[data-player-tab]").forEach(btn => {
@@ -876,7 +909,10 @@ function handleTrackEnded() {
   const nextTrack = getUpcomingTrack();
   if (nextTrack) {
     playTrack(nextTrack, { preservePausedState: false });
-  } else {
+  } else if (els.audioPlayer) {
+    els.audioPlayer.pause();
+    els.audioPlayer.currentTime = 0;
+    updateProgressUI();
     updatePlayButton();
   }
 }
