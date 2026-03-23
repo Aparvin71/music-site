@@ -14,6 +14,7 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
+let lyricsAutoScrollEnabled = true;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -21,7 +22,8 @@ const STORAGE_KEYS = {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue"
+  lastQueue: "aineo_last_queue",
+  lyricsAutoScroll: "aineo_lyrics_auto_scroll"
 };
 
 const filters = {
@@ -176,6 +178,7 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
+  injectLyricsAutoScrollControls();
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
@@ -316,7 +319,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
+          <div class="lyric-line" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
         `).join("")}
       </div>
     `;
@@ -382,11 +385,19 @@ function updateSyncedLyricsProgress() {
 
     container.dataset.activeIndex = String(activeIndex);
 
+    if (!lyricsAutoScrollEnabled) return;
+
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
-    if (panel && panel.offsetParent !== null) {
+    const panel = activeLine.closest('.player-tab-panel, .lyrics-modal-body, .lyrics-content, .content-panel, .panel-card-body, .panel-card');
+    if (!panel || panel.offsetParent === null) return;
+
+    const panelRect = panel.getBoundingClientRect();
+    const lineRect = activeLine.getBoundingClientRect();
+    const outsideView = lineRect.top < panelRect.top + 24 || lineRect.bottom > panelRect.bottom - 24;
+
+    if (outsideView) {
       activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   });
@@ -404,6 +415,9 @@ function loadStoredData() {
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
+
+  const savedLyricsAutoScroll = localStorage.getItem(STORAGE_KEYS.lyricsAutoScroll);
+  lyricsAutoScrollEnabled = savedLyricsAutoScroll !== "false";
 }
 
 function loadJsonFromStorage(key, fallback) {
@@ -416,6 +430,48 @@ function loadJsonFromStorage(key, fallback) {
 
 function saveFavorites() {
   localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
+}
+
+
+function saveLyricsAutoScrollPreference() {
+  localStorage.setItem(STORAGE_KEYS.lyricsAutoScroll, lyricsAutoScrollEnabled ? "true" : "false");
+}
+
+function setLyricsAutoScrollEnabled(enabled) {
+  lyricsAutoScrollEnabled = Boolean(enabled);
+  saveLyricsAutoScrollPreference();
+  updateLyricsAutoScrollButtons();
+  updateSyncedLyricsProgress();
+}
+
+function updateLyricsAutoScrollButtons() {
+  document.querySelectorAll('[data-lyrics-autoscroll-toggle]').forEach(btn => {
+    btn.textContent = `Auto Scroll: ${lyricsAutoScrollEnabled ? "On" : "Off"}`;
+    btn.setAttribute('aria-pressed', lyricsAutoScrollEnabled ? 'true' : 'false');
+    btn.classList.toggle('is-off', !lyricsAutoScrollEnabled);
+  });
+}
+
+function injectLyricsAutoScrollControls() {
+  const targets = [
+    document.querySelector('.lyrics-panel .section-header'),
+    document.querySelector('#lyricsModal .lyrics-modal-header'),
+    document.querySelector('#playerSheet .player-sheet-tabs')
+  ].filter(Boolean);
+
+  targets.forEach(target => {
+    if (target.querySelector('[data-lyrics-autoscroll-toggle]')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'lyrics-autoscroll-toggle mini-action-btn';
+    button.dataset.lyricsAutoscrollToggle = 'true';
+    button.addEventListener('click', () => {
+      setLyricsAutoScrollEnabled(!lyricsAutoScrollEnabled);
+    });
+    target.appendChild(button);
+  });
+
+  updateLyricsAutoScrollButtons();
 }
 
 function saveRecentlyPlayed() {
@@ -508,18 +564,6 @@ function bindUI() {
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
-
-  document.addEventListener("click", event => {
-    const lyricButton = event.target.closest("[data-lyric-time]");
-    if (!lyricButton || !els.audioPlayer) return;
-
-    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
-    if (!Number.isFinite(targetTime)) return;
-
-    els.audioPlayer.currentTime = targetTime;
-    updateProgressUI();
-    updateSyncedLyricsProgress();
-  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -684,7 +728,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -694,7 +738,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function setTagFilter(tagName) {
@@ -704,7 +748,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function setSearchFilter(term) {
@@ -713,7 +757,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function clearAllFilters() {
@@ -723,7 +767,7 @@ function clearAllFilters() {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function getFilteredTracks() {
@@ -1748,7 +1792,7 @@ function renderMyPlaylists() {
       renderFeaturedAlbum();
       renderFeaturedTrackList();
       renderQueue();
-      scrollToTop();
+      scrollToFirstVisibleTrack();
     });
   });
 
@@ -2398,6 +2442,32 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+function scrollToFirstVisibleTrack() {
+  requestAnimationFrame(() => {
+    const firstTrackRow =
+      els.featuredTrackList?.querySelector('.featured-track-row') ||
+      els.queueList?.querySelector('.queue-row');
+
+    if (els.queueList) {
+      els.queueList.scrollTop = 0;
+    }
+
+    if (els.playerSheetQueuePanel) {
+      els.playerSheetQueuePanel.scrollTop = 0;
+    }
+
+    if (firstTrackRow) {
+      firstTrackRow.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      return;
+    }
+
+    scrollToTop();
+  });
+}
+
 function cssEscape(value) {
   if (window.CSS && typeof window.CSS.escape === "function") {
     return window.CSS.escape(value);
@@ -2744,7 +2814,7 @@ function applyCustomPlaylistFilter(name) {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   renderQueue();
-  scrollToTop();
+  scrollToFirstVisibleTrack();
 }
 
 function setActiveCustomPlaylist(name) {

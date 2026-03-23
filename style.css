@@ -3059,27 +3059,24 @@ body.orientation-guard-active {
 .lyric-line {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(145, 175, 255, 0.18);
-  background: rgba(255, 255, 255, 0.03);
-  color: #d8def0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  line-height: 1.6;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  border: 0;
+  background: transparent;
+  color: #cfd8ec;
+  padding: 6px 2px;
+  border-radius: 0;
+  line-height: 1.75;
+  transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
 }
 
 .lyric-line:hover {
-  border-color: rgba(145, 175, 255, 0.35);
-  background: rgba(80, 120, 255, 0.08);
+  color: #e5ebfb;
 }
 
 .lyric-line.active {
   color: #ffffff;
-  border-color: rgba(145, 175, 255, 0.55);
-  background: linear-gradient(180deg, rgba(90, 124, 255, 0.18), rgba(90, 124, 255, 0.10));
-  box-shadow: 0 10px 24px rgba(22, 26, 57, 0.24);
-  transform: scale(1.01);
+  opacity: 1;
+  transform: translateX(2px);
+  text-shadow: 0 0 14px rgba(120, 162, 255, 0.2);
 }
 
 .player-sheet .synced-lyrics,
@@ -3088,7 +3085,30 @@ body.orientation-guard-active {
 }
 
 .player-sheet .lyric-line,
-.modal-body .lyric-line {
-  border-radius: 12px;
-  padding: 11px 12px;
+.lyrics-modal-body .lyric-line {
+  padding: 6px 0;
+}
+
+
+/* Lyrics auto-scroll toggle */
+.lyrics-panel .section-header,
+#lyricsModal .lyrics-modal-header,
+#playerSheet .player-sheet-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.lyrics-panel .section-header .section-toggle {
+  flex: 1 1 auto;
+}
+
+.lyrics-autoscroll-toggle {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.lyrics-autoscroll-toggle.is-off {
+  opacity: 0.82;
 }

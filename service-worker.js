@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v22.00-full-clean-merged-lrc";
+const CACHE_VERSION = "v22.01-lyrics-toggle-filter-scroll";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
