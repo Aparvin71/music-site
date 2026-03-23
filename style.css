@@ -3532,3 +3532,148 @@ body.orientation-guard-active {
 #playlistModal.lyrics-modal {
   z-index: 12060;
 }
+
+
+/* =========================================
+   PLAYER ENHANCEMENTS v32
+========================================= */
+
+.transport--enhanced,
+.player-sheet-transport--enhanced {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toggle-control-btn {
+  min-width: 54px;
+  font-size: 18px;
+}
+
+.toggle-control-btn.is-active,
+.mini-pill-btn.is-active {
+  border-color: #7fb4ff;
+  background: rgba(111, 160, 255, 0.18);
+  color: #f7fbff;
+  box-shadow: 0 0 0 1px rgba(111, 160, 255, 0.14) inset;
+}
+
+.player-utility-bar,
+.player-sheet-utility-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.player-volume-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid #2b3442;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.utility-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #bcd0ee;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.volume-slider {
+  width: 118px;
+}
+
+.mini-pill-btn {
+  border: 1px solid #2b3442;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d8e4f7;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.mini-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #4d6486;
+}
+
+.visualizer-wrap {
+  margin-top: 10px;
+  border: 1px solid #243042;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(17, 23, 32, 0.96), rgba(10, 14, 20, 0.96));
+  padding: 8px 10px;
+  overflow: hidden;
+}
+
+.visualizer-wrap--sheet {
+  margin-top: 14px;
+}
+
+.player-visualizer {
+  display: block;
+  width: 100%;
+  height: 72px;
+}
+
+.visualizer-wrap--sheet .player-visualizer {
+  height: 92px;
+}
+
+.player-sheet-utility-bar {
+  margin-top: 16px;
+}
+
+.player-volume-group--sheet {
+  min-width: min(100%, 220px);
+  justify-content: center;
+}
+
+@media (max-width: 980px) {
+  .player-utility-bar {
+    justify-content: flex-start;
+  }
+
+  .volume-slider {
+    width: 100px;
+  }
+}
+
+@media (max-width: 640px) {
+  .transport--enhanced,
+  .player-sheet-transport--enhanced {
+    justify-content: center;
+  }
+
+  .toggle-control-btn {
+    min-width: 46px;
+  }
+
+  .player-utility-bar,
+  .player-sheet-utility-bar {
+    gap: 8px;
+  }
+
+  .player-volume-group {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .volume-slider {
+    width: min(180px, 100%);
+  }
+
+  .mini-pill-btn {
+    flex: 1 1 140px;
+    text-align: center;
+  }
+}
