@@ -8,12 +8,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
   <title>Request a Song - Aineo Music</title>
   <link rel="stylesheet" href="style.css" />
   <script src="pwa-init.js" defer></script>
@@ -37,11 +37,12 @@
     </div>
 
     <ul id="siteNavLinks" class="nav-links">
-      <li><a href="./index.html">Home</a></li>
-      <li><a href="./about.html">About</a></li>
-      <li><a href="./mission.html">Mission</a></li>
-      <li><a href="./contact.html" class="active" aria-current="page">Request a Song</a></li>
-    </ul>
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./about.html">About</a></li>
+        <li><a href="./mission.html">Mission</a></li>
+        <li><a href="./install.html">Install</a></li>
+        <li><a href="./contact.html" class="active" aria-current="page">Request a Song</a></li>
+      </ul>
   </nav>
 </header>
 
@@ -144,13 +145,31 @@
 
       <button type="submit" class="btn-submit">Send Request</button>
     </form>
+  
+  <section class="page-card utility-card">
+    <p class="eyebrow">Feedback</p>
+    <h2>General Feedback</h2>
+    <p>Have a suggestion, found a bug, or want to encourage the project? Visit the feedback page to send a note.</p>
+    <div class="card-actions">
+      <a class="action-btn" href="./feedback.html">Open Feedback Page</a>
+      <a class="action-btn secondary-btn" href="./changelog.html">See What’s New</a>
+    </div>
   </section>
 </main>
 
-<script src="./contact.js"></script>
 
-<footer class="site-footer">
-  <p>© 2026 Aineo Music · <a href="./mission.html">Mission</a></p>
-</footer>
+  <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v31</span></p>
+    <p class="footer-links">
+      <a href="./mission.html">Mission</a>
+      <a href="./install.html">Install</a>
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./artists.html">Artists</a>
+      <a href="./albums.html">Albums</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
 </body>
 </html>

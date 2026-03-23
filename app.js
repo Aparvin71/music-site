@@ -14,7 +14,6 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
-let lyricsAutoScrollEnabled = true;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -22,8 +21,7 @@ const STORAGE_KEYS = {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue",
-  lyricsAutoScroll: "aineo_lyrics_auto_scroll"
+  lastQueue: "aineo_last_queue"
 };
 
 const filters = {
@@ -178,7 +176,6 @@ async function init() {
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
-  injectLyricsAutoScrollControls();
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
@@ -319,7 +316,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <div class="lyric-line" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
+          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
         `).join("")}
       </div>
     `;
@@ -385,19 +382,11 @@ function updateSyncedLyricsProgress() {
 
     container.dataset.activeIndex = String(activeIndex);
 
-    if (!lyricsAutoScrollEnabled) return;
-
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    const panel = activeLine.closest('.player-tab-panel, .lyrics-modal-body, .lyrics-content, .content-panel, .panel-card-body, .panel-card');
-    if (!panel || panel.offsetParent === null) return;
-
-    const panelRect = panel.getBoundingClientRect();
-    const lineRect = activeLine.getBoundingClientRect();
-    const outsideView = lineRect.top < panelRect.top + 24 || lineRect.bottom > panelRect.bottom - 24;
-
-    if (outsideView) {
+    const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
+    if (panel && panel.offsetParent !== null) {
       activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   });
@@ -415,9 +404,6 @@ function loadStoredData() {
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
-
-  const savedLyricsAutoScroll = localStorage.getItem(STORAGE_KEYS.lyricsAutoScroll);
-  lyricsAutoScrollEnabled = savedLyricsAutoScroll !== "false";
 }
 
 function loadJsonFromStorage(key, fallback) {
@@ -430,48 +416,6 @@ function loadJsonFromStorage(key, fallback) {
 
 function saveFavorites() {
   localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
-}
-
-
-function saveLyricsAutoScrollPreference() {
-  localStorage.setItem(STORAGE_KEYS.lyricsAutoScroll, lyricsAutoScrollEnabled ? "true" : "false");
-}
-
-function setLyricsAutoScrollEnabled(enabled) {
-  lyricsAutoScrollEnabled = Boolean(enabled);
-  saveLyricsAutoScrollPreference();
-  updateLyricsAutoScrollButtons();
-  updateSyncedLyricsProgress();
-}
-
-function updateLyricsAutoScrollButtons() {
-  document.querySelectorAll('[data-lyrics-autoscroll-toggle]').forEach(btn => {
-    btn.textContent = `Auto Scroll: ${lyricsAutoScrollEnabled ? "On" : "Off"}`;
-    btn.setAttribute('aria-pressed', lyricsAutoScrollEnabled ? 'true' : 'false');
-    btn.classList.toggle('is-off', !lyricsAutoScrollEnabled);
-  });
-}
-
-function injectLyricsAutoScrollControls() {
-  const targets = [
-    document.querySelector('.lyrics-panel .section-header'),
-    document.querySelector('#lyricsModal .lyrics-modal-header'),
-    document.querySelector('#playerSheet .player-sheet-tabs')
-  ].filter(Boolean);
-
-  targets.forEach(target => {
-    if (target.querySelector('[data-lyrics-autoscroll-toggle]')) return;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'lyrics-autoscroll-toggle mini-action-btn';
-    button.dataset.lyricsAutoscrollToggle = 'true';
-    button.addEventListener('click', () => {
-      setLyricsAutoScrollEnabled(!lyricsAutoScrollEnabled);
-    });
-    target.appendChild(button);
-  });
-
-  updateLyricsAutoScrollButtons();
 }
 
 function saveRecentlyPlayed() {
@@ -564,6 +508,18 @@ function bindUI() {
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
+
+  document.addEventListener("click", event => {
+    const lyricButton = event.target.closest("[data-lyric-time]");
+    if (!lyricButton || !els.audioPlayer) return;
+
+    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
+    if (!Number.isFinite(targetTime)) return;
+
+    els.audioPlayer.currentTime = targetTime;
+    updateProgressUI();
+    updateSyncedLyricsProgress();
+  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -662,12 +618,25 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
-  on(els.playerSheetLyricsBtn, "click", () => setPlayerSheetTab("lyrics"));
+  on(els.playerSheetLyricsBtn, "click", () => {
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      closePlayerSheet();
+      window.requestAnimationFrame(() => openLyricsModal(els.playerSheetLyricsBtn));
+      return;
+    }
+    openPlayerSheetLyricsPanel();
+  });
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
     const track = getCurrentTrack();
-    if (track) openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn);
+    if (!track) return;
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      closePlayerSheet();
+      window.requestAnimationFrame(() => openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn));
+      return;
+    }
+    openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn);
   });
   on(els.playerSheetSaveOfflineBtn, "click", () => {
     const track = getCurrentTrack();
@@ -728,7 +697,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -738,7 +707,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function setTagFilter(tagName) {
@@ -748,7 +717,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function setSearchFilter(term) {
@@ -757,7 +726,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function clearAllFilters() {
@@ -767,7 +736,7 @@ function clearAllFilters() {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function getFilteredTracks() {
@@ -1438,12 +1407,40 @@ function syncFeaturedTrackPlayButtons() {
   });
 }
 
+function syncQueuePlaybackUI() {
+  const currentTrack = getCurrentTrack();
+  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+
+  document.querySelectorAll('.queue-row').forEach(row => {
+    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    row.classList.toggle('active', isCurrentTrack);
+    row.classList.toggle('is-current', isCurrentTrack);
+    row.classList.toggle('is-playing', isCurrentTrack && isPlaying);
+    row.classList.toggle('is-paused', isCurrentTrack && !isPlaying);
+  });
+
+  document.querySelectorAll('.queue-play-btn[data-queue-play]').forEach(btn => {
+    const row = btn.closest('.queue-row');
+    const trackId = row?.dataset.trackId || '';
+    const trackTitle = row?.querySelector('.queue-title-row h3')?.textContent?.trim() || 'track';
+    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
+    const buttonShowsPause = isCurrentTrack && isPlaying;
+
+    btn.textContent = buttonShowsPause ? '❚❚' : '▶';
+    btn.classList.toggle('is-playing', buttonShowsPause);
+    btn.classList.toggle('is-current', isCurrentTrack);
+    btn.setAttribute('aria-pressed', buttonShowsPause ? 'true' : 'false');
+    btn.setAttribute('aria-label', `${buttonShowsPause ? 'Pause' : 'Play'} ${trackTitle}`);
+  });
+}
+
 function updatePlayButton() {
   if (!els.audioPlayer) return;
   const label = els.audioPlayer.paused ? "▶" : "❚❚";
   if (els.playBtn) els.playBtn.textContent = label;
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
   syncFeaturedTrackPlayButtons();
+  syncQueuePlaybackUI();
 }
 
 function updateProgressUI() {
@@ -1792,7 +1789,7 @@ function renderMyPlaylists() {
       renderFeaturedAlbum();
       renderFeaturedTrackList();
       renderQueue();
-      scrollToFirstVisibleTrack();
+      scrollToTop();
     });
   });
 
@@ -1944,17 +1941,26 @@ function renderQueue() {
     return;
   }
 
+  const currentTrack = getCurrentTrack();
+  const currentTrackId = currentTrack?.id || "";
+  const currentTrackPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+
   const queueHtml = displayTracks
     .map((track, index) => {
       const activeIndex = currentQueue.length
         ? currentQueueIndex
-        : displayTracks.findIndex(t => t.id === getCurrentTrack()?.id);
+        : displayTracks.findIndex(t => t.id === currentTrackId);
 
-      const active = index === activeIndex ? "active" : "";
+      const isCurrentTrack = Boolean(currentTrackId && track.id === currentTrackId);
+      const isPlayingTrack = isCurrentTrack && currentTrackPlaying;
+      const active = index === activeIndex || isCurrentTrack ? "active is-current" : "";
+      const stateClass = isPlayingTrack ? "is-playing" : isCurrentTrack ? "is-paused" : "";
+      const playLabel = isPlayingTrack ? "Pause" : "Play";
+      const playIcon = isPlayingTrack ? "❚❚" : "▶";
 
       return `
-        <div class="queue-row ${active}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
-          <button class="queue-play-btn" data-queue-play="${index}" type="button" aria-label="Play ${escapeHtmlAttr(track.title)}">▶</button>
+        <div class="queue-row ${active} ${stateClass}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
+          <button class="queue-play-btn ${stateClass} ${isCurrentTrack ? 'is-current' : ''}" data-queue-play="${index}" type="button" aria-label="${playLabel} ${escapeHtmlAttr(track.title)}" aria-pressed="${isPlayingTrack ? 'true' : 'false'}">${playIcon}</button>
           ${
             track.cover
               ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />`
@@ -1995,6 +2001,7 @@ function renderQueue() {
   if (els.playerSheetQueuePanel) {
     bindQueueInteractions(els.playerSheetQueuePanel, displayTracks);
   }
+  syncQueuePlaybackUI();
 }
 
 function bindQueueInteractions(container, displayTracks) {
@@ -2002,8 +2009,20 @@ function bindQueueInteractions(container, displayTracks) {
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const index = Number(btn.dataset.queuePlay);
+      const baseQueue = currentQueue.length ? currentQueue : displayTracks;
+      const targetTrack = baseQueue[index];
+      const currentTrack = getCurrentTrack();
+
+      if (!targetTrack) return;
       if (!currentQueue.length) setQueue(displayTracks, false);
-      playFromQueueIndex(index);
+
+      if (currentTrack && currentTrack.id === targetTrack.id) {
+        togglePlayPause();
+        syncQueuePlaybackUI();
+      } else {
+        playFromQueueIndex(index);
+      }
+
       if (container === els.queueList) openAndScrollQueueToCurrentTrack();
     });
   });
@@ -2213,7 +2232,7 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
-const PLAYER_SHEET_TABS = ["lyrics", "scripture", "queue"];
+const PLAYER_SHEET_TABS = ["lyrics", "queue"];
 
 function initPlayerSheetGestures() {
   if (!els.playerSheetContent) return;
@@ -2342,6 +2361,9 @@ function closePlayerSheet() {
 }
 
 function setPlayerSheetTab(tabName) {
+  if (!PLAYER_SHEET_TABS.includes(tabName)) {
+    tabName = "lyrics";
+  }
   playerSheetTab = tabName;
   document.querySelectorAll("[data-player-tab]").forEach(btn => {
     const active = btn.dataset.playerTab === tabName;
@@ -2352,6 +2374,22 @@ function setPlayerSheetTab(tabName) {
   document.querySelectorAll("[data-player-panel]").forEach(panel => {
     panel.classList.toggle("active", panel.dataset.playerPanel === tabName);
   });
+}
+
+
+function openPlayerSheetLyricsPanel() {
+  setPlayerSheetTab("lyrics");
+
+  const panel = els.playerSheetLyricsPanel;
+  if (!panel) return;
+
+  panel.scrollTop = 0;
+
+  if (window.matchMedia("(max-width: 640px)").matches) {
+    requestAnimationFrame(() => {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 }
 
 function updatePlayerSheet() {
@@ -2440,32 +2478,6 @@ function restoreFocus() {
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function scrollToFirstVisibleTrack() {
-  requestAnimationFrame(() => {
-    const firstTrackRow =
-      els.featuredTrackList?.querySelector('.featured-track-row') ||
-      els.queueList?.querySelector('.queue-row');
-
-    if (els.queueList) {
-      els.queueList.scrollTop = 0;
-    }
-
-    if (els.playerSheetQueuePanel) {
-      els.playerSheetQueuePanel.scrollTop = 0;
-    }
-
-    if (firstTrackRow) {
-      firstTrackRow.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-      return;
-    }
-
-    scrollToTop();
-  });
 }
 
 function cssEscape(value) {
@@ -2814,7 +2826,7 @@ function applyCustomPlaylistFilter(name) {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   renderQueue();
-  scrollToFirstVisibleTrack();
+  scrollToTop();
 }
 
 function setActiveCustomPlaylist(name) {
