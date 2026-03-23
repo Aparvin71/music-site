@@ -3913,3 +3913,62 @@ body.orientation-guard-active {
 #playerSheetCrossfadeBtn,
 .visualizer-wrap { display: none !important; }
 .player-utility-bar, .player-sheet-utility-bar { justify-content: center; }
+
+
+/* ===== v32.4 declutter cleanup ===== */
+.synced-lyrics,
+.player-sheet .synced-lyrics,
+.modal-body .synced-lyrics {
+  gap: 6px !important;
+}
+
+.lyric-line,
+.synced-lyrics .lyric-line,
+.player-sheet .lyric-line,
+.modal-body .lyric-line {
+  display: block !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 4px 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+.lyric-line:hover,
+.lyric-line:focus,
+.lyric-line:focus-visible,
+.lyric-line.active,
+.synced-lyrics .lyric-line:hover,
+.synced-lyrics .lyric-line.active,
+.player-sheet .lyric-line:hover,
+.player-sheet .lyric-line.active,
+.modal-body .lyric-line:hover,
+.modal-body .lyric-line.active {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
+
+.player-sheet .lyric-line,
+.modal-body .lyric-line {
+  line-height: 1.55 !important;
+}
+
+.player-sheet .lyrics-block,
+.player-sheet .synced-lyrics,
+.modal-body .synced-lyrics,
+.modal-body .lyrics-block {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}

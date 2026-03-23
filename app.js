@@ -1045,6 +1045,21 @@ function on(element, eventName, handler) {
   }
 }
 
+function scrollToFirstTrackInList() {
+  if (!els.featuredTrackList) return;
+
+  const firstTrackRow = els.featuredTrackList.querySelector('.featured-track-row');
+  const targetEl = firstTrackRow || els.featuredTrackList;
+  if (!targetEl) return;
+
+  requestAnimationFrame(() => {
+    const stickyHeaderHeight = document.querySelector('.site-header')?.getBoundingClientRect().height || 0;
+    const extraOffset = 18;
+    const top = Math.max(0, window.scrollY + targetEl.getBoundingClientRect().top - stickyHeaderHeight - extraOffset);
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
+}
+
 /* =========================
    FILTERS
 ========================= */
@@ -1056,7 +1071,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstTrackInList();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -1066,7 +1081,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstTrackInList();
 }
 
 function setTagFilter(tagName) {
@@ -1076,7 +1091,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstTrackInList();
 }
 
 function setSearchFilter(term) {
@@ -1085,7 +1100,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToTop();
+  scrollToFirstTrackInList();
 }
 
 function clearAllFilters() {
@@ -2170,7 +2185,7 @@ function renderMyPlaylists() {
       renderFeaturedAlbum();
       renderFeaturedTrackList();
       renderQueue();
-      scrollToTop();
+      scrollToFirstTrackInList();
     });
   });
 
