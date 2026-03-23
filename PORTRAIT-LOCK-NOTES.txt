@@ -1,0 +1,12 @@
+Portrait lock update
+
+What changed:
+- Added manifest orientation: portrait-primary
+- Added JS portrait-lock attempt in pwa-init.js for browsers that support it
+- Added a landscape fallback overlay for phones/tablets on browsers that do not fully honor portrait lock
+- Bumped service worker cache version
+
+Important:
+- Android and some installed PWAs can honor portrait lock directly
+- iPhone/iPad Safari may ignore web orientation locking, so the fallback overlay keeps the experience portrait-only
+- After upload, hard refresh and reinstall the PWA if already installed

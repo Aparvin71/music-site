@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v31.00-full-suite";
+const CACHE_VERSION = "v31.3-full-suite";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

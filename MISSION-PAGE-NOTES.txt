@@ -1,0 +1,12 @@
+Aineo Music mission page update
+
+Included:
+- New dedicated mission.html page
+- Mission link added to navigation
+- Mission CTA links added on Home and About pages
+- Footer mission links added
+- Service worker cache version bump
+- Fixed contact.html hidden accessKey input closing bracket
+
+Upload all files from this package and then hard refresh.
+If the PWA is installed on a device, remove and reinstall it after upload.

@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v31";
+const AINEO_APP_VERSION = "v31.4";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -161,7 +161,7 @@ async function triggerInstallPrompt() {
 function initInstallExperience() {
   ensureInstallUi();
   renderInstallUi();
-  window.addEventListener("beforeinstallprompt", (event) => { event.preventDefault(); deferredInstallPrompt = event; renderInstallUi(); });
+  window.addEventListener("beforeinstallprompt", (event) => { deferredInstallPrompt = event; renderInstallUi(); });
   window.addEventListener("appinstalled", () => { deferredInstallPrompt = null; dismissInstallUi(); });
   document.querySelectorAll("[data-open-install-modal]").forEach(btn => btn.addEventListener("click", openInstallModal));
 }

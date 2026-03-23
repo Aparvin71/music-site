@@ -618,12 +618,25 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
-  on(els.playerSheetLyricsBtn, "click", () => setPlayerSheetTab("lyrics"));
+  on(els.playerSheetLyricsBtn, "click", () => {
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      closePlayerSheet();
+      window.requestAnimationFrame(() => openLyricsModal(els.playerSheetLyricsBtn));
+      return;
+    }
+    openPlayerSheetLyricsPanel();
+  });
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
     const track = getCurrentTrack();
-    if (track) openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn);
+    if (!track) return;
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      closePlayerSheet();
+      window.requestAnimationFrame(() => openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn));
+      return;
+    }
+    openPlaylistModalForTrack(track, els.playerSheetAddToPlaylistBtn);
   });
   on(els.playerSheetSaveOfflineBtn, "click", () => {
     const track = getCurrentTrack();
@@ -1394,12 +1407,40 @@ function syncFeaturedTrackPlayButtons() {
   });
 }
 
+function syncQueuePlaybackUI() {
+  const currentTrack = getCurrentTrack();
+  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+
+  document.querySelectorAll('.queue-row').forEach(row => {
+    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    row.classList.toggle('active', isCurrentTrack);
+    row.classList.toggle('is-current', isCurrentTrack);
+    row.classList.toggle('is-playing', isCurrentTrack && isPlaying);
+    row.classList.toggle('is-paused', isCurrentTrack && !isPlaying);
+  });
+
+  document.querySelectorAll('.queue-play-btn[data-queue-play]').forEach(btn => {
+    const row = btn.closest('.queue-row');
+    const trackId = row?.dataset.trackId || '';
+    const trackTitle = row?.querySelector('.queue-title-row h3')?.textContent?.trim() || 'track';
+    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
+    const buttonShowsPause = isCurrentTrack && isPlaying;
+
+    btn.textContent = buttonShowsPause ? '❚❚' : '▶';
+    btn.classList.toggle('is-playing', buttonShowsPause);
+    btn.classList.toggle('is-current', isCurrentTrack);
+    btn.setAttribute('aria-pressed', buttonShowsPause ? 'true' : 'false');
+    btn.setAttribute('aria-label', `${buttonShowsPause ? 'Pause' : 'Play'} ${trackTitle}`);
+  });
+}
+
 function updatePlayButton() {
   if (!els.audioPlayer) return;
   const label = els.audioPlayer.paused ? "▶" : "❚❚";
   if (els.playBtn) els.playBtn.textContent = label;
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
   syncFeaturedTrackPlayButtons();
+  syncQueuePlaybackUI();
 }
 
 function updateProgressUI() {
@@ -1900,17 +1941,26 @@ function renderQueue() {
     return;
   }
 
+  const currentTrack = getCurrentTrack();
+  const currentTrackId = currentTrack?.id || "";
+  const currentTrackPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+
   const queueHtml = displayTracks
     .map((track, index) => {
       const activeIndex = currentQueue.length
         ? currentQueueIndex
-        : displayTracks.findIndex(t => t.id === getCurrentTrack()?.id);
+        : displayTracks.findIndex(t => t.id === currentTrackId);
 
-      const active = index === activeIndex ? "active" : "";
+      const isCurrentTrack = Boolean(currentTrackId && track.id === currentTrackId);
+      const isPlayingTrack = isCurrentTrack && currentTrackPlaying;
+      const active = index === activeIndex || isCurrentTrack ? "active is-current" : "";
+      const stateClass = isPlayingTrack ? "is-playing" : isCurrentTrack ? "is-paused" : "";
+      const playLabel = isPlayingTrack ? "Pause" : "Play";
+      const playIcon = isPlayingTrack ? "❚❚" : "▶";
 
       return `
-        <div class="queue-row ${active}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
-          <button class="queue-play-btn" data-queue-play="${index}" type="button" aria-label="Play ${escapeHtmlAttr(track.title)}">▶</button>
+        <div class="queue-row ${active} ${stateClass}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
+          <button class="queue-play-btn ${stateClass} ${isCurrentTrack ? 'is-current' : ''}" data-queue-play="${index}" type="button" aria-label="${playLabel} ${escapeHtmlAttr(track.title)}" aria-pressed="${isPlayingTrack ? 'true' : 'false'}">${playIcon}</button>
           ${
             track.cover
               ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />`
@@ -1951,6 +2001,7 @@ function renderQueue() {
   if (els.playerSheetQueuePanel) {
     bindQueueInteractions(els.playerSheetQueuePanel, displayTracks);
   }
+  syncQueuePlaybackUI();
 }
 
 function bindQueueInteractions(container, displayTracks) {
@@ -1958,8 +2009,20 @@ function bindQueueInteractions(container, displayTracks) {
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const index = Number(btn.dataset.queuePlay);
+      const baseQueue = currentQueue.length ? currentQueue : displayTracks;
+      const targetTrack = baseQueue[index];
+      const currentTrack = getCurrentTrack();
+
+      if (!targetTrack) return;
       if (!currentQueue.length) setQueue(displayTracks, false);
-      playFromQueueIndex(index);
+
+      if (currentTrack && currentTrack.id === targetTrack.id) {
+        togglePlayPause();
+        syncQueuePlaybackUI();
+      } else {
+        playFromQueueIndex(index);
+      }
+
       if (container === els.queueList) openAndScrollQueueToCurrentTrack();
     });
   });
@@ -2311,6 +2374,22 @@ function setPlayerSheetTab(tabName) {
   document.querySelectorAll("[data-player-panel]").forEach(panel => {
     panel.classList.toggle("active", panel.dataset.playerPanel === tabName);
   });
+}
+
+
+function openPlayerSheetLyricsPanel() {
+  setPlayerSheetTab("lyrics");
+
+  const panel = els.playerSheetLyricsPanel;
+  if (!panel) return;
+
+  panel.scrollTop = 0;
+
+  if (window.matchMedia("(max-width: 640px)").matches) {
+    requestAnimationFrame(() => {
+      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
 }
 
 function updatePlayerSheet() {

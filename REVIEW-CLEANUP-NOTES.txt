@@ -1,0 +1,4 @@
+v31.4 fixes
+- Removed beforeinstallprompt preventDefault to avoid the banner warning.
+- Desktop fullscreen player now keeps the left column scrollable and shrinks artwork on shorter laptop screens.
+- Mobile fullscreen Lyrics and + Playlist actions now close the sheet first, then open their overlays in front.

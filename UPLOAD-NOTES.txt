@@ -1,0 +1,18 @@
+Aineo Music full merged package
+Version: v31
+
+Includes:
+- merged home/about/mission updates
+- install page + install prompt/banner
+- changelog page
+- feedback page
+- artists and albums pages
+- lyrics editor page
+- admin upload helper page
+- existing player, search, favorites, recently played, album page, and synced lyrics support
+- service worker bump to v31
+
+After upload:
+1. Replace old files with these files.
+2. Hard refresh in browser: Ctrl + Shift + R
+3. If installed as a PWA, remove and reinstall it so the new cache is used.

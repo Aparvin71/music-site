@@ -1,0 +1,1 @@
+Updated home Explore More card, improved queue current/play-pause states, raised mobile modals above fullscreen player, and improved mobile lyrics visibility.
