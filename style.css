@@ -3205,27 +3205,27 @@ body.orientation-guard-active {
 .lyric-line {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(145, 175, 255, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border: none;
+  background: transparent;
   color: #d8def0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  line-height: 1.6;
+  padding: 6px 0;
+  border-radius: 0;
+  line-height: 1.7;
   cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  transition: color 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+  outline: none;
 }
 
-.lyric-line:hover {
-  border-color: rgba(145, 175, 255, 0.35);
-  background: rgba(80, 120, 255, 0.08);
+.lyric-line:hover,
+.lyric-line:focus-visible {
+  color: #eef4ff;
 }
 
 .lyric-line.active {
   color: #ffffff;
-  border-color: rgba(145, 175, 255, 0.55);
-  background: linear-gradient(180deg, rgba(90, 124, 255, 0.18), rgba(90, 124, 255, 0.10));
-  box-shadow: 0 10px 24px rgba(22, 26, 57, 0.24);
-  transform: scale(1.01);
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(117, 154, 219, 0.25);
+  transform: translateX(4px);
 }
 
 .player-sheet .synced-lyrics,
@@ -3235,8 +3235,7 @@ body.orientation-guard-active {
 
 .player-sheet .lyric-line,
 .modal-body .lyric-line {
-  border-radius: 12px;
-  padding: 11px 12px;
+  padding: 7px 0;
 }
 
 
@@ -3531,4 +3530,53 @@ body.orientation-guard-active {
 
 #playlistModal.lyrics-modal {
   z-index: 12060;
+}
+
+
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.queue-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.study-mode-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.study-lyrics-panel,
+.study-scripture-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(126, 163, 216, 0.18);
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.study-scripture-panel h4 {
+  margin: 0 0 12px;
+  color: #dfe8f8;
+  font-size: 0.95rem;
+}
+
+.mini-action-btn[aria-pressed="true"],
+.action-btn[aria-pressed="true"] {
+  border-color: rgba(144, 180, 232, 0.5);
+  box-shadow: 0 0 0 1px rgba(144, 180, 232, 0.18) inset;
+}
+
+@media (max-width: 900px) {
+  .study-mode-layout {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v33.1-filter-focus";
+const CACHE_VERSION = "v33.2-player-upgrades";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

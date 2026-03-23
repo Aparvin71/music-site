@@ -275,8 +275,9 @@
 
 
       <section class="library-panel" aria-labelledby="downloadedHeading">
-        <div class="section-header">
+        <div class="section-header section-header-actions">
           <h2 id="downloadedHeading">Downloaded Songs</h2>
+          <button id="offlineOnlyBtn" class="mini-action-btn" type="button" aria-pressed="false">Offline Only</button>
         </div>
         <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
       </section>
@@ -306,6 +307,7 @@
             <span>Lyrics</span>
             <span class="toggle-icon" aria-hidden="true">▾</span>
           </button>
+          <button id="studyModeBtn" class="mini-action-btn" type="button" aria-pressed="false">Study Mode</button>
         </div>
 
         <div id="lyricsSectionBody" class="section-body">
@@ -350,6 +352,11 @@
         </div>
 
         <div id="queueSectionBody" class="section-body">
+          <div class="queue-tools">
+            <button id="queueClearPlayedBtn" class="mini-action-btn" type="button">Clear Played</button>
+            <button id="queueSavePlaylistBtn" class="mini-action-btn" type="button">Save Queue</button>
+            <button id="queueClearBtn" class="mini-action-btn" type="button">Clear Queue</button>
+          </div>
           <div id="queueList" class="queue-list" aria-live="polite"></div>
         </div>
       </section>
@@ -386,6 +393,8 @@
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
         <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
+        <button id="repeatModeBtn" class="action-btn secondary-btn" type="button" aria-pressed="true">Repeat All</button>
+        <button id="shuffleModeBtn" class="action-btn secondary-btn" type="button" aria-pressed="false">Shuffle Off</button>
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
         <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
         <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
@@ -405,6 +414,8 @@
           <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
           <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
+          <button id="repeatModeBtnDesktop" class="action-btn secondary-btn" type="button" aria-pressed="true">Repeat All</button>
+          <button id="shuffleModeBtnDesktop" class="action-btn secondary-btn" type="button" aria-pressed="false">Shuffle Off</button>
           <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
         </div>
