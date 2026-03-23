@@ -1,18 +1,24 @@
-Aineo Music full merged package
-Version: v31
+Aineo Music merged update package
 
-Includes:
-- merged home/about/mission updates
-- install page + install prompt/banner
-- changelog page
-- feedback page
-- artists and albums pages
-- lyrics editor page
-- admin upload helper page
-- existing player, search, favorites, recently played, album page, and synced lyrics support
-- service worker bump to v31
+Included in this package:
+- clickable scripture links using scripture_references
+- fullscreen player swipe gestures (down to close, left/right for tabs and track changes)
+- upgraded fullscreen player polish
+- upgraded toast notifications
+- portrait lock preference + landscape guard for touch devices
+- dedicated Mission page
+- Mission + Fill Your Mind sections on Home and About
+- My Church Home card on Mission and About with image fallback if church-logo.png is missing
+- tablet sticky clear/filter bar fallback fix
+- nav/footer mission links restored
+- contact page cleanup
+- service worker cache version bump
+
+Important:
+This package references images/church-logo.png. If that file is already on your server, it will load.
+If it is missing, the pages now show a clean fallback block instead of a broken image.
 
 After upload:
-1. Replace old files with these files.
-2. Hard refresh in browser: Ctrl + Shift + R
-3. If installed as a PWA, remove and reinstall it so the new cache is used.
+1. Replace existing site files with these files.
+2. Hard refresh with Ctrl + Shift + R.
+3. If installed as a PWA on phone/tablet, remove and reinstall the app.

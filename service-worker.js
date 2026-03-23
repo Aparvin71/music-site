@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v31.3-full-suite";
+const CACHE_VERSION = "v22.00-full-clean-merged-lrc";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -10,20 +10,10 @@ const APP_SHELL = [
   "/index.html",
   "/about.html",
   "/mission.html",
-  "/install.html",
   "/contact.html",
-  "/feedback.html",
-  "/changelog.html",
-  "/artists.html",
-  "/artist.html",
-  "/albums.html",
-  "/lyrics-editor.html",
-  "/admin-upload.html",
-  "/album.html",
   "/style.css",
   "/app.js",
   "/contact.js",
-  "/album-page.js",
   "/tracks.json",
   "/manifest.webmanifest",
   "/pwa-init.js",
@@ -33,7 +23,7 @@ const APP_SHELL = [
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
   "/images/aineo-music.png",
-  "/images/church-logo.png",
+  "/images/church-logo.png"
 ];
 
 // ===== INSTALL =====

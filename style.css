@@ -105,7 +105,7 @@ a:hover {
   background: #171a21;
   color: #f4f4f4;
   border-radius: 10px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
@@ -139,7 +139,7 @@ a:hover {
   font-weight: 600;
   opacity: 0.9;
   transition: opacity 0.2s ease, color 0.2s ease, background 0.2s ease;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
 }
 
@@ -979,7 +979,7 @@ a:hover {
 .album-modal {
   position: fixed;
   inset: 0;
-  z-index: 11050;
+  z-index: 9999;
 }
 
 .lyrics-modal-backdrop,
@@ -2320,52 +2320,6 @@ a:hover {
   width: 36px;
   height: 36px;
   cursor: pointer;
-  font-weight: 800;
-  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-}
-
-.queue-play-btn:hover {
-  transform: translateY(-1px);
-}
-
-.queue-row.is-current,
-.queue-item.is-current {
-  border-color: #8db7ff;
-  background: linear-gradient(180deg, rgba(40, 61, 92, 0.96), rgba(22, 33, 48, 0.98));
-  box-shadow: 0 12px 28px rgba(3, 9, 18, 0.34);
-}
-
-.queue-row.is-playing,
-.queue-item.is-playing {
-  border-color: #a9c6ff;
-  box-shadow: 0 14px 30px rgba(19, 34, 61, 0.42);
-}
-
-.queue-row.is-current .queue-title-row h3,
-.queue-item.is-current .queue-title-row h3 {
-  color: #ffffff;
-}
-
-.queue-row.is-current .queue-artist,
-.queue-item.is-current .queue-artist {
-  color: #d6e5ff;
-}
-
-.queue-row.is-current .queue-duration,
-.queue-row.is-current .queue-meta-row,
-.queue-item.is-current .queue-duration,
-.queue-item.is-current .queue-meta-row {
-  color: #b8c9e6;
-}
-
-.queue-play-btn.is-current {
-  background: #36527a;
-}
-
-.queue-play-btn.is-playing {
-  background: #90b4e8;
-  color: #0f1115;
-  box-shadow: 0 8px 18px rgba(63, 98, 150, 0.35);
 }
 
 .queue-actions {
@@ -2469,7 +2423,7 @@ a:hover {
   align-items: center;
   gap: 6px;
   margin: 0 8px 8px 0;
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid rgba(94, 142, 205, 0.4);
   background: rgba(24, 38, 56, 0.92);
@@ -2483,15 +2437,10 @@ a:hover {
 }
 
 .scripture-link--compact {
-  padding: 4px 8px;
-  font-size: 0.76rem;
-  margin-right: 5px;
-  margin-bottom: 5px;
-}
-
-.scripture-link--tiny {
-  padding: 4px 8px;
-  font-size: 0.74rem;
+  padding: 5px 10px;
+  font-size: 0.82rem;
+  margin-right: 6px;
+  margin-bottom: 6px;
 }
 
 .scripture-block--links {
@@ -2592,81 +2541,6 @@ a:hover {
   border: 1px solid #202938;
   border-radius: 16px;
   padding: 10px;
-}
-
-
-.player-sheet-body {
-  overflow: hidden;
-  align-items: stretch;
-}
-
-.player-sheet-now {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  padding-bottom: 28px;
-}
-
-.player-sheet-meta {
-  display: grid;
-  gap: 4px;
-}
-
-.player-sheet-meta .scripture-line {
-  margin-top: 4px;
-}
-
-@media (min-width: 901px) {
-  .player-sheet-content {
-    max-height: calc(100vh - 18px);
-    margin: 9px auto;
-  }
-
-  .player-sheet-now {
-    padding: 18px 20px 26px;
-    gap: 14px;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 280px);
-  }
-
-  .player-sheet-progress {
-    margin-top: 2px;
-  }
-
-  .player-sheet-actions {
-    margin-top: 2px;
-  }
-}
-
-@media (min-width: 901px) and (max-height: 900px) {
-  .player-sheet-body {
-    grid-template-columns: minmax(280px, 360px) 1fr;
-  }
-
-  .player-sheet-now {
-    padding: 16px 18px 24px;
-    gap: 12px;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 236px);
-  }
-
-  .player-sheet-meta h3 {
-    font-size: clamp(1.25rem, 2.2vw, 1.7rem);
-  }
-
-  .player-sheet-meta p {
-    font-size: 0.95rem;
-    line-height: 1.35;
-  }
-
-  .player-sheet-actions .action-btn {
-    padding: 8px 10px;
-    font-size: 0.88rem;
-  }
 }
 
 .playlist-modal-content {
@@ -3059,10 +2933,6 @@ body.orientation-guard-active {
   margin-bottom: 18px;
 }
 
-.mission-grid--summary {
-  gap: 14px;
-}
-
 .mission-card,
 .mind-card {
   position: relative;
@@ -3086,32 +2956,17 @@ body.orientation-guard-active {
   margin-bottom: 10px;
 }
 
-.mission-grid--summary .page-card {
-  padding: 18px;
-}
-
-.mission-grid--summary h2 {
-  font-size: 1.3rem;
-  margin-bottom: 8px;
-}
-
 .mission-statement {
   font-size: 17px;
   line-height: 1.7;
   color: #e8eef8;
 }
 
-.mission-statement--summary {
-  font-size: 0.98rem;
-  line-height: 1.6;
-  margin-bottom: 8px;
-}
-
 .scripture-pill-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 14px;
 }
 
 .mind-list {
@@ -3136,9 +2991,8 @@ body.orientation-guard-active {
 .mission-section-link {
   display: inline-flex;
   align-items: center;
-  margin-top: 12px;
+  margin-top: 14px;
   font-weight: 700;
-  font-size: 0.96rem;
 }
 
 .mission-page .church-logo {
@@ -3198,348 +3052,43 @@ body.orientation-guard-active {
 /* Synced lyrics */
 .synced-lyrics {
   display: grid;
-  gap: 8px;
-  padding-bottom: 32px;
+  gap: 10px;
+  padding-bottom: 40px;
 }
 
 .lyric-line {
-  display: block;
   width: 100%;
-  margin: 0;
-  border: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  text-align: left;
+  border: 1px solid rgba(145, 175, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
   color: #d8def0;
-  padding: 4px 0;
-  border-radius: 0 !important;
-  line-height: 1.7;
-  cursor: default;
-  appearance: none;
-  -webkit-appearance: none;
-  transition: color 0.18s ease, opacity 0.18s ease;
+  padding: 12px 14px;
+  border-radius: 14px;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
-.lyric-line:hover,
-.lyric-line:focus,
-.lyric-line:active {
-  border: 0 !important;
-  outline: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  transform: none !important;
+.lyric-line:hover {
+  border-color: rgba(145, 175, 255, 0.35);
+  background: rgba(80, 120, 255, 0.08);
 }
 
 .lyric-line.active {
   color: #ffffff;
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  transform: none !important;
-  font-weight: 700;
+  border-color: rgba(145, 175, 255, 0.55);
+  background: linear-gradient(180deg, rgba(90, 124, 255, 0.18), rgba(90, 124, 255, 0.10));
+  box-shadow: 0 10px 24px rgba(22, 26, 57, 0.24);
+  transform: scale(1.01);
 }
 
 .player-sheet .synced-lyrics,
 .modal-body .synced-lyrics {
-  gap: 6px;
+  gap: 8px;
 }
 
 .player-sheet .lyric-line,
 .modal-body .lyric-line {
-  padding: 3px 0;
-  border-radius: 0 !important;
-}
-
-
-/* ===== v31 utility pages / install / version ===== */
-.page-hero-card { margin-bottom: 20px; }
-.page-lead { color: #c8d3e6; font-size: 1.05rem; max-width: 60ch; }
-.mission-grid--tools { margin-top: -6px; }
-.install-card-actions, .card-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.quick-link-pills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-.quick-link-pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 999px; background: rgba(24, 38, 56, 0.92); border: 1px solid rgba(94, 142, 205, 0.32); color: #dfe7f5; text-decoration: none; font-weight: 600; }
-.quick-link-pill--static { cursor: default; }
-.quick-link-pill:hover { background: rgba(43, 76, 120, 0.95); }
-.utility-grid { display: grid; gap: 18px; }
-.utility-grid--two { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-.utility-card { min-height: 100%; }
-.utility-list { margin: 0; padding-left: 1.2rem; color: #d8e2f2; }
-.utility-list li + li { margin-top: 10px; }
-.helper-text { color: #98a6bb; margin-top: 12px; }
-.code-area, .code-output { width: 100%; min-height: 280px; border-radius: 18px; border: 1px solid rgba(94, 142, 205, 0.25); background: #10151c; color: #e7eef8; padding: 14px; font: 0.95rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.code-output { white-space: pre-wrap; overflow-wrap: anywhere; }
-.utility-preview { min-height: 280px; border-radius: 18px; border: 1px solid rgba(94, 142, 205, 0.2); background: rgba(13, 18, 25, 0.88); padding: 14px; overflow: auto; }
-.preview-row + .preview-row { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(94, 142, 205, 0.14); }
-.catalog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 18px; }
-.catalog-card { display: block; border-radius: 24px; overflow: hidden; background: linear-gradient(180deg, rgba(17,23,31,0.96), rgba(12,16,22,0.94)); border: 1px solid rgba(94, 142, 205, 0.16); text-decoration: none; color: inherit; box-shadow: 0 18px 42px rgba(0, 0, 0, 0.25); }
-.catalog-card-cover, .catalog-card-cover--hero { aspect-ratio: 1 / 1; background: #131922; overflow: hidden; }
-.catalog-card-cover img, .catalog-card-cover--hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.catalog-card-cover-fill { width: 100%; height: 100%; background: radial-gradient(circle at 30% 30%, rgba(110,169,255,0.28), rgba(20,24,31,0.98)); }
-.catalog-card-copy { padding: 16px; }
-.catalog-list { display: grid; gap: 14px; }
-.catalog-list-row { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 14px 0; border-top: 1px solid rgba(94, 142, 205, 0.12); }
-.catalog-list-row:first-child { border-top: 0; padding-top: 0; }
-.artist-hero-layout { display: grid; grid-template-columns: minmax(180px, 280px) 1fr; gap: 18px; align-items: center; }
-.changelog-list { display: grid; gap: 16px; }
-.changelog-item { padding: 16px 18px; border-radius: 18px; background: rgba(14, 19, 27, 0.72); border: 1px solid rgba(94, 142, 205, 0.14); }
-.app-version { display: inline-flex; align-items: center; justify-content: center; min-width: 3.2rem; padding: 2px 10px; border-radius: 999px; background: rgba(24, 38, 56, 0.92); border: 1px solid rgba(94, 142, 205, 0.25); color: #dfe7f5; font-size: 0.85rem; font-weight: 700; }
-.footer-links { display: flex; flex-wrap: wrap; gap: 10px 14px; justify-content: center; margin-top: 8px; }
-.footer-sep { margin: 0 4px; }
-.install-banner { position: fixed; inset: auto 16px 84px 16px; z-index: 1600; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 16px; border-radius: 18px; background: rgba(11, 16, 23, 0.96); border: 1px solid rgba(94, 142, 205, 0.22); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-.install-banner.hidden { display: none; }
-.install-banner-copy p { margin: 4px 0 0; color: #b6c3d8; }
-.install-banner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.install-modal { position: fixed; inset: 0; z-index: 1700; }
-.install-modal.hidden { display: none; }
-.install-modal-backdrop { position: absolute; inset: 0; background: rgba(5, 8, 12, 0.72); backdrop-filter: blur(6px); }
-.install-modal-content { position: relative; max-width: 680px; margin: min(10vh, 56px) auto; background: #0d1218; border: 1px solid rgba(94, 142, 205, 0.18); border-radius: 26px; padding: 22px; width: calc(100% - 28px); box-shadow: 0 22px 60px rgba(0,0,0,0.48); }
-.install-modal-header { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
-.install-modal-body { margin-top: 12px; }
-.modal-open { overflow: hidden; }
-@media (max-width: 760px) { .install-banner { inset: auto 12px 90px 12px; flex-direction: column; align-items: stretch; } .artist-hero-layout { grid-template-columns: 1fr; } .catalog-list-row { flex-direction: column; align-items: stretch; } }
-
-
-
-/* v31.1 polish fixes */
-.install-guide-btn {
-  background: #1f2a3a;
-  color: #ffffff;
-  border: 1px solid rgba(144, 180, 232, 0.28);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
-}
-
-.install-guide-btn:hover {
-  background: #2a3950;
-  color: #ffffff;
-}
-
-.player-sheet-meta {
-  padding-top: 8px;
-}
-
-.player-sheet-meta p {
-  line-height: 1.45;
-}
-
-@media (min-width: 900px) {
-  .player-sheet-cover {
-    width: min(100%, 332px);
-  }
-
-  .player-sheet-meta {
-    padding-top: 10px;
-  }
-
-  .player-sheet-track-artist,
-  #playerSheetTrackArtist {
-    padding-top: 4px;
-  }
-}
-
-@media (max-width: 640px) {
-  .player-sheet-now {
-    padding: 12px !important;
-    gap: 10px !important;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 168px) !important;
-  }
-
-  .player-sheet-meta {
-    padding-top: 2px !important;
-  }
-
-  .player-sheet-meta h3 {
-    margin-bottom: 6px !important;
-    font-size: clamp(1.2rem, 5.6vw, 1.55rem) !important;
-  }
-
-  .player-sheet-meta p {
-    margin-bottom: 4px !important;
-    line-height: 1.38 !important;
-  }
-
-  #playerSheetTrackScripture {
-    max-height: 52px;
-    overflow: auto;
-    padding-right: 2px;
-  }
-
-  .player-sheet-progress {
-    margin-top: -2px !important;
-  }
-
-  .player-sheet-transport .control-btn {
-    width: 48px !important;
-    height: 48px !important;
-  }
-
-  .player-sheet-actions .action-btn {
-    padding: 7px 10px !important;
-    font-size: 12px !important;
-  }
-
-  .player-sheet-swipe-hint {
-    display: none !important;
-  }
-
-  .player-sheet-tabs {
-    margin-bottom: 8px !important;
-  }
-
-  .player-tab-panel {
-    padding-bottom: 72px !important;
-  }
-
-  .player-sheet .synced-lyrics {
-    gap: 6px;
-  }
-
-  .player-sheet .lyric-line {
-    padding: 3px 0;
-    line-height: 1.6;
-  }
-}
-
-
-@media (max-width: 640px) {
-  .player-sheet-actions {
-    position: sticky;
-    top: 0;
-    z-index: 4;
-    background: linear-gradient(180deg, rgba(10, 15, 22, 0.98), rgba(10, 15, 22, 0.92));
-    padding-top: 8px;
-    padding-bottom: 10px;
-  }
-
-  .player-sheet .player-tab-panel.active {
-    min-height: 42vh;
-  }
-
-  .player-sheet .synced-lyrics,
-  .modal-body .synced-lyrics {
-    gap: 8px;
-  }
-
-  .player-sheet .lyric-line,
-  .modal-body .lyric-line {
-    min-height: 0;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    line-height: 1.55;
-  }
-}
-
-
-/* ===== v31.3 full review cleanup ===== */
-.install-guide-btn {
-  background: linear-gradient(180deg, #152031 0%, #0f1825 100%) !important;
-  color: #f7fbff !important;
-  border-color: rgba(144, 180, 232, 0.34) !important;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
-}
-
-.install-guide-btn:hover,
-.install-guide-btn:focus-visible {
-  background: linear-gradient(180deg, #1b2b41 0%, #142236 100%) !important;
-  color: #ffffff !important;
-}
-
-@media (min-width: 641px) {
-  .player-sheet-content {
-    height: min(920px, calc(100vh - 28px));
-  }
-
-  .player-sheet-body {
-    grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-    align-items: stretch;
-  }
-
-  .player-sheet-now {
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-    gap: 14px;
-    padding: 18px 18px 22px;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 260px);
-  }
-
-  .player-sheet-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding-top: 0;
-  }
-
-  .player-sheet-meta h3 {
-    margin-bottom: 2px;
-    line-height: 1.08;
-  }
-
-  .player-sheet-meta p {
-    margin-bottom: 0;
-  }
-
-  #playerSheetTrackScripture {
-    max-height: 82px;
-    overflow: auto;
-    padding-right: 4px;
-  }
-}
-
-@media (min-width: 641px) and (max-height: 920px) {
-  .player-sheet-content {
-    height: calc(100vh - 18px);
-    max-height: calc(100vh - 18px);
-    margin: 9px auto;
-  }
-
-  .player-sheet-header {
-    padding: 14px 18px;
-  }
-
-  .player-sheet-now {
-    padding: 16px;
-    gap: 12px;
-  }
-
-  .player-sheet-cover {
-    width: min(100%, 220px);
-    border-radius: 20px;
-  }
-
-  .player-sheet-meta h3 {
-    font-size: clamp(1.2rem, 2vw, 1.6rem);
-  }
-
-  .player-sheet-progress {
-    grid-template-columns: 42px 1fr 42px;
-    gap: 8px;
-  }
-
-  .player-sheet-transport {
-    gap: 10px;
-  }
-
-  .player-sheet-actions {
-    gap: 8px;
-  }
-
-  .player-sheet-actions .action-btn {
-    padding: 8px 10px;
-    font-size: 0.88rem;
-  }
-}
-
-.lyrics-modal,
-.album-modal,
-.install-modal {
-  z-index: 12050;
-}
-
-#playlistModal.lyrics-modal {
-  z-index: 12060;
+  border-radius: 12px;
+  padding: 11px 12px;
 }
