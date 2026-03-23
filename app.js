@@ -465,6 +465,22 @@ function saveDownloadedTracks() {
   localStorage.setItem(STORAGE_KEYS.downloadedTracks, JSON.stringify(downloadedTracks));
 }
 
+function saveRepeatMode() {
+  localStorage.setItem(STORAGE_KEYS.repeatMode, JSON.stringify(repeatMode));
+}
+
+function saveShuffleMode() {
+  localStorage.setItem(STORAGE_KEYS.shuffleMode, JSON.stringify(shuffleMode));
+}
+
+function saveStudyMode() {
+  localStorage.setItem(STORAGE_KEYS.studyMode, JSON.stringify(studyMode));
+}
+
+function saveOfflineOnly() {
+  localStorage.setItem(STORAGE_KEYS.offlineOnly, JSON.stringify(filters.offlineOnly));
+}
+
 function saveQueueState() {
   localStorage.setItem(
     STORAGE_KEYS.lastQueue,
