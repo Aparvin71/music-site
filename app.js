@@ -762,24 +762,24 @@ function bindUI() {
   on(els.downloadSongBtnDesktop, "click", downloadCurrentSong);
 
   on(els.playQueueBtn, "click", () => {
-    startPlaybackFromList(filteredTracks, false);
+    startPlaybackFromList(getQueueSourceTracks(), false);
     openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.playQueueBtnDesktop, "click", () => {
-    startPlaybackFromList(filteredTracks, false);
+    startPlaybackFromList(getQueueSourceTracks(), false);
     openAndScrollQueueToCurrentTrack();
   });
 
   on(els.shuffleQueueBtn, "click", () => {
-    startPlaybackFromList(filteredTracks, true);
+    startPlaybackFromList(getQueueSourceTracks(), true);
     openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.shuffleQueueBtnDesktop, "click", () => {
-    startPlaybackFromList(filteredTracks, true);
+    startPlaybackFromList(getQueueSourceTracks(), true);
     openAndScrollQueueToCurrentTrack();
   });
 
@@ -1625,7 +1625,7 @@ function playFromQueueIndex(index) {
 function playPreviousTrack() {
   if (!currentQueue.length) {
     if (!filteredTracks.length) return;
-    setQueue(filteredTracks, shuffleMode);
+    setQueue(getQueueSourceTracks(), shuffleMode);
   }
 
   if (!currentQueue.length) return;
@@ -1637,7 +1637,7 @@ function playPreviousTrack() {
 function playNextTrack(forceAdvance = false) {
   if (!currentQueue.length) {
     if (!filteredTracks.length) return;
-    setQueue(filteredTracks, shuffleMode);
+    setQueue(getQueueSourceTracks(), shuffleMode);
   }
 
   if (!currentQueue.length) return;
@@ -1671,10 +1671,11 @@ function togglePlayPause() {
   if (!els.audioPlayer) return;
 
   if (!els.audioPlayer.src) {
-    const first = currentQueue[0] || filteredTracks[0] || tracks[0];
+    const sourceTracks = getQueueSourceTracks();
+    const first = currentQueue[0] || sourceTracks[0] || tracks[0];
     if (first) {
       if (!currentQueue.length) {
-        setQueue(filteredTracks.length ? filteredTracks : tracks, shuffleMode);
+        setQueue(getQueueSourceTracks().length ? getQueueSourceTracks() : tracks, shuffleMode);
       }
       playTrack(first);
     }
@@ -1862,7 +1863,7 @@ function queueTrackNext(track) {
 }
 
 function moveQueueTrackToTop(index, displayTracks = []) {
-  const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+  const baseQueue = [...getInteractionQueue(displayTracks)];
   if (index < 0 || index >= baseQueue.length) return;
   const [moved] = baseQueue.splice(index, 1);
   baseQueue.unshift(moved);
@@ -2409,6 +2410,10 @@ function bindMiniCardClicks(container, trackList) {
    QUEUE UI
 ========================= */
 function getQueueDisplayTracks() {
+  if (!hasActiveFilter()) {
+    return Array.isArray(tracks) ? tracks : [];
+  }
+
   if (Array.isArray(currentQueue) && currentQueue.length) {
     return currentQueue;
   }
@@ -2417,7 +2422,7 @@ function getQueueDisplayTracks() {
     return filteredTracks;
   }
 
-  return Array.isArray(tracks) ? tracks : [];
+  return [];
 }
 
 function renderQueue() {
@@ -2506,12 +2511,12 @@ function bindQueueInteractions(container, displayTracks) {
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const index = Number(btn.dataset.queuePlay);
-      const baseQueue = currentQueue.length ? currentQueue : displayTracks;
+      const baseQueue = getInteractionQueue(displayTracks);
       const targetTrack = baseQueue[index];
       const currentTrack = getCurrentTrack();
 
       if (!targetTrack) return;
-      if (!currentQueue.length) setQueue(displayTracks, false);
+      if (!currentQueue.length || !hasActiveFilter()) setQueue(displayTracks, false);
 
       if (currentTrack && currentTrack.id === targetTrack.id) {
         togglePlayPause();
@@ -2528,7 +2533,7 @@ function bindQueueInteractions(container, displayTracks) {
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const index = Number(btn.dataset.queueRemove);
-      const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+      const baseQueue = [...getInteractionQueue(displayTracks)];
       if (index < 0 || index >= baseQueue.length) return;
       const [removed] = baseQueue.splice(index, 1);
       currentQueue = baseQueue;
@@ -2557,7 +2562,7 @@ function bindQueueInteractions(container, displayTracks) {
     btn.addEventListener("click", e => {
       e.stopPropagation();
       const index = Number(btn.dataset.queuePlayNext);
-      const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+      const baseQueue = [...getInteractionQueue(displayTracks)];
       if (index < 0 || index >= baseQueue.length) return;
       const current = getCurrentTrack();
       if (!current) {
@@ -2578,7 +2583,7 @@ function bindQueueInteractions(container, displayTracks) {
   container.querySelectorAll(".queue-row").forEach(row => {
     row.addEventListener("click", () => {
       const index = Number(row.dataset.queueIndex);
-      if (!currentQueue.length) {
+      if (!currentQueue.length || !hasActiveFilter()) {
         setQueue(displayTracks, false);
       }
       playFromQueueIndex(index);
@@ -2603,7 +2608,7 @@ function bindQueueInteractions(container, displayTracks) {
       const dropIndex = Number(row.dataset.queueIndex);
       if (queueDragIndex === null || queueDragIndex === dropIndex) return;
 
-      const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+      const baseQueue = [...getInteractionQueue(displayTracks)];
       const moved = baseQueue.splice(queueDragIndex, 1)[0];
       baseQueue.splice(dropIndex, 0, moved);
 
@@ -3082,6 +3087,17 @@ function hasActiveFilter() {
     filters.searchTerm ||
     filters.offlineOnly
   );
+}
+
+function getQueueSourceTracks() {
+  return hasActiveFilter() ? filteredTracks : tracks;
+}
+
+function getInteractionQueue(displayTracks) {
+  if (!hasActiveFilter()) {
+    return Array.isArray(displayTracks) ? displayTracks : [];
+  }
+  return currentQueue.length ? currentQueue : (Array.isArray(displayTracks) ? displayTracks : []);
 }
 
 function renderEmptyLibraryState(message) {

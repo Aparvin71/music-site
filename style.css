@@ -3486,10 +3486,10 @@ body.orientation-guard-active {
 }
 
 .lyric-line.active {
-  color: #ffffff;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(117, 154, 219, 0.25);
-  transform: translateX(4px);
+  color: #d8def0;
+  font-weight: 400;
+  text-shadow: none;
+  transform: none;
 }
 
 .player-sheet .synced-lyrics,
@@ -3671,15 +3671,16 @@ body.orientation-guard-active {
 
   .player-sheet .synced-lyrics,
   .modal-body .synced-lyrics {
-    gap: 10px;
+    gap: 4px;
   }
 
   .player-sheet .lyric-line,
   .modal-body .lyric-line {
-    min-height: 52px;
-    padding-top: 13px;
-    padding-bottom: 13px;
-    line-height: 1.45;
+    min-height: 0;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.25;
+    font-size: 0.94rem;
   }
 }
 
