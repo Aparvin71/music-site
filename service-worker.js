@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v39.3.4-mobile-lyrics-queue-tune";
+const CACHE_VERSION = "v39.3.6-compact-playlists";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
