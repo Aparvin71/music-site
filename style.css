@@ -3829,3 +3829,39 @@ body.orientation-guard-active {
     border-radius: 7px;
   }
 }
+
+
+/* =========================================
+   SELECTED PLAYLIST IN FEATURED AREA (v39.3.9)
+========================================= */
+.playlist-workspace {
+  display: none !important;
+}
+
+.featured-drag-handle {
+  cursor: grab;
+  min-width: 34px;
+}
+
+.playlist-edit-row {
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+}
+
+.playlist-edit-row.dragging {
+  opacity: 0.6;
+}
+
+.danger-soft-btn {
+  border-color: rgba(255, 133, 133, 0.4);
+  color: #ffd3d3;
+}
+
+@media (max-width: 640px) {
+  .playlist-edit-row .featured-track-actions {
+    gap: 6px;
+  }
+
+  .playlist-edit-row .mini-action-btn {
+    padding-inline: 8px;
+  }
+}
