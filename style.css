@@ -3844,3 +3844,29 @@ body.orientation-guard-active {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v39.3.3 autoscroll toggle alignment */
+.player-sheet-panel-header {
+  align-items: center;
+}
+
+.player-sheet-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.player-sheet-autoscroll-btn {
+  margin-left: 2px;
+  white-space: nowrap;
+}
+
+.synced-lyrics .lyric-line {
+  cursor: default;
+}
+
+.synced-lyrics .lyric-line:focus {
+  outline: none;
+}
