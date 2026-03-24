@@ -2703,18 +2703,16 @@ function ensurePlaylistWorkspace() {
   workspace.className = "playlist-workspace hidden";
   workspace.innerHTML = `
     <div class="playlist-workspace-header">
-      <div id="playlistWorkspaceCover" class="playlist-workspace-cover" aria-hidden="true"></div>
-
       <div class="playlist-workspace-meta">
-        <p class="eyebrow">Playlist Studio</p>
+        <p class="eyebrow">Selected Playlist</p>
         <h3 id="playlistWorkspaceTitle">Select a playlist</h3>
-        <p id="playlistWorkspaceInfo" class="playlist-workspace-info">Build playlists, reorder tracks, and play your favorites.</p>
+        <p id="playlistWorkspaceInfo" class="playlist-workspace-info">Open a playlist to play it, rename it, or reorder songs.</p>
+      </div>
 
-        <div class="playlist-workspace-actions">
-          <button id="playlistWorkspacePlayBtn" class="action-btn" type="button">Play</button>
-          <button id="playlistWorkspaceShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
-          <button id="playlistWorkspaceFocusBtn" class="action-btn secondary-btn" type="button">Open in Library</button>
-        </div>
+      <div class="playlist-workspace-actions">
+        <button id="playlistWorkspacePlayBtn" class="action-btn" type="button">Play</button>
+        <button id="playlistWorkspaceShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
+        <button id="playlistWorkspaceFocusBtn" class="action-btn secondary-btn" type="button">Open in Library</button>
       </div>
     </div>
 
@@ -2723,10 +2721,6 @@ function ensurePlaylistWorkspace() {
       <input id="playlistRenameInput" class="request-input" type="text" placeholder="Rename playlist" />
       <button id="playlistRenameBtn" class="action-btn secondary-btn" type="button">Rename</button>
       <button id="playlistDeleteBtn" class="action-btn danger-btn" type="button">Delete</button>
-    </div>
-
-    <div class="playlist-workspace-helper">
-      Drag songs to reorder this playlist. Use remove to take a song out.
     </div>
 
     <div id="playlistWorkspaceTracks" class="playlist-workspace-tracks" aria-live="polite"></div>
@@ -2863,7 +2857,6 @@ function renderPlaylistWorkspace() {
 
   const title = document.getElementById("playlistWorkspaceTitle");
   const info = document.getElementById("playlistWorkspaceInfo");
-  const cover = document.getElementById("playlistWorkspaceCover");
   const renameInput = document.getElementById("playlistRenameInput");
   const tracksWrap = document.getElementById("playlistWorkspaceTracks");
   const deleteBtn = document.getElementById("playlistDeleteBtn");
@@ -2880,8 +2873,7 @@ function renderPlaylistWorkspace() {
 
   const list = getCustomPlaylistTracks(activeCustomPlaylistName);
   if (title) title.textContent = activeCustomPlaylistName;
-  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • reorder, remove, or jump back into the library view`;
-  if (cover) cover.innerHTML = buildPlaylistCoverCollage(list);
+  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • drag to reorder or remove songs below`;
   if (renameInput) renameInput.value = activeCustomPlaylistName;
   if (playBtn) playBtn.disabled = !list.length;
   if (shuffleBtn) shuffleBtn.disabled = !list.length;
@@ -2987,6 +2979,7 @@ function renderMyPlaylists() {
   if (!els.myPlaylistList) return;
 
   const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
+  els.myPlaylistList.classList.add("playlist-v2-grid");
 
   if (!names.length) {
     els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
@@ -2999,29 +2992,22 @@ function renderMyPlaylists() {
     activeCustomPlaylistName = names[0];
   }
 
-  els.myPlaylistList.classList.add("playlist-v2-grid");
-
   els.myPlaylistList.innerHTML = names.map(name => {
     const list = getCustomPlaylistTracks(name);
     const active = name === activeCustomPlaylistName ? "active" : "";
     return `
       <article class="playlist-card ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-        <button class="playlist-card-cover" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" aria-label="Open ${escapeHtmlAttr(name)}">
-          ${buildPlaylistCoverCollage(list)}
+        <button class="playlist-card-main" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" aria-label="Open ${escapeHtmlAttr(name)}">
+          <span class="playlist-card-icon">♪</span>
+          <span class="playlist-card-copy">
+            <span class="playlist-card-title">${escapeHtml(name)}</span>
+            <span class="playlist-card-meta">${list.length} song${list.length === 1 ? "" : "s"}</span>
+          </span>
         </button>
 
-        <div class="playlist-card-body">
-          <button class="playlist-card-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
-            ${escapeHtml(name)}
-          </button>
-          <p class="playlist-card-meta">${list.length} song${list.length === 1 ? "" : "s"}</p>
-
-          <div class="playlist-card-actions">
-            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
-            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
-            <button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button>
-            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button>
-          </div>
+        <div class="playlist-card-actions">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
+          <button class="mini-action-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" aria-label="Delete ${escapeHtmlAttr(name)}">✕</button>
         </div>
       </article>
     `;
@@ -3032,30 +3018,13 @@ function renderMyPlaylists() {
   });
 
   els.myPlaylistList.querySelectorAll("[data-custom-playlist-play]").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
       const name = btn.dataset.customPlaylistPlay;
       const list = getCustomPlaylistTracks(name);
       if (!list.length) return;
       setActiveCustomPlaylist(name);
       startPlaybackFromList(list, false, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-shuffle]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistShuffle;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setActiveCustomPlaylist(name);
-      startPlaybackFromList(list, true, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-focus]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistFocus;
-      setActiveCustomPlaylist(name);
-      applyCustomPlaylistFilter(name);
     });
   });
 
