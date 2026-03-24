@@ -337,13 +337,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
   }
 
-  const controlsMarkup = `
-    <div class="lyrics-toolbar">
-      <button class="action-btn secondary-btn lyrics-toggle-btn" type="button" data-autoscroll-toggle aria-pressed="${autoScrollLyrics ? "true" : "false"}">
-        Auto-scroll: ${autoScrollLyrics ? "On" : "Off"}
-      </button>
-    </div>
-  `;
+  const controlsMarkup = "";
 
   if (Array.isArray(track.syncedLyrics) && track.syncedLyrics.length) {
     return `

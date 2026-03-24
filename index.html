@@ -553,9 +553,12 @@
         </section>
 
         <section class="player-sheet-panel">
-          <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
-            <button class="player-tab active" data-player-tab="lyrics" type="button" role="tab" aria-selected="true">Lyrics</button>
-            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button>
+          <div class="player-sheet-panel-header">
+            <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
+              <button class="player-tab active" data-player-tab="lyrics" type="button" role="tab" aria-selected="true">Lyrics</button>
+              <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button>
+            </div>
+            <button class="action-btn secondary-btn player-sheet-autoscroll-btn" type="button" data-autoscroll-toggle aria-pressed="true">Auto-scroll: On</button>
           </div>
 
           <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
