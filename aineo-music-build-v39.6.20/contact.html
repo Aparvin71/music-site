@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <title>Request a Song - Aineo Music</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="pwa-init.js" defer></script>
+  <script src="contact.js" defer></script>
+</head>
+<body>
+<header class="site-header">
+  <nav class="navbar" aria-label="Main navigation">
+    <div class="nav-top-row">
+      <div class="logo">Aineo Music</div>
+      <button
+        id="mobileNavToggle"
+        class="mobile-nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="siteNavLinks"
+        aria-label="Toggle navigation"
+      >
+        ☰
+      </button>
+    </div>
+
+    <ul id="siteNavLinks" class="nav-links">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./about.html">About</a></li>
+        <li><a href="./mission.html">Mission</a></li>
+        <li><a href="./install.html">Install</a></li>
+        <li><a href="./contact.html" class="active" aria-current="page">Request a Song</a></li>
+      </ul>
+  </nav>
+</header>
+
+<main class="page">
+  <section class="page-card">
+    <p class="eyebrow">Custom Song Requests</p>
+    <h2>Request a Song Idea</h2>
+
+    <p>
+      Have a theme, Scripture, or message you'd like turned into a song?
+      Send your idea below and I’ll review it for a possible custom creation.
+    </p>
+
+    <form class="request-form" id="contactForm" novalidate>
+      <input type="hidden" name="accessKey" value="sf_587f45c8128caab3e591b597">
+      <input type="hidden" name="subject" value="New Song Request - Aineo Music">
+      <input type="hidden" name="replyTo" value="@email">
+      <input type="hidden" name="botcheck" value="" tabindex="-1" autocomplete="off">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input id="name" name="name" type="text" placeholder="Your name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Your Email</label>
+          <input id="email" name="email" type="email" placeholder="your@email.com" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="subject">Request Title</label>
+        <input
+          id="subject"
+          name="subject"
+          type="text"
+          placeholder="Example: Song about trusting God in the storm"
+          required
+        >
+      </div>
+
+      <div class="request-box">
+        <h3>Song Request Details</h3>
+        <p>Share the main idea for the song you'd like created.</p>
+
+        <div class="form-group">
+          <label for="theme">Theme</label>
+          <input
+            id="theme"
+            name="theme"
+            type="text"
+            placeholder="Example: Faith, surrender, praise"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="scripture">Scripture Reference</label>
+          <input
+            id="scripture"
+            name="scripture"
+            type="text"
+            placeholder="Example: Matthew 14:28-31"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="artistStyle">Artist / Style Inspiration</label>
+          <input
+            id="artistStyle"
+            name="artistStyle"
+            type="text"
+            placeholder="Example: Southern gospel, modern worship"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="about">About the Song</label>
+          <textarea
+            id="about"
+            name="about"
+            rows="7"
+            placeholder="Describe what you want the song to say."
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="message">Anything Else</label>
+        <textarea
+          id="message"
+          name="message"
+          rows="4"
+          placeholder="Extra notes or details."
+        ></textarea>
+      </div>
+
+      <div id="formMessage" class="form-message"></div>
+
+      <button type="submit" class="btn-submit">Send Request</button>
+    </form>
+  
+  <section class="page-card utility-card">
+    <p class="eyebrow">Feedback</p>
+    <h2>General Feedback</h2>
+    <p>Have a suggestion, found a bug, or want to encourage the project? Visit the feedback page to send a note.</p>
+    <div class="card-actions">
+      <a class="action-btn" href="./feedback.html">Open Feedback Page</a>
+      <a class="action-btn secondary-btn" href="./changelog.html">See What’s New</a>
+    </div>
+  </section>
+</main>
+
+
+  <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v31</span></p>
+    <p class="footer-links">
+      <a href="./mission.html">Mission</a>
+      <a href="./install.html">Install</a>
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./artists.html">Artists</a>
+      <a href="./albums.html">Albums</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body>
+</html>

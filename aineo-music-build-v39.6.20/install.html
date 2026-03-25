@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Install Aineo Music on iPhone, iPad, Android, or desktop and use it like an app." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <title>Install the App - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="./pwa-init.js" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+        <li><a href="./index.html">Home</a></li>
+        <li><a href="./about.html">About</a></li>
+        <li><a href="./mission.html">Mission</a></li>
+        <li><a href="./install.html" class="active" aria-current="page">Install</a></li>
+        <li><a href="./contact.html">Request a Song</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="page-card page-hero-card">
+      <p class="eyebrow">Install</p>
+      <h1>Get the App</h1>
+      <p class="page-lead">Install Aineo Music on your phone, tablet, or computer for a cleaner app experience, quick launching, and stronger offline support.</p>
+      <div class="card-actions">
+        <button class="action-btn" type="button" data-open-install-modal>Install Now</button>
+        <a class="action-btn secondary-btn" href="./index.html">Back to Music</a>
+      </div>
+    </section>
+    <section class="utility-grid utility-grid--two">
+      <article class="page-card utility-card"><p class="eyebrow">iPhone / iPad</p><h2>Install from Safari</h2><ol class="utility-list"><li>Open Aineo Music in Safari.</li><li>Tap the Share button.</li><li>Select <strong>Add to Home Screen</strong>.</li><li>Tap <strong>Add</strong>.</li></ol></article>
+      <article class="page-card utility-card"><p class="eyebrow">Android</p><h2>Install from Chrome</h2><ol class="utility-list"><li>Open Aineo Music in Chrome.</li><li>Tap the menu in the browser.</li><li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>.</li><li>Confirm the install.</li></ol></article>
+      <article class="page-card utility-card"><p class="eyebrow">Desktop</p><h2>Install in Chrome or Edge</h2><ol class="utility-list"><li>Open the site in Chrome or Edge.</li><li>Look for the install icon in the address bar.</li><li>Click <strong>Install</strong>.</li></ol></article>
+      <article class="page-card utility-card"><p class="eyebrow">Why Install?</p><h2>Better App Feel</h2><ul class="utility-list"><li>Launch from your home screen.</li><li>Use a more focused, app-like layout.</li><li>Keep key files ready for offline use.</li><li>Get cleaner fullscreen playback on mobile devices.</li></ul></article>
+    </section>
+    <section class="page-card utility-card">
+      <p class="eyebrow">Current Version</p>
+      <h2>Aineo Music <span class="app-version">v31</span></h2>
+      <p id="appVersionText">This bundle includes the latest merged site changes, install support, utility pages, and player improvements.</p>
+      <div class="quick-link-pills"><a class="quick-link-pill" href="./changelog.html">View Changelog</a><a class="quick-link-pill" href="./feedback.html">Send Feedback</a></div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v31</span></p>
+    <p class="footer-links">
+      <a href="./mission.html">Mission</a>
+      <a href="./install.html">Install</a>
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./artists.html">Artists</a>
+      <a href="./albums.html">Albums</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body></html>
