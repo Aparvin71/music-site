@@ -720,7 +720,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -730,7 +730,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setTagFilter(tagName) {
@@ -740,7 +740,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setSearchFilter(term) {
@@ -749,7 +749,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function clearAllFilters() {
@@ -860,6 +860,22 @@ function getVisibleTags(trackList) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+function buildCollection(name, trackList, options = {}) {
+  const tracksForCollection = Array.isArray(trackList) ? [...trackList] : [];
+  const coverTrack = tracksForCollection.find(track => track.cover) || tracksForCollection[0] || null;
+  const firstTrack = tracksForCollection[0] || null;
+
+  return {
+    name,
+    cover: coverTrack?.cover || "",
+    artist: options.artist || firstTrack?.artist || "Allen Parvin",
+    year: options.year || firstTrack?.year || "",
+    tracks: tracksForCollection,
+    album_zip: options.album_zip || "",
+    type: options.type || "collection"
+  };
+}
+
 function getFeaturedAlbum() {
   const visibleAlbums = getVisibleAlbums(filteredTracks);
 
@@ -867,7 +883,31 @@ function getFeaturedAlbum() {
     return visibleAlbums.find(album => album.name === filters.selectedAlbum) || null;
   }
 
-  return visibleAlbums.find(album => album.name === "Testimony") || visibleAlbums[0] || null;
+  if (filters.selectedPlaylist) {
+    return buildCollection(filters.selectedPlaylist, filteredTracks, {
+      artist: "Playlist",
+      type: "playlist"
+    });
+  }
+
+  if (filters.selectedTag) {
+    return buildCollection(`#${filters.selectedTag}`, filteredTracks, {
+      artist: "Tag",
+      type: "tag"
+    });
+  }
+
+  if (filters.searchTerm) {
+    return buildCollection(`Search: ${filters.searchTerm}`, filteredTracks, {
+      artist: "Search Results",
+      type: "search"
+    });
+  }
+
+  return buildCollection("All Songs", tracks, {
+    artist: "Entire Library",
+    type: "all"
+  });
 }
 
 function getCurrentTrack() {
@@ -895,6 +935,22 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   syncCurrentTrackIndex();
+}
+
+function scrollToFeaturedCollection() {
+  if (!els.featuredAlbumCard) return;
+
+  const runScroll = () => {
+    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+    const rect = els.featuredAlbumCard.getBoundingClientRect();
+    const absoluteTop = window.scrollY + rect.top;
+    const top = Math.max(absoluteTop - headerHeight - 12, 0);
+    window.scrollTo({ top, behavior: "smooth" });
+  };
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(runScroll);
+  });
 }
 
 /* =========================
@@ -1150,12 +1206,12 @@ function renderFeaturedAlbum() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No album found";
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No collection found";
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
     if (els.featuredAlbumCover) {
       els.featuredAlbumCover.src = "";
-      els.featuredAlbumCover.alt = "No album cover";
+      els.featuredAlbumCover.alt = "No collection cover";
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
     return;
@@ -1194,7 +1250,7 @@ function renderFeaturedTrackList() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    els.featuredTrackListTitle.textContent = "Album Tracks";
+    els.featuredTrackListTitle.textContent = "Collection Tracks";
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
