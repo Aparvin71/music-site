@@ -14,7 +14,6 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
-let autoScrollEnabled = loadAutoScrollEnabled();
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -160,7 +159,6 @@ const els = {
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
-  playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
@@ -175,7 +173,6 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   loadStoredData();
   bindUI();
-  updateAutoScrollToggleUI();
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
@@ -310,38 +307,6 @@ function findActiveLyricIndex(lines, currentTime) {
   return -1;
 }
 
-
-function saveAutoScrollEnabled(value) {
-  try {
-    localStorage.setItem("autoScrollEnabled", value ? "1" : "0");
-  } catch (error) {
-    console.warn("Could not save auto-scroll preference:", error);
-  }
-}
-
-function loadAutoScrollEnabled() {
-  try {
-    return localStorage.getItem("autoScrollEnabled") !== "0";
-  } catch (error) {
-    return true;
-  }
-}
-
-function updateAutoScrollToggleUI() {
-  if (!els.playerSheetAutoScrollBtn) return;
-  els.playerSheetAutoScrollBtn.textContent = autoScrollEnabled ? "Auto-Scroll On" : "Auto-Scroll Off";
-  els.playerSheetAutoScrollBtn.classList.toggle("is-on", autoScrollEnabled);
-  els.playerSheetAutoScrollBtn.classList.toggle("is-off", !autoScrollEnabled);
-  els.playerSheetAutoScrollBtn.setAttribute("aria-pressed", autoScrollEnabled ? "true" : "false");
-}
-
-function toggleAutoScroll() {
-  autoScrollEnabled = !autoScrollEnabled;
-  saveAutoScrollEnabled(autoScrollEnabled);
-  updateAutoScrollToggleUI();
-  updateSyncedLyricsProgress();
-}
-
 function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
   if (!track) {
     return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
@@ -351,7 +316,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
+          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
         `).join("")}
       </div>
     `;
@@ -404,15 +369,15 @@ function updateSyncedLyricsProgress() {
   const currentTime = els.audioPlayer?.currentTime || 0;
   const activeIndex = findActiveLyricIndex(track?.syncedLyrics || [], currentTime);
 
-  document.querySelectorAll(".synced-lyrics").forEach(container => {
+  document.querySelectorAll('.synced-lyrics').forEach(container => {
     const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
-    const lineEls = container.querySelectorAll(".lyric-line");
+    const lineEls = container.querySelectorAll('.lyric-line');
 
-    lineEls.forEach(lineEl => {
-      lineEl.classList.remove("active");
+    lineEls.forEach((lineEl, index) => {
+      lineEl.classList.toggle('active', isCurrentTrack && index === activeIndex);
     });
 
-    if (!isCurrentTrack || activeIndex < 0 || !autoScrollEnabled) return;
+    if (!isCurrentTrack || activeIndex < 0) return;
     if (container.dataset.activeIndex === String(activeIndex)) return;
 
     container.dataset.activeIndex = String(activeIndex);
@@ -420,9 +385,9 @@ function updateSyncedLyricsProgress() {
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    const panel = activeLine.closest(".player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card");
+    const panel = activeLine.closest('.player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card');
     if (panel && panel.offsetParent !== null) {
-      activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
+      activeLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   });
 }
@@ -544,6 +509,17 @@ function bindUI() {
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
 
+  document.addEventListener("click", event => {
+    const lyricButton = event.target.closest("[data-lyric-time]");
+    if (!lyricButton || !els.audioPlayer) return;
+
+    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
+    if (!Number.isFinite(targetTime)) return;
+
+    els.audioPlayer.currentTime = targetTime;
+    updateProgressUI();
+    updateSyncedLyricsProgress();
+  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -650,7 +626,6 @@ function bindUI() {
     }
     openPlayerSheetLyricsPanel();
   });
-  on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
