@@ -17,6 +17,11 @@ body {
   overflow-x: hidden;
 }
 
+
+:root {
+  --sticky-header-offset: 69px;
+}
+
 a {
   color: #8ec5ff;
   text-decoration: none;
@@ -453,7 +458,6 @@ a:hover {
 ========================================= */
 
 .featured-album-card {
-  scroll-margin-top: 96px;
   display: grid;
   grid-template-columns: 150px 1fr;
   gap: 16px;
@@ -2133,7 +2137,7 @@ a:hover {
 
 .sticky-filter-bar {
   position: sticky;
-  top: 10px;
+  top: calc(var(--sticky-header-offset, 69px) + 12px);
   z-index: 960;
   margin-bottom: 14px;
 }
@@ -2160,7 +2164,7 @@ a:hover {
 
 @media (max-width: 640px) {
   .sticky-filter-bar {
-    top: 8px;
+    top: calc(var(--sticky-header-offset, 69px) + 8px);
   }
 
   .sticky-filter-bar-inner {

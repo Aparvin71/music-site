@@ -720,7 +720,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFeaturedCollectionCard();
+  scrollToTop();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -730,7 +730,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFeaturedCollectionCard();
+  scrollToTop();
 }
 
 function setTagFilter(tagName) {
@@ -740,7 +740,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToFeaturedCollectionCard();
+  scrollToTop();
 }
 
 function setSearchFilter(term) {
@@ -749,7 +749,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToFeaturedCollectionCard();
+  scrollToTop();
 }
 
 function clearAllFilters() {
@@ -861,43 +861,13 @@ function getVisibleTags(trackList) {
 }
 
 function getFeaturedAlbum() {
-  if (!filteredTracks.length) return null;
-
   const visibleAlbums = getVisibleAlbums(filteredTracks);
-  const selectedAlbum = filters.selectedAlbum
-    ? visibleAlbums.find(album => album.name === filters.selectedAlbum) || null
-    : null;
 
-  if (selectedAlbum) {
-    return selectedAlbum;
+  if (filters.selectedAlbum) {
+    return visibleAlbums.find(album => album.name === filters.selectedAlbum) || null;
   }
 
-  const primaryTrack = filteredTracks[0] || null;
-  const collectionName = filters.selectedPlaylist
-    ? filters.selectedPlaylist
-    : filters.selectedTag
-      ? `#${filters.selectedTag}`
-      : filters.searchTerm
-        ? `Search: ${filters.searchTerm}`
-        : "All Songs";
-
-  const collectionArtist = filters.selectedPlaylist
-    ? "Filtered by playlist"
-    : filters.selectedTag
-      ? "Filtered by tag"
-      : filters.searchTerm
-        ? "Search results"
-        : "Entire library";
-
-  return {
-    name: collectionName,
-    cover: primaryTrack?.cover || "",
-    artist: collectionArtist,
-    year: "",
-    tracks: [...filteredTracks],
-    album_zip: "",
-    isCollection: true
-  };
+  return visibleAlbums.find(album => album.name === "Testimony") || visibleAlbums[0] || null;
 }
 
 function getCurrentTrack() {
@@ -1180,12 +1150,12 @@ function renderFeaturedAlbum() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No collection found";
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No album found";
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
     if (els.featuredAlbumCover) {
       els.featuredAlbumCover.src = "";
-      els.featuredAlbumCover.alt = "No collection cover";
+      els.featuredAlbumCover.alt = "No album cover";
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
     return;
@@ -1199,8 +1169,7 @@ function renderFeaturedAlbum() {
   if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = album.name;
   if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = album.artist || "Allen Parvin";
   if (els.featuredAlbumCount) {
-    const label = album.isCollection ? "track" : "song";
-    els.featuredAlbumCount.textContent = `${album.tracks.length} ${label}${album.tracks.length === 1 ? "" : "s"}`;
+    els.featuredAlbumCount.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
   }
 
   if (els.downloadAlbumBtn) {
@@ -1225,7 +1194,7 @@ function renderFeaturedTrackList() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    els.featuredTrackListTitle.textContent = "Collection Tracks";
+    els.featuredTrackListTitle.textContent = "Album Tracks";
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
@@ -1602,8 +1571,7 @@ function openAlbumModal(album, triggerEl = null) {
   }
   if (els.albumModalArtist) els.albumModalArtist.textContent = album.artist || "Allen Parvin";
   if (els.albumModalInfo) {
-    const label = album.isCollection ? "track" : "song";
-    els.albumModalInfo.textContent = `${album.tracks.length} ${label}${album.tracks.length === 1 ? "" : "s"}`;
+    els.albumModalInfo.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
   }
 
   if (els.albumModalDownloadBtn) {
@@ -2533,17 +2501,6 @@ function restoreFocus() {
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function scrollToFeaturedCollectionCard() {
-  if (!els.featuredAlbumCard) {
-    scrollToTop();
-    return;
-  }
-
-  const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-  const targetY = window.scrollY + els.featuredAlbumCard.getBoundingClientRect().top - headerHeight - 16;
-  window.scrollTo({ top: Math.max(targetY, 0), behavior: "smooth" });
 }
 
 function cssEscape(value) {
