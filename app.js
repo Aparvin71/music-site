@@ -188,6 +188,7 @@ const els = {
   playerSheetPrevBtn: document.getElementById("playerSheetPrevBtn"),
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
+  playerSheetStudyToggle: document.getElementById("playerSheetStudyToggle"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
