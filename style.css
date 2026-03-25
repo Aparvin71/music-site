@@ -2573,6 +2573,22 @@ a:hover {
   margin-left: auto;
 }
 
+.player-tab--utility[aria-pressed="false"],
+.player-tab--utility.is-off {
+  background: #11161d;
+  border-color: #2a3240;
+  color: #dfe7f5;
+}
+
+.player-tab--utility[aria-pressed="true"],
+.player-tab--utility.active,
+.player-tab--utility.is-on {
+  background: linear-gradient(135deg, #2b4c78, #3f6aa5);
+  border-color: #7fb0ff;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(127,176,255,0.18), 0 8px 18px rgba(34, 74, 126, 0.24);
+}
+
 .study-mode-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.95fr);

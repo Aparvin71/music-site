@@ -469,9 +469,15 @@ function saveStudyMode() {
 
 function syncStudyModeUi() {
   if (!els.playerSheetStudyToggle) return;
-  els.playerSheetStudyToggle.textContent = studyMode ? "Study On" : "Study Off";
+  const label = studyMode ? "Study On" : "Study Off";
+  els.playerSheetStudyToggle.textContent = label;
+  els.playerSheetStudyToggle.innerText = label;
   els.playerSheetStudyToggle.setAttribute("aria-pressed", studyMode ? "true" : "false");
+  els.playerSheetStudyToggle.setAttribute("data-state", studyMode ? "on" : "off");
+  els.playerSheetStudyToggle.title = label;
   els.playerSheetStudyToggle.classList.toggle("active", studyMode);
+  els.playerSheetStudyToggle.classList.toggle("is-on", studyMode);
+  els.playerSheetStudyToggle.classList.toggle("is-off", !studyMode);
 }
 
 function toggleStudyMode(event) {
@@ -496,6 +502,7 @@ function toggleStudyMode(event) {
 }
 
 window.toggleStudyMode = toggleStudyMode;
+window.syncStudyModeUi = syncStudyModeUi;
 
 function saveQueueState() {
   localStorage.setItem(
