@@ -128,8 +128,6 @@ const els = {
   createPlaylistBtn: document.getElementById("createPlaylistBtn"),
   myPlaylistList: document.getElementById("myPlaylistList"),
   downloadedList: document.getElementById("downloadedList"),
-  dashboardHome: document.getElementById("dashboardHome"),
-  dashboardPlaylistsList: document.getElementById("dashboardPlaylistsList"),
 
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
@@ -182,7 +180,6 @@ async function init() {
   initMobileNav();
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
-  setupDashboardLayout();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -190,7 +187,6 @@ async function init() {
   renderRecentlyPlayed();
   renderMyPlaylists();
   renderDownloadedSongs();
-  renderDashboardPlaylists();
   renderQueue();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
@@ -693,112 +689,6 @@ function on(element, eventName, handler) {
 }
 
 /* =========================
-   DASHBOARD HOME
-========================= */
-
-function setupDashboardLayout() {
-  if (document.getElementById("dashboardHome")) return;
-
-  const mainContent = document.getElementById("mainContent");
-  const aboutPanel = document.querySelector(".about-panel");
-  const featuredCard = els.featuredAlbumCard || document.getElementById("featuredAlbumCard");
-  const albumsPanel = document.querySelector(".albums-panel");
-  const downloadedPanel = document.getElementById("downloadedList")?.closest(".library-panel");
-  const favoritesPanel = document.getElementById("favoritesList")?.closest(".library-panel");
-  const recentPanel = document.getElementById("recentlyPlayedList")?.closest(".library-panel");
-
-  if (!mainContent || !featuredCard) return;
-
-  const dashboard = document.createElement("section");
-  dashboard.id = "dashboardHome";
-  dashboard.className = "dashboard-home";
-  dashboard.innerHTML = `
-    <div class="dashboard-home-header">
-      <div>
-        <p class="eyebrow">Library Dashboard</p>
-        <h2>Jump back into your music faster</h2>
-        <p class="dashboard-home-text">Keep favorites, downloads, playlists, albums, and recent songs together on the home screen.</p>
-      </div>
-    </div>
-    <div class="dashboard-home-grid"></div>
-  `;
-
-  const grid = dashboard.querySelector(".dashboard-home-grid");
-
-  const playlistPanel = document.createElement("section");
-  playlistPanel.className = "library-panel dashboard-panel dashboard-playlists-panel";
-  playlistPanel.setAttribute("aria-labelledby", "dashboardPlaylistsHeading");
-  playlistPanel.innerHTML = `
-    <div class="section-header">
-      <h2 id="dashboardPlaylistsHeading">My Playlists</h2>
-    </div>
-    <div id="dashboardPlaylistsList" class="dashboard-playlist-list" aria-live="polite"></div>
-  `;
-
-  grid.appendChild(playlistPanel);
-
-  [albumsPanel, downloadedPanel, favoritesPanel, recentPanel].forEach(panel => {
-    if (panel) {
-      panel.classList.add("dashboard-panel");
-      grid.appendChild(panel);
-    }
-  });
-
-  mainContent.insertBefore(dashboard, featuredCard);
-
-  els.dashboardHome = document.getElementById("dashboardHome");
-  els.dashboardPlaylistsList = document.getElementById("dashboardPlaylistsList");
-}
-
-function updateDashboardVisibility() {
-  if (!els.dashboardHome) return;
-  const showDashboard = !hasActiveFilter();
-  els.dashboardHome.classList.toggle("hidden", !showDashboard);
-}
-
-function renderDashboardPlaylists() {
-  if (!els.dashboardPlaylistsList) return;
-
-  const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b)).slice(0, 8);
-
-  if (!names.length) {
-    els.dashboardPlaylistsList.innerHTML = `<p class="empty-message">Create a playlist to pin it on your dashboard.</p>`;
-    return;
-  }
-
-  els.dashboardPlaylistsList.innerHTML = names.map(name => {
-    const list = getCustomPlaylistTracks(name);
-    return `
-      <div class="dashboard-playlist-row">
-        <button class="dashboard-playlist-main" type="button" data-dashboard-playlist-open="${escapeHtmlAttr(name)}">
-          <span class="dashboard-playlist-icon">♪</span>
-          <span class="dashboard-playlist-copy">
-            <strong>${escapeHtml(name)}</strong>
-            <span>${list.length} song${list.length === 1 ? "" : "s"}</span>
-          </span>
-        </button>
-        <button class="mini-action-btn" type="button" data-dashboard-playlist-play="${escapeHtmlAttr(name)}">Play</button>
-      </div>
-    `;
-  }).join("");
-
-  els.dashboardPlaylistsList.querySelectorAll("[data-dashboard-playlist-open]").forEach(btn => {
-    btn.addEventListener("click", () => setCustomPlaylistFilter(btn.dataset.dashboardPlaylistOpen));
-  });
-
-  els.dashboardPlaylistsList.querySelectorAll("[data-dashboard-playlist-play]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const name = btn.dataset.dashboardPlaylistPlay;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setCustomPlaylistFilter(name);
-      startPlaybackFromList(list, false, 0);
-    });
-  });
-}
-
-/* =========================
    FILTERS
 ========================= */
 
@@ -1073,7 +963,6 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   syncCurrentTrackIndex();
-  updateDashboardVisibility();
 }
 
 /* =========================
@@ -2145,7 +2034,6 @@ function saveTrackToPlaylistFromModal() {
 
   saveCustomPlaylists();
   renderMyPlaylists();
-  renderDashboardPlaylists();
   closePlaylistModal();
 }
 
