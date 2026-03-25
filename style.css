@@ -3198,45 +3198,61 @@ body.orientation-guard-active {
 /* Synced lyrics */
 .synced-lyrics {
   display: grid;
-  gap: 10px;
-  padding-bottom: 40px;
+  gap: 8px;
+  padding-bottom: 24px;
 }
 
 .lyric-line {
   width: 100%;
   text-align: left;
-  border: 1px solid rgba(145, 175, 255, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border: 0;
+  background: transparent;
   color: #d8def0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  line-height: 1.6;
-  cursor: pointer;
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  padding: 4px 0;
+  border-radius: 0;
+  line-height: 1.45;
+  cursor: default;
+  transition: none;
 }
 
 .lyric-line:hover {
-  border-color: rgba(145, 175, 255, 0.35);
-  background: rgba(80, 120, 255, 0.08);
+  border-color: transparent;
+  background: transparent;
 }
 
 .lyric-line.active {
-  color: #ffffff;
-  border-color: rgba(145, 175, 255, 0.55);
-  background: linear-gradient(180deg, rgba(90, 124, 255, 0.18), rgba(90, 124, 255, 0.10));
-  box-shadow: 0 10px 24px rgba(22, 26, 57, 0.24);
-  transform: scale(1.01);
+  color: #d8def0;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
 }
 
 .player-sheet .synced-lyrics,
 .modal-body .synced-lyrics {
-  gap: 8px;
+  gap: 6px;
 }
 
 .player-sheet .lyric-line,
 .modal-body .lyric-line {
-  border-radius: 12px;
-  padding: 11px 12px;
+  border-radius: 0;
+  padding: 2px 0;
+}
+
+.player-tab-toggle {
+  margin-left: auto;
+}
+
+.player-tab-toggle.is-on {
+  background: #2b4c78;
+  border-color: #5e8ecd;
+  color: #f5f8ff;
+}
+
+.player-tab-toggle.is-off {
+  background: #11161d;
+  border-color: #2a3240;
+  color: #dfe7f5;
 }
 
 
