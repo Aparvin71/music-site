@@ -74,6 +74,7 @@ const els = {
   duration: document.getElementById("duration"),
   audioPlayer: document.getElementById("audioPlayer"),
 
+  openLyricsBtn: document.getElementById("openLyricsBtn"),
   copyLyricsBtn: document.getElementById("copyLyricsBtn"),
   copyLyricsBtnDesktop: document.getElementById("copyLyricsBtnDesktop"),
   shareSongBtn: document.getElementById("shareSongBtn"),
@@ -158,12 +159,14 @@ const els = {
   playerSheetPrevBtn: document.getElementById("playerSheetPrevBtn"),
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
+  playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
+  playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
   playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel")
 };
 
@@ -325,7 +328,7 @@ function loadAutoScrollEnabled() {
 
 function updateAutoScrollToggleUI() {
   if (!els.playerSheetAutoScrollBtn) return;
-  els.playerSheetAutoScrollBtn.textContent = autoScrollEnabled ? "Auto-Scroll: On" : "Auto-Scroll: Off";
+  els.playerSheetAutoScrollBtn.textContent = autoScrollEnabled ? "Auto-Scroll On" : "Auto-Scroll Off";
   els.playerSheetAutoScrollBtn.classList.toggle("is-on", autoScrollEnabled);
   els.playerSheetAutoScrollBtn.classList.toggle("is-off", !autoScrollEnabled);
   els.playerSheetAutoScrollBtn.setAttribute("aria-pressed", autoScrollEnabled ? "true" : "false");
@@ -537,6 +540,8 @@ function bindUI() {
     els.audioPlayer.addEventListener("pause", updatePlayButton);
     els.audioPlayer.addEventListener("ended", playNextTrack);
   }
+
+  on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -635,6 +640,14 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
+  on(els.playerSheetLyricsBtn, "click", () => {
+    if (window.matchMedia("(max-width: 640px)").matches) {
+      closePlayerSheet();
+      window.requestAnimationFrame(() => openLyricsModal(els.playerSheetLyricsBtn));
+      return;
+    }
+    openPlayerSheetLyricsPanel();
+  });
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
@@ -707,7 +720,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollectionCard();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -717,7 +730,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollectionCard();
 }
 
 function setTagFilter(tagName) {
@@ -727,7 +740,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollectionCard();
 }
 
 function setSearchFilter(term) {
@@ -736,7 +749,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollectionCard();
 }
 
 function clearAllFilters() {
@@ -848,13 +861,43 @@ function getVisibleTags(trackList) {
 }
 
 function getFeaturedAlbum() {
-  const visibleAlbums = getVisibleAlbums(filteredTracks);
+  if (!filteredTracks.length) return null;
 
-  if (filters.selectedAlbum) {
-    return visibleAlbums.find(album => album.name === filters.selectedAlbum) || null;
+  const visibleAlbums = getVisibleAlbums(filteredTracks);
+  const selectedAlbum = filters.selectedAlbum
+    ? visibleAlbums.find(album => album.name === filters.selectedAlbum) || null
+    : null;
+
+  if (selectedAlbum) {
+    return selectedAlbum;
   }
 
-  return visibleAlbums.find(album => album.name === "Testimony") || visibleAlbums[0] || null;
+  const primaryTrack = filteredTracks[0] || null;
+  const collectionName = filters.selectedPlaylist
+    ? filters.selectedPlaylist
+    : filters.selectedTag
+      ? `#${filters.selectedTag}`
+      : filters.searchTerm
+        ? `Search: ${filters.searchTerm}`
+        : "All Songs";
+
+  const collectionArtist = filters.selectedPlaylist
+    ? "Filtered by playlist"
+    : filters.selectedTag
+      ? "Filtered by tag"
+      : filters.searchTerm
+        ? "Search results"
+        : "Entire library";
+
+  return {
+    name: collectionName,
+    cover: primaryTrack?.cover || "",
+    artist: collectionArtist,
+    year: "",
+    tracks: [...filteredTracks],
+    album_zip: "",
+    isCollection: true
+  };
 }
 
 function getCurrentTrack() {
@@ -1137,12 +1180,12 @@ function renderFeaturedAlbum() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No album found";
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No collection found";
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
     if (els.featuredAlbumCover) {
       els.featuredAlbumCover.src = "";
-      els.featuredAlbumCover.alt = "No album cover";
+      els.featuredAlbumCover.alt = "No collection cover";
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
     return;
@@ -1156,7 +1199,8 @@ function renderFeaturedAlbum() {
   if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = album.name;
   if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = album.artist || "Allen Parvin";
   if (els.featuredAlbumCount) {
-    els.featuredAlbumCount.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
+    const label = album.isCollection ? "track" : "song";
+    els.featuredAlbumCount.textContent = `${album.tracks.length} ${label}${album.tracks.length === 1 ? "" : "s"}`;
   }
 
   if (els.downloadAlbumBtn) {
@@ -1181,7 +1225,7 @@ function renderFeaturedTrackList() {
   const album = getFeaturedAlbum();
 
   if (!album) {
-    els.featuredTrackListTitle.textContent = "Album Tracks";
+    els.featuredTrackListTitle.textContent = "Collection Tracks";
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
@@ -1558,7 +1602,8 @@ function openAlbumModal(album, triggerEl = null) {
   }
   if (els.albumModalArtist) els.albumModalArtist.textContent = album.artist || "Allen Parvin";
   if (els.albumModalInfo) {
-    els.albumModalInfo.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
+    const label = album.isCollection ? "track" : "song";
+    els.albumModalInfo.textContent = `${album.tracks.length} ${label}${album.tracks.length === 1 ? "" : "s"}`;
   }
 
   if (els.albumModalDownloadBtn) {
@@ -2423,6 +2468,12 @@ function updatePlayerSheet() {
     renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
   }
 
+  if (els.playerSheetScripturePanel) {
+    els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length
+      ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
+      : `<p class="empty-message">No scripture references available.</p>`;
+  }
+
   if (els.playerSheetPlayBtn && els.audioPlayer) {
     els.playerSheetPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
   }
@@ -2482,6 +2533,17 @@ function restoreFocus() {
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function scrollToFeaturedCollectionCard() {
+  if (!els.featuredAlbumCard) {
+    scrollToTop();
+    return;
+  }
+
+  const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+  const targetY = window.scrollY + els.featuredAlbumCard.getBoundingClientRect().top - headerHeight - 16;
+  window.scrollTo({ top: Math.max(targetY, 0), behavior: "smooth" });
 }
 
 function cssEscape(value) {

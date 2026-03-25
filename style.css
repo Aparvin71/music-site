@@ -453,6 +453,7 @@ a:hover {
 ========================================= */
 
 .featured-album-card {
+  scroll-margin-top: 96px;
   display: grid;
   grid-template-columns: 150px 1fr;
   gap: 16px;
@@ -3551,44 +3552,32 @@ body.orientation-guard-active {
 }
 
 
-/* ===== v39.6.16 mobile full-player lyrics tightening ===== */
+/* ===== v39.6.15 mobile lyrics tightening ===== */
 @media (max-width: 640px) {
-  .player-sheet-tabs {
-    gap: 6px;
-    align-items: center;
-  }
-
-  .player-tab,
-  .player-tab-toggle {
-    padding: 9px 12px;
-    font-size: 0.9rem;
-  }
-
   .player-sheet .player-tab-panel[data-player-panel="lyrics"],
   #playerSheetLyricsPanel {
-    max-height: 7.15em;
-    min-height: 7.15em;
+    max-height: 9.25em;
     overflow-y: auto;
     padding-right: 2px;
   }
 
   .player-sheet .synced-lyrics,
   #playerSheetLyricsPanel .synced-lyrics {
-    gap: 1px;
-    padding-bottom: 8px;
+    gap: 2px;
+    padding-bottom: 10px;
   }
 
   .player-sheet .lyric-line,
   #playerSheetLyricsPanel .lyric-line {
-    padding: 0;
-    line-height: 1.12;
-    font-size: 0.9rem;
+    padding: 1px 0;
+    line-height: 1.15;
+    font-size: 0.94rem;
     min-height: 0;
   }
 
   .player-sheet .lyrics-block,
   #playerSheetLyricsPanel .lyrics-block {
-    line-height: 1.18;
-    font-size: 0.9rem;
+    line-height: 1.22;
+    font-size: 0.94rem;
   }
 }

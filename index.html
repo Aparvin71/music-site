@@ -237,28 +237,28 @@
             id="featuredAlbumCover"
             class="featured-cover"
             src=""
-            alt="Featured album cover"
+            alt="Featured collection cover"
           />
         </div>
 
         <div class="featured-meta">
-          <p class="eyebrow">Featured Album</p>
-          <h2 id="featuredAlbumTitle">Loading album...</h2>
+          <p class="eyebrow">Featured Collection</p>
+          <h2 id="featuredAlbumTitle">Loading collection...</h2>
           <p id="featuredAlbumArtist">—</p>
           <p id="featuredAlbumCount">—</p>
 
           <div class="featured-actions">
-            <button id="playAlbumBtn" class="action-btn" type="button">Play Album</button>
-            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
-            <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Album</button>
-            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Album</button>
+            <button id="playAlbumBtn" class="action-btn" type="button">Play Collection</button>
+            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
+            <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
+            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Collection</button>
           </div>
         </div>
       </section>
 
       <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
         <div class="section-header">
-          <h2 id="featuredTrackListTitle">Album Tracks</h2>
+          <h2 id="featuredTrackListTitle">Collection Tracks</h2>
         </div>
 
         <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
@@ -385,6 +385,7 @@
 
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
+        <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
         <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
         <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
@@ -438,22 +439,22 @@
     <div class="album-modal-backdrop" id="albumModalBackdrop"></div>
     <div class="album-modal-content" role="dialog" aria-modal="true" aria-labelledby="albumModalTitle">
       <div class="album-modal-header">
-        <h2 id="albumModalTitle">Album</h2>
+        <h2 id="albumModalTitle">Collection</h2>
         <button id="closeAlbumBtn" class="control-btn" type="button" aria-label="Close album">✕</button>
       </div>
 
       <div class="album-modal-body">
         <div class="album-modal-top">
-          <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover" />
+          <img id="albumModalCover" class="album-modal-cover" src="" alt="Collection cover" />
 
           <div class="album-modal-meta">
             <p id="albumModalArtist">—</p>
             <p id="albumModalInfo">—</p>
 
             <div class="album-modal-actions">
-              <button id="albumModalPlayBtn" class="action-btn" type="button">Play Album</button>
-              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
-              <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>
+              <button id="albumModalPlayBtn" class="action-btn" type="button">Play Collection</button>
+              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
+              <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
             </div>
           </div>
         </div>
@@ -535,9 +536,7 @@
         <section class="player-sheet-panel">
           <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
             <button class="player-tab active" data-player-tab="lyrics" type="button" role="tab" aria-selected="true">Lyrics</button>
-            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button>
-            <button id="playerSheetAutoScrollBtn" class="player-tab player-tab-toggle is-on" type="button" aria-pressed="true">Auto-Scroll: On</button>
-          </div>
+            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button><button id="playerSheetAutoScrollBtn" class="player-tab player-tab-toggle is-on" type="button" aria-pressed="true">Auto-Scroll On</button></div>
 
           <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
           <div id="playerSheetQueuePanel" class="player-tab-panel" data-player-panel="queue"></div>
@@ -549,7 +548,7 @@
 
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v39.6.16</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v39.6.15</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>
