@@ -477,6 +477,11 @@ function toggleStudyMode() {
   syncStudyModeUi();
   setPlayerSheetTab("lyrics");
   updatePlayerSheet();
+
+  const track = getCurrentTrack();
+  if (track && els.lyricsModal && !els.lyricsModal.classList.contains("hidden")) {
+    renderLyricsViewInto(els.lyricsModalBody, track, "No lyrics available.");
+  }
 }
 
 function saveQueueState() {
@@ -1658,7 +1663,7 @@ function openLyricsModalForTrack(track, triggerEl = null) {
 
   lastFocusedElement = triggerEl || document.activeElement || null;
   els.lyricsModalTitle.textContent = `Lyrics — ${track.title}`;
-  renderLyricsInto(els.lyricsModalBody, track, "No lyrics available.");
+  renderLyricsViewInto(els.lyricsModalBody, track, "No lyrics available.");
 
   els.lyricsModal.classList.remove("hidden");
   els.lyricsModal.setAttribute("aria-hidden", "false");
@@ -2542,37 +2547,42 @@ function openPlayerSheetLyricsPanel() {
   }
 }
 
-function renderPlayerSheetStudyPanel(track) {
-  if (!els.playerSheetLyricsPanel) return;
+function renderLyricsViewInto(container, track, emptyMessage = "No lyrics available.") {
+  if (!container) return;
 
   if (!studyMode) {
-    renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
+    renderLyricsInto(container, track, emptyMessage);
     return;
   }
 
-  els.playerSheetLyricsPanel.innerHTML = `
+  container.innerHTML = `
     <div class="study-mode-layout">
       <section class="study-pane study-pane--lyrics">
         <div class="study-pane-header">Lyrics</div>
-        <div id="playerSheetStudyLyrics" class="study-pane-body"></div>
+        <div class="study-pane-body" data-study-lyrics></div>
       </section>
       <section class="study-pane study-pane--scripture">
         <div class="study-pane-header">Scripture</div>
-        <div id="playerSheetStudyScripture" class="study-pane-body"></div>
+        <div class="study-pane-body" data-study-scripture></div>
       </section>
     </div>
   `;
 
-  const lyricsTarget = document.getElementById("playerSheetStudyLyrics");
-  const scriptureTarget = document.getElementById("playerSheetStudyScripture");
+  const lyricsTarget = container.querySelector("[data-study-lyrics]");
+  const scriptureTarget = container.querySelector("[data-study-scripture]");
 
-  renderLyricsInto(lyricsTarget, track, "No lyrics available.");
+  renderLyricsInto(lyricsTarget, track, emptyMessage);
 
   if (scriptureTarget) {
     scriptureTarget.innerHTML = track?.scripture_references?.length
       ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
       : `<p class="empty-message">No scripture references available.</p>`;
   }
+}
+
+function renderPlayerSheetStudyPanel(track) {
+  if (!els.playerSheetLyricsPanel) return;
+  renderLyricsViewInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
 }
 
 function updatePlayerSheet() {
