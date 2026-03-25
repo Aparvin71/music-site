@@ -203,6 +203,9 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   loadStoredData();
   bindUI();
+  if (els.playerSheetStudyToggle) {
+    els.playerSheetStudyToggle.onclick = toggleStudyMode;
+  }
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
@@ -471,18 +474,28 @@ function syncStudyModeUi() {
   els.playerSheetStudyToggle.classList.toggle("active", studyMode);
 }
 
-function toggleStudyMode() {
+function toggleStudyMode(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   studyMode = !studyMode;
   saveStudyMode();
   syncStudyModeUi();
   setPlayerSheetTab("lyrics");
-  updatePlayerSheet();
 
   const track = getCurrentTrack();
+  renderPlayerSheetStudyPanel(track);
+
   if (track && els.lyricsModal && !els.lyricsModal.classList.contains("hidden")) {
     renderLyricsViewInto(els.lyricsModalBody, track, "No lyrics available.");
   }
+
+  updatePlayerSheet();
 }
+
+window.toggleStudyMode = toggleStudyMode;
 
 function saveQueueState() {
   localStorage.setItem(
