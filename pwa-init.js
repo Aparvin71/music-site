@@ -1,11 +1,11 @@
-const AINEO_APP_VERSION = "v39.6.5";
+const AINEO_APP_VERSION = "v39.6.7";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
 async function registerStandaloneServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
-    const swUrl = new URL("./service-worker.js", window.location.href).pathname;
+    const swUrl = new URL(`./service-worker.js?v=${AINEO_APP_VERSION}`, window.location.href).toString();
     const registration = await navigator.serviceWorker.register(swUrl);
     if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
     registration.addEventListener("updatefound", () => {

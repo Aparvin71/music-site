@@ -6,7 +6,6 @@ let currentQueue = [];
 let currentQueueIndex = -1;
 let favorites = [];
 let recentlyPlayed = [];
-let recentSearches = [];
 let resumeTrackSrc = null;
 let lastFocusedElement = null;
 let customPlaylists = {};
@@ -15,7 +14,6 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
-let studyMode = false;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -23,29 +21,8 @@ const STORAGE_KEYS = {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue",
-  recentSearches: "aineo_recent_searches",
-  studyMode: "aineo_study_mode"
+  lastQueue: "aineo_last_queue"
 };
-
-function loadRecentSearches() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.recentSearches) || "[]");
-    recentSearches = Array.isArray(saved) ? saved.filter(Boolean).slice(0, 8) : [];
-  } catch (error) {
-    recentSearches = [];
-  }
-}
-
-function saveRecentSearch(term) {
-  const clean = String(term || "").trim();
-  if (!clean) return;
-
-  recentSearches = recentSearches.filter(item => item.toLowerCase() !== clean.toLowerCase());
-  recentSearches.unshift(clean);
-  recentSearches = recentSearches.slice(0, 8);
-  localStorage.setItem(STORAGE_KEYS.recentSearches, JSON.stringify(recentSearches));
-}
 
 const filters = {
   selectedAlbum: null,
@@ -59,13 +36,6 @@ const els = {
   siteNavLinks: document.getElementById("siteNavLinks"),
 
   searchInput: document.getElementById("searchInput"),
-  searchInsights: document.getElementById("searchInsights"),
-  searchInsightsTitle: document.getElementById("searchInsightsTitle"),
-  searchInsightsText: document.getElementById("searchInsightsText"),
-  searchInsightsChips: document.getElementById("searchInsightsChips"),
-  clearSearchInsightsBtn: document.getElementById("clearSearchInsightsBtn"),
-  recentSearchesWrap: document.getElementById("recentSearchesWrap"),
-  recentSearchesList: document.getElementById("recentSearchesList"),
   playlistList: document.getElementById("playlistList"),
   tagList: document.getElementById("tagList"),
   albumGrid: document.getElementById("albumGrid"),
@@ -188,7 +158,6 @@ const els = {
   playerSheetPrevBtn: document.getElementById("playerSheetPrevBtn"),
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
-  playerSheetStudyToggle: document.getElementById("playerSheetStudyToggle"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
@@ -204,9 +173,6 @@ document.addEventListener("DOMContentLoaded", init);
 async function init() {
   loadStoredData();
   bindUI();
-  if (els.playerSheetStudyToggle) {
-    els.playerSheetStudyToggle.onclick = toggleStudyMode;
-  }
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
@@ -350,7 +316,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
+          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
         `).join("")}
       </div>
     `;
@@ -435,7 +401,6 @@ function loadStoredData() {
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
-  studyMode = localStorage.getItem(STORAGE_KEYS.studyMode) === "1";
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
@@ -464,46 +429,6 @@ function saveCustomPlaylists() {
 function saveDownloadedTracks() {
   localStorage.setItem(STORAGE_KEYS.downloadedTracks, JSON.stringify(downloadedTracks));
 }
-function saveStudyMode() {
-  localStorage.setItem(STORAGE_KEYS.studyMode, studyMode ? "1" : "0");
-}
-
-function syncStudyModeUi() {
-  if (!els.playerSheetStudyToggle) return;
-  const label = studyMode ? "Study On" : "Study Off";
-  els.playerSheetStudyToggle.textContent = label;
-  els.playerSheetStudyToggle.innerText = label;
-  els.playerSheetStudyToggle.setAttribute("aria-pressed", studyMode ? "true" : "false");
-  els.playerSheetStudyToggle.setAttribute("data-state", studyMode ? "on" : "off");
-  els.playerSheetStudyToggle.title = label;
-  els.playerSheetStudyToggle.classList.toggle("active", studyMode);
-  els.playerSheetStudyToggle.classList.toggle("is-on", studyMode);
-  els.playerSheetStudyToggle.classList.toggle("is-off", !studyMode);
-}
-
-function toggleStudyMode(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  studyMode = !studyMode;
-  saveStudyMode();
-  syncStudyModeUi();
-  setPlayerSheetTab("lyrics");
-
-  const track = getCurrentTrack();
-  renderPlayerSheetStudyPanel(track);
-
-  if (track && els.lyricsModal && !els.lyricsModal.classList.contains("hidden")) {
-    renderLyricsViewInto(els.lyricsModalBody, track, "No lyrics available.");
-  }
-
-  updatePlayerSheet();
-}
-
-window.toggleStudyMode = toggleStudyMode;
-window.syncStudyModeUi = syncStudyModeUi;
 
 function saveQueueState() {
   localStorage.setItem(
@@ -556,10 +481,6 @@ function clearResume() {
 
 function bindUI() {
   on(els.searchInput, "input", e => setSearchFilter(e.target.value));
-  on(els.clearSearchInsightsBtn, "click", () => {
-    if (els.searchInput) els.searchInput.value = "";
-    clearAllFilters();
-  });
   on(els.clearFiltersBtn, "click", clearAllFilters);
 
   on(els.playBtn, "click", togglePlayPause);
@@ -588,7 +509,17 @@ function bindUI() {
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
 
-  // Synced lyric lines are display-only in this build.
+  document.addEventListener("click", event => {
+    const lyricButton = event.target.closest("[data-lyric-time]");
+    if (!lyricButton || !els.audioPlayer) return;
+
+    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
+    if (!Number.isFinite(targetTime)) return;
+
+    els.audioPlayer.currentTime = targetTime;
+    updateProgressUI();
+    updateSyncedLyricsProgress();
+  });
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
@@ -687,7 +618,6 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
-  on(els.playerSheetStudyToggle, "click", toggleStudyMode);
   on(els.playerSheetLyricsBtn, "click", () => {
     if (window.matchMedia("(max-width: 640px)").matches) {
       closePlayerSheet();
@@ -795,7 +725,6 @@ function setSearchFilter(term) {
   filters.selectedPlaylist = null;
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
-  if (filters.searchTerm) saveRecentSearch(filters.searchTerm);
   updateLibraryView();
   scrollToTop();
 }
@@ -808,107 +737,6 @@ function clearAllFilters() {
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
   scrollToTop();
-}
-
-function getSearchInsights(term) {
-  const q = String(term || "").trim().toLowerCase();
-  if (!q) {
-    return { songs: 0, albums: 0, playlists: 0, tags: 0, scriptures: 0, lyricMatches: 0 };
-  }
-
-  const matchedTracks = getFilteredTracks();
-  const albumSet = new Set();
-  const playlistSet = new Set();
-  const tagSet = new Set();
-  const scriptureSet = new Set();
-  let lyricMatches = 0;
-
-  matchedTracks.forEach(track => {
-    if (track.album) albumSet.add(track.album);
-    if ((track.lyrics || "").toLowerCase().includes(q)) lyricMatches += 1;
-
-    (track.playlists || []).forEach(name => {
-      if (name.toLowerCase().includes(q) || matchedTracks.length) playlistSet.add(name);
-    });
-
-    (track.tags || []).forEach(name => {
-      if (name.toLowerCase().includes(q) || matchedTracks.length) tagSet.add(name);
-    });
-
-    (track.scripture_references || []).forEach(ref => {
-      if (ref.toLowerCase().includes(q) || matchedTracks.length) scriptureSet.add(ref);
-    });
-  });
-
-  return {
-    songs: matchedTracks.length,
-    albums: albumSet.size,
-    playlists: playlistSet.size,
-    tags: tagSet.size,
-    scriptures: scriptureSet.size,
-    lyricMatches
-  };
-}
-
-function highlightQuery(textValue, query) {
-  const text = String(textValue || "");
-  const q = String(query || "").trim();
-  if (!q) return escapeHtml(text);
-
-  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const regex = new RegExp(`(${escaped})`, "ig");
-  return escapeHtml(text).replace(regex, '<mark class="search-hit">$1</mark>');
-}
-
-function renderRecentSearches() {
-  if (!els.recentSearchesWrap || !els.recentSearchesList) return;
-
-  const shouldShow = !filters.searchTerm && recentSearches.length > 0;
-  els.recentSearchesWrap.classList.toggle("hidden", !shouldShow);
-  if (!shouldShow) return;
-
-  els.recentSearchesList.innerHTML = recentSearches
-    .map(term => `<button class="recent-search-chip" type="button" data-recent-search="${escapeHtmlAttr(term)}">${escapeHtml(term)}</button>`)
-    .join("");
-
-  els.recentSearchesList.querySelectorAll("[data-recent-search]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const value = btn.dataset.recentSearch || "";
-      if (els.searchInput) els.searchInput.value = value;
-      setSearchFilter(value);
-    });
-  });
-}
-
-function renderSearchInsights() {
-  if (!els.searchInsights || !els.searchInsightsTitle || !els.searchInsightsText || !els.searchInsightsChips) return;
-
-  const q = String(filters.searchTerm || "").trim();
-  const show = Boolean(q);
-  els.searchInsights.classList.toggle("hidden", !show);
-  if (!show) {
-    renderRecentSearches();
-    return;
-  }
-
-  const counts = getSearchInsights(q);
-  els.searchInsightsTitle.textContent = `Search results for “${q}”`;
-  els.searchInsightsText.textContent = `${counts.songs} song${counts.songs === 1 ? "" : "s"} matched across albums, playlists, tags, lyrics, and scripture references.`;
-
-  const chips = [
-    ["Songs", counts.songs],
-    ["Albums", counts.albums],
-    ["Playlists", counts.playlists],
-    ["Tags", counts.tags],
-    ["Scripture", counts.scriptures],
-    ["Lyrics", counts.lyricMatches]
-  ];
-
-  els.searchInsightsChips.innerHTML = chips
-    .map(([label, value]) => `<span class="search-insight-chip"><strong>${label}</strong><span>${value}</span></span>`)
-    .join("");
-
-  renderRecentSearches();
 }
 
 function getFilteredTracks() {
@@ -1315,12 +1143,8 @@ function renderFeaturedAlbum() {
     els.featuredAlbumCover.alt = `${album.name} cover`;
   }
 
-  if (els.featuredAlbumTitle) {
-    els.featuredAlbumTitle.innerHTML = filters.searchTerm ? highlightQuery(album.name, filters.searchTerm) : escapeHtml(album.name);
-  }
-  if (els.featuredAlbumArtist) {
-    els.featuredAlbumArtist.innerHTML = filters.searchTerm ? highlightQuery(album.artist || "Allen Parvin", filters.searchTerm) : escapeHtml(album.artist || "Allen Parvin");
-  }
+  if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = album.name;
+  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = album.artist || "Allen Parvin";
   if (els.featuredAlbumCount) {
     els.featuredAlbumCount.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
   }
@@ -1352,7 +1176,7 @@ function renderFeaturedTrackList() {
     return;
   }
 
-  els.featuredTrackListTitle.textContent = filters.searchTerm ? `Search Results` : `${album.name} Tracks`;
+  els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
 
   els.featuredTrackList.innerHTML = album.tracks
     .map((track, index) => {
@@ -1368,13 +1192,13 @@ function renderFeaturedTrackList() {
 
           <div class="featured-track-main">
             <div class="featured-track-title-line">
-              <strong>${index + 1}. ${filters.searchTerm ? highlightQuery(track.title, filters.searchTerm) : escapeHtml(track.title)}</strong>
+              <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
               ${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ""}
             </div>
 
             <div class="featured-track-meta-line">
-              <span>${filters.searchTerm ? highlightQuery(track.artist, filters.searchTerm) : escapeHtml(track.artist)}</span>
-              ${track.scripture_references.length ? `<span>• ${filters.searchTerm ? highlightQuery(track.scripture_references.join(" • "), filters.searchTerm) : escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
+              <span>${escapeHtml(track.artist)}</span>
+              ${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
             </div>
           </div>
 
@@ -1684,7 +1508,7 @@ function openLyricsModalForTrack(track, triggerEl = null) {
 
   lastFocusedElement = triggerEl || document.activeElement || null;
   els.lyricsModalTitle.textContent = `Lyrics — ${track.title}`;
-  renderLyricsViewInto(els.lyricsModalBody, track, "No lyrics available.");
+  renderLyricsInto(els.lyricsModalBody, track, "No lyrics available.");
 
   els.lyricsModal.classList.remove("hidden");
   els.lyricsModal.setAttribute("aria-hidden", "false");
@@ -1739,7 +1563,7 @@ function openAlbumModal(album, triggerEl = null) {
           <button class="album-track-row ${active}" data-album-track-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button">
             <div class="album-track-main">
               <div class="album-track-title-row">
-                <strong>${index + 1}. ${filters.searchTerm ? highlightQuery(track.title, filters.searchTerm) : escapeHtml(track.title)}</strong>
+                <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
                 <span class="album-track-duration">${escapeHtml(track.duration || "")}</span>
               </div>
               <p class="album-track-artist">${escapeHtml(track.artist)}</p>
@@ -2568,44 +2392,6 @@ function openPlayerSheetLyricsPanel() {
   }
 }
 
-function renderLyricsViewInto(container, track, emptyMessage = "No lyrics available.") {
-  if (!container) return;
-
-  if (!studyMode) {
-    renderLyricsInto(container, track, emptyMessage);
-    return;
-  }
-
-  container.innerHTML = `
-    <div class="study-mode-layout">
-      <section class="study-pane study-pane--lyrics">
-        <div class="study-pane-header">Lyrics</div>
-        <div class="study-pane-body" data-study-lyrics></div>
-      </section>
-      <section class="study-pane study-pane--scripture">
-        <div class="study-pane-header">Scripture</div>
-        <div class="study-pane-body" data-study-scripture></div>
-      </section>
-    </div>
-  `;
-
-  const lyricsTarget = container.querySelector("[data-study-lyrics]");
-  const scriptureTarget = container.querySelector("[data-study-scripture]");
-
-  renderLyricsInto(lyricsTarget, track, emptyMessage);
-
-  if (scriptureTarget) {
-    scriptureTarget.innerHTML = track?.scripture_references?.length
-      ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
-      : `<p class="empty-message">No scripture references available.</p>`;
-  }
-}
-
-function renderPlayerSheetStudyPanel(track) {
-  if (!els.playerSheetLyricsPanel) return;
-  renderLyricsViewInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
-}
-
 function updatePlayerSheet() {
   const track = getCurrentTrack();
 
@@ -2624,7 +2410,7 @@ function updatePlayerSheet() {
   }
 
   if (els.playerSheetLyricsPanel) {
-    renderPlayerSheetStudyPanel(track);
+    renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
   }
 
   if (els.playerSheetScripturePanel) {
@@ -2640,7 +2426,6 @@ function updatePlayerSheet() {
   updateOfflineButtons(track);
   updateFavoriteButton();
   updateProgressUI();
-  syncStudyModeUi();
   setPlayerSheetTab(playerSheetTab);
 }
 
