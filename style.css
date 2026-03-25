@@ -3533,32 +3533,63 @@ body.orientation-guard-active {
   z-index: 12060;
 }
 
-/* ===== v39.6.12 mobile lyrics tightening ===== */
-@media (max-width: 640px) {
-  .player-sheet .player-tab-panel[data-player-panel="lyrics"],
-  #playerSheetLyricsPanel {
-    max-height: 9.5em;
-    overflow-y: auto;
-    padding-right: 2px;
-  }
+/* =========================================
+   RECENTLY PLAYED / DASHBOARD TEXT FIX
+========================================= */
 
-  .player-sheet .synced-lyrics,
-  #playerSheetLyricsPanel .synced-lyrics {
-    gap: 2px;
-    padding-bottom: 12px;
-  }
+#recentSection,
+#recentTracks,
+#recentlyPlayedList,
+.dashboard-section,
+.dashboard-section h2,
+.dashboard-section .empty-message {
+  color: #e6ecff;
+}
 
-  .player-sheet .lyric-line,
-  #playerSheetLyricsPanel .lyric-line {
-    padding: 1px 0;
-    line-height: 1.18;
-    font-size: 0.95rem;
-    min-height: 0;
-  }
+#recentTracks .mini-card,
+#recentlyPlayedList .mini-card,
+.dashboard-section .mini-card {
+  background: #11161d;
+  border: 1px solid #252a34;
+  color: #e6ecff;
+}
 
-  .player-sheet .lyrics-block,
-  #playerSheetLyricsPanel .lyrics-block {
-    line-height: 1.24;
-    font-size: 0.95rem;
-  }
+#recentTracks .mini-card:hover,
+#recentlyPlayedList .mini-card:hover,
+.dashboard-section .mini-card:hover {
+  background: #1c232d;
+  border-color: #4f6483;
+}
+
+#recentTracks .mini-card-meta strong,
+#recentlyPlayedList .mini-card-meta strong,
+.dashboard-section .mini-card-meta strong,
+#recentTracks .mini-card strong,
+#recentlyPlayedList .mini-card strong,
+.dashboard-section .mini-card strong {
+  color: #f4f7ff;
+}
+
+#recentTracks .mini-card-meta span,
+#recentlyPlayedList .mini-card-meta span,
+.dashboard-section .mini-card-meta span,
+#recentTracks .mini-card p,
+#recentlyPlayedList .mini-card p,
+.dashboard-section .mini-card p {
+  color: #b7c0cf;
+}
+
+#recentTracks .mini-card:visited,
+#recentlyPlayedList .mini-card:visited,
+.dashboard-section .mini-card:visited,
+#recentTracks .mini-card * ,
+#recentlyPlayedList .mini-card * ,
+.dashboard-section .mini-card * {
+  text-decoration: none;
+}
+
+#recentTracks .mini-card strong,
+#recentlyPlayedList .mini-card strong,
+.dashboard-section .mini-card strong {
+  text-shadow: none;
 }
