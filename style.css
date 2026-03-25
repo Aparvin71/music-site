@@ -3205,48 +3205,38 @@ body.orientation-guard-active {
 .lyric-line {
   width: 100%;
   text-align: left;
-  border: 0;
-  background: transparent;
+  border: 1px solid rgba(145, 175, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
   color: #d8def0;
-  padding: 6px 0;
-  border-radius: 0;
-  line-height: 1.45;
-  cursor: default;
-  transition: color 0.18s ease, opacity 0.18s ease;
+  padding: 12px 14px;
+  border-radius: 14px;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .lyric-line:hover {
-  border: 0;
-  background: transparent;
+  border-color: rgba(145, 175, 255, 0.35);
+  background: rgba(80, 120, 255, 0.08);
 }
 
 .lyric-line.active {
-  color: #d8def0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  transform: none;
+  color: #ffffff;
+  border-color: rgba(145, 175, 255, 0.55);
+  background: linear-gradient(180deg, rgba(90, 124, 255, 0.18), rgba(90, 124, 255, 0.10));
+  box-shadow: 0 10px 24px rgba(22, 26, 57, 0.24);
+  transform: scale(1.01);
 }
 
 .player-sheet .synced-lyrics,
 .modal-body .synced-lyrics {
-  gap: 6px;
+  gap: 8px;
 }
 
 .player-sheet .lyric-line,
 .modal-body .lyric-line {
-  border-radius: 0;
-  padding: 4px 0;
-}
-
-.player-tab-toggle {
-  margin-left: auto;
-}
-
-.player-tab-toggle.active {
-  background: linear-gradient(180deg, rgba(90, 124, 255, 0.26), rgba(90, 124, 255, 0.16));
-  border-color: rgba(145, 175, 255, 0.5);
-  color: #f3f7ff;
+  border-radius: 12px;
+  padding: 11px 12px;
 }
 
 
@@ -3541,4 +3531,65 @@ body.orientation-guard-active {
 
 #playlistModal.lyrics-modal {
   z-index: 12060;
+}
+
+/* =========================================
+   RECENTLY PLAYED / DASHBOARD TEXT FIX
+========================================= */
+
+#recentSection,
+#recentTracks,
+#recentlyPlayedList,
+.dashboard-section,
+.dashboard-section h2,
+.dashboard-section .empty-message {
+  color: #e6ecff;
+}
+
+#recentTracks .mini-card,
+#recentlyPlayedList .mini-card,
+.dashboard-section .mini-card {
+  background: #11161d;
+  border: 1px solid #252a34;
+  color: #e6ecff;
+}
+
+#recentTracks .mini-card:hover,
+#recentlyPlayedList .mini-card:hover,
+.dashboard-section .mini-card:hover {
+  background: #1c232d;
+  border-color: #4f6483;
+}
+
+#recentTracks .mini-card-meta strong,
+#recentlyPlayedList .mini-card-meta strong,
+.dashboard-section .mini-card-meta strong,
+#recentTracks .mini-card strong,
+#recentlyPlayedList .mini-card strong,
+.dashboard-section .mini-card strong {
+  color: #f4f7ff;
+}
+
+#recentTracks .mini-card-meta span,
+#recentlyPlayedList .mini-card-meta span,
+.dashboard-section .mini-card-meta span,
+#recentTracks .mini-card p,
+#recentlyPlayedList .mini-card p,
+.dashboard-section .mini-card p {
+  color: #b7c0cf;
+}
+
+#recentTracks .mini-card:visited,
+#recentlyPlayedList .mini-card:visited,
+.dashboard-section .mini-card:visited,
+#recentTracks .mini-card * ,
+#recentlyPlayedList .mini-card * ,
+.dashboard-section .mini-card * {
+  text-decoration: none;
+}
+
+#recentTracks .mini-card strong,
+#recentlyPlayedList .mini-card strong,
+.dashboard-section .mini-card strong {
+  text-shadow: none;
 }
