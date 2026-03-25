@@ -346,7 +346,7 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
         ${track.syncedLyrics.map((line, index) => `
-          <button class="lyric-line" type="button" data-lyric-time="${line.time.toFixed(2)}" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</button>
+          <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
         `).join("")}
       </div>
     `;
@@ -475,6 +475,7 @@ function toggleStudyMode() {
   studyMode = !studyMode;
   saveStudyMode();
   syncStudyModeUi();
+  setPlayerSheetTab("lyrics");
   updatePlayerSheet();
 }
 
@@ -561,17 +562,7 @@ function bindUI() {
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
 
-  document.addEventListener("click", event => {
-    const lyricButton = event.target.closest("[data-lyric-time]");
-    if (!lyricButton || !els.audioPlayer) return;
-
-    const targetTime = Number(lyricButton.dataset.lyricTime || 0);
-    if (!Number.isFinite(targetTime)) return;
-
-    els.audioPlayer.currentTime = targetTime;
-    updateProgressUI();
-    updateSyncedLyricsProgress();
-  });
+  // Synced lyric lines are display-only in this build.
   on(els.copyLyricsBtn, "click", copyCurrentLyrics);
   on(els.copyLyricsBtnDesktop, "click", copyCurrentLyrics);
   on(els.shareSongBtn, "click", shareCurrentSong);
