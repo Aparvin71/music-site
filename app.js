@@ -32,6 +32,8 @@ const filters = {
   searchTerm: ""
 };
 
+let currentCollectionKey = "all-songs";
+
 const els = {
   mobileNavToggle: document.getElementById("mobileNavToggle"),
   siteNavLinks: document.getElementById("siteNavLinks"),
@@ -551,24 +553,24 @@ function bindUI() {
   on(els.downloadSongBtnDesktop, "click", downloadCurrentSong);
 
   on(els.playQueueBtn, "click", () => {
-    startPlaybackFromList(filteredTracks, false);
+    startPlaybackFromList(getCurrentCollectionTracks(), false);
     openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.playQueueBtnDesktop, "click", () => {
-    startPlaybackFromList(filteredTracks, false);
+    startPlaybackFromList(getCurrentCollectionTracks(), false);
     openAndScrollQueueToCurrentTrack();
   });
 
   on(els.shuffleQueueBtn, "click", () => {
-    startPlaybackFromList(filteredTracks, true);
+    startPlaybackFromList(getCurrentCollectionTracks(), true);
     openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.shuffleQueueBtnDesktop, "click", () => {
-    startPlaybackFromList(filteredTracks, true);
+    startPlaybackFromList(getCurrentCollectionTracks(), true);
     openAndScrollQueueToCurrentTrack();
   });
 
@@ -592,8 +594,12 @@ function bindUI() {
 
   on(els.openAlbumBtn, "click", e => {
     const collection = getFeaturedCollection();
-    if (!collection || collection.type !== "album") return;
-    openAlbumModal(collection, e.currentTarget);
+    if (!collection) return;
+    if (collection.openMode === "album") {
+      openAlbumModal(collection, e.currentTarget);
+      return;
+    }
+    scrollToFeaturedCollection();
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);
@@ -604,22 +610,22 @@ function bindUI() {
 
   on(els.albumModalPlayBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!collection) return;
-    startPlaybackFromList(collection.tracks, false);
+    if (!album) return;
+    startPlaybackFromList(album.tracks, false);
     scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalShuffleBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!collection) return;
-    startPlaybackFromList(collection.tracks, true);
+    if (!album) return;
+    startPlaybackFromList(album.tracks, true);
     scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalDownloadBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!collection?.album_zip) return;
-    triggerDownload(collection.album_zip, `${safeFileName(collection.name)}.zip`);
+    if (!album?.album_zip) return;
+    triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
   });
 
   on(els.resumeSongBtn, "click", resumeSavedTrack);
@@ -720,7 +726,7 @@ function setAlbumFilter(albumName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setPlaylistFilter(playlistName) {
@@ -730,7 +736,7 @@ function setPlaylistFilter(playlistName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setTagFilter(tagName) {
@@ -740,7 +746,7 @@ function setTagFilter(tagName) {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setSearchFilter(term) {
@@ -749,7 +755,7 @@ function setSearchFilter(term) {
   filters.selectedTag = null;
   filters.searchTerm = term.trim();
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function clearAllFilters() {
@@ -759,7 +765,7 @@ function clearAllFilters() {
   filters.searchTerm = "";
   if (els.searchInput) els.searchInput.value = "";
   updateLibraryView();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function getFilteredTracks() {
@@ -804,6 +810,130 @@ function getFilteredTracks() {
 /* =========================
    DERIVED DATA
 ========================= */
+
+function getCurrentCollectionTracks() {
+  return Array.isArray(filteredTracks) ? [...filteredTracks] : [];
+}
+
+function getCurrentCollectionKey() {
+  if (filters.selectedAlbum) return `album:${filters.selectedAlbum}`;
+  if (filters.selectedPlaylist) return `playlist:${filters.selectedPlaylist}`;
+  if (filters.selectedTag) return `tag:${filters.selectedTag}`;
+  if (filters.searchTerm) return `search:${filters.searchTerm.toLowerCase()}`;
+  return "all-songs";
+}
+
+function getCurrentCollectionMeta() {
+  const collectionTracks = getCurrentCollectionTracks();
+  const fallbackCover = collectionTracks.find(track => track.cover)?.cover || "";
+  const fallbackArtist = collectionTracks[0]?.artist || "Allen Parvin";
+  const albumZip = collectionTracks.find(track => track.album_zip)?.album_zip || "";
+
+  if (filters.selectedAlbum) {
+    const album = getVisibleAlbums(collectionTracks).find(item => item.name === filters.selectedAlbum);
+    return {
+      type: "album",
+      key: getCurrentCollectionKey(),
+      name: filters.selectedAlbum,
+      subtitle: album?.artist || fallbackArtist,
+      cover: album?.cover || fallbackCover,
+      tracks: collectionTracks,
+      album_zip: album?.album_zip || albumZip,
+      openMode: "album"
+    };
+  }
+
+  if (filters.selectedPlaylist) {
+    return {
+      type: "playlist",
+      key: getCurrentCollectionKey(),
+      name: filters.selectedPlaylist,
+      subtitle: "Playlist",
+      cover: fallbackCover,
+      tracks: collectionTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
+  if (filters.selectedTag) {
+    return {
+      type: "tag",
+      key: getCurrentCollectionKey(),
+      name: `#${filters.selectedTag}`,
+      subtitle: "Filtered by tag",
+      cover: fallbackCover,
+      tracks: collectionTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
+  if (filters.searchTerm) {
+    return {
+      type: "search",
+      key: getCurrentCollectionKey(),
+      name: collectionTracks.length ? `Search Results` : "Search Results",
+      subtitle: `Matches for “${filters.searchTerm}”`,
+      cover: fallbackCover,
+      tracks: collectionTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
+  return {
+    type: "all",
+    key: "all-songs",
+    name: "All Songs",
+    subtitle: "Entire music library",
+    cover: fallbackCover,
+    tracks: collectionTracks,
+    album_zip: "",
+    openMode: "collection"
+  };
+}
+
+function getFeaturedCollection() {
+  const collection = getCurrentCollectionMeta();
+  return collection.tracks.length ? collection : null;
+}
+
+function scrollToFeaturedCollection() {
+  const target = els.featuredAlbumCard || document.getElementById("featuredAlbumCard");
+  if (!target) return;
+  const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+  const top = window.scrollY + target.getBoundingClientRect().top - headerHeight - 16;
+  window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+}
+
+function syncQueueToCurrentCollection(force = false) {
+  const collectionTracks = getCurrentCollectionTracks();
+  const nextKey = getCurrentCollectionKey();
+  const currentTrack = getCurrentTrack();
+  const needsSync = force || currentCollectionKey !== nextKey || currentQueue.length !== collectionTracks.length || currentQueue.some((track, index) => track.id !== collectionTracks[index]?.id);
+
+  currentCollectionKey = nextKey;
+  if (!needsSync) return;
+
+  currentQueue = [...collectionTracks];
+  if (!currentQueue.length) {
+    currentQueueIndex = -1;
+    saveQueueState();
+    renderQueue();
+    return;
+  }
+
+  if (currentTrack) {
+    const matchIndex = currentQueue.findIndex(track => track.id === currentTrack.id);
+    currentQueueIndex = matchIndex >= 0 ? matchIndex : 0;
+  } else {
+    currentQueueIndex = 0;
+  }
+
+  saveQueueState();
+  renderQueue();
+}
 
 function getVisibleAlbums(trackList) {
   const map = new Map();
@@ -860,55 +990,8 @@ function getVisibleTags(trackList) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function getFeaturedCollection() {
-  const visibleAlbums = getVisibleAlbums(filteredTracks);
-
-  if (filters.selectedAlbum) {
-    const album = visibleAlbums.find(item => item.name === filters.selectedAlbum) || null;
-    return album ? { ...album, type: "album" } : null;
-  }
-
-  if (filters.selectedPlaylist) {
-    return {
-      name: filters.selectedPlaylist,
-      artist: "Allen Parvin",
-      tracks: [...filteredTracks],
-      cover: filteredTracks[0]?.cover || "",
-      album_zip: "",
-      type: "playlist"
-    };
-  }
-
-  if (filters.selectedTag) {
-    return {
-      name: filters.selectedTag,
-      artist: "Allen Parvin",
-      tracks: [...filteredTracks],
-      cover: filteredTracks[0]?.cover || "",
-      album_zip: "",
-      type: "tag"
-    };
-  }
-
-  if (filters.searchTerm) {
-    return {
-      name: filters.searchTerm,
-      artist: "Allen Parvin",
-      tracks: [...filteredTracks],
-      cover: filteredTracks[0]?.cover || "",
-      album_zip: "",
-      type: "search"
-    };
-  }
-
-  return {
-    name: "All Songs",
-    artist: "Allen Parvin",
-    tracks: [...filteredTracks],
-    cover: filteredTracks[0]?.cover || tracks[0]?.cover || "",
-    album_zip: "",
-    type: "all"
-  };
+function getFeaturedAlbum() {
+  return getFeaturedCollection();
 }
 
 function getCurrentTrack() {
@@ -929,13 +1012,14 @@ function getCurrentTrack() {
 
 function updateLibraryView() {
   filteredTracks = getFilteredTracks();
+  syncCurrentTrackIndex();
+  syncQueueToCurrentCollection();
   renderActiveFilterLabel();
   renderPlaylists(filteredTracks);
   renderTags(filteredTracks);
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
-  syncCurrentTrackIndex();
 }
 
 /* =========================
@@ -1191,7 +1275,7 @@ function renderFeaturedAlbum() {
   const collection = getFeaturedCollection();
 
   if (!collection) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No collection found";
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
     if (els.featuredAlbumCover) {
@@ -1199,7 +1283,10 @@ function renderFeaturedAlbum() {
       els.featuredAlbumCover.alt = "No collection cover";
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-    if (els.openAlbumBtn) els.openAlbumBtn.style.display = "none";
+    if (els.openAlbumBtn) {
+      els.openAlbumBtn.textContent = "Open Collection";
+      els.openAlbumBtn.disabled = true;
+    }
     return;
   }
 
@@ -1209,14 +1296,7 @@ function renderFeaturedAlbum() {
   }
 
   if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name;
-
-  let subtitle = collection.artist || "Allen Parvin";
-  if (collection.type === "playlist") subtitle = "Playlist Collection";
-  else if (collection.type === "tag") subtitle = "Filtered Collection";
-  else if (collection.type === "search") subtitle = "Search Results";
-  else if (collection.type === "all") subtitle = "Full Library";
-  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = subtitle;
-
+  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || "Allen Parvin";
   if (els.featuredAlbumCount) {
     els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? "" : "s"}`;
   }
@@ -1224,8 +1304,10 @@ function renderFeaturedAlbum() {
   if (els.downloadAlbumBtn) {
     els.downloadAlbumBtn.style.display = collection.album_zip ? "inline-flex" : "none";
   }
+
   if (els.openAlbumBtn) {
-    els.openAlbumBtn.style.display = collection.type === "album" ? "inline-flex" : "none";
+    els.openAlbumBtn.textContent = collection.openMode === "album" ? "Open Album" : "Open Collection";
+    els.openAlbumBtn.disabled = false;
   }
 }
 
@@ -1243,17 +1325,17 @@ function getFeaturedTrackPlayState(track) {
 function renderFeaturedTrackList() {
   if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
 
-  const collection = getFeaturedCollection();
+  const album = getFeaturedCollection();
 
-  if (!collection) {
+  if (!album) {
     els.featuredTrackListTitle.textContent = "Collection Tracks";
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
 
-  els.featuredTrackListTitle.textContent = `${collection.name} Tracks`;
+  els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
 
-  els.featuredTrackList.innerHTML = collection.tracks
+  els.featuredTrackList.innerHTML = album.tracks
     .map((track, index) => {
       const playState = getFeaturedTrackPlayState(track);
       const isPlaying = playState.isCurrentTrack ? "playing" : "";
@@ -1272,8 +1354,8 @@ function renderFeaturedTrackList() {
             </div>
 
             <div class="featured-track-meta-line">
-              <span>${escapeHtml(track.artist || "Allen Parvin")}</span>
-              ${track.scripture_references?.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
+              <span>${escapeHtml(track.artist)}</span>
+              ${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
             </div>
           </div>
 
@@ -1302,7 +1384,7 @@ function renderFeaturedTrackList() {
   els.featuredTrackList.querySelectorAll("[data-featured-index]").forEach(btn => {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.featuredIndex);
-      const track = collection.tracks[idx];
+      const track = album.tracks[idx];
       if (!track) return;
 
       if (getCurrentTrack()?.id === track.id && els.audioPlayer?.src) {
@@ -1310,14 +1392,17 @@ function renderFeaturedTrackList() {
         return;
       }
 
-      setQueue(collection.tracks, false);
+      syncQueueToCurrentCollection(true);
+      if (getCurrentCollectionTracks()[idx]?.id !== track.id) {
+        setQueue(album.tracks, false);
+      }
       playFromQueueIndex(idx);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-favorite-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
+      const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
       if (!track) return;
       toggleFavorite(track);
       renderFeaturedTrackList();
@@ -1326,32 +1411,31 @@ function renderFeaturedTrackList() {
 
   els.featuredTrackList.querySelectorAll("[data-lyrics-track]").forEach(btn => {
     btn.addEventListener("click", e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
+      const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack);
       if (!track) return;
       openLyricsModalForTrack(track, e.currentTarget);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-add-playlist-track]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.addPlaylistTrack);
+    btn.addEventListener("click", e => {
+      const track = album.tracks.find(t => t.id === btn.dataset.addPlaylistTrack);
       if (!track) return;
-      addTrackToPlaylist(track.id);
+      openPlaylistModalForTrack(track, e.currentTarget);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-save-offline-track]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.saveOfflineTrack);
+    btn.addEventListener("click", () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.saveOfflineTrack);
       if (!track) return;
-      await saveTrackOffline(track);
-      renderFeaturedTrackList();
+      saveTrackOffline(track);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-download-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.downloadTrack);
+      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack);
       if (!track?.src) return;
       triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     });
@@ -1409,8 +1493,8 @@ function playFromQueueIndex(index) {
 
 function playPreviousTrack() {
   if (!currentQueue.length) {
-    if (!filteredTracks.length) return;
-    setQueue(filteredTracks, false);
+    if (!getCurrentCollectionTracks().length) return;
+    setQueue(getCurrentCollectionTracks(), false);
   }
 
   if (!currentQueue.length) return;
@@ -1421,8 +1505,8 @@ function playPreviousTrack() {
 
 function playNextTrack() {
   if (!currentQueue.length) {
-    if (!filteredTracks.length) return;
-    setQueue(filteredTracks, false);
+    if (!getCurrentCollectionTracks().length) return;
+    setQueue(getCurrentCollectionTracks(), false);
   }
 
   if (!currentQueue.length) return;
@@ -1435,10 +1519,10 @@ function togglePlayPause() {
   if (!els.audioPlayer) return;
 
   if (!els.audioPlayer.src) {
-    const first = currentQueue[0] || filteredTracks[0] || tracks[0];
+    const first = currentQueue[0] || getCurrentCollectionTracks()[0] || tracks[0];
     if (first) {
       if (!currentQueue.length) {
-        setQueue(filteredTracks.length ? filteredTracks : tracks, false);
+        setQueue(getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : tracks, false);
       }
       playTrack(first);
     }
@@ -1575,18 +1659,7 @@ function updateLyricsPanel(track) {
 }
 
 function updateScripturePanel(track) {
-  if (!els.scriptureContent) return;
-
-  if (!track || !track.scripture_references.length) {
-    els.scriptureContent.innerHTML = `<p class="empty-message">No scripture reference available for this song.</p>`;
-    return;
-  }
-
-  els.scriptureContent.innerHTML = `
-    <div class="scripture-block">
-      ${track.scripture_references.map(ref => `<p>${escapeHtml(ref)}</p>`).join("")}
-    </div>
-  `;
+  return;
 }
 
 function openLyricsModal(triggerEl = null) {
@@ -2569,13 +2642,6 @@ function restoreFocus() {
 }
 
 function scrollToTop() {
-  const target = document.getElementById("featuredAlbumCard");
-  if (target) {
-    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-    const y = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
-    window.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
-    return;
-  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -2924,8 +2990,9 @@ function applyCustomPlaylistFilter(name) {
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
+  syncQueueToCurrentCollection(false);
   renderQueue();
-  scrollToTop();
+  scrollToFeaturedCollection();
 }
 
 function setActiveCustomPlaylist(name) {
@@ -2979,8 +3046,8 @@ function renderPlaylistWorkspace() {
 
   const list = getCustomPlaylistTracks(activeCustomPlaylistName);
   if (title) title.textContent = activeCustomPlaylistName;
-  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • reorder, remove, or jump back into the library view`;
-  if (cover) cover.innerHTML = buildPlaylistCoverCollage(list);
+  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • simple title list with reorder and remove controls`;
+  if (cover) cover.innerHTML = `<div class="playlist-workspace-cover-label">♪</div>`;
   if (renameInput) renameInput.value = activeCustomPlaylistName;
   if (playBtn) playBtn.disabled = !list.length;
   if (shuffleBtn) shuffleBtn.disabled = !list.length;
@@ -2995,12 +3062,10 @@ function renderPlaylistWorkspace() {
   }
 
   tracksWrap.innerHTML = list.map((track, index) => `
-    <div class="playlist-track-row ${getCurrentTrack()?.id === track.id ? "active" : ""}" draggable="true" data-playlist-track-index="${index}">
+    <div class="playlist-track-row playlist-track-row--compact ${getCurrentTrack()?.id === track.id ? "active" : ""}" draggable="true" data-playlist-track-index="${index}">
       <button class="playlist-track-drag" type="button" aria-label="Drag to reorder">☰</button>
-      ${track.cover ? `<img class="playlist-track-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" loading="lazy" />` : `<div class="playlist-track-cover playlist-track-cover-fallback">♪</div>`}
-      <button class="playlist-track-main" type="button" data-playlist-track-play="${index}">
-        <strong>${escapeHtml(track.title)}</strong>
-        <span>${escapeHtml(track.artist)} • ${escapeHtml(track.album)}</span>
+      <button class="playlist-track-main playlist-track-main--compact" type="button" data-playlist-track-play="${index}">
+        <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
       </button>
       <div class="playlist-track-row-actions">
         <button class="mini-action-btn" data-playlist-track-queue="${index}" type="button">Queue</button>
@@ -3043,38 +3108,50 @@ function renderPlaylistWorkspace() {
       saveCustomPlaylists();
       renderMyPlaylists();
       renderPlaylistWorkspace();
+      if (getCurrentFilterKey() === `custom-playlist:${activeCustomPlaylistName}`) {
+        applyCustomPlaylistFilter(activeCustomPlaylistName);
+      }
     });
   });
 
-  tracksWrap.querySelectorAll("[data-playlist-track-index]").forEach(row => {
+  tracksWrap.querySelectorAll(".playlist-track-row[draggable='true']").forEach(row => {
     row.addEventListener("dragstart", () => {
       playlistItemDragIndex = Number(row.dataset.playlistTrackIndex);
       row.classList.add("dragging");
     });
 
+    row.addEventListener("dragover", event => {
+      event.preventDefault();
+      row.classList.add("drag-target");
+    });
+
+    row.addEventListener("dragleave", () => row.classList.remove("drag-target"));
+
     row.addEventListener("dragend", () => {
-      row.classList.remove("dragging");
       playlistItemDragIndex = null;
+      row.classList.remove("dragging", "drag-target");
+      tracksWrap.querySelectorAll(".playlist-track-row").forEach(item => item.classList.remove("drag-target", "dragging"));
     });
 
-    row.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
-
-    row.addEventListener("drop", e => {
-      e.preventDefault();
+    row.addEventListener("drop", event => {
+      event.preventDefault();
       const dropIndex = Number(row.dataset.playlistTrackIndex);
+      tracksWrap.querySelectorAll(".playlist-track-row").forEach(item => item.classList.remove("drag-target", "dragging"));
       if (playlistItemDragIndex === null || playlistItemDragIndex === dropIndex || !activeCustomPlaylistName) {
+        playlistItemDragIndex = null;
         return;
       }
-
       const ids = [...(customPlaylists[activeCustomPlaylistName] || [])];
       const [moved] = ids.splice(playlistItemDragIndex, 1);
       ids.splice(dropIndex, 0, moved);
       customPlaylists[activeCustomPlaylistName] = ids;
       saveCustomPlaylists();
+      playlistItemDragIndex = null;
       renderMyPlaylists();
       renderPlaylistWorkspace();
+      if (getCurrentFilterKey() === `custom-playlist:${activeCustomPlaylistName}`) {
+        applyCustomPlaylistFilter(activeCustomPlaylistName);
+      }
     });
   });
 }
@@ -3088,6 +3165,8 @@ function renderMyPlaylists() {
   const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
 
   if (!names.length) {
+    els.myPlaylistList.classList.remove("playlist-v2-grid");
+    els.myPlaylistList.classList.add("playlist-v2-list");
     els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
     activeCustomPlaylistName = null;
     renderPlaylistWorkspace();
@@ -3098,29 +3177,24 @@ function renderMyPlaylists() {
     activeCustomPlaylistName = names[0];
   }
 
-  els.myPlaylistList.classList.add("playlist-v2-grid");
+  els.myPlaylistList.classList.remove("playlist-v2-grid");
+  els.myPlaylistList.classList.add("playlist-v2-list");
 
   els.myPlaylistList.innerHTML = names.map(name => {
     const list = getCustomPlaylistTracks(name);
     const active = name === activeCustomPlaylistName ? "active" : "";
     return `
-      <article class="playlist-card ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-        <button class="playlist-card-cover" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" aria-label="Open ${escapeHtmlAttr(name)}">
-          ${buildPlaylistCoverCollage(list)}
+      <article class="playlist-list-item ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
+        <button class="playlist-list-item-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
+          <strong>${escapeHtml(name)}</strong>
+          <span>${list.length} song${list.length === 1 ? "" : "s"}</span>
         </button>
 
-        <div class="playlist-card-body">
-          <button class="playlist-card-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
-            ${escapeHtml(name)}
-          </button>
-          <p class="playlist-card-meta">${list.length} song${list.length === 1 ? "" : "s"}</p>
-
-          <div class="playlist-card-actions">
-            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
-            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
-            <button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button>
-            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button>
-          </div>
+        <div class="playlist-list-item-actions">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
+          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
+          <button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button>
+          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button>
         </div>
       </article>
     `;
@@ -3171,33 +3245,4 @@ function renderMyPlaylists() {
   });
 
   renderPlaylistWorkspace();
-}
-
-function createNewPlaylist() {
-  playlistPickerTrackId = null;
-  if (els.playlistSelect) els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>`;
-  if (els.newPlaylistName) els.newPlaylistName.value = "";
-  openPlaylistModal(null, els.createPlaylistBtn);
-}
-
-function saveTrackToPlaylistFromModal() {
-  const typedName = els.newPlaylistName?.value?.trim();
-  const selectedName = els.playlistSelect?.value?.trim();
-  const playlistName = typedName || selectedName;
-
-  if (!playlistName) return;
-
-  if (!customPlaylists[playlistName]) {
-    customPlaylists[playlistName] = [];
-  }
-
-  if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
-    customPlaylists[playlistName].push(playlistPickerTrackId);
-  }
-
-  saveCustomPlaylists();
-  activeCustomPlaylistName = playlistName;
-  renderMyPlaylists();
-  renderPlaylistWorkspace();
-  closePlaylistModal();
 }

@@ -209,7 +209,11 @@
           <p class="eyebrow">More</p>
           <h2>Explore More Pages</h2>
           <p class="mission-statement mission-statement--summary">
-            Browse artists and albums, leave feedback, review updates, and use the built-in lyrics and upload helpers.
+            Browse artists and albums, leave feedback, and review updates across the growing Aineo Music library.
+          </p>
+          <p class="mission-statement mission-statement--summary">
+            The Albums page helps organize songs into collections so related music stays together and is easier to explore.
+            The Feedback page is a place to request songs, share encouragement, report issues, and suggest future improvements.
           </p>
           <div class="quick-link-pills">
             <a class="quick-link-pill" href="./artists.html">Artists</a>
@@ -243,7 +247,7 @@
 
         <div class="featured-meta">
           <p class="eyebrow">Featured Collection</p>
-          <h2 id="featuredAlbumTitle">Loading collection...</h2>
+          <h2 id="featuredAlbumTitle">Loading album...</h2>
           <p id="featuredAlbumArtist">—</p>
           <p id="featuredAlbumCount">—</p>
 
@@ -315,27 +319,7 @@
         </div>
       </section>
 
-      <section class="scripture-panel collapsible-section open" data-collapsible="scripture">
-        <div class="section-header section-header-collapsible">
-          <button
-            class="section-toggle"
-            type="button"
-            aria-expanded="true"
-            aria-controls="scriptureSectionBody"
-          >
-            <span>Scripture References</span>
-            <span class="toggle-icon" aria-hidden="true">▾</span>
-          </button>
-        </div>
-
-        <div id="scriptureSectionBody" class="section-body">
-          <div id="scriptureContent" class="scripture-content">
-            <p class="empty-message">No scripture reference available for this song.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="queue-panel collapsible-section open" data-collapsible="queue">
+      <section class="queue-panel collapsible-section open" collapsible-section open" data-collapsible="queue">
         <div class="queue-header section-header-collapsible">
           <button
             class="section-toggle"
@@ -385,7 +369,6 @@
 
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
-        <button id="openLyricsBtn" class="action-btn secondary-btn" type="button">Lyrics</button>
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
         <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
         <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
@@ -536,7 +519,9 @@
         <section class="player-sheet-panel">
           <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
             <button class="player-tab active" data-player-tab="lyrics" type="button" role="tab" aria-selected="true">Lyrics</button>
-            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button><button id="playerSheetAutoScrollBtn" class="player-tab player-tab-toggle is-on" type="button" aria-pressed="true">Auto-Scroll On</button></div>
+            <button class="player-tab" data-player-tab="queue" type="button" role="tab" aria-selected="false">Queue</button>
+            <button id="playerSheetAutoScrollBtn" class="player-tab player-tab-toggle is-on" type="button" aria-pressed="true">Auto-Scroll On</button>
+          </div>
 
           <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
           <div id="playerSheetQueuePanel" class="player-tab-panel" data-player-panel="queue"></div>
@@ -548,7 +533,7 @@
 
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v39.6.15</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v39.7.2</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>

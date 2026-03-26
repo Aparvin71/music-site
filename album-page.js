@@ -23,6 +23,7 @@ const albumPageEls = {
 
 let allTracks = [];
 let albumTracks = [];
+let albumLibrary = [];
 let currentQueue = [];
 let currentQueueIndex = -1;
 let toastTimer = null;
@@ -38,7 +39,7 @@ async function initAlbumPage() {
   initMobileNav();
   bindPlayer();
   bindModal();
-  await loadTracks();
+  await Promise.all([loadTracks(), loadAlbumsMetadata()]);
   renderAlbumPage();
 }
 
@@ -84,6 +85,35 @@ async function loadTracks() {
   albumTracks = allTracks.filter(track => track.album.toLowerCase() === albumParam.toLowerCase());
 }
 
+async function loadAlbumsMetadata() {
+  try {
+    const res = await fetch(`albums.json?v=${Date.now()}`, { cache: "no-store" });
+    const data = await res.json();
+    albumLibrary = Array.isArray(data) ? data.map(normalizeAlbumMetadata) : [];
+  } catch (error) {
+    console.warn("albums.json could not be loaded.", error);
+    albumLibrary = [];
+  }
+}
+
+function normalizeAlbumMetadata(album) {
+  const toArray = value => Array.isArray(value) ? value : String(value || "").split(",").map(v => v.trim()).filter(Boolean);
+  return {
+    title: album.title || album.name || "",
+    slug: album.slug || slugify(album.title || album.name || ""),
+    year: album.year || "",
+    cover: album.cover || "",
+    description: album.description || album.album_description || "",
+    theme: album.theme || album.album_theme || "",
+    story: album.story || album.album_story || "",
+    badges: toArray(album.badges || album.album_badges),
+    track_count: Number(album.track_count || album.song_count || 0) || 0,
+    album_zip: album.album_zip || "",
+    artist: album.artist || ""
+  };
+}
+
+
 function normalizeTrack(track) {
   const toArray = value => Array.isArray(value) ? value : String(value || "").split(",").map(v => v.trim()).filter(Boolean);
   return {
@@ -122,16 +152,7 @@ function renderAlbumPage() {
     return;
   }
 
-  const album = {
-    name: albumTracks[0].album,
-    artist: albumTracks[0].artist,
-    cover: albumTracks.find(track => track.cover)?.cover || "",
-    album_zip: albumTracks.find(track => track.album_zip)?.album_zip || "",
-    description: albumTracks.find(track => track.album_description)?.album_description || "",
-    theme: albumTracks.find(track => track.album_theme)?.album_theme || "",
-    story: albumTracks.find(track => track.album_story)?.album_story || "",
-    badges: [...new Set(albumTracks.flatMap(track => track.album_badges || []))].slice(0, 8)
-  };
+  const album = getAlbumMetadataForPage(albumTracks);
 
   const scriptureSummary = getAlbumScriptureSummary(albumTracks);
   const tagSummary = [...new Set(albumTracks.flatMap(track => track.tags || []))].slice(0, 6);
@@ -256,7 +277,9 @@ function renderAlbumPage() {
           <div class="album-page-related-list">
             ${relatedSongs.length ? relatedSongs.map((track, index) => `
               <button class="album-related-card" type="button" data-related-index="${index}">
-                ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" />` : `<div class="album-related-cover"></div>`}
+                <span class="album-related-cover-wrap">
+                  ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" loading="lazy" />` : `<div class="album-related-cover album-related-cover-fallback">♪</div>`}
+                </span>
                 <span class="album-related-copy">
                   <strong>${escapeHtml(track.title)}</strong>
                   <span>${escapeHtml(track.album)}</span>
@@ -543,6 +566,31 @@ function getCurrentTrack() {
   return currentQueue[currentQueueIndex] || null;
 }
 
+
+function getAlbumMetadataForPage(trackList) {
+  const firstTrack = trackList[0] || {};
+  const title = firstTrack.album || albumParam || "";
+  const normalizedTitle = String(title).toLowerCase();
+  const slug = slugify(title);
+  const albumMeta = albumLibrary.find(item =>
+    String(item.title || "").toLowerCase() === normalizedTitle ||
+    String(item.slug || "").toLowerCase() === slug
+  );
+
+  const fallbackBadges = [...new Set(trackList.flatMap(track => track.album_badges || []))].slice(0, 8);
+
+  return {
+    name: albumMeta?.title || title,
+    artist: albumMeta?.artist || firstTrack.artist || "Allen Parvin",
+    cover: albumMeta?.cover || trackList.find(track => track.cover)?.cover || "",
+    album_zip: albumMeta?.album_zip || trackList.find(track => track.album_zip)?.album_zip || "",
+    description: albumMeta?.description || trackList.find(track => track.album_description)?.album_description || "",
+    theme: albumMeta?.theme || trackList.find(track => track.album_theme)?.album_theme || "",
+    story: albumMeta?.story || trackList.find(track => track.album_story)?.album_story || "",
+    badges: (albumMeta?.badges?.length ? albumMeta.badges : fallbackBadges).slice(0, 8)
+  };
+}
+
 function getAlbumRelatedSongs(trackList) {
   const excludeIds = new Set(trackList.map(track => track.id));
   const albumTags = new Set(trackList.flatMap(track => track.tags || []).map(tag => String(tag).toLowerCase()));
@@ -679,6 +727,15 @@ function shuffleArray(arr) {
 function safeFileName(value) {
   return String(value || "download").replace(/[\\/:*?"<>|]+/g, "-").trim();
 }
+
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 
 function nl2br(text) {
   return String(text || "").replace(/\n/g, "<br>");
