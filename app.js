@@ -174,7 +174,6 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   loadStoredData();
-  updateAutoScrollToggleUI();
   bindUI();
   initCollapsibles();
   initMobilePlayerDrawer();
@@ -399,74 +398,31 @@ function renderLyricsInto(container, track, emptyMessage) {
     });
 }
 
-function getLyricsScrollPanel(container, activeLine) {
-  if (container?.id === "playerSheetLyricsPanel") return container;
-  if (container?.closest && container.closest("#playerSheetLyricsPanel")) {
-    return document.getElementById("playerSheetLyricsPanel");
-  }
-  return activeLine?.closest(".player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card") || null;
-}
-
-function shouldRecenterLyrics(panel, activeLine) {
-  if (!panel || !activeLine) return false;
-  const panelHeight = panel.clientHeight || 0;
-  if (!panelHeight) return false;
-
-  const lineTop = activeLine.offsetTop;
-  const lineBottom = lineTop + activeLine.offsetHeight;
-  const viewTop = panel.scrollTop;
-  const viewBottom = viewTop + panelHeight;
-  const topThreshold = viewTop + panelHeight * 0.28;
-  const bottomThreshold = viewBottom - panelHeight * 0.28;
-
-  return lineTop < topThreshold || lineBottom > bottomThreshold;
-}
-
-function scrollLyricsLineIntoView(panel, activeLine, smooth = true) {
-  if (!panel || !activeLine) return;
-  const targetScrollTop = activeLine.offsetTop - (panel.clientHeight / 2) + (activeLine.clientHeight / 2);
-  panel.scrollTo({
-    top: Math.max(targetScrollTop, 0),
-    behavior: smooth ? "smooth" : "auto"
-  });
-}
-
-function updateSyncedLyricsProgress(forceScroll = false) {
+function updateSyncedLyricsProgress() {
   const track = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
   const activeIndex = findActiveLyricIndex(track?.syncedLyrics || [], currentTime);
 
   document.querySelectorAll(".synced-lyrics").forEach(container => {
     const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
-    const lineEls = Array.from(container.querySelectorAll(".lyric-line"));
+    const lineEls = container.querySelectorAll(".lyric-line");
 
     lineEls.forEach(lineEl => {
       lineEl.classList.remove("active");
     });
 
-    if (!isCurrentTrack || activeIndex < 0) {
-      delete container.dataset.activeIndex;
-      return;
-    }
+    if (!isCurrentTrack || activeIndex < 0 || !autoScrollEnabled) return;
+    if (container.dataset.activeIndex === String(activeIndex)) return;
+
+    container.dataset.activeIndex = String(activeIndex);
 
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    activeLine.classList.add("active");
-
-    const indexChanged = container.dataset.activeIndex !== String(activeIndex);
-    container.dataset.activeIndex = String(activeIndex);
-
-    if (!autoScrollEnabled) return;
-
-    const panel = getLyricsScrollPanel(container, activeLine);
-    if (!panel || panel.offsetParent === null) return;
-
-    if (!(forceScroll || indexChanged || shouldRecenterLyrics(panel, activeLine))) return;
-
-    requestAnimationFrame(() => {
-      scrollLyricsLineIntoView(panel, activeLine, true);
-    });
+    const panel = activeLine.closest(".player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card");
+    if (panel && panel.offsetParent !== null) {
+      activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   });
 }
 
@@ -617,27 +573,27 @@ function bindUI() {
   });
 
   on(els.playAlbumBtn, "click", () => {
-    const album = getFeaturedAlbum();
-    if (!album) return;
-    startPlaybackFromList(album.tracks, false);
+    const collection = getFeaturedCollection();
+    if (!collection) return;
+    startPlaybackFromList(collection.tracks, false);
   });
 
   on(els.shuffleAlbumBtn, "click", () => {
-    const album = getFeaturedAlbum();
-    if (!album) return;
-    startPlaybackFromList(album.tracks, true);
+    const collection = getFeaturedCollection();
+    if (!collection) return;
+    startPlaybackFromList(collection.tracks, true);
   });
 
   on(els.downloadAlbumBtn, "click", () => {
-    const album = getFeaturedAlbum();
-    if (!album?.album_zip) return;
-    triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
+    const collection = getFeaturedCollection();
+    if (!collection?.album_zip) return;
+    triggerDownload(collection.album_zip, `${safeFileName(collection.name)}.zip`);
   });
 
   on(els.openAlbumBtn, "click", e => {
-    const album = getFeaturedAlbum();
-    if (!album) return;
-    openAlbumModal(album, e.currentTarget);
+    const collection = getFeaturedCollection();
+    if (!collection || collection.type !== "album") return;
+    openAlbumModal(collection, e.currentTarget);
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);
@@ -648,22 +604,22 @@ function bindUI() {
 
   on(els.albumModalPlayBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!album) return;
-    startPlaybackFromList(album.tracks, false);
+    if (!collection) return;
+    startPlaybackFromList(collection.tracks, false);
     scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalShuffleBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!album) return;
-    startPlaybackFromList(album.tracks, true);
+    if (!collection) return;
+    startPlaybackFromList(collection.tracks, true);
     scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalDownloadBtn, "click", () => {
     const album = getAlbumModalAlbum();
-    if (!album?.album_zip) return;
-    triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`);
+    if (!collection?.album_zip) return;
+    triggerDownload(collection.album_zip, `${safeFileName(collection.name)}.zip`);
   });
 
   on(els.resumeSongBtn, "click", resumeSavedTrack);
@@ -904,14 +860,55 @@ function getVisibleTags(trackList) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-function getFeaturedAlbum() {
+function getFeaturedCollection() {
   const visibleAlbums = getVisibleAlbums(filteredTracks);
 
   if (filters.selectedAlbum) {
-    return visibleAlbums.find(album => album.name === filters.selectedAlbum) || null;
+    const album = visibleAlbums.find(item => item.name === filters.selectedAlbum) || null;
+    return album ? { ...album, type: "album" } : null;
   }
 
-  return visibleAlbums.find(album => album.name === "Testimony") || visibleAlbums[0] || null;
+  if (filters.selectedPlaylist) {
+    return {
+      name: filters.selectedPlaylist,
+      artist: "Allen Parvin",
+      tracks: [...filteredTracks],
+      cover: filteredTracks[0]?.cover || "",
+      album_zip: "",
+      type: "playlist"
+    };
+  }
+
+  if (filters.selectedTag) {
+    return {
+      name: filters.selectedTag,
+      artist: "Allen Parvin",
+      tracks: [...filteredTracks],
+      cover: filteredTracks[0]?.cover || "",
+      album_zip: "",
+      type: "tag"
+    };
+  }
+
+  if (filters.searchTerm) {
+    return {
+      name: filters.searchTerm,
+      artist: "Allen Parvin",
+      tracks: [...filteredTracks],
+      cover: filteredTracks[0]?.cover || "",
+      album_zip: "",
+      type: "search"
+    };
+  }
+
+  return {
+    name: "All Songs",
+    artist: "Allen Parvin",
+    tracks: [...filteredTracks],
+    cover: filteredTracks[0]?.cover || tracks[0]?.cover || "",
+    album_zip: "",
+    type: "all"
+  };
 }
 
 function getCurrentTrack() {
@@ -1191,33 +1188,44 @@ function renderAlbums(trackList) {
 }
 
 function renderFeaturedAlbum() {
-  const album = getFeaturedAlbum();
+  const collection = getFeaturedCollection();
 
-  if (!album) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No album found";
+  if (!collection) {
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No collection found";
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
     if (els.featuredAlbumCover) {
       els.featuredAlbumCover.src = "";
-      els.featuredAlbumCover.alt = "No album cover";
+      els.featuredAlbumCover.alt = "No collection cover";
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
+    if (els.openAlbumBtn) els.openAlbumBtn.style.display = "none";
     return;
   }
 
   if (els.featuredAlbumCover) {
-    els.featuredAlbumCover.src = album.cover || "";
-    els.featuredAlbumCover.alt = `${album.name} cover`;
+    els.featuredAlbumCover.src = collection.cover || "";
+    els.featuredAlbumCover.alt = `${collection.name} cover`;
   }
 
-  if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = album.name;
-  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = album.artist || "Allen Parvin";
+  if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name;
+
+  let subtitle = collection.artist || "Allen Parvin";
+  if (collection.type === "playlist") subtitle = "Playlist Collection";
+  else if (collection.type === "tag") subtitle = "Filtered Collection";
+  else if (collection.type === "search") subtitle = "Search Results";
+  else if (collection.type === "all") subtitle = "Full Library";
+  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = subtitle;
+
   if (els.featuredAlbumCount) {
-    els.featuredAlbumCount.textContent = `${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}`;
+    els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? "" : "s"}`;
   }
 
   if (els.downloadAlbumBtn) {
-    els.downloadAlbumBtn.style.display = album.album_zip ? "inline-flex" : "none";
+    els.downloadAlbumBtn.style.display = collection.album_zip ? "inline-flex" : "none";
+  }
+  if (els.openAlbumBtn) {
+    els.openAlbumBtn.style.display = collection.type === "album" ? "inline-flex" : "none";
   }
 }
 
@@ -1235,17 +1243,17 @@ function getFeaturedTrackPlayState(track) {
 function renderFeaturedTrackList() {
   if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
 
-  const album = getFeaturedAlbum();
+  const collection = getFeaturedCollection();
 
-  if (!album) {
-    els.featuredTrackListTitle.textContent = "Album Tracks";
+  if (!collection) {
+    els.featuredTrackListTitle.textContent = "Collection Tracks";
     els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
     return;
   }
 
-  els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
+  els.featuredTrackListTitle.textContent = `${collection.name} Tracks`;
 
-  els.featuredTrackList.innerHTML = album.tracks
+  els.featuredTrackList.innerHTML = collection.tracks
     .map((track, index) => {
       const playState = getFeaturedTrackPlayState(track);
       const isPlaying = playState.isCurrentTrack ? "playing" : "";
@@ -1264,8 +1272,8 @@ function renderFeaturedTrackList() {
             </div>
 
             <div class="featured-track-meta-line">
-              <span>${escapeHtml(track.artist)}</span>
-              ${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
+              <span>${escapeHtml(track.artist || "Allen Parvin")}</span>
+              ${track.scripture_references?.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
             </div>
           </div>
 
@@ -1294,7 +1302,7 @@ function renderFeaturedTrackList() {
   els.featuredTrackList.querySelectorAll("[data-featured-index]").forEach(btn => {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.featuredIndex);
-      const track = album.tracks[idx];
+      const track = collection.tracks[idx];
       if (!track) return;
 
       if (getCurrentTrack()?.id === track.id && els.audioPlayer?.src) {
@@ -1302,14 +1310,14 @@ function renderFeaturedTrackList() {
         return;
       }
 
-      setQueue(album.tracks, false);
+      setQueue(collection.tracks, false);
       playFromQueueIndex(idx);
     });
   });
 
   els.featuredTrackList.querySelectorAll("[data-favorite-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
+      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
       if (!track) return;
       toggleFavorite(track);
       renderFeaturedTrackList();
@@ -1318,15 +1326,32 @@ function renderFeaturedTrackList() {
 
   els.featuredTrackList.querySelectorAll("[data-lyrics-track]").forEach(btn => {
     btn.addEventListener("click", e => {
-      const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack);
+      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
       if (!track) return;
       openLyricsModalForTrack(track, e.currentTarget);
     });
   });
 
+  els.featuredTrackList.querySelectorAll("[data-add-playlist-track]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.addPlaylistTrack);
+      if (!track) return;
+      addTrackToPlaylist(track.id);
+    });
+  });
+
+  els.featuredTrackList.querySelectorAll("[data-save-offline-track]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.saveOfflineTrack);
+      if (!track) return;
+      await saveTrackOffline(track);
+      renderFeaturedTrackList();
+    });
+  });
+
   els.featuredTrackList.querySelectorAll("[data-download-track]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack);
+      const track = collection.tracks.find(t => t.id === btn.dataset.downloadTrack);
       if (!track?.src) return;
       triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     });
@@ -2415,7 +2440,6 @@ function openPlayerSheet(triggerEl = null) {
   els.playerSheet.setAttribute("aria-hidden", "false");
   lockBodyScroll(true);
   updatePlayerSheet();
-  requestAnimationFrame(() => updateSyncedLyricsProgress(true));
 }
 
 function closePlayerSheet() {
@@ -2442,10 +2466,6 @@ function setPlayerSheetTab(tabName) {
   document.querySelectorAll("[data-player-panel]").forEach(panel => {
     panel.classList.toggle("active", panel.dataset.playerPanel === tabName);
   });
-
-  if (tabName === "lyrics") {
-    requestAnimationFrame(() => updateSyncedLyricsProgress(true));
-  }
 }
 
 
@@ -2483,7 +2503,6 @@ function updatePlayerSheet() {
 
   if (els.playerSheetLyricsPanel) {
     renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
-    requestAnimationFrame(() => updateSyncedLyricsProgress(true));
   }
 
   if (els.playerSheetScripturePanel) {
@@ -2550,6 +2569,13 @@ function restoreFocus() {
 }
 
 function scrollToTop() {
+  const target = document.getElementById("featuredAlbumCard");
+  if (target) {
+    const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
+    const y = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+    window.scrollTo({ top: Math.max(y, 0), behavior: "smooth" });
+    return;
+  }
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
