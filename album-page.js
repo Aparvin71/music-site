@@ -256,7 +256,9 @@ function renderAlbumPage() {
           <div class="album-page-related-list">
             ${relatedSongs.length ? relatedSongs.map((track, index) => `
               <button class="album-related-card" type="button" data-related-index="${index}">
-                ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" />` : `<div class="album-related-cover"></div>`}
+                <span class="album-related-cover-wrap">
+                  ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" loading="lazy" />` : `<div class="album-related-cover album-related-cover-fallback">♪</div>`}
+                </span>
                 <span class="album-related-copy">
                   <strong>${escapeHtml(track.title)}</strong>
                   <span>${escapeHtml(track.album)}</span>
