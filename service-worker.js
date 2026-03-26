@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v39.7.2-album-link-fix";
+const CACHE_VERSION = "v39.8.0-media-session-autoscroll";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

@@ -15,6 +15,10 @@ let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
 let autoScrollEnabled = loadAutoScrollEnabled();
+let mediaSessionHandlersBound = false;
+
+const LYRICS_FALLBACK_MIN_LINE_SECONDS = 2.4;
+const LYRICS_FALLBACK_MAX_LINE_SECONDS = 6;
 
 const STORAGE_KEYS = {
   favorites: "aineo_favorites",
@@ -176,6 +180,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   loadStoredData();
+  bindMediaSessionHandlers();
   bindUI();
   initCollapsibles();
   initMobilePlayerDrawer();
@@ -232,11 +237,13 @@ function normalizeTrack(track, index) {
     year: track.year || "",
     genre: track.genre || "",
     duration: track.duration || "",
+    duration_seconds: Number(track.duration_seconds || 0) || 0,
     src: track.src || track.url || track.audio || "",
     cover: track.cover || track.artwork || track.image || "",
     lyrics: track.lyrics || "",
     lyrics_file: track.lyrics_file || track.lyricsFile || "",
     syncedLyrics: [],
+    estimatedSyncedLyrics: [],
     tags,
     playlists,
     scripture_references: scriptureRefs,
@@ -281,6 +288,64 @@ function renderScriptureLinks(refs, options = {}) {
     const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
     return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
   }).join("");
+}
+
+function parseDurationToSeconds(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+
+  const match = String(value || "").trim().match(/^(\d+):(\d{1,2})(?:\.(\d+))?$/);
+  if (!match) return 0;
+
+  const minutes = Number(match[1]);
+  const seconds = Number(match[2]);
+  return Number.isFinite(minutes) && Number.isFinite(seconds)
+    ? (minutes * 60) + seconds
+    : 0;
+}
+
+function getTrackDurationSeconds(track) {
+  if (!track) return 0;
+  return Number(track.duration_seconds || 0) || parseDurationToSeconds(track.duration);
+}
+
+function buildEstimatedLyricsFromPlainText(track) {
+  if (!track?.lyrics) return [];
+
+  const lines = String(track.lyrics || "")
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  if (!lines.length) return [];
+
+  if (track.estimatedSyncedLyrics?.length) {
+    return track.estimatedSyncedLyrics;
+  }
+
+  const duration = getTrackDurationSeconds(track);
+  const safeDuration = duration > 0
+    ? duration
+    : Math.min(lines.length * LYRICS_FALLBACK_MAX_LINE_SECONDS, Math.max(lines.length * LYRICS_FALLBACK_MIN_LINE_SECONDS, 180));
+
+  const step = lines.length > 1
+    ? Math.max(LYRICS_FALLBACK_MIN_LINE_SECONDS, Math.min(LYRICS_FALLBACK_MAX_LINE_SECONDS, safeDuration / Math.max(lines.length, 1)))
+    : safeDuration;
+
+  track.estimatedSyncedLyrics = lines.map((line, index) => ({
+    time: Number((index * step).toFixed(3)),
+    text: line
+  }));
+
+  return track.estimatedSyncedLyrics;
+}
+
+function getRenderableLyricsLines(track) {
+  if (Array.isArray(track?.syncedLyrics) && track.syncedLyrics.length) {
+    return track.syncedLyrics;
+  }
+
+  return buildEstimatedLyricsFromPlainText(track);
 }
 
 function parseLrcText(lrcText) {
@@ -331,6 +396,7 @@ function loadAutoScrollEnabled() {
 function updateAutoScrollToggleUI() {
   if (!els.playerSheetAutoScrollBtn) return;
   els.playerSheetAutoScrollBtn.textContent = autoScrollEnabled ? "Auto-Scroll On" : "Auto-Scroll Off";
+  els.playerSheetAutoScrollBtn.title = autoScrollEnabled ? "Turn auto-scroll off" : "Turn auto-scroll on";
   els.playerSheetAutoScrollBtn.classList.toggle("is-on", autoScrollEnabled);
   els.playerSheetAutoScrollBtn.classList.toggle("is-off", !autoScrollEnabled);
   els.playerSheetAutoScrollBtn.setAttribute("aria-pressed", autoScrollEnabled ? "true" : "false");
@@ -348,10 +414,11 @@ function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
     return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
   }
 
-  if (Array.isArray(track.syncedLyrics) && track.syncedLyrics.length) {
+  const lyricsLines = getRenderableLyricsLines(track);
+  if (lyricsLines.length) {
     return `
       <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
-        ${track.syncedLyrics.map((line, index) => `
+        ${lyricsLines.map((line, index) => `
           <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
         `).join("")}
       </div>
@@ -400,10 +467,33 @@ function renderLyricsInto(container, track, emptyMessage) {
     });
 }
 
+function getLyricsScrollContainer(container) {
+  if (!container) return null;
+
+  return container.closest(".lyrics-content, .lyrics-modal-body, .player-tab-panel")
+    || container.parentElement
+    || container;
+}
+
+function scrollActiveLyricIntoView(container, activeLine) {
+  const scrollContainer = getLyricsScrollContainer(container);
+  if (!scrollContainer || !activeLine || scrollContainer.offsetParent === null) return;
+
+  const containerRect = scrollContainer.getBoundingClientRect();
+  const lineRect = activeLine.getBoundingClientRect();
+  const lineTop = lineRect.top - containerRect.top + scrollContainer.scrollTop;
+  const targetScrollTop = Math.max(0, lineTop - (scrollContainer.clientHeight * 0.45) + (activeLine.clientHeight / 2));
+
+  scrollContainer.scrollTo({
+    top: targetScrollTop,
+    behavior: autoScrollEnabled ? "smooth" : "auto"
+  });
+}
+
 function updateSyncedLyricsProgress() {
   const track = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
-  const activeIndex = findActiveLyricIndex(track?.syncedLyrics || [], currentTime);
+  const activeIndex = findActiveLyricIndex(getRenderableLyricsLines(track), currentTime);
 
   document.querySelectorAll(".synced-lyrics").forEach(container => {
     const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
@@ -413,17 +503,21 @@ function updateSyncedLyricsProgress() {
       lineEl.classList.remove("active");
     });
 
-    if (!isCurrentTrack || activeIndex < 0 || !autoScrollEnabled) return;
-    if (container.dataset.activeIndex === String(activeIndex)) return;
-
-    container.dataset.activeIndex = String(activeIndex);
+    if (!isCurrentTrack || activeIndex < 0) {
+      container.dataset.activeIndex = "";
+      return;
+    }
 
     const activeLine = lineEls[activeIndex];
     if (!activeLine) return;
 
-    const panel = activeLine.closest(".player-tab-panel, .modal-body, .content-panel, .panel-card-body, .panel-card");
-    if (panel && panel.offsetParent !== null) {
-      activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
+    activeLine.classList.add("active");
+
+    if (container.dataset.activeIndex === String(activeIndex)) return;
+    container.dataset.activeIndex = String(activeIndex);
+
+    if (autoScrollEnabled) {
+      scrollActiveLyricIntoView(container, activeLine);
     }
   });
 }
@@ -1536,6 +1630,102 @@ function togglePlayPause() {
   }
 }
 
+function buildMediaSessionArtwork(track) {
+  if (!track?.cover) return [];
+
+  return [96, 128, 192, 256, 384, 512].map(size => ({
+    src: track.cover,
+    sizes: `${size}x${size}`,
+    type: "image/jpeg"
+  }));
+}
+
+function bindMediaSessionHandlers() {
+  if (mediaSessionHandlersBound || !("mediaSession" in navigator)) return;
+
+  const handlers = {
+    play: () => togglePlayPause(),
+    pause: () => togglePlayPause(),
+    previoustrack: () => playPreviousTrack(),
+    nexttrack: () => playNextTrack(),
+    stop: () => {
+      els.audioPlayer?.pause();
+      if (els.audioPlayer) els.audioPlayer.currentTime = 0;
+      updateProgressUI();
+      updateMediaSessionPlaybackState();
+    },
+    seekbackward: (details = {}) => {
+      if (!els.audioPlayer) return;
+      const seekOffset = Number(details.seekOffset || 10);
+      els.audioPlayer.currentTime = Math.max(0, (els.audioPlayer.currentTime || 0) - seekOffset);
+      updateProgressUI();
+    },
+    seekforward: (details = {}) => {
+      if (!els.audioPlayer) return;
+      const seekOffset = Number(details.seekOffset || 10);
+      const duration = Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : els.audioPlayer.currentTime + seekOffset;
+      els.audioPlayer.currentTime = Math.min(duration, (els.audioPlayer.currentTime || 0) + seekOffset);
+      updateProgressUI();
+    },
+    seekto: (details = {}) => {
+      if (!els.audioPlayer || !Number.isFinite(details.seekTime)) return;
+      els.audioPlayer.currentTime = details.seekTime;
+      updateProgressUI();
+    }
+  };
+
+  Object.entries(handlers).forEach(([action, handler]) => {
+    try {
+      navigator.mediaSession.setActionHandler(action, handler);
+    } catch (error) {
+      console.warn(`Media Session action not supported: ${action}`, error);
+    }
+  });
+
+  mediaSessionHandlersBound = true;
+}
+
+function updateMediaSessionPlaybackState() {
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.playbackState = els.audioPlayer && !els.audioPlayer.paused ? "playing" : "paused";
+}
+
+function updateMediaSessionMetadata(track) {
+  if (!("mediaSession" in navigator) || !track) return;
+
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title || "Untitled",
+      artist: track.artist || "Allen Parvin",
+      album: track.album || "Singles",
+      artwork: buildMediaSessionArtwork(track)
+    });
+  } catch (error) {
+    console.warn("Media Session metadata could not be updated:", error);
+  }
+
+  updateMediaSessionPlaybackState();
+}
+
+function updateMediaSessionPositionState() {
+  if (!("mediaSession" in navigator) || !els.audioPlayer || typeof navigator.mediaSession.setPositionState !== "function") return;
+
+  const duration = Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : 0;
+  const position = Number.isFinite(els.audioPlayer.currentTime) ? els.audioPlayer.currentTime : 0;
+
+  if (!duration || duration <= 0) return;
+
+  try {
+    navigator.mediaSession.setPositionState({
+      duration,
+      playbackRate: els.audioPlayer.playbackRate || 1,
+      position: Math.min(position, duration)
+    });
+  } catch (error) {
+    console.warn("Media Session position state could not be updated:", error);
+  }
+}
+
 function updateNowPlaying(track) {
   if (els.nowCover) {
     els.nowCover.src = track.cover || "";
@@ -1557,6 +1747,7 @@ function updateNowPlaying(track) {
   updateFavoriteButton();
   updatePlayButton();
   updateOfflineButtons(track);
+  updateMediaSessionMetadata(track);
   updatePlayerSheet();
 }
 
@@ -1617,6 +1808,7 @@ function updatePlayButton() {
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
   syncFeaturedTrackPlayButtons();
   syncQueuePlaybackUI();
+  updateMediaSessionPlaybackState();
 }
 
 function updateProgressUI() {
@@ -1639,6 +1831,7 @@ function updateProgressUI() {
   }
 
   updateSyncedLyricsProgress();
+  updateMediaSessionPositionState();
 }
 
 function syncCurrentTrackIndex() {
@@ -1659,7 +1852,11 @@ function updateLyricsPanel(track) {
 }
 
 function updateScripturePanel(track) {
-  return;
+  if (!els.scriptureContent) return;
+
+  els.scriptureContent.innerHTML = track?.scripture_references?.length
+    ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
+    : `<p class="empty-message">No scripture references available.</p>`;
 }
 
 function openLyricsModal(triggerEl = null) {
