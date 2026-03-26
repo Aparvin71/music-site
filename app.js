@@ -182,6 +182,7 @@ async function init() {
   initMobileNav();
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
+  initMediaSession();
   await loadTracks();
   restoreSavedQueue();
   updateLibraryView();
@@ -533,14 +534,28 @@ function bindUI() {
     els.audioPlayer.addEventListener("timeupdate", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
+      syncMediaSessionPosition();
     });
     els.audioPlayer.addEventListener("loadedmetadata", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
+      syncMediaSessionMetadata();
+      syncMediaSessionPosition();
     });
-    els.audioPlayer.addEventListener("play", updatePlayButton);
-    els.audioPlayer.addEventListener("pause", updatePlayButton);
-    els.audioPlayer.addEventListener("ended", playNextTrack);
+    els.audioPlayer.addEventListener("play", () => {
+      updatePlayButton();
+      syncMediaSessionPlaybackState();
+      syncMediaSessionMetadata();
+    });
+    els.audioPlayer.addEventListener("pause", () => {
+      updatePlayButton();
+      syncMediaSessionPlaybackState();
+    });
+    els.audioPlayer.addEventListener("ratechange", syncMediaSessionPosition);
+    els.audioPlayer.addEventListener("ended", () => {
+      syncMediaSessionPlaybackState("none");
+      playNextTrack();
+    });
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));
@@ -1536,6 +1551,175 @@ function togglePlayPause() {
   }
 }
 
+function getTrackArtworkSources(track) {
+  const coverUrl = track?.cover ? toAbsoluteUrl(track.cover) : "";
+  if (!coverUrl) return [];
+
+  return [96, 128, 192, 256, 384, 512].map(size => ({
+    src: coverUrl,
+    sizes: `${size}x${size}`,
+    type: guessMimeTypeFromUrl(coverUrl)
+  }));
+}
+
+function toAbsoluteUrl(url) {
+  if (!url) return "";
+  try {
+    return new URL(url, window.location.href).href;
+  } catch (error) {
+    return url;
+  }
+}
+
+function guessMimeTypeFromUrl(url) {
+  const normalized = String(url || "").split("?")[0].toLowerCase();
+  if (normalized.endsWith(".png")) return "image/png";
+  if (normalized.endsWith(".webp")) return "image/webp";
+  if (normalized.endsWith(".gif")) return "image/gif";
+  return "image/jpeg";
+}
+
+function syncMediaSessionMetadata(track = getCurrentTrack()) {
+  if (!("mediaSession" in navigator)) return;
+
+  if (!track) {
+    navigator.mediaSession.metadata = null;
+    syncMediaSessionPlaybackState("none");
+    return;
+  }
+
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title || "Untitled",
+      artist: track.artist || "Allen Parvin",
+      album: track.album || "Singles",
+      artwork: getTrackArtworkSources(track)
+    });
+  } catch (error) {
+    console.warn("Could not set media session metadata:", error);
+  }
+
+  syncMediaSessionPlaybackState();
+}
+
+function syncMediaSessionPlaybackState(forcedState) {
+  if (!("mediaSession" in navigator)) return;
+
+  const nextState = forcedState || (!els.audioPlayer || !els.audioPlayer.src
+    ? "none"
+    : els.audioPlayer.paused
+      ? "paused"
+      : "playing");
+
+  try {
+    navigator.mediaSession.playbackState = nextState;
+  } catch (error) {
+    // playbackState is best-effort across browsers
+  }
+}
+
+function syncMediaSessionPosition() {
+  if (!("mediaSession" in navigator) || typeof navigator.mediaSession.setPositionState !== "function" || !els.audioPlayer) {
+    return;
+  }
+
+  const duration = Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : 0;
+  const position = Number.isFinite(els.audioPlayer.currentTime) ? els.audioPlayer.currentTime : 0;
+  const playbackRate = Number.isFinite(els.audioPlayer.playbackRate) ? els.audioPlayer.playbackRate : 1;
+
+  if (!duration || duration <= 0) return;
+
+  try {
+    navigator.mediaSession.setPositionState({
+      duration,
+      playbackRate,
+      position: Math.min(position, duration)
+    });
+  } catch (error) {
+    // setPositionState is not consistently available on all browsers/devices
+  }
+}
+
+function seekBySeconds(deltaSeconds) {
+  if (!els.audioPlayer) return;
+  const duration = Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : 0;
+  const current = Number.isFinite(els.audioPlayer.currentTime) ? els.audioPlayer.currentTime : 0;
+  const nextTime = Math.max(0, Math.min(duration || current + deltaSeconds, current + deltaSeconds));
+  els.audioPlayer.currentTime = nextTime;
+  updateProgressUI();
+  syncMediaSessionPosition();
+}
+
+function initMediaSession() {
+  if (!("mediaSession" in navigator)) return;
+
+  const setHandler = (action, handler) => {
+    try {
+      navigator.mediaSession.setActionHandler(action, handler);
+    } catch (error) {
+      // Ignore unsupported actions.
+    }
+  };
+
+  setHandler("play", async () => {
+    if (!els.audioPlayer) return;
+    if (!els.audioPlayer.src) {
+      const first = currentQueue[0] || getCurrentCollectionTracks()[0] || tracks[0];
+      if (first) {
+        if (!currentQueue.length) {
+          setQueue(getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : tracks, false);
+        }
+        playTrack(first);
+      }
+      return;
+    }
+
+    try {
+      await els.audioPlayer.play();
+    } catch (error) {
+      console.warn("Media session play failed:", error);
+    }
+  });
+
+  setHandler("pause", () => {
+    if (els.audioPlayer) els.audioPlayer.pause();
+  });
+
+  setHandler("previoustrack", () => {
+    playPreviousTrack();
+  });
+
+  setHandler("nexttrack", () => {
+    playNextTrack();
+  });
+
+  setHandler("seekbackward", details => {
+    seekBySeconds(-(details?.seekOffset || 10));
+  });
+
+  setHandler("seekforward", details => {
+    seekBySeconds(details?.seekOffset || 10);
+  });
+
+  setHandler("seekto", details => {
+    if (!els.audioPlayer || typeof details?.seekTime !== "number") return;
+    els.audioPlayer.currentTime = details.seekTime;
+    updateProgressUI();
+    syncMediaSessionPosition();
+  });
+
+  setHandler("stop", () => {
+    if (!els.audioPlayer) return;
+    els.audioPlayer.pause();
+    els.audioPlayer.currentTime = 0;
+    updateProgressUI();
+    syncMediaSessionPlaybackState("paused");
+    syncMediaSessionPosition();
+  });
+
+  syncMediaSessionMetadata();
+}
+
 function updateNowPlaying(track) {
   if (els.nowCover) {
     els.nowCover.src = track.cover || "";
@@ -1551,6 +1735,10 @@ function updateNowPlaying(track) {
       : "—";
   }
 
+  document.title = track
+    ? `${track.title || "Untitled"} • ${track.artist || "Allen Parvin"} | Aineo Music`
+    : "Aineo Music";
+
   if (els.addToPlaylistBtn) {
     els.addToPlaylistBtn.disabled = !track;
   }
@@ -1558,6 +1746,8 @@ function updateNowPlaying(track) {
   updatePlayButton();
   updateOfflineButtons(track);
   updatePlayerSheet();
+  syncMediaSessionMetadata(track);
+  syncMediaSessionPosition();
 }
 
 function syncFeaturedTrackPlayButtons() {
