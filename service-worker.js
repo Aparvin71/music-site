@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v39.7.3-media-session";
+const CACHE_VERSION = "v33.0-full-suite";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
