@@ -2094,7 +2094,7 @@ a:hover {
 
 .albums-toolbar.has-active-filter {
   position: sticky;
-  top: 84px;
+  top: 10px;
   z-index: 950;
   padding: 10px 12px;
   background: rgba(23, 26, 33, 0.96);
@@ -2132,7 +2132,7 @@ a:hover {
 
 .sticky-filter-bar {
   position: sticky;
-  top: 84px;
+  top: 10px;
   z-index: 960;
   margin-bottom: 14px;
 }
@@ -3181,7 +3181,7 @@ body.orientation-guard-active {
 
   .sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
     position: fixed !important;
-    top: var(--tablet-sticky-top, 94px) !important;
+    top: var(--tablet-sticky-top, 82px) !important;
     left: var(--tablet-sticky-left, 0) !important;
     width: var(--tablet-sticky-width, 100%) !important;
     z-index: 970 !important;
@@ -3551,198 +3551,134 @@ body.orientation-guard-active {
 }
 
 
-/* ===== v39.7.0 mobile lyrics tightening ===== */
+/* ===== v39.6.15 mobile lyrics tightening ===== */
 @media (max-width: 640px) {
   .player-sheet .player-tab-panel[data-player-panel="lyrics"],
   #playerSheetLyricsPanel {
-    max-height: 8.2em;
+    max-height: 9.25em;
     overflow-y: auto;
     padding-right: 2px;
   }
 
   .player-sheet .synced-lyrics,
   #playerSheetLyricsPanel .synced-lyrics {
-    gap: 1px;
-    padding-bottom: 8px;
+    gap: 2px;
+    padding-bottom: 10px;
   }
 
   .player-sheet .lyric-line,
   #playerSheetLyricsPanel .lyric-line {
-    padding: 0;
-    line-height: 1.08;
-    font-size: 0.9rem;
+    padding: 1px 0;
+    line-height: 1.15;
+    font-size: 0.94rem;
     min-height: 0;
   }
 
   .player-sheet .lyrics-block,
   #playerSheetLyricsPanel .lyrics-block {
-    line-height: 1.12;
-    font-size: 0.9rem;
+    line-height: 1.22;
+    font-size: 0.94rem;
   }
 }
 
 
-/* ===== v39.7.1 playlist + related songs polish ===== */
-.playlist-v2-list {
-  display: grid;
-  gap: 12px;
-}
+/* =========================================
+   ALBUM PAGE NAV + RELATED SONG POLISH
+========================================= */
 
-.playlist-list-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 18px;
-  border: 1px solid #202938;
-  background: linear-gradient(180deg, rgba(19, 25, 35, 0.96), rgba(14, 19, 27, 0.96));
-}
-
-.playlist-list-item.active {
-  border-color: #5e8ecd;
-  box-shadow: 0 10px 24px rgba(26, 44, 74, 0.24);
-}
-
-.playlist-list-item-title {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  color: inherit;
-  padding: 0;
-  cursor: pointer;
-}
-
-.playlist-list-item-title strong {
-  font-size: 1rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.playlist-list-item-title span {
-  color: #9eadc1;
-  font-size: 0.88rem;
-}
-
-.playlist-list-item-actions {
+.album-page-back-links {
   display: flex;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
+  margin: 0 0 16px;
 }
 
-.playlist-workspace-cover {
-  display: grid;
-  place-items: center;
-  width: 92px;
-  min-width: 92px;
-  aspect-ratio: 1 / 1;
-  border-radius: 20px;
-  background: linear-gradient(135deg, rgba(50, 76, 118, 0.96), rgba(20, 31, 47, 0.96));
-  border: 1px solid rgba(94, 142, 205, 0.28);
-}
-
-.playlist-workspace-cover-label {
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.playlist-track-row--compact {
-  grid-template-columns: auto minmax(0, 1fr) auto;
-}
-
-.playlist-track-main--compact {
-  display: block;
-}
-
-.playlist-track-main--compact strong {
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.album-page-back-link {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .album-page-related-list {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
 .album-related-card {
+  width: 100%;
   display: grid;
   grid-template-columns: 72px minmax(0, 1fr);
-  gap: 12px;
   align-items: center;
-  width: 100%;
-  padding: 12px;
-  border-radius: 18px;
-  border: 1px solid #202938;
-  background: linear-gradient(180deg, rgba(18, 24, 34, 0.98), rgba(13, 18, 26, 0.98));
-  color: inherit;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid #252a34;
+  background: #141922;
+  color: #f4f4f4;
   text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
 }
 
-.album-related-card:hover {
-  border-color: #5e8ecd;
+.album-related-card:hover,
+.album-related-card:focus-visible {
   transform: translateY(-1px);
+  border-color: #3d4c63;
+  background: #171e29;
+  outline: none;
 }
 
-.album-related-cover-wrap {
+.album-related-cover {
   width: 72px;
   height: 72px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #11161d;
-  display: block;
-}
-
-.album-related-cover,
-.album-related-cover-fallback {
-  width: 100%;
-  height: 100%;
+  border-radius: 12px;
   object-fit: cover;
-  display: grid;
-  place-items: center;
+  background: linear-gradient(135deg, #1a2230, #10151e);
+  border: 1px solid #2a3142;
+  flex-shrink: 0;
 }
 
 .album-related-copy {
-  display: grid;
-  gap: 4px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .album-related-copy strong,
 .album-related-copy span {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.album-related-copy strong {
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 .album-related-copy span {
-  color: #9eadc1;
-}
-
-@media (max-width: 900px) {
-  .playlist-list-item {
-    grid-template-columns: 1fr;
-    align-items: stretch;
-  }
-
-  .playlist-list-item-actions {
-    justify-content: flex-start;
-  }
+  font-size: 12px;
+  color: #b7c0cf;
 }
 
 @media (max-width: 640px) {
-  .album-related-card {
-    grid-template-columns: 60px minmax(0, 1fr);
-    padding: 10px;
+  .album-page-back-links {
+    gap: 8px;
   }
 
-  .album-related-cover-wrap {
+  .album-page-back-link {
+    width: 100%;
+  }
+
+  .album-related-card {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .album-related-cover {
     width: 60px;
     height: 60px;
   }
