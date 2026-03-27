@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v39.8.0-media-session-autoscroll";
+const CACHE_VERSION = "v40.1.0-modular-player-cleanup";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -27,6 +27,8 @@ const APP_SHELL = [
   "/tracks.json",
   "/manifest.webmanifest",
   "/pwa-init.js",
+  "/aineo-lyrics.js",
+  "/aineo-media-session.js",
   "/favicon.ico",
   "/icons/icon-64.png",
   "/icons/icon-192.png",
