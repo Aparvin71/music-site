@@ -212,7 +212,7 @@ function renderAlbumPage() {
                 </div>
                 <div class="featured-track-meta-line">
                   <span>${escapeHtml(track.artist)}</span>
-                  ${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
+                  
                 </div>
               </div>
               <div class="featured-track-actions album-page-track-actions">

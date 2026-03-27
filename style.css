@@ -3961,3 +3961,123 @@ body.orientation-guard-active {
   justify-content: flex-end;
   padding: 0 10px 10px;
 }
+
+
+/* v40.8.3 music page polish */
+.music-library-card {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+}
+
+.music-library-card h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.2;
+  max-width: 680px;
+}
+
+.music-library-card .hero-text {
+  max-width: 620px;
+  margin: 0;
+}
+
+.playlist-toolbar--combined {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 0 0 12px;
+}
+
+.playlist-list--custom {
+  margin-top: 12px;
+}
+
+.playlist-jump-btn {
+  text-decoration: none;
+}
+
+.about-panel-actions {
+  margin-top: 10px;
+}
+
+.featured-album-card {
+  grid-template-columns: 116px 1fr;
+  gap: 14px;
+}
+
+.featured-cover,
+.featured-cover-wrap {
+  width: 116px;
+}
+
+.featured-cover {
+  height: 116px;
+}
+
+.mini-card {
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.mini-card:hover {
+  background: #1c232d;
+  border-color: #4f6483;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.mini-card-meta strong,
+.mini-card-meta span {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .music-library-card h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 640px) {
+  .featured-album-card {
+    grid-template-columns: 90px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .featured-cover,
+  .featured-cover-wrap {
+    width: 90px;
+  }
+
+  .featured-cover {
+    height: 90px;
+  }
+
+  .featured-track-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .featured-track-main {
+    order: 1;
+  }
+
+  .featured-track-actions {
+    order: 2;
+    justify-content: flex-start;
+  }
+
+  .featured-track-play {
+    order: 3;
+    width: 100%;
+    height: 42px;
+    border-radius: 12px;
+    margin-top: 2px;
+  }
+}
