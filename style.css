@@ -3683,3 +3683,79 @@ body.orientation-guard-active {
     height: 60px;
   }
 }
+
+/* =========================================
+   OFFLINE / DOWNLOADED
+========================================= */
+
+.offline-card {
+  background: #11161d;
+  border: 1px solid #252a34;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.offline-card.is-current {
+  border-color: #7ea3d8;
+  box-shadow: 0 0 0 1px rgba(126, 163, 216, 0.25);
+}
+
+.offline-card-main {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.offline-card-main:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.offline-card-cover,
+.offline-card-placeholder {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #0f1319;
+  border: 1px solid #252a34;
+}
+
+.offline-card-placeholder {
+  display: grid;
+  place-items: center;
+  color: #999;
+  font-size: 12px;
+}
+
+.offline-card-meta {
+  min-width: 0;
+}
+
+.offline-card-meta strong,
+.offline-card-meta span {
+  display: block;
+}
+
+.offline-card-meta strong {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.offline-card-meta span {
+  font-size: 12px;
+  color: #c2cad6;
+}
+
+.offline-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 10px 10px;
+}

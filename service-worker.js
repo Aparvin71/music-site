@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.3.0-library-queue-modular";
+const CACHE_VERSION = "v40.5.0-offline-download-cleanup";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -34,6 +34,11 @@ const APP_SHELL = [
   "/aineo-featured.js",
   "/aineo-playlists.js",
   "/aineo-player-sheet.js",
+  "/aineo-offline.js",
+  "/aineo-shared.js",
+  "/albums-page.js",
+  "/artists-page.js",
+  "/artist-page.js",
   "/favicon.ico",
   "/icons/icon-64.png",
   "/icons/icon-192.png",
@@ -103,6 +108,25 @@ self.addEventListener("message", (event) => {
                 }
               } catch (error) {
                 console.warn("Failed to cache audio URL:", url, error);
+              }
+            })
+        );
+      })
+    );
+    return;
+  }
+
+  if (data.type === "REMOVE_AUDIO_URLS" && Array.isArray(data.urls)) {
+    event.waitUntil(
+      caches.open(AUDIO_CACHE).then(async (cache) => {
+        await Promise.all(
+          data.urls
+            .filter(Boolean)
+            .map(async (url) => {
+              try {
+                await cache.delete(new Request(url, { mode: "cors" }));
+              } catch (error) {
+                console.warn("Failed to remove cached audio URL:", url, error);
               }
             })
         );

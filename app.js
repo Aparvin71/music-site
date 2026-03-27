@@ -574,7 +574,7 @@ function bindUI() {
   });
   on(els.saveOfflineBtn, "click", () => {
     const track = getCurrentTrack();
-    if (track) saveTrackOffline(track);
+    if (track) toggleTrackOffline(track);
   });
   on(els.openPlayerSheetBtn, "click", () => openPlayerSheet(els.openPlayerSheetBtn));
   on(els.closePlayerSheetBtn, "click", closePlayerSheet);
@@ -605,7 +605,7 @@ function bindUI() {
   });
   on(els.playerSheetSaveOfflineBtn, "click", () => {
     const track = getCurrentTrack();
-    if (track) saveTrackOffline(track);
+    if (track) toggleTrackOffline(track);
   });
   on(els.playlistModalBackdrop, "click", closePlaylistModal);
   on(els.closePlaylistModalBtn, "click", closePlaylistModal);
@@ -1580,50 +1580,79 @@ function renderFavorites() {
 
 
 function isDownloaded(track) {
-  return Boolean(track && downloadedTracks.includes(track.id));
+  return window.AineoOffline.isDownloaded({
+    track,
+    downloadedTracks
+  });
 }
 
 function updateOfflineButtons(track = getCurrentTrack()) {
-  const label = track && isDownloaded(track) ? "Saved Offline" : "Offline";
-  if (els.saveOfflineBtn) els.saveOfflineBtn.textContent = label;
-  if (els.playerSheetSaveOfflineBtn) els.playerSheetSaveOfflineBtn.textContent = label;
+  window.AineoOffline.updateButtons({
+    track,
+    downloadedTracks,
+    els
+  });
 }
 
 function saveTrackOffline(track) {
-  if (!track?.src) return;
+  return window.AineoOffline.saveTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    els,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    flashButtonText
+  });
+}
 
-  if (!downloadedTracks.includes(track.id)) {
-    downloadedTracks.unshift(track.id);
-    saveDownloadedTracks();
-  }
+function removeTrackOffline(track) {
+  return window.AineoOffline.removeTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    els,
+    flashButtonText
+  });
+}
 
-  if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage({
-      type: "CACHE_AUDIO_URLS",
-      urls: [track.src]
-    });
-  }
-
-  updateOfflineButtons(track);
-  renderDownloadedSongs();
-  renderFeaturedTrackList();
+function toggleTrackOffline(track) {
+  return window.AineoOffline.toggleTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    els,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    flashButtonText
+  });
 }
 
 function renderDownloadedSongs() {
-  if (!els.downloadedList) return;
-
-  const savedTracks = downloadedTracks
-    .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean)
-    .slice(0, 12);
-
-  if (!savedTracks.length) {
-    els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
-    return;
-  }
-
-  els.downloadedList.innerHTML = savedTracks.map((track, index) => renderMiniCard(track, index)).join("");
-  bindMiniCardClicks(els.downloadedList, savedTracks);
+  return window.AineoOffline.renderDownloadedSongs({
+    els,
+    downloadedTracks,
+    tracks,
+    escapeHtml,
+    escapeHtmlAttr,
+    startPlaybackFromList,
+    removeTrackOffline,
+    getCurrentTrack
+  });
 }
 
 function createNewPlaylist() {

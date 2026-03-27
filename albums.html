@@ -18,6 +18,8 @@
   <title>Albums - Aineo Music</title>
   <link rel="stylesheet" href="./style.css" />
   <script src="./pwa-init.js" defer></script>
+  <script src="./aineo-shared.js" defer></script>
+  <script src="./albums-page.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -53,7 +55,7 @@
   </main>
 
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.3.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.5.0</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>
@@ -66,113 +68,5 @@
     </p>
   </footer>
 
-  <script>
-    const albumsPageEls = {
-      mobileNavToggle: document.getElementById("mobileNavToggle"),
-      siteNavLinks: document.getElementById("siteNavLinks"),
-      albumsGrid: document.getElementById("albumsGrid")
-    };
-
-    document.addEventListener("DOMContentLoaded", initAlbumsPage);
-
-    async function initAlbumsPage() {
-      initMobileNav();
-      await renderAlbums();
-    }
-
-    function initMobileNav() {
-      const toggle = albumsPageEls.mobileNavToggle;
-      const nav = albumsPageEls.siteNavLinks;
-      if (!toggle || !nav) return;
-      toggle.addEventListener("click", () => {
-        const open = nav.classList.toggle("nav-open");
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        toggle.textContent = open ? "✕" : "☰";
-      });
-    }
-
-    async function renderAlbums() {
-      if (!albumsPageEls.albumsGrid) return;
-
-      try {
-        const [albumsRes, tracksRes] = await Promise.all([
-          fetch(`albums.json?v=${Date.now()}`, { cache: "no-store" }),
-          fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" }).catch(() => null)
-        ]);
-
-        const albumsData = await albumsRes.json();
-        const tracksData = tracksRes && tracksRes.ok ? await tracksRes.json() : [];
-        const trackCounts = getTrackCounts(Array.isArray(tracksData) ? tracksData : []);
-        const albums = Array.isArray(albumsData) ? albumsData : [];
-
-        if (!albums.length) {
-          albumsPageEls.albumsGrid.innerHTML = `
-            <article class="page-card">
-              <p class="eyebrow">No albums yet</p>
-              <h2>Your album library is empty.</h2>
-              <p>Add entries to <code>albums.json</code> to populate this page.</p>
-            </article>
-          `;
-          return;
-        }
-
-        albumsPageEls.albumsGrid.innerHTML = albums.map(album => {
-          const title = escapeHtml(album.title || album.name || "Untitled Album");
-          const slug = encodeURIComponent(album.title || album.name || "");
-          const cover = album.cover ? `<img src="${escapeAttr(album.cover)}" alt="${escapeAttr(title)} artwork" loading="lazy" />` : `<div class="catalog-card-cover-fallback">♪</div>`;
-          const badges = (Array.isArray(album.badges) ? album.badges : []).slice(0, 3);
-          const pills = badges.length
-            ? `<div class="quick-link-pills">${badges.map(badge => `<span class="quick-link-pill quick-link-pill--static">#${escapeHtml(badge)}</span>`).join("")}</div>`
-            : "";
-          const count = trackCounts[(album.title || album.name || "").toLowerCase()] || Number(album.track_count || album.song_count || 0) || 0;
-          const description = album.description ? `<p>${escapeHtml(album.description)}</p>` : "";
-
-          return `
-            <a class="catalog-card" href="./album.html?album=${slug}">
-              <div class="catalog-card-cover">${cover}</div>
-              <div class="catalog-card-copy">
-                <p class="eyebrow">Album</p>
-                <h2>${title}</h2>
-                <p>${count} song${count === 1 ? "" : "s"}</p>
-                ${description}
-                ${pills}
-              </div>
-            </a>
-          `;
-        }).join("");
-      } catch (error) {
-        console.error("Could not load album shelf.", error);
-        albumsPageEls.albumsGrid.innerHTML = `
-          <article class="page-card">
-            <p class="eyebrow">Album shelf unavailable</p>
-            <h2>We couldn’t load the albums right now.</h2>
-            <p>Check that <code>albums.json</code> and <code>tracks.json</code> are both uploaded.</p>
-          </article>
-        `;
-      }
-    }
-
-    function getTrackCounts(tracks) {
-      return tracks.reduce((map, track) => {
-        const album = String(track.album || "").trim().toLowerCase();
-        if (!album) return map;
-        map[album] = (map[album] || 0) + 1;
-        return map;
-      }, {});
-    }
-
-    function escapeHtml(value) {
-      return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-    }
-
-    function escapeAttr(value) {
-      return escapeHtml(value);
-    }
-  </script>
 </body>
 </html>

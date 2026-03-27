@@ -18,6 +18,8 @@
   <title>Artists - Aineo Music</title>
   <link rel="stylesheet" href="./style.css" />
   <script src="./pwa-init.js" defer></script>
+  <script src="./aineo-shared.js" defer></script>
+  <script src="./artists-page.js" defer></script>
 </head><body>
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
@@ -36,10 +38,16 @@
   </header>
   <main class="page">
     <section class="page-card page-hero-card"><p class="eyebrow">Artists</p><h1>Browse by Artist</h1><p class="page-lead">Open an artist page to see songs, albums, and themes gathered in one place.</p></section>
-    <section class="catalog-grid"><a class="catalog-card" href="./artist.html?artist=Allen Parvin"><div class="catalog-card-cover"><img src="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/holy-beyond-measure.jpg" alt="Allen Parvin artwork" /></div><div class="catalog-card-copy"><p class="eyebrow">Artist</p><h2>Allen Parvin</h2><p>70 songs</p></div></a></section>
+    <section id="artistsGrid" class="catalog-grid" aria-live="polite">
+      <article class="page-card">
+        <p class="eyebrow">Loading</p>
+        <h2>Building your artist shelf…</h2>
+        <p>Your artists will appear here in a moment.</p>
+      </article>
+    </section>
   </main>
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.3.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.5.0</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>
