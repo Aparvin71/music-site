@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Welcome to Aineo Music. Start listening, explore the mission, install the app, and browse more pages." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <title>Home - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="./pwa-init.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <h1 class="logo">Aineo Music</h1>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html" class="active" aria-current="page">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+
+  <main id="mainContent" class="page home-page">
+    <section class="page-card page-hero-card">
+      <p class="eyebrow">Home</p>
+      <h1>Welcome to Aineo Music</h1>
+      <p class="page-lead">Start listening, explore the mission behind the songs, install the app, and browse the growing library.</p>
+      <div class="card-actions">
+        <a class="action-btn" href="./index.html">Open the Music Library</a>
+        <a class="action-btn secondary-btn" href="./about.html">About the Music</a>
+      </div>
+    </section>
+
+    <section class="mission-grid mission-grid--summary mission-grid--tools" aria-labelledby="installHeading">
+      <article class="page-card install-card">
+        <p class="eyebrow">Get the App</p>
+        <h2 id="installHeading">Install Aineo Music</h2>
+        <p class="mission-statement mission-statement--summary">Add Aineo Music to your home screen for a cleaner, app-like experience with faster launching and better offline support.</p>
+        <div class="install-card-actions">
+          <a class="action-btn secondary-btn install-guide-btn" href="./install.html">Install Guide</a>
+          <button class="action-btn secondary-btn" type="button" data-open-install-modal>Install Now</button>
+        </div>
+      </article>
+
+      <article class="mission-card page-card">
+        <p class="eyebrow">Mission</p>
+        <h2 id="missionHeading">The Great Commission</h2>
+        <p class="mission-statement mission-statement--summary">Music with purpose: point people to Jesus Christ, encourage believers in truth, and support the call to go and make disciples.</p>
+        <div class="scripture-pill-row" aria-label="Mission scriptures">
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Matthew%2028%3A19-20" target="_blank" rel="noopener noreferrer">Matthew 28:19–20</a>
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Mark%2016%3A15" target="_blank" rel="noopener noreferrer">Mark 16:15</a>
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Romans%2010%3A14-15" target="_blank" rel="noopener noreferrer">Romans 10:14–15</a>
+        </div>
+        <a class="mission-section-link" href="./mission.html">Read the Mission page →</a>
+      </article>
+    </section>
+
+    <section class="mission-grid mission-grid--summary" aria-labelledby="mindHeading">
+      <article class="mind-card page-card" aria-labelledby="mindHeading">
+        <p class="eyebrow">Fill Your Mind</p>
+        <h2 id="mindHeading">Trash In, Trash Out</h2>
+        <p class="mission-statement mission-statement--summary">What goes into the mind and heart eventually comes back out in words, attitudes, choices, and fruit.</p>
+        <div class="scripture-pill-row" aria-label="Mindset scriptures">
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Philippians%204%3A8" target="_blank" rel="noopener noreferrer">Philippians 4:8</a>
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Luke%206%3A45" target="_blank" rel="noopener noreferrer">Luke 6:45</a>
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Proverbs%204%3A23" target="_blank" rel="noopener noreferrer">Proverbs 4:23</a>
+          <a class="scripture-link scripture-link--tiny" href="https://www.biblegateway.com/passage/?search=Romans%2012%3A2" target="_blank" rel="noopener noreferrer">Romans 12:2</a>
+        </div>
+        <a class="mission-section-link" href="./mission.html#fill-your-mind">Read more on the Mission page →</a>
+      </article>
+
+      <article class="page-card tools-card">
+        <p class="eyebrow">More</p>
+        <h2>Explore More Pages</h2>
+        <p class="mission-statement mission-statement--summary">Browse artists and albums, leave feedback, and review updates across the growing Aineo Music library.</p>
+        <p class="mission-statement mission-statement--summary">The Albums page helps organize songs into collections so related music stays together and is easier to explore. The Feedback page is a place to request songs, share encouragement, report issues, and suggest future improvements.</p>
+        <div class="quick-link-pills">
+          <a class="quick-link-pill" href="./artists.html">Artists</a>
+          <a class="quick-link-pill" href="./albums.html">Albums</a>
+          <a class="quick-link-pill" href="./feedback.html">Feedback</a>
+          <a class="quick-link-pill" href="./changelog.html">Changelog</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.8.1</span></p>
+    <p class="footer-links">
+      <a href="./home.html">Home</a>
+      <a href="./index.html">Music</a>
+      <a href="./mission.html">Mission</a>
+      <a href="./install.html">Install</a>
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./artists.html">Artists</a>
+      <a href="./albums.html">Albums</a>
+    </p>
+  </footer>
+</body>
+</html>

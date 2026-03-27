@@ -26,18 +26,30 @@
         <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
       </div>
       <ul id="siteNavLinks" class="nav-links">
-        <li><a href="./index.html">Home</a></li>
-        <li><a href="./music.html">Music</a></li>
-        <li><a href="./about.html">About</a></li>
-        <li><a href="./mission.html">Mission</a></li>
-        <li><a href="./install.html">Install</a></li>
-        <li><a href="./contact.html">Request a Song</a></li>
-      </ul>
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
     </nav>
   </header>
   <main class="page">
+<article class="changelog-entry">
+  <p class="eyebrow">v40.8.1</p>
+  <h2>Music Landing + Mobile Track Card Polish</h2>
+  <ul class="utility-list">
+    <li>Made the <strong>Music</strong> page the landing experience while keeping a separate <strong>Home</strong> page at <code>home.html</code>.</li>
+    <li>Updated navigation so <strong>Home</strong> points to the new Home page and <strong>Music</strong> points to the landing library.</li>
+    <li>Improved button link contrast on the Home page so <strong>Open the Music Library</strong> is easier to read.</li>
+    <li>Removed scripture references from the mobile track cards and moved the play button to the bottom of each track card.</li>
+    <li>Updated service-worker shell caching to include <code>home.html</code>.</li>
+  </ul>
+</article>
+
       <article class="changelog-entry">
-        <p class="eyebrow">v40.8.0</p>
+        <p class="eyebrow">v40.8.1</p>
         <h2>Home + Music Split</h2>
         <ul class="utility-list">
           <li>Separated the old all-in-one landing page into a dedicated <strong>Home</strong> page and a dedicated <strong>Music</strong> page.</li>
@@ -49,11 +61,11 @@
 
     <section class="page-card page-hero-card">
       <p class="eyebrow">Changelog</p>
-      <h1>What’s New in v40.8.0</h1>
-      <p class="page-lead">A running list of key changes included in the landing-page layout refresh and continued modular cleanup.</p>
+      <h1>What’s New in v40.8.1</h1>
+      <p class="page-lead">A running list of key changes included in the music landing-page swap, homepage cleanup, and mobile track-card polish.</p>
     </section>
     <section class="page-card">
-      <p class="eyebrow">v40.8.0</p>
+      <p class="eyebrow">v40.8.1</p>
       <h2>Landing Page Card Refresh</h2>
       <ul class="utility-list">
         <li>Kept the music library as the landing experience.</li>
@@ -73,7 +85,7 @@
     </section>
   </main>
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.8.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.8.1</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>

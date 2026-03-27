@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.8.0-home-music-split";
+const CACHE_VERSION = "v40.8.1-music-landing-home-fixes";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -8,6 +8,7 @@ const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
 const APP_SHELL = [
   "/",
   "/index.html",
+  "/home.html",
   "/music.html",
   "/about.html",
   "/mission.html",

@@ -103,7 +103,7 @@
         <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" data-track-title="${escapeHtmlAttr(track.title)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
         <div class="featured-track-main">
           <div class="featured-track-title-line"><strong>${index + 1}. ${escapeHtml(track.title)}</strong>${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ''}</div>
-          <div class="featured-track-meta-line"><span>${escapeHtml(track.artist)}</span>${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(' • '))}</span>` : ''}</div>
+          <div class="featured-track-meta-line"><span>${escapeHtml(track.artist)}</span></div>
         </div>
         <div class="featured-track-actions">
           <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">${isFavorite(track) ? '★' : '☆'}</button>
