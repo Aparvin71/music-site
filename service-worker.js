@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.1.0-modular-player-cleanup";
+const CACHE_VERSION = "v40.2.0-library-queue-modular";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -29,6 +29,8 @@ const APP_SHELL = [
   "/pwa-init.js",
   "/aineo-lyrics.js",
   "/aineo-media-session.js",
+  "/aineo-library.js",
+  "/aineo-queue.js",
   "/favicon.ico",
   "/icons/icon-64.png",
   "/icons/icon-192.png",

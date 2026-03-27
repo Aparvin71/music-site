@@ -35,14 +35,17 @@
     </nav>
   </header>
   <main class="page">
-    
-    <section class="page-card page-hero-card"><p class="eyebrow">Changelog</p><h1>What’s New in v40.1.0</h1><p class="page-lead">A running list of key changes included in the current cleaned and stabilized package.</p></section>
-    <section class="page-card utility-card"><div class="changelog-list"><article class="changelog-item"><h2>v40.1.0</h2><p>Modular cleanup release: lyrics logic and Media Session / Now Playing helpers were split out of the main app script to make future player updates safer.</p></article><article class="changelog-item"><h2>Lyrics Engine</h2><p>Auto-scroll remains in place, plain-text lyrics still fall back gracefully, and line scrolling now works without text highlighting.</p></article><article class="changelog-item"><h2>Now Playing</h2><p>Media Session handlers and metadata updates were moved into a dedicated helper for cleaner maintenance and better lock-screen / headset / car control support where available.</p></article></div></section>
-<section class="page-card page-hero-card"><p class="eyebrow">Changelog</p><h1>What’s New in v31</h1><p class="page-lead">A running list of key changes included in this cleaned, merged package.</p></section>
-    <section class="page-card utility-card"><div class="changelog-list"><article class="changelog-item"><h2>v31</h2><p>Full merged package refreshed with install page, install prompt/banner, changelog, feedback page, artists and albums pages, lyrics editor, admin upload helper, and cache bump to v31.</p></article><article class="changelog-item"><h2>Home page</h2><p>Mission and Fill Your Mind summaries remain compact, plus a new Install card and quick links to utility pages.</p></article><article class="changelog-item"><h2>Player</h2><p>Fullscreen player keeps Lyrics and Queue tabs while scripture links stay visible above the controls.</p></article><article class="changelog-item"><h2>Library</h2><p>Search, favorites, recently played, album pages, playlist tools, offline helpers, and synced LRC lyric support remain in place.</p></article><article class="changelog-item"><h2>Mission</h2><p>Dedicated Mission page kept, with church home card and matching mission buttons.</p></article></div></section>
+    <section class="page-card page-hero-card"><p class="eyebrow">Changelog</p><h1>What’s New in v40.2.0</h1><p class="page-lead">A running list of key changes included in the modular cleanup series.</p></section>
+    <section class="page-card utility-card"><div class="changelog-list">
+      <article class="changelog-item"><h2>v40.2.0</h2><p>Library filters and queue handling were split into dedicated helper files to keep the home player more maintainable and reduce regression risk.</p></article>
+      <article class="changelog-item"><h2>Library</h2><p>Playlist and tag rendering, named filter application, and filtered-track derivation now flow through <code>aineo-library.js</code>.</p></article>
+      <article class="changelog-item"><h2>Queue</h2><p>Queue rendering, play-next, remove, and drag reorder interactions now flow through <code>aineo-queue.js</code>.</p></article>
+      <article class="changelog-item"><h2>Player continuity</h2><p>The no-text-highlighting lyrics behavior and Media Session / Now Playing upgrade from the earlier modular passes remain in place.</p></article>
+      <article class="changelog-item"><h2>Cleanup</h2><p>A legacy duplicate playlist renderer was retired from the main flow to make future merges safer.</p></article>
+    </div></section>
   </main>
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v31</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.2.0</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>
