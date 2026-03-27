@@ -4005,6 +4005,15 @@ body.orientation-guard-active {
   text-decoration: none;
 }
 
+.playlist-subsection-label {
+  margin: 14px 0 8px;
+  color: #b7c0cf;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .about-panel-actions {
   margin-top: 10px;
 }
