@@ -851,30 +851,7 @@ function syncQueueToCurrentCollection(force = false) {
 }
 
 function getVisibleAlbums(trackList) {
-  const map = new Map();
-
-  trackList.forEach(track => {
-    const albumName = track.album || "Singles";
-
-    if (!map.has(albumName)) {
-      map.set(albumName, {
-        name: albumName,
-        cover: track.cover || "",
-        artist: track.artist || "Allen Parvin",
-        year: track.year || "",
-        tracks: [],
-        album_zip: track.album_zip || ""
-      });
-    }
-
-    const album = map.get(albumName);
-    album.tracks.push(track);
-
-    if (!album.cover && track.cover) album.cover = track.cover;
-    if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-  });
-
-  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+  return window.AineoFeatured.getVisibleAlbums(trackList);
 }
 
 function getVisiblePlaylists(trackList) {
@@ -1103,209 +1080,54 @@ function renderTags(trackList) {
 ========================= */
 
 function renderAlbums(trackList) {
-  if (!els.albumGrid) return;
-
-  const albums = getVisibleAlbums(trackList);
-
-  if (!albums.length) {
-    els.albumGrid.innerHTML = `<p class="empty-message">No albums found.</p>`;
-    return;
-  }
-
-  els.albumGrid.innerHTML = albums
-    .map(album => {
-      const isActive = filters.selectedAlbum === album.name ? "active" : "";
-      return `
-        <button class="album-card ${isActive}" data-album="${escapeHtmlAttr(album.name)}" type="button">
-          <div class="album-card-cover-wrap">
-            ${
-              album.cover
-                ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />`
-                : `<div class="album-card-cover album-card-placeholder">No Cover</div>`
-            }
-          </div>
-          <div class="album-card-meta">
-            <h3>${escapeHtml(album.name)}</h3>
-            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
-          </div>
-        </button>
-      `;
-    })
-    .join("");
-
-  els.albumGrid.querySelectorAll("[data-album]").forEach(btn => {
-    btn.addEventListener("click", () => setAlbumFilter(btn.dataset.album));
+  window.AineoFeatured.renderAlbums({
+    els,
+    trackList,
+    filters,
+    getVisibleAlbums,
+    escapeHtml,
+    escapeHtmlAttr,
+    setAlbumFilter
   });
 }
 
 function renderFeaturedAlbum() {
-  const collection = getFeaturedCollection();
-
-  if (!collection) {
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
-    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
-    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
-    if (els.featuredAlbumCover) {
-      els.featuredAlbumCover.src = "";
-      els.featuredAlbumCover.alt = "No collection cover";
-    }
-    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-    if (els.openAlbumBtn) {
-      els.openAlbumBtn.textContent = "Open Collection";
-      els.openAlbumBtn.disabled = true;
-    }
-    return;
-  }
-
-  if (els.featuredAlbumCover) {
-    els.featuredAlbumCover.src = collection.cover || "";
-    els.featuredAlbumCover.alt = `${collection.name} cover`;
-  }
-
-  if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name;
-  if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || "Allen Parvin";
-  if (els.featuredAlbumCount) {
-    els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? "" : "s"}`;
-  }
-
-  if (els.downloadAlbumBtn) {
-    els.downloadAlbumBtn.style.display = collection.album_zip ? "inline-flex" : "none";
-  }
-
-  if (els.openAlbumBtn) {
-    els.openAlbumBtn.textContent = collection.openMode === "album" ? "Open Album" : "Open Collection";
-    els.openAlbumBtn.disabled = false;
-  }
+  window.AineoFeatured.renderFeaturedAlbum({
+    els,
+    getFeaturedCollection
+  });
 }
 
 function getFeaturedTrackPlayState(track) {
-  const isCurrentTrack = getCurrentTrack()?.id === track?.id;
-  const isPlaying = Boolean(isCurrentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
-  return {
-    isCurrentTrack,
-    isPlaying,
-    label: isPlaying ? "❚❚" : "▶",
-    action: isPlaying ? "Pause" : "Play"
-  };
+  return window.AineoFeatured.getFeaturedTrackPlayState({
+    track,
+    getCurrentTrack,
+    audioPlayer: els.audioPlayer
+  });
 }
 
 function renderFeaturedTrackList() {
-  if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
-
-  const album = getFeaturedCollection();
-
-  if (!album) {
-    els.featuredTrackListTitle.textContent = "Collection Tracks";
-    els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
-    return;
-  }
-
-  els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
-
-  els.featuredTrackList.innerHTML = album.tracks
-    .map((track, index) => {
-      const playState = getFeaturedTrackPlayState(track);
-      const isPlaying = playState.isCurrentTrack ? "playing" : "";
-      const isFav = isFavorite(track) ? "favorited" : "";
-
-      return `
-        <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}">
-          <button class="featured-track-play ${playState.isPlaying ? "is-playing" : ""}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" data-track-title="${escapeHtmlAttr(track.title)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? "true" : "false"}">
-            ${playState.label}
-          </button>
-
-          <div class="featured-track-main">
-            <div class="featured-track-title-line">
-              <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
-              ${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ""}
-            </div>
-
-            <div class="featured-track-meta-line">
-              <span>${escapeHtml(track.artist)}</span>
-              ${track.scripture_references.length ? `<span>• ${escapeHtml(track.scripture_references.join(" • "))}</span>` : ""}
-            </div>
-          </div>
-
-          <div class="featured-track-actions">
-            <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">
-              ${isFavorite(track) ? "★" : "☆"}
-            </button>
-            <button class="mini-action-btn" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button">
-              Lyrics
-            </button>
-            <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">
-              + Playlist
-            </button>
-            <button class="mini-action-btn" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button">
-              ${isDownloaded(track) ? "Saved" : "Offline"}
-            </button>
-            <button class="mini-action-btn" data-download-track="${escapeHtmlAttr(track.id)}" type="button">
-              Download
-            </button>
-          </div>
-        </div>
-      `;
-    })
-    .join("");
-
-  els.featuredTrackList.querySelectorAll("[data-featured-index]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const idx = Number(btn.dataset.featuredIndex);
-      const track = album.tracks[idx];
-      if (!track) return;
-
-      if (getCurrentTrack()?.id === track.id && els.audioPlayer?.src) {
-        togglePlayPause();
-        return;
-      }
-
-      syncQueueToCurrentCollection(true);
-      if (getCurrentCollectionTracks()[idx]?.id !== track.id) {
-        setQueue(album.tracks, false);
-      }
-      playFromQueueIndex(idx);
-    });
-  });
-
-  els.featuredTrackList.querySelectorAll("[data-favorite-track]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
-      if (!track) return;
-      toggleFavorite(track);
-      renderFeaturedTrackList();
-    });
-  });
-
-  els.featuredTrackList.querySelectorAll("[data-lyrics-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack);
-      if (!track) return;
-      openLyricsModalForTrack(track, e.currentTarget);
-    });
-  });
-
-  els.featuredTrackList.querySelectorAll("[data-add-playlist-track]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      const track = album.tracks.find(t => t.id === btn.dataset.addPlaylistTrack);
-      if (!track) return;
-      openPlaylistModalForTrack(track, e.currentTarget);
-    });
-  });
-
-  els.featuredTrackList.querySelectorAll("[data-save-offline-track]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.saveOfflineTrack);
-      if (!track) return;
-      saveTrackOffline(track);
-    });
-  });
-
-  els.featuredTrackList.querySelectorAll("[data-download-track]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack);
-      if (!track?.src) return;
-      triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
-    });
+  window.AineoFeatured.renderFeaturedTrackList({
+    els,
+    getFeaturedCollection,
+    getFeaturedTrackPlayState,
+    isFavorite,
+    isDownloaded,
+    escapeHtml,
+    escapeHtmlAttr,
+    getCurrentTrack,
+    audioPlayer: els.audioPlayer,
+    togglePlayPause,
+    syncQueueToCurrentCollection,
+    getCurrentCollectionTracks,
+    setQueue,
+    playFromQueueIndex,
+    toggleFavorite,
+    openLyricsModalForTrack,
+    openPlaylistModalForTrack,
+    saveTrackOffline,
+    triggerDownload,
+    safeFileName
   });
 }
 
@@ -1866,22 +1688,19 @@ function renderMyPlaylistsLegacyV1() {
 }
 
 function openPlaylistModal(track = null, triggerEl = null) {
-  if (!els.playlistModal) return;
-  lastFocusedElement = triggerEl || document.activeElement || null;
-
-  const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
-  if (els.playlistSelect) {
-    els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>` + names
-      .map(name => `<option value="${escapeHtmlAttr(name)}">${escapeHtml(name)}</option>`)
-      .join("");
-  }
-
-  if (els.newPlaylistName) els.newPlaylistName.value = "";
-  playlistPickerTrackId = track?.id || null;
-
-  els.playlistModal.classList.remove("hidden");
-  els.playlistModal.setAttribute("aria-hidden", "false");
-  lockBodyScroll(true);
+  window.AineoPlaylists.openPlaylistModal({
+    els,
+    customPlaylists,
+    track,
+    triggerEl,
+    setLastFocusedElement(value) {
+      lastFocusedElement = value;
+    },
+    setPlaylistPickerTrackId(value) {
+      playlistPickerTrackId = value;
+    },
+    lockBodyScroll
+  });
 }
 
 function openPlaylistModalForTrack(track, triggerEl = null) {
@@ -1890,31 +1709,24 @@ function openPlaylistModalForTrack(track, triggerEl = null) {
 }
 
 function closePlaylistModal() {
-  if (!els.playlistModal) return;
-  els.playlistModal.classList.add("hidden");
-  els.playlistModal.setAttribute("aria-hidden", "true");
-  playlistPickerTrackId = null;
-  if (!isAnyModalOpen()) {
-    lockBodyScroll(false);
-    restoreFocus();
-  }
+  window.AineoPlaylists.closePlaylistModal({
+    els,
+    isAnyModalOpen,
+    lockBodyScroll,
+    restoreFocus,
+    onClosed() {
+      playlistPickerTrackId = null;
+    }
+  });
 }
 
 function saveTrackToPlaylistFromModal() {
-  const typedName = els.newPlaylistName?.value?.trim();
-  const selectedName = els.playlistSelect?.value?.trim();
-  const playlistName = typedName || selectedName;
-
-  if (!playlistName) return;
-
-  if (!customPlaylists[playlistName]) {
-    customPlaylists[playlistName] = [];
-  }
-
-  if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
-    customPlaylists[playlistName].push(playlistPickerTrackId);
-  }
-
+  const result = window.AineoPlaylists.saveTrackToPlaylistFromModal({
+    els,
+    customPlaylists,
+    playlistPickerTrackId
+  });
+  if (!result?.saved) return;
   saveCustomPlaylists();
   renderMyPlaylists();
   closePlaylistModal();
@@ -2145,198 +1957,65 @@ function triggerDownload(url, filename) {
 const PLAYER_SHEET_TABS = ["lyrics", "queue"];
 
 function initPlayerSheetGestures() {
-  if (!els.playerSheetContent) return;
-
-  const interactiveSelector = 'button, a, input, select, textarea, label, [role="tab"]';
-  let gesture = null;
-
-  const resetPlayerSheetTransform = () => {
-    if (!els.playerSheetContent) return;
-    els.playerSheetContent.style.transform = "";
-    els.playerSheetContent.style.transition = "";
-  };
-
-  els.playerSheetContent.addEventListener("touchstart", event => {
-    if (!els.playerSheet || els.playerSheet.classList.contains("hidden")) return;
-    if (event.touches.length !== 1) return;
-
-    const touch = event.touches[0];
-    const target = event.target;
-    const inNow = Boolean(els.playerSheetNowSection && els.playerSheetNowSection.contains(target));
-    const inPanelSection = Boolean(els.playerSheetPanelSection && els.playerSheetPanelSection.contains(target));
-    const onCover = Boolean(target.closest(".player-sheet-cover-wrap"));
-    const onHeader = Boolean(target.closest(".player-sheet-header"));
-    const inScrollablePanel = Boolean(target.closest(".player-tab-panel"));
-    const activePanel = document.querySelector('#playerSheet [data-player-panel].active');
-    const panelAtTop = !activePanel || activePanel.scrollTop <= 4;
-
-    let mode = null;
-    if (onCover && !target.closest(interactiveSelector)) {
-      mode = "track";
-    } else if (onHeader || (inNow && !target.closest(interactiveSelector))) {
-      mode = "dismiss";
-    } else if (inPanelSection && !inScrollablePanel && !target.closest(interactiveSelector)) {
-      mode = "tabs";
-    } else if (inScrollablePanel && panelAtTop && !target.closest(interactiveSelector)) {
-      mode = "dismiss";
-    }
-
-    if (!mode) return;
-
-    gesture = {
-      mode,
-      startX: touch.clientX,
-      startY: touch.clientY,
-      dx: 0,
-      dy: 0
-    };
-  }, { passive: true });
-
-  els.playerSheetContent.addEventListener("touchmove", event => {
-    if (!gesture || event.touches.length !== 1) return;
-
-    const touch = event.touches[0];
-    gesture.dx = touch.clientX - gesture.startX;
-    gesture.dy = touch.clientY - gesture.startY;
-
-    if (gesture.mode === "dismiss") {
-      if (gesture.dy > 0 && Math.abs(gesture.dy) > Math.abs(gesture.dx)) {
-        if (event.cancelable) event.preventDefault();
-        els.playerSheetContent.style.transition = "none";
-        els.playerSheetContent.style.transform = `translateY(${Math.min(gesture.dy, 220)}px)`;
-      }
-    }
-  }, { passive: false });
-
-  els.playerSheetContent.addEventListener("touchend", () => {
-    if (!gesture) return;
-
-    const { mode, dx, dy } = gesture;
-    const absX = Math.abs(dx);
-    const absY = Math.abs(dy);
-
-    if (mode === "dismiss") {
-      els.playerSheetContent.style.transition = "transform 180ms ease";
-      if (dy > 110 && absY > absX * 1.15) {
-        closePlayerSheet();
-      }
-      resetPlayerSheetTransform();
-    }
-
-    if (mode === "tabs") {
-      if (absX > 70 && absX > absY * 1.2) {
-        const currentIndex = Math.max(0, PLAYER_SHEET_TABS.indexOf(playerSheetTab));
-        const nextIndex = dx < 0
-          ? Math.min(PLAYER_SHEET_TABS.length - 1, currentIndex + 1)
-          : Math.max(0, currentIndex - 1);
-        if (nextIndex !== currentIndex) {
-          setPlayerSheetTab(PLAYER_SHEET_TABS[nextIndex]);
-        }
-      }
-    }
-
-    if (mode === "track") {
-      if (absX > 80 && absX > absY * 1.2) {
-        if (dx < 0) playNextTrack();
-        else playPreviousTrack();
-      }
-    }
-
-    gesture = null;
-  }, { passive: true });
-
-  els.playerSheetContent.addEventListener("touchcancel", () => {
-    gesture = null;
-    resetPlayerSheetTransform();
-  }, { passive: true });
+  window.AineoPlayerSheet.initGestures({
+    els,
+    getPlayerSheetTab: () => playerSheetTab,
+    setPlayerSheetTab,
+    playNextTrack,
+    playPreviousTrack,
+    closePlayerSheet
+  });
 }
 
 function openPlayerSheet(triggerEl = null) {
-  if (!els.playerSheet) return;
-  lastFocusedElement = triggerEl || document.activeElement || null;
-  els.playerSheet.classList.remove("hidden");
-  els.playerSheet.setAttribute("aria-hidden", "false");
-  lockBodyScroll(true);
-  updatePlayerSheet();
+  window.AineoPlayerSheet.open({
+    els,
+    triggerEl,
+    setLastFocusedElement(value) {
+      lastFocusedElement = value;
+    },
+    lockBodyScroll,
+    updatePlayerSheet
+  });
 }
 
 function closePlayerSheet() {
-  if (!els.playerSheet) return;
-  els.playerSheet.classList.add("hidden");
-  els.playerSheet.setAttribute("aria-hidden", "true");
-  if (!isAnyModalOpen()) {
-    lockBodyScroll(false);
-    restoreFocus();
-  }
+  window.AineoPlayerSheet.close({
+    els,
+    isAnyModalOpen,
+    lockBodyScroll,
+    restoreFocus
+  });
 }
 
 function setPlayerSheetTab(tabName) {
-  if (!PLAYER_SHEET_TABS.includes(tabName)) {
-    tabName = "lyrics";
-  }
-  playerSheetTab = tabName;
-  document.querySelectorAll("[data-player-tab]").forEach(btn => {
-    const active = btn.dataset.playerTab === tabName;
-    btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", active ? "true" : "false");
-  });
-
-  document.querySelectorAll("[data-player-panel]").forEach(panel => {
-    panel.classList.toggle("active", panel.dataset.playerPanel === tabName);
+  playerSheetTab = window.AineoPlayerSheet.setTab({
+    tabName,
+    currentTab: playerSheetTab
   });
 }
 
 
 function openPlayerSheetLyricsPanel() {
   setPlayerSheetTab("lyrics");
-
-  const panel = els.playerSheetLyricsPanel;
-  if (!panel) return;
-
-  panel.scrollTop = 0;
-
-  if (window.matchMedia("(max-width: 640px)").matches) {
-    requestAnimationFrame(() => {
-      panel.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  }
+  window.AineoPlayerSheet.openLyricsPanel({
+    els
+  });
 }
 
 function updatePlayerSheet() {
-  const track = getCurrentTrack();
-
-  if (els.playerSheetCover) {
-    els.playerSheetCover.src = track?.cover || "";
-    els.playerSheetCover.alt = track ? `${track.title} cover` : "Current song cover";
-  }
-
-  if (els.playerSheetTrackTitle) els.playerSheetTrackTitle.textContent = track?.title || "Select a song";
-  if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || "—";
-  if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || "—";
-  if (els.playerSheetTrackScripture) {
-    els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length
-      ? renderScriptureLinks(track.scripture_references, { compact: true })
-      : "—";
-  }
-
-  if (els.playerSheetLyricsPanel) {
-    renderLyricsInto(els.playerSheetLyricsPanel, track, "No lyrics available.");
-  }
-
-  if (els.playerSheetScripturePanel) {
-    els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length
-      ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>`
-      : `<p class="empty-message">No scripture references available.</p>`;
-  }
-
-  if (els.playerSheetPlayBtn && els.audioPlayer) {
-    els.playerSheetPlayBtn.textContent = els.audioPlayer.paused ? "▶" : "❚❚";
-  }
-
-  updateOfflineButtons(track);
-  updateFavoriteButton();
-  updateProgressUI();
-  setPlayerSheetTab(playerSheetTab);
+  window.AineoPlayerSheet.update({
+    els,
+    track: getCurrentTrack(),
+    audioPlayer: els.audioPlayer,
+    renderScriptureLinks,
+    renderLyricsInto,
+    updateOfflineButtons,
+    updateFavoriteButton,
+    updateProgressUI,
+    getPlayerSheetTab: () => playerSheetTab,
+    setPlayerSheetTab
+  });
 }
 
 /* =========================
@@ -2584,67 +2263,26 @@ let activeCustomPlaylistName = null;
 let playlistItemDragIndex = null;
 
 function normalizeCustomPlaylistState() {
-  if (!customPlaylists || typeof customPlaylists !== "object") {
-    customPlaylists = {};
-    return;
-  }
-
-  Object.keys(customPlaylists).forEach(name => {
-    const ids = Array.isArray(customPlaylists[name]) ? customPlaylists[name] : [];
-    customPlaylists[name] = ids.filter(Boolean);
+  activeCustomPlaylistName = window.AineoPlaylists.normalizeState({
+    customPlaylists,
+    activeCustomPlaylistName
   });
 }
 
 function getCustomPlaylistTracks(name) {
-  const ids = customPlaylists[name] || [];
-  return ids
-    .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean);
+  return window.AineoPlaylists.getCustomPlaylistTracks({
+    name,
+    customPlaylists,
+    tracks
+  });
 }
 
 function ensurePlaylistWorkspace() {
-  if (!els.myPlaylistList) return null;
-
-  let workspace = document.getElementById("playlistWorkspace");
-  if (workspace) return workspace;
-
-  workspace = document.createElement("section");
-  workspace.id = "playlistWorkspace";
-  workspace.className = "playlist-workspace hidden";
-  workspace.innerHTML = `
-    <div class="playlist-workspace-header">
-      <div id="playlistWorkspaceCover" class="playlist-workspace-cover" aria-hidden="true"></div>
-
-      <div class="playlist-workspace-meta">
-        <p class="eyebrow">Playlist Studio</p>
-        <h3 id="playlistWorkspaceTitle">Select a playlist</h3>
-        <p id="playlistWorkspaceInfo" class="playlist-workspace-info">Build playlists, reorder tracks, and play your favorites.</p>
-
-        <div class="playlist-workspace-actions">
-          <button id="playlistWorkspacePlayBtn" class="action-btn" type="button">Play</button>
-          <button id="playlistWorkspaceShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
-          <button id="playlistWorkspaceFocusBtn" class="action-btn secondary-btn" type="button">Open in Library</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="playlist-workspace-toolbar">
-      <label class="visually-hidden" for="playlistRenameInput">Rename playlist</label>
-      <input id="playlistRenameInput" class="request-input" type="text" placeholder="Rename playlist" />
-      <button id="playlistRenameBtn" class="action-btn secondary-btn" type="button">Rename</button>
-      <button id="playlistDeleteBtn" class="action-btn danger-btn" type="button">Delete</button>
-    </div>
-
-    <div class="playlist-workspace-helper">
-      Drag songs to reorder this playlist. Use remove to take a song out.
-    </div>
-
-    <div id="playlistWorkspaceTracks" class="playlist-workspace-tracks" aria-live="polite"></div>
-  `;
-
-  els.myPlaylistList.parentElement.appendChild(workspace);
-  bindPlaylistWorkspaceUI();
-  return workspace;
+  return window.AineoPlaylists.ensureWorkspace({
+    els,
+    createPlaylistBtn: els.createPlaylistBtn,
+    onCreatePlaylist: createNewPlaylist
+  });
 }
 
 function bindPlaylistWorkspaceUI() {
@@ -2718,30 +2356,33 @@ function buildPlaylistCoverCollage(trackList) {
 }
 
 function applyCustomPlaylistFilter(name) {
-  const ids = customPlaylists[name] || [];
-  filteredTracks = ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
-  filters.selectedAlbum = null;
-  filters.selectedPlaylist = null;
-  filters.selectedTag = null;
-  filters.searchTerm = "";
-  if (els.searchInput) els.searchInput.value = "";
-  if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${name}`;
-  if (els.stickyFilterBar) els.stickyFilterBar.classList.remove("hidden");
-  if (els.filterTypeBadge) {
-    els.filterTypeBadge.textContent = "My Playlist";
-    els.filterTypeBadge.className = "filter-type-badge playlist";
-    els.filterTypeBadge.style.display = "inline-flex";
-  }
+  const result = window.AineoPlaylists.applyCustomPlaylistFilter({
+    name,
+    customPlaylists,
+    tracks,
+    els,
+    filters,
+    setCurrentCollectionKey(value) {
+      currentCollectionKey = value;
+    }
+  });
+  if (!result) return;
+  filteredTracks = result.filteredTracks;
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
-  syncQueueToCurrentCollection(false);
   renderQueue();
   scrollToFeaturedCollection();
 }
 
 function setActiveCustomPlaylist(name) {
-  activeCustomPlaylistName = name && customPlaylists[name] ? name : null;
+  const result = window.AineoPlaylists.setActiveCustomPlaylist({
+    name,
+    customPlaylists,
+    currentActiveName: activeCustomPlaylistName
+  });
+  activeCustomPlaylistName = result.activeName;
+  if (!result.changed) return;
   renderMyPlaylists();
   renderPlaylistWorkspace();
 }
@@ -2769,225 +2410,54 @@ function renameCustomPlaylist(oldName, newName) {
 }
 
 function renderPlaylistWorkspace() {
-  const workspace = ensurePlaylistWorkspace();
-  if (!workspace) return;
-
-  const title = document.getElementById("playlistWorkspaceTitle");
-  const info = document.getElementById("playlistWorkspaceInfo");
-  const cover = document.getElementById("playlistWorkspaceCover");
-  const renameInput = document.getElementById("playlistRenameInput");
-  const tracksWrap = document.getElementById("playlistWorkspaceTracks");
-  const deleteBtn = document.getElementById("playlistDeleteBtn");
-  const playBtn = document.getElementById("playlistWorkspacePlayBtn");
-  const shuffleBtn = document.getElementById("playlistWorkspaceShuffleBtn");
-  const focusBtn = document.getElementById("playlistWorkspaceFocusBtn");
-
-  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) {
-    workspace.classList.add("hidden");
-    return;
-  }
-
-  workspace.classList.remove("hidden");
-
-  const list = getCustomPlaylistTracks(activeCustomPlaylistName);
-  if (title) title.textContent = activeCustomPlaylistName;
-  if (info) info.textContent = `${list.length} song${list.length === 1 ? "" : "s"} • simple title list with reorder and remove controls`;
-  if (cover) cover.innerHTML = `<div class="playlist-workspace-cover-label">♪</div>`;
-  if (renameInput) renameInput.value = activeCustomPlaylistName;
-  if (playBtn) playBtn.disabled = !list.length;
-  if (shuffleBtn) shuffleBtn.disabled = !list.length;
-  if (focusBtn) focusBtn.disabled = !list.length;
-  if (deleteBtn) deleteBtn.disabled = false;
-
-  if (!tracksWrap) return;
-
-  if (!list.length) {
-    tracksWrap.innerHTML = `<p class="empty-message">This playlist is empty. Add songs with the + Playlist button from any track card.</p>`;
-    return;
-  }
-
-  tracksWrap.innerHTML = list.map((track, index) => `
-    <div class="playlist-track-row playlist-track-row--compact ${getCurrentTrack()?.id === track.id ? "active" : ""}" draggable="true" data-playlist-track-index="${index}">
-      <button class="playlist-track-drag" type="button" aria-label="Drag to reorder">☰</button>
-      <button class="playlist-track-main playlist-track-main--compact" type="button" data-playlist-track-play="${index}">
-        <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
-      </button>
-      <div class="playlist-track-row-actions">
-        <button class="mini-action-btn" data-playlist-track-queue="${index}" type="button">Queue</button>
-        <button class="mini-action-btn" data-playlist-track-remove="${index}" type="button">Remove</button>
-      </div>
-    </div>
-  `).join("");
-
-  tracksWrap.querySelectorAll("[data-playlist-track-play]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackPlay);
-      const currentList = getCustomPlaylistTracks(activeCustomPlaylistName);
-      startPlaybackFromList(currentList, false, index);
-    });
-  });
-
-  tracksWrap.querySelectorAll("[data-playlist-track-queue]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackQueue);
-      const currentList = getCustomPlaylistTracks(activeCustomPlaylistName);
-      const track = currentList[index];
-      if (!track) return;
-      if (!currentQueue.length) {
-        setQueue(currentList, false);
-      } else {
-        currentQueue.push(track);
-        saveQueueState();
-        renderQueue();
+  window.AineoPlaylists.renderWorkspace({
+    els,
+    activeCustomPlaylistName,
+    getCustomPlaylistTracks,
+    startPlaybackFromList,
+    applyCustomPlaylistFilter,
+    escapeHtml,
+    escapeHtmlAttr,
+    isFavorite,
+    isDownloaded,
+    getCurrentTrack,
+    audioPlayer: els.audioPlayer,
+    togglePlayPause,
+    toggleFavorite,
+    openLyricsModalForTrack,
+    openPlaylistModalForTrack,
+    saveTrackOffline,
+    triggerDownload,
+    safeFileName,
+    customPlaylists,
+    saveCustomPlaylists,
+    renderMyPlaylists,
+    onPlaylistChanged(name) {
+      if (getCurrentFilterKey() === `custom-playlist:${name}`) {
+        applyCustomPlaylistFilter(name);
       }
-    });
-  });
-
-  tracksWrap.querySelectorAll("[data-playlist-track-remove]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const index = Number(btn.dataset.playlistTrackRemove);
-      const ids = [...(customPlaylists[activeCustomPlaylistName] || [])];
-      if (index < 0 || index >= ids.length) return;
-      ids.splice(index, 1);
-      customPlaylists[activeCustomPlaylistName] = ids;
-      saveCustomPlaylists();
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-      if (getCurrentFilterKey() === `custom-playlist:${activeCustomPlaylistName}`) {
-        applyCustomPlaylistFilter(activeCustomPlaylistName);
-      }
-    });
-  });
-
-  tracksWrap.querySelectorAll(".playlist-track-row[draggable='true']").forEach(row => {
-    row.addEventListener("dragstart", () => {
-      playlistItemDragIndex = Number(row.dataset.playlistTrackIndex);
-      row.classList.add("dragging");
-    });
-
-    row.addEventListener("dragover", event => {
-      event.preventDefault();
-      row.classList.add("drag-target");
-    });
-
-    row.addEventListener("dragleave", () => row.classList.remove("drag-target"));
-
-    row.addEventListener("dragend", () => {
-      playlistItemDragIndex = null;
-      row.classList.remove("dragging", "drag-target");
-      tracksWrap.querySelectorAll(".playlist-track-row").forEach(item => item.classList.remove("drag-target", "dragging"));
-    });
-
-    row.addEventListener("drop", event => {
-      event.preventDefault();
-      const dropIndex = Number(row.dataset.playlistTrackIndex);
-      tracksWrap.querySelectorAll(".playlist-track-row").forEach(item => item.classList.remove("drag-target", "dragging"));
-      if (playlistItemDragIndex === null || playlistItemDragIndex === dropIndex || !activeCustomPlaylistName) {
-        playlistItemDragIndex = null;
-        return;
-      }
-      const ids = [...(customPlaylists[activeCustomPlaylistName] || [])];
-      const [moved] = ids.splice(playlistItemDragIndex, 1);
-      ids.splice(dropIndex, 0, moved);
-      customPlaylists[activeCustomPlaylistName] = ids;
-      saveCustomPlaylists();
-      playlistItemDragIndex = null;
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-      if (getCurrentFilterKey() === `custom-playlist:${activeCustomPlaylistName}`) {
-        applyCustomPlaylistFilter(activeCustomPlaylistName);
-      }
-    });
+    }
   });
 }
 
 function renderMyPlaylists() {
   normalizeCustomPlaylistState();
   ensurePlaylistWorkspace();
-
-  if (!els.myPlaylistList) return;
-
-  const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
-
-  if (!names.length) {
-    els.myPlaylistList.classList.remove("playlist-v2-grid");
-    els.myPlaylistList.classList.add("playlist-v2-list");
-    els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
-    activeCustomPlaylistName = null;
-    renderPlaylistWorkspace();
-    return;
-  }
-
-  if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) {
-    activeCustomPlaylistName = names[0];
-  }
-
-  els.myPlaylistList.classList.remove("playlist-v2-grid");
-  els.myPlaylistList.classList.add("playlist-v2-list");
-
-  els.myPlaylistList.innerHTML = names.map(name => {
-    const list = getCustomPlaylistTracks(name);
-    const active = name === activeCustomPlaylistName ? "active" : "";
-    return `
-      <article class="playlist-list-item ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-        <button class="playlist-list-item-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">
-          <strong>${escapeHtml(name)}</strong>
-          <span>${list.length} song${list.length === 1 ? "" : "s"}</span>
-        </button>
-
-        <div class="playlist-list-item-actions">
-          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button>
-          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button>
-          <button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button>
-          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button>
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  els.myPlaylistList.querySelectorAll("[data-open-custom-playlist]").forEach(btn => {
-    btn.addEventListener("click", () => setActiveCustomPlaylist(btn.dataset.openCustomPlaylist));
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-play]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistPlay;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setActiveCustomPlaylist(name);
-      startPlaybackFromList(list, false, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-shuffle]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistShuffle;
-      const list = getCustomPlaylistTracks(name);
-      if (!list.length) return;
-      setActiveCustomPlaylist(name);
-      startPlaybackFromList(list, true, 0);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-custom-playlist-focus]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const name = btn.dataset.customPlaylistFocus;
-      setActiveCustomPlaylist(name);
-      applyCustomPlaylistFilter(name);
-    });
-  });
-
-  els.myPlaylistList.querySelectorAll("[data-delete-custom-playlist]").forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.stopPropagation();
-      const name = btn.dataset.deleteCustomPlaylist;
+  window.AineoPlaylists.renderMyPlaylists({
+    els,
+    customPlaylists,
+    activeCustomPlaylistName,
+    getCustomPlaylistTracks,
+    setActiveCustomPlaylist,
+    startPlaybackFromList,
+    applyCustomPlaylistFilter,
+    saveCustomPlaylists,
+    onDelete(name) {
       delete customPlaylists[name];
       if (activeCustomPlaylistName === name) activeCustomPlaylistName = null;
-      saveCustomPlaylists();
-      renderMyPlaylists();
-      renderPlaylistWorkspace();
-    });
+    },
+    renderPlaylistWorkspace,
+    escapeHtml,
+    escapeHtmlAttr
   });
-
-  renderPlaylistWorkspace();
 }
