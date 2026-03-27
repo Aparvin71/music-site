@@ -4108,3 +4108,147 @@ body.orientation-guard-active {
     margin-top: 2px;
   }
 }
+
+
+/* v41.0.1 music page order refresh */
+.music-page-layout .music-app-shell {
+  display: block;
+  min-height: auto;
+}
+
+.music-page-layout .main-content--music-order {
+  max-width: 1220px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.music-page-layout .music-library-card--compact,
+.music-page-layout .about-panel--compact,
+.music-page-layout .playlist-section-card,
+.music-page-layout .albums-panel,
+.music-page-layout .featured-album-card,
+.music-page-layout .featured-tracklist-panel,
+.music-page-layout .lyrics-panel,
+.music-page-layout .queue-panel,
+.music-page-layout .library-panel {
+  margin-bottom: 14px;
+}
+
+.music-page-layout .music-library-card--compact h2,
+.music-page-layout .about-panel--compact h2 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.music-page-layout .music-library-card-search {
+  margin-top: 12px;
+  max-width: 520px;
+}
+
+.music-page-layout .playlist-list {
+  margin-bottom: 0;
+}
+
+.music-page-layout .playlist-list--custom {
+  margin-top: 0;
+}
+
+.music-page-layout .album-grid--four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.music-page-layout .tag-list {
+  margin-top: 4px;
+}
+
+.music-page-layout .sticky-player {
+  position: sticky;
+  bottom: 0;
+  z-index: 1200;
+}
+
+@media (max-width: 900px) {
+  .music-page-layout .music-library-card--compact h2,
+  .music-page-layout .about-panel--compact h2 {
+    font-size: 17px;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .music-page-layout .album-card,
+  .music-page-layout .mini-card {
+    padding: 8px;
+  }
+
+  .music-page-layout .album-card h3,
+  .music-page-layout .mini-card h3,
+  .music-page-layout .mini-card-meta strong {
+    font-size: 13px;
+  }
+
+  .music-page-layout .album-card p,
+  .music-page-layout .mini-card p,
+  .music-page-layout .mini-card-meta span {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .main-content--music-order {
+    padding: 12px;
+  }
+
+  .music-page-layout .music-library-card--compact,
+  .music-page-layout .about-panel--compact,
+  .music-page-layout .playlist-section-card,
+  .music-page-layout .albums-panel,
+  .music-page-layout .featured-album-card,
+  .music-page-layout .featured-tracklist-panel,
+  .music-page-layout .lyrics-panel,
+  .music-page-layout .queue-panel,
+  .music-page-layout .library-panel {
+    margin-bottom: 12px;
+  }
+
+  .music-page-layout .music-library-card--compact h2,
+  .music-page-layout .about-panel--compact h2 {
+    font-size: 16px;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .music-page-layout .album-card,
+  .music-page-layout .mini-card {
+    padding: 6px;
+    border-radius: 10px;
+  }
+
+  .music-page-layout .album-card h3,
+  .music-page-layout .mini-card h3,
+  .music-page-layout .mini-card-meta strong {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+
+  .music-page-layout .album-card p,
+  .music-page-layout .mini-card p,
+  .music-page-layout .mini-card-meta span {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .music-page-layout .featured-actions {
+    gap: 6px;
+  }
+
+  .music-page-layout .featured-actions .action-btn {
+    padding: 7px 10px;
+    font-size: 12px;
+  }
+}
