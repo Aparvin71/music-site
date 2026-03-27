@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.5.0-offline-download-cleanup";
+const CACHE_VERSION = "v40.6.0-album-page-split";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -24,6 +24,7 @@ const APP_SHELL = [
   "/app.js",
   "/contact.js",
   "/album-page.js",
+  "/aineo-album-page.js",
   "/tracks.json",
   "/manifest.webmanifest",
   "/pwa-init.js",
