@@ -9,7 +9,7 @@
   };
 
   window.AineoConfig = {
-    version: "v41.0.2",
+    version: "v41.0.3",
     defaultArtist: "Allen Parvin",
     defaultAlbum: "Singles",
     defaultCollectionLabel: "All Songs",
