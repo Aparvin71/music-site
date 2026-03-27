@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.8.3-home-page-polish";
+const CACHE_VERSION = "v40.8.4-home-page-polish";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

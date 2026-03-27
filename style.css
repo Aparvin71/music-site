@@ -1463,18 +1463,21 @@ a:hover {
   }
 
   .app-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .sidebar {
-    border-right: none;
-    border-bottom: 1px solid #252a34;
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
   }
 
   .main-content {
+    order: 1;
     max-width: 100%;
     padding: 14px;
+  }
+
+  .sidebar {
+    order: 2;
+    border-right: none;
+    border-bottom: 1px solid #252a34;
+    padding: 16px;
   }
 
   .navbar {
@@ -1560,11 +1563,17 @@ a:hover {
 
   .queue-title-row,
   .album-track-title-row,
-  .featured-track-title-line,
   .featured-track-meta-line {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+  }
+
+  .featured-track-title-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
   }
 
   .lyrics-modal-content,
@@ -4062,6 +4071,24 @@ body.orientation-guard-active {
   .featured-track-row {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .featured-track-title-line {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .featured-track-title-line strong {
+    min-width: 0;
+  }
+
+  .featured-track-duration {
+    justify-self: end;
+    white-space: nowrap;
+    text-align: right;
   }
 
   .featured-track-main {
