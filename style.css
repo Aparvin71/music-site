@@ -3221,12 +3221,12 @@ body.orientation-guard-active {
 }
 
 .lyric-line.active {
-  color: #ffffff;
+  color: inherit;
   border-color: transparent;
   background: transparent;
   box-shadow: none;
   transform: none;
-  font-weight: 700;
+  font-weight: inherit;
 }
 
 .player-sheet .synced-lyrics,
