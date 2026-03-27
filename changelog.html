@@ -37,31 +37,31 @@
   <main class="page">
     <section class="page-card page-hero-card">
       <p class="eyebrow">Changelog</p>
-      <h1>What’s New in v40.6.0</h1>
-      <p class="page-lead">A running list of key changes included in the page cleanup and shared utilities pass.</p>
+      <h1>What’s New in v40.7.0</h1>
+      <p class="page-lead">A running list of key changes included in the landing-page layout refresh and continued modular cleanup.</p>
     </section>
     <section class="page-card">
-      <p class="eyebrow">v40.6.0</p>
-      <h2>Album Page Modular Split</h2>
+      <p class="eyebrow">v40.7.0</p>
+      <h2>Landing Page Card Refresh</h2>
       <ul class="utility-list">
-        <li>Added <code>aineo-album-page.js</code> for album-page rendering and playback helpers.</li>
-        <li>Reduced <code>album-page.js</code> to a small bootstrap file.</li>
-        <li>Updated the album page to load shared helpers before the album page module.</li>
+        <li>Kept the music library as the landing experience.</li>
+        <li>Kept the <code>About This Music</code> card on the music page.</li>
+        <li>Moved the support cards into a cleaner top-of-page order.</li>
+        <li>Placed <strong>Get the App</strong> first, followed by <strong>Mission</strong>, <strong>Fill Your Mind</strong>, and <strong>Explore More Pages</strong>.</li>
         <li>Bumped app and cache versioning for a cleaner rollout.</li>
       </ul>
     </section>
     <section class="page-card utility-card">
       <div class="changelog-list">
-        <article class="changelog-item"><h2>Shared Utilities</h2><p>Common helpers for secondary pages now flow through <code>aineo-shared.js</code> so album and artist screens can reuse navigation, escaping, and fetch helpers.</p></article>
-        <article class="changelog-item"><h2>Album + Artist Pages</h2><p><code>albums.html</code>, <code>artists.html</code>, and <code>artist.html</code> now use dedicated page scripts instead of inline logic, which makes those pages easier to maintain and less fragile.</p></article>
-        <article class="changelog-item"><h2>Dynamic Artists Shelf</h2><p>The artists page now builds from <code>tracks.json</code> so artist counts, covers, albums, and tags stay in sync with your uploaded music library.</p></article>
-        <article class="changelog-item"><h2>Player continuity</h2><p>The no-text-highlighting lyrics behavior, auto-scroll support, and Media Session / Now Playing upgrade remain in place from the earlier modular passes.</p></article>
-        <article class="changelog-item"><h2>Prior modular work retained</h2><p>The homepage still uses the modular helper files for lyrics, media session, library filters, queue handling, featured collection UI, playlist workspace, and player sheet behavior.</p></article>
+        <article class="changelog-item"><h2>Get the App first</h2><p>The install card now appears first in the top summary area so the app-install option is easier to find right away.</p></article>
+        <article class="changelog-item"><h2>Homepage card order</h2><p>The homepage now flows from music hero into <strong>Get the App</strong>, then <strong>Mission</strong>, then <strong>Fill Your Mind</strong>, then <strong>Explore More Pages</strong>, while keeping the About card on the music page.</p></article>
+        <article class="changelog-item"><h2>Music stays front and center</h2><p>The landing experience remains the music library, so visitors still arrive directly into the listening and discovery experience.</p></article>
+        <article class="changelog-item"><h2>Prior modular work retained</h2><p>The earlier modular cleanup remains in place for lyrics, media session, filters, queue handling, featured collection UI, playlists, player sheet behavior, offline flow, and album pages.</p></article>
       </div>
     </section>
   </main>
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.6.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v40.7.0</span></p>
     <p class="footer-links">
       <a href="./mission.html">Mission</a>
       <a href="./install.html">Install</a>

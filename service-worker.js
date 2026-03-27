@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v40.6.0-album-page-split";
+const CACHE_VERSION = "v40.7.0-home-card-order";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
