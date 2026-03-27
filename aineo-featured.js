@@ -30,9 +30,17 @@
       return;
     }
     els.albumGrid.innerHTML = albums.map(album => {
-      const isActive = filters.selectedAlbum === album.name ? "active" : "";
+      const isActive = filters.selectedAlbum === album.name;
+      if (window.AineoUI?.renderAlbumCard) {
+        return window.AineoUI.renderAlbumCard({
+          album,
+          isActive,
+          escapeHtml,
+          escapeAttr: escapeHtmlAttr
+        });
+      }
       return `
-        <button class="album-card ${isActive}" data-album="${escapeHtmlAttr(album.name)}" type="button">
+        <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
           <div class="album-card-cover-wrap">
             ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
           </div>

@@ -16,7 +16,7 @@ let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
 let autoScrollEnabled = loadAutoScrollEnabled();
 
-const STORAGE_KEYS = {
+const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   favorites: "aineo_favorites",
   recentlyPlayed: "aineo_recently_played",
   resume: "aineo_resume",
@@ -218,53 +218,59 @@ async function loadTracks() {
   }
 }
 
-function normalizeTrack(track, index) {
-  const tags = normalizeStringArray(track.tags);
-  const playlists = normalizeStringArray(track.playlists || track.playlist);
-  const scriptureRefs = normalizeStringArray(
-    track.scripture_references || track.scriptureReferences || track.scripture
-  );
+const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
+  ? window.AineoData.normalizeTrack
+  : function normalizeTrack(track, index) {
+      const tags = normalizeStringArray(track.tags);
+      const playlists = normalizeStringArray(track.playlists || track.playlist);
+      const scriptureRefs = normalizeStringArray(
+        track.scripture_references || track.scriptureReferences || track.scripture
+      );
 
-  return {
-    id: track.id || makeTrackId(track, index),
-    title: track.title || "Untitled",
-    artist: track.artist || "Allen Parvin",
-    album: track.album || "Singles",
-    year: track.year || "",
-    genre: track.genre || "",
-    duration: track.duration || "",
-    src: track.src || track.url || track.audio || "",
-    cover: track.cover || track.artwork || track.image || "",
-    lyrics: track.lyrics || "",
-    lyrics_file: track.lyrics_file || track.lyricsFile || "",
-    syncedLyrics: [],
-    tags,
-    playlists,
-    scripture_references: scriptureRefs,
-    trackNumber: track.trackNumber || track.track || "",
-    description: track.description || "",
-    album_zip: track.album_zip || ""
-  };
-}
+      return {
+        id: track.id || makeTrackId(track, index),
+        title: track.title || "Untitled",
+        artist: track.artist || "Allen Parvin",
+        album: track.album || "Singles",
+        year: track.year || "",
+        genre: track.genre || "",
+        duration: track.duration || "",
+        src: track.src || track.url || track.audio || "",
+        cover: track.cover || track.artwork || track.image || "",
+        lyrics: track.lyrics || "",
+        lyrics_file: track.lyrics_file || track.lyricsFile || "",
+        syncedLyrics: [],
+        tags,
+        playlists,
+        scripture_references: scriptureRefs,
+        trackNumber: track.trackNumber || track.track || "",
+        description: track.description || "",
+        album_zip: track.album_zip || ""
+      };
+    };
 
-function normalizeStringArray(value) {
-  if (Array.isArray(value)) {
-    return value.map(v => String(v).trim()).filter(Boolean);
-  }
+const normalizeStringArray = (window.AineoData && window.AineoData.normalizeStringArray)
+  ? window.AineoData.normalizeStringArray
+  : function normalizeStringArray(value) {
+      if (Array.isArray(value)) {
+        return value.map(v => String(v).trim()).filter(Boolean);
+      }
 
-  if (typeof value === "string") {
-    return value
-      .split(",")
-      .map(v => v.trim())
-      .filter(Boolean);
-  }
+      if (typeof value === "string") {
+        return value
+          .split(",")
+          .map(v => v.trim())
+          .filter(Boolean);
+      }
 
-  return [];
-}
+      return [];
+    };
 
-function makeTrackId(track, index) {
-  return `${track.title || "track"}__${track.album || "album"}__${index}`;
-}
+const makeTrackId = (window.AineoData && window.AineoData.makeTrackId)
+  ? window.AineoData.makeTrackId
+  : function makeTrackId(track, index) {
+      return `${track.title || "track"}__${track.album || "album"}__${index}`;
+    };
 
 function renderScriptureLinks(refs, options = {}) {
   const list = Array.isArray(refs)
@@ -1570,7 +1576,7 @@ function renderFavorites() {
     .slice(0, 12);
 
   if (!favTracks.length) {
-    els.favoritesList.innerHTML = `<p class="empty-message">No favorites yet.</p>`;
+    els.favoritesList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No favorites yet.") : `<p class="empty-message">No favorites yet.</p>`;
     return;
   }
 
@@ -1668,11 +1674,11 @@ function renderMyPlaylistsLegacyV1() {
   const names = Object.keys(customPlaylists).sort((a, b) => a.localeCompare(b));
 
   if (!names.length) {
-    els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
+    els.myPlaylistList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No custom playlists yet.") : `<p class="empty-message">No custom playlists yet.</p>`;
     return;
   }
 
-  els.myPlaylistList.innerHTML = names.map(name => `
+  els.myPlaylistList.innerHTML = names.map(name => window.AineoUI?.renderPlaylistChipRow ? window.AineoUI.renderPlaylistChipRow({ name, count: customPlaylists[name].length, escapeHtml, escapeAttr: escapeHtmlAttr }) : `
     <div class="playlist-chip-row">
       <button class="filter-chip" data-custom-playlist="${escapeHtmlAttr(name)}" type="button">
         ${escapeHtml(name)} <span class="chip-count">(${customPlaylists[name].length})</span>
@@ -1776,7 +1782,7 @@ function renderRecentlyPlayed() {
     .slice(0, 12);
 
   if (!recentTracks.length) {
-    els.recentlyPlayedList.innerHTML = `<p class="empty-message">No recent songs yet.</p>`;
+    els.recentlyPlayedList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No recent songs yet.") : `<p class="empty-message">No recent songs yet.</p>`;
     return;
   }
 
@@ -1785,6 +1791,15 @@ function renderRecentlyPlayed() {
 }
 
 function renderMiniCard(track, index) {
+  if (window.AineoUI?.renderMiniCard) {
+    return window.AineoUI.renderMiniCard({
+      track,
+      index,
+      escapeHtml,
+      escapeAttr: escapeHtmlAttr
+    });
+  }
+
   return `
     <button class="mini-card" data-mini-index="${index}" type="button">
       ${
