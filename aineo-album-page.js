@@ -161,59 +161,64 @@ function renderAlbumPage() {
   document.title = `${album.name} - Aineo Music`;
 
   albumPageEls.root.innerHTML = `
-    <section class="featured-album-card album-page-hero-card">
+    <section class="album-page-hero-card album-page-hero-card--redesign">
       <div class="album-page-hero-backdrop"${album.cover ? ` style="background-image:url('${escapeHtmlAttr(album.cover)}')"` : ""}></div>
-      <div class="album-page-hero-layout">
-        <div class="featured-cover-wrap album-page-hero-cover-wrap">
-          ${album.cover ? `<img class="featured-cover album-page-hero-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />` : `<div class="featured-cover album-page-hero-cover"></div>`}
+      <div class="album-page-hero-layout album-page-hero-layout--redesign">
+        <div class="album-page-hero-cover-shell">
+          ${album.cover ? `<img class="featured-cover album-page-hero-cover album-page-hero-cover--xl" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="eager" decoding="async" />` : `<div class="featured-cover album-page-hero-cover album-page-hero-cover--xl"></div>`}
         </div>
-        <div class="featured-meta album-page-hero-copy">
-          <p class="eyebrow">Album Page</p>
+        <div class="featured-meta album-page-hero-copy album-page-hero-copy--redesign">
+          <p class="eyebrow">Album</p>
           <h1 class="album-page-title">${escapeHtml(album.name)}</h1>
           <p class="album-page-subtitle">${escapeHtml(album.artist)}</p>
-          <div class="album-page-stat-row">
+          <div class="album-page-stat-row album-page-stat-row--hero">
             <span class="album-stat-pill">${albumTracks.length} song${albumTracks.length === 1 ? "" : "s"}</span>
             ${totalDuration ? `<span class="album-stat-pill">${escapeHtml(totalDuration)}</span>` : ""}
             ${albumTracks[0].year ? `<span class="album-stat-pill">${escapeHtml(String(albumTracks[0].year))}</span>` : ""}
             <span class="album-stat-pill">${trackCountWithLyrics} with lyrics</span>
+            <span class="album-stat-pill">${trackCountWithScripture} scripture songs</span>
           </div>
-          ${album.theme ? `<p class="album-page-theme-line">${escapeHtml(album.theme)}</p>` : ""}
-          ${album.description ? `<p class="album-page-description">${escapeHtml(album.description)}</p>` : ""}
+          ${album.description ? `<p class="album-page-description album-page-description--hero">${escapeHtml(album.description)}</p>` : ""}
+          ${album.story ? `<p class="album-page-story-lead">${escapeHtml(album.story)}</p>` : ""}
           ${album.badges.length ? `<div class="album-page-badge-row">${album.badges.map(badge => `<span class="album-inline-chip album-badge-chip">${escapeHtml(badge)}</span>`).join("")}</div>` : ""}
           ${tagSummary.length ? `<div class="album-page-tag-row">${tagSummary.map(tag => `<span class="album-inline-chip">#${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
-          <div class="featured-actions album-page-hero-actions">
+          <div class="featured-actions album-page-hero-actions album-page-hero-actions--stackable">
             <button id="albumPagePlayBtn" class="action-btn" type="button">Play Album</button>
             <button id="albumPageShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
             <button id="albumPageSaveOfflineBtn" class="action-btn secondary-btn" type="button">Save Album Offline</button>${album.album_zip ? `<button id="albumPageDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>` : ""}
+          </div>
+          <div class="quick-link-pills album-page-inline-links">
+            <a class="quick-link-pill" href="./index.html">Music</a>
+            <a class="quick-link-pill" href="./albums.html">All Albums</a>
+            <a class="quick-link-pill" href="./artists.html">Artists</a>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="album-page-grid polished-album-page-grid">
-      <section class="library-panel featured-tracklist-panel album-page-main-panel">
-        <div class="section-header album-page-section-header">
+    <div class="album-page-grid polished-album-page-grid album-page-grid--redesign">
+      <section class="library-panel featured-tracklist-panel album-page-main-panel album-page-main-panel--redesign">
+        <div class="section-header album-page-section-header album-page-section-header--tight">
           <div>
             <p class="eyebrow">Track List</p>
             <h2>${escapeHtml(album.name)}</h2>
           </div>
-          <p class="hero-text">Tap any track to start playback, queue songs, or jump into lyrics.</p>
+          <p class="hero-text">Tap any track to play now, queue next, or open lyrics without leaving the album.</p>
         </div>
-        <div class="featured-track-list album-page-track-list">
+        <div class="featured-track-list album-page-track-list album-page-track-list--redesign">
           ${albumTracks.map((track, index) => `
-            <div class="featured-track-row album-page-track-row ${getCurrentTrack()?.id === track.id ? "playing" : ""}">
+            <div class="featured-track-row album-page-track-row album-page-track-row--redesign ${getCurrentTrack()?.id === track.id ? "playing" : ""}">
               <button class="featured-track-play" type="button" data-play-index="${index}" aria-label="Play ${escapeHtmlAttr(track.title)}">▶</button>
               <div class="featured-track-main">
                 <div class="featured-track-title-line">
                   <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
                   ${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ""}
                 </div>
-                <div class="featured-track-meta-line">
-                  <span>${escapeHtml(track.artist)}</span>
-                  
+                <div class="featured-track-meta-line album-page-track-meta-line">
+                  ${track.tags?.length ? track.tags.slice(0,3).map(tag => `<span class="album-inline-chip album-track-chip">${escapeHtml(tag)}</span>`).join("") : `<span class="muted">${escapeHtml(track.artist)}</span>`}
                 </div>
               </div>
-              <div class="featured-track-actions album-page-track-actions">
+              <div class="featured-track-actions album-page-track-actions album-page-track-actions--redesign">
                 <button class="mini-action-btn" type="button" data-play-next="${index}">Play Next</button>
                 <button class="mini-action-btn" type="button" data-add-queue="${index}">Add Queue</button>
                 <button class="mini-action-btn" type="button" data-lyrics-index="${index}">Lyrics</button>
@@ -223,24 +228,24 @@ function renderAlbumPage() {
         </div>
       </section>
 
-      <aside class="album-page-side polished-album-page-side">
-        <section class="queue-panel album-page-info-card album-page-highlight-card">
+      <aside class="album-page-side polished-album-page-side album-page-side--redesign">
+        <section class="queue-panel album-page-info-card album-page-highlight-card album-page-info-card--hero">
           <div class="queue-header">
             <div>
               <h2>Album highlights</h2>
               <p>At-a-glance details</p>
             </div>
           </div>
-          <div class="album-highlight-grid">
+          <div class="album-highlight-grid album-highlight-grid--redesign">
             <div class="album-highlight-pill"><strong>${albumTracks.length}</strong><span>Tracks</span></div>
             <div class="album-highlight-pill"><strong>${escapeHtml(totalDuration || '—')}</strong><span>Runtime</span></div>
             <div class="album-highlight-pill"><strong>${trackCountWithScripture}</strong><span>Scripture songs</span></div>
             <div class="album-highlight-pill"><strong>${tagSummary.length}</strong><span>Theme tags</span></div>
           </div>
-          ${album.story ? `<p class="album-page-story">${escapeHtml(album.story)}</p>` : `<p class="album-page-story muted">Add an album story in <code>ALBUM_METADATA</code> to enrich this page even more.</p>`}
+          ${album.theme ? `<p class="album-page-story">Theme: ${escapeHtml(album.theme)}</p>` : ""}
         </section>
 
-        <section class="queue-panel album-page-info-card">
+        <section class="queue-panel album-page-info-card album-page-info-card--scripture">
           <div class="queue-header">
             <div>
               <h2>Scripture in this album</h2>
@@ -288,7 +293,6 @@ function renderAlbumPage() {
       </aside>
     </div>
   `;
-
   document.getElementById("albumPagePlayBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, false, 0));
   document.getElementById("albumPageShuffleBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, true, 0));
   document.getElementById("albumPageDownloadBtn")?.addEventListener("click", () => triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`));

@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v41.5.1-performance-speed-pass";
+const CACHE_VERSION = "v41.6.0-album-redesign-nav";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
