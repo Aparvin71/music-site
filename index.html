@@ -69,8 +69,8 @@
   
   <div class="app-shell music-app-shell">
     <main id="mainContent" class="main-content main-content--music-order">
-      <section id="offlineStatusMount" class="offline-status-wrap hidden" aria-live="polite"></section>
-      <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite">
+      <section id="offlineStatusMount" class="offline-status-wrap hidden music-center-column-item" aria-live="polite"></section>
+      <section id="stickyFilterBar" class="sticky-filter-bar hidden music-center-column-item" aria-live="polite">
         <div class="sticky-filter-bar-inner">
           <div class="filter-info">
             <span id="filterTypeBadge" class="filter-type-badge">Filter</span>
@@ -83,7 +83,42 @@
         </div>
       </section>
 
-      <section class="page-card music-library-card music-library-card--compact">
+      <div class="music-layout-shell">
+        <aside class="music-left-rail" aria-label="Browse music library">
+          <section class="library-panel playlist-section-card">
+            <div class="section-header">
+              <h2 id="playlistsHeading">Playlists</h2>
+            </div>
+            <div id="playlistSectionBody" class="section-body">
+              <div class="playlist-toolbar playlist-toolbar--combined">
+                <a href="#favoritesHeading" class="action-btn secondary-btn small-action-btn playlist-jump-btn">Favorites</a>
+                <button id="createPlaylistBtn" class="action-btn secondary-btn small-action-btn" type="button">+ New Playlist</button>
+              </div>
+              <div id="playlistList" class="playlist-list" aria-live="polite"></div>
+              <div class="playlist-subsection-label">My Playlists</div>
+              <div id="myPlaylistList" class="playlist-list playlist-list--custom" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="albums-panel" aria-labelledby="albumsHeading">
+            <div class="section-header">
+              <h2 id="albumsHeading">Albums</h2>
+            </div>
+            <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
+          </section>
+
+          <section class="library-panel" aria-labelledby="tagsHeading">
+            <div class="section-header">
+              <h2 id="tagsHeading">Browse by Tag</h2>
+            </div>
+            <div id="tagSectionBody" class="section-body">
+              <div id="tagList" class="tag-list" aria-live="polite"></div>
+            </div>
+          </section>
+        </aside>
+
+        <div class="music-center-column">
+          <section class="page-card music-library-card music-library-card--compact">
         <div class="music-library-card-copy">
           <p class="eyebrow">Music Library</p>
           <h2>Original songs, worship tracks, and thoughtful music</h2>
@@ -111,37 +146,6 @@
         </p>
         <div class="card-actions about-panel-actions">
           <a class="action-btn secondary-btn small-action-btn" href="./about.html">Read More About the Music</a>
-        </div>
-      </section>
-
-      <section class="library-panel playlist-section-card" aria-labelledby="playlistsHeading">
-        <div class="section-header">
-          <h2 id="playlistsHeading">Playlists</h2>
-        </div>
-        <div id="playlistSectionBody" class="section-body">
-          <div class="playlist-toolbar playlist-toolbar--combined">
-            <a href="#favoritesHeading" class="action-btn secondary-btn small-action-btn playlist-jump-btn">Favorites</a>
-            <button id="createPlaylistBtn" class="action-btn secondary-btn small-action-btn" type="button">+ New Playlist</button>
-          </div>
-          <div id="playlistList" class="playlist-list" aria-live="polite"></div>
-          <div class="playlist-subsection-label">My Playlists</div>
-          <div id="myPlaylistList" class="playlist-list playlist-list--custom" aria-live="polite"></div>
-        </div>
-      </section>
-
-      <section class="albums-panel" aria-labelledby="albumsHeading">
-        <div class="section-header">
-          <h2 id="albumsHeading">Albums</h2>
-        </div>
-        <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
-      </section>
-
-      <section class="library-panel" aria-labelledby="tagsHeading">
-        <div class="section-header">
-          <h2 id="tagsHeading">Browse by Tag</h2>
-        </div>
-        <div id="tagSectionBody" class="section-body">
-          <div id="tagList" class="tag-list" aria-live="polite"></div>
         </div>
       </section>
 
@@ -181,6 +185,20 @@
         </div>
       </section>
 
+      <section id="resumeBanner" class="resume-banner hidden" aria-live="polite">
+        <div class="resume-copy">
+          <strong>Resume Listening</strong>
+          <p id="resumeText">Continue where you left off.</p>
+        </div>
+
+        <div class="resume-actions">
+          <button id="resumeSongBtn" class="action-btn" type="button">Resume Song</button>
+          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
+        </div>
+      </section>
+        </div>
+
+        <aside class="music-right-rail" aria-label="Current song details">
       <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
         <div class="section-header section-header-collapsible">
           <button
@@ -241,17 +259,8 @@
         </div>
       </section>
 
-      <section id="resumeBanner" class="resume-banner hidden" aria-live="polite">
-        <div class="resume-copy">
-          <strong>Resume Listening</strong>
-          <p id="resumeText">Continue where you left off.</p>
-        </div>
-
-        <div class="resume-actions">
-          <button id="resumeSongBtn" class="action-btn" type="button">Resume Song</button>
-          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
-        </div>
-      </section>
+        </aside>
+      </div>
     </main>
   </div>
 

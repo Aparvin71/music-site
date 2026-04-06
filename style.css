@@ -4315,3 +4315,181 @@ body.orientation-guard-active {
     width: 100%;
   }
 }
+
+
+/* v41.2.0 desktop + tablet layout refresh */
+.music-page-layout .music-layout-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+.music-page-layout .music-left-rail,
+.music-page-layout .music-center-column,
+.music-page-layout .music-right-rail {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.music-page-layout .music-center-column {
+  min-width: 0;
+}
+
+.music-page-layout .music-left-rail > *,
+.music-page-layout .music-center-column > *,
+.music-page-layout .music-right-rail > * {
+  margin-bottom: 0;
+}
+
+.music-page-layout .music-library-card--compact h2,
+.music-page-layout .about-panel--compact h2 {
+  font-size: 17px;
+}
+
+.music-page-layout .music-library-card--compact,
+.music-page-layout .about-panel--compact {
+  padding: 14px 16px;
+}
+
+.music-page-layout .music-left-rail .playlist-section-card,
+.music-page-layout .music-left-rail .albums-panel,
+.music-page-layout .music-left-rail .library-panel,
+.music-page-layout .music-right-rail .lyrics-panel,
+.music-page-layout .music-right-rail .queue-panel {
+  height: fit-content;
+}
+
+.music-page-layout .music-right-rail .lyrics-content,
+.music-page-layout .music-right-rail .queue-list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+@media (min-width: 700px) and (max-width: 1099px) {
+  .music-page-layout .main-content--music-order {
+    max-width: 1380px;
+    padding: 18px;
+  }
+
+  .music-page-layout .music-layout-shell {
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    align-items: start;
+  }
+
+  .music-page-layout .music-left-rail {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .music-page-layout .music-center-column {
+    grid-column: 1;
+  }
+
+  .music-page-layout .music-right-rail {
+    grid-column: 2;
+    position: sticky;
+    top: 86px;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .music-page-layout .featured-album-card {
+    grid-template-columns: 120px 1fr;
+  }
+
+  .music-page-layout .featured-cover {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .music-page-layout .main-content--music-order {
+    max-width: 1560px;
+    padding: 20px 20px 24px;
+  }
+
+  .music-page-layout .music-layout-shell {
+    grid-template-columns: 290px minmax(0, 1fr) 330px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .music-page-layout .music-left-rail,
+  .music-page-layout .music-right-rail {
+    position: sticky;
+    top: 86px;
+  }
+
+  .music-page-layout .music-left-rail {
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .music-page-layout .music-right-rail {
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+    padding-left: 2px;
+  }
+
+  .music-page-layout .music-center-column {
+    min-width: 0;
+  }
+
+  .music-page-layout .music-library-card--compact,
+  .music-page-layout .about-panel--compact,
+  .music-page-layout .featured-album-card,
+  .music-page-layout .featured-tracklist-panel,
+  .music-page-layout #downloadedSection,
+  .music-page-layout .library-panel {
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  }
+
+  .music-page-layout .music-library-card--compact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+    align-items: center;
+    gap: 18px;
+  }
+
+  .music-page-layout .music-library-card-search {
+    margin-top: 0;
+    max-width: none;
+  }
+
+  .music-page-layout .playlist-toolbar--combined {
+    justify-content: stretch;
+  }
+
+  .music-page-layout .playlist-toolbar--combined .action-btn {
+    flex: 1 1 auto;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .music-page-layout .tag-list {
+    gap: 6px;
+  }
+
+  .music-page-layout .featured-album-card {
+    grid-template-columns: 132px 1fr;
+    gap: 18px;
+  }
+
+  .music-page-layout .featured-cover {
+    width: 132px;
+    height: 132px;
+  }
+
+  .music-page-layout .featured-track-row {
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    padding: 12px;
+  }
+}
