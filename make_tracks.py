@@ -584,6 +584,10 @@ def main():
             track["featured"] = bool(track_override.get("featured"))
         if track_override.get("collection"):
             track["collection"] = str(track_override["collection"]).strip()
+        if track_override.get("date_added"):
+            track["date_added"] = str(track_override["date_added"]).strip()
+        if track_override.get("search_keywords"):
+            track["search_keywords"] = [str(v).strip() for v in track_override.get("search_keywords", []) if str(v).strip()]
 
 
         if lyrics:

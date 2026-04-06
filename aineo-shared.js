@@ -12,12 +12,25 @@
     return escapeHtml(value);
   }
 
+  function getJsonCacheKey(url) {
+    return `aineo_json_cache:${String(url).replace(/[^a-z0-9._-]+/gi, "_")}`;
+  }
+
   async function fetchJson(url, fallback) {
+    const version = window.AineoConfig?.assetVersion || window.AineoConfig?.version || "1";
+    const requestUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
+    const cacheKey = getJsonCacheKey(url);
     try {
-      const response = await fetch(`${url}${url.includes("?") ? "&" : "?"}v=${Date.now()}`, { cache: "no-store" });
+      const response = await fetch(requestUrl, { cache: "no-cache" });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const data = await response.json();
+      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+      return data;
     } catch (error) {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
       console.warn(`Could not load ${url}:`, error);
       return fallback;
     }

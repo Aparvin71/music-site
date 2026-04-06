@@ -16,6 +16,7 @@ let lastResumePersistAt = 0;
 let lastFocusedElement = null;
 let customPlaylists = {};
 let downloadedTracks = [];
+let playStats = {};
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
@@ -28,6 +29,7 @@ const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
+  playStats: "aineo_play_stats",
   lastQueue: "aineo_last_queue",
   playbackModes: "aineo_playback_modes"
 };
@@ -36,7 +38,9 @@ const filters = {
   selectedAlbum: null,
   selectedPlaylist: null,
   selectedTag: null,
-  searchTerm: ""
+  selectedSmartPlaylist: null,
+  searchTerm: "",
+  searchScope: "all"
 };
 
 let currentCollectionKey = "all-songs";
@@ -46,6 +50,8 @@ const els = {
   siteNavLinks: document.getElementById("siteNavLinks"),
 
   searchInput: document.getElementById("searchInput"),
+  searchScopeBar: document.getElementById("searchScopeBar"),
+  searchMeta: document.getElementById("searchMeta"),
   playlistList: document.getElementById("playlistList"),
   tagList: document.getElementById("tagList"),
   albumGrid: document.getElementById("albumGrid"),
@@ -318,10 +324,7 @@ function ensureOfflineAssetsReady() {
 
 async function loadTracks() {
   try {
-    const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
+    const data = await (window.AineoShared?.fetchJson ? window.AineoShared.fetchJson("tracks.json", []) : fetch("tracks.json", { cache: "no-cache" }).then(res => res.json()));
     const nextTracks = Array.isArray(data)
       ? data.map((track, index) => normalizeTrack(track, index))
       : [];
@@ -498,6 +501,7 @@ function loadStoredData() {
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
+  playStats = loadJsonFromStorage(STORAGE_KEYS.playStats, {});
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
@@ -687,8 +691,19 @@ function handleTrackEnded() {
 ========================= */
 
 function bindUI() {
-  on(els.searchInput, "input", e => setSearchFilter(e.target.value));
+
+  if (els.searchInput) {
+    const searchDebounceMs = window.AineoConfig?.ui?.searchDebounceMs || window.AineoConfig?.searchDebounceMs || 120;
+    let searchDebounceTimer = null;
+    on(els.searchInput, "input", e => {
+      const value = e.target.value;
+      window.clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = window.setTimeout(() => setSearchFilter(value), searchDebounceMs);
+    });
+  }
+
   on(els.clearFiltersBtn, "click", clearAllFilters);
+  bindSearchScopeChips();
 
   on(els.playBtn, "click", togglePlayPause);
   on(els.prevBtn, "click", playPreviousTrack);
@@ -948,6 +963,19 @@ function setPlaylistFilter(playlistName) {
   });
 }
 
+function setSmartPlaylistFilter(smartKey) {
+  window.AineoLibrary.applyNamedFilter({
+    filters,
+    searchInput: els.searchInput,
+    type: "smart-playlist",
+    value: smartKey,
+    onAfterChange: () => {
+      updateLibraryView();
+      scrollToFeaturedCollection();
+    }
+  });
+}
+
 function setTagFilter(tagName) {
   window.AineoLibrary.applyNamedFilter({
     filters,
@@ -986,7 +1014,7 @@ function clearAllFilters() {
 }
 
 function getFilteredTracks() {
-  return window.AineoLibrary.getFilteredTracks({ tracks, filters });
+  return window.AineoLibrary.getFilteredTracks({ tracks, filters, favorites, recentlyPlayed, downloadedTracks, playStats });
 }
 
 /* =========================
@@ -1001,7 +1029,8 @@ function getCurrentCollectionKey() {
   if (filters.selectedAlbum) return `album:${filters.selectedAlbum}`;
   if (filters.selectedPlaylist) return `playlist:${filters.selectedPlaylist}`;
   if (filters.selectedTag) return `tag:${filters.selectedTag}`;
-  if (filters.searchTerm) return `search:${filters.searchTerm.toLowerCase()}`;
+  if (filters.selectedSmartPlaylist) return `smart:${filters.selectedSmartPlaylist}`;
+  if (filters.searchTerm) return `search:${filters.searchScope || "all"}:${filters.searchTerm.toLowerCase()}`;
   return "all-songs";
 }
 
@@ -1045,6 +1074,21 @@ function getCurrentCollectionMeta() {
       name: `#${filters.selectedTag}`,
       subtitle: "Filtered by tag",
       cover: fallbackCover,
+      tracks: collectionTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
+  if (filters.selectedSmartPlaylist) {
+    const smartPlaylists = window.AineoLibrary.getSmartPlaylistDefinitions({ tracks, favorites, recentlyPlayed, downloadedTracks, playStats });
+    const smart = smartPlaylists.find(item => item.key === filters.selectedSmartPlaylist);
+    return {
+      type: "smart-playlist",
+      key: getCurrentCollectionKey(),
+      name: smart?.name || "Smart Playlist",
+      subtitle: smart ? `${smart.tracks.length} songs` : "Smart Playlist",
+      cover: smart?.tracks?.find(track => track.cover)?.cover || fallbackCover,
       tracks: collectionTracks,
       album_zip: "",
       openMode: "collection"
@@ -1179,6 +1223,43 @@ function updateLibraryView() {
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
+  renderSearchUi();
+}
+
+function getSearchScopeLabel(scopeKey = "all") {
+  const labels = { all: "Everywhere", titles: "Titles", albums: "Albums", lyrics: "Lyrics", scripture: "Scripture", tags: "Tags", playlists: "Playlists" };
+  return labels[scopeKey] || "Everywhere";
+}
+
+function bindSearchScopeChips() {
+  if (!els.searchScopeBar) return;
+  els.searchScopeBar.addEventListener("click", event => {
+    const button = event.target.closest("[data-search-scope]");
+    if (!button) return;
+    filters.searchScope = button.dataset.searchScope || "all";
+    renderSearchUi();
+    if (filters.searchTerm) updateLibraryView();
+  });
+}
+
+function renderSearchUi() {
+  if (els.searchScopeBar) {
+    const scopes = (window.AineoConfig?.searchScopes || ["all","titles","albums","lyrics","scripture","tags","playlists"]);
+    els.searchScopeBar.innerHTML = scopes.map(scope => {
+      const label = getSearchScopeLabel(scope);
+      return window.AineoUI?.renderSearchScopeChip
+        ? window.AineoUI.renderSearchScopeChip({ key: scope, label, active: (filters.searchScope || "all") === scope, escapeHtml, escapeAttr: escapeHtmlAttr })
+        : `<button class="search-scope-chip ${(filters.searchScope || "all") === scope ? "active" : ""}" data-search-scope="${escapeHtmlAttr(scope)}" type="button">${escapeHtml(label)}</button>`;
+    }).join("");
+  }
+  if (els.searchMeta) {
+    const count = Array.isArray(filteredTracks) ? filteredTracks.length : 0;
+    if (filters.searchTerm) {
+      els.searchMeta.textContent = `${count} result${count === 1 ? "" : "s"} in ${getSearchScopeLabel(filters.searchScope)}`;
+    } else {
+      els.searchMeta.textContent = `Search songs, albums, tags, playlists, lyrics, and scripture.`;
+    }
+  }
 }
 
 /* =========================
@@ -1285,8 +1366,16 @@ function renderActiveFilterLabel() {
     buttonText = "Clear Tag";
     badgeText = "Tag";
     badgeClass = "tag";
+  } else if (filters.selectedSmartPlaylist) {
+    const smartPlaylists = window.AineoLibrary.getSmartPlaylistDefinitions({ tracks, favorites, recentlyPlayed, downloadedTracks, playStats });
+    const smart = smartPlaylists.find(item => item.key === filters.selectedSmartPlaylist);
+    text = `Smart Playlist: ${smart?.name || filters.selectedSmartPlaylist}`;
+    buttonText = "Clear Smart Playlist";
+    badgeText = "Smart";
+    badgeClass = "playlist";
   } else if (filters.searchTerm) {
-    text = `Search: ${filters.searchTerm}`;
+    const scopeLabel = getSearchScopeLabel(filters.searchScope);
+    text = `Search ${scopeLabel}: ${filters.searchTerm}`;
     buttonText = "Clear Search";
     badgeText = "Search";
     badgeClass = "search";
@@ -1324,6 +1413,11 @@ function renderPlaylists(trackList) {
     hasActiveFilter,
     onClearAll: clearAllFilters,
     onSetPlaylistFilter: setPlaylistFilter,
+    onSetSmartPlaylistFilter: setSmartPlaylistFilter,
+    favorites,
+    recentlyPlayed,
+    downloadedTracks,
+    playStats,
     escapeHtml,
     escapeHtmlAttr
   });
@@ -1404,6 +1498,37 @@ function renderFeaturedTrackList() {
    QUEUE + PLAYBACK
 ========================= */
 
+let prefetchedTrackSrc = "";
+let prefetchedAudio = null;
+
+function prefetchTrackMedia(track) {
+  if (!track?.src || prefetchedTrackSrc === track.src) return;
+  prefetchedTrackSrc = track.src;
+
+  try {
+    prefetchedAudio = new Audio();
+    prefetchedAudio.preload = "auto";
+    prefetchedAudio.src = track.src;
+    prefetchedAudio.load();
+  } catch (error) {
+    prefetchedAudio = null;
+  }
+
+  if (track.cover) {
+    const img = new Image();
+    img.decoding = "async";
+    img.loading = "eager";
+    img.src = track.cover;
+  }
+}
+
+function prefetchUpcomingTrack() {
+  if (!Array.isArray(currentQueue) || !currentQueue.length) return;
+  const nextIndex = currentQueueIndex >= 0 && currentQueueIndex < currentQueue.length - 1 ? currentQueueIndex + 1 : 0;
+  const nextTrack = currentQueue[nextIndex];
+  if (nextTrack) prefetchTrackMedia(nextTrack);
+}
+
 function setQueue(trackList, shuffle = false) {
   currentQueue = shuffle ? shuffleArray([...trackList]) : [...trackList];
   currentQueueIndex = currentQueue.length ? 0 : -1;
@@ -1442,6 +1567,7 @@ function playTrack(track) {
   updateMediaSessionMetadata(track);
   updateLyricsPanel(track);
   updateScripturePanel(track);
+  recordTrackPlay(track);
   addToRecentlyPlayed(track);
   saveResume(track);
   saveQueueState();
@@ -1449,6 +1575,7 @@ function playTrack(track) {
   renderFavorites();
   renderFeaturedTrackList();
   updateUrlForTrack(track);
+  window.requestIdleCallback ? window.requestIdleCallback(() => prefetchUpcomingTrack(), { timeout: 700 }) : window.setTimeout(prefetchUpcomingTrack, 250);
 }
 
 function playFromQueueIndex(index) {
@@ -2094,6 +2221,18 @@ function saveTrackToPlaylistFromModal() {
   closePlaylistModal();
 }
 
+function recordTrackPlay(track) {
+  if (!track?.id) return;
+  const current = playStats[track.id] || { count: 0, lastPlayed: "" };
+  playStats[track.id] = {
+    count: Number(current.count || 0) + 1,
+    lastPlayed: new Date().toISOString()
+  };
+  track.play_count = playStats[track.id].count;
+  track.last_played = playStats[track.id].lastPlayed;
+  savePlayStats();
+}
+
 function addToRecentlyPlayed(track) {
   recentlyPlayed = [track.id, ...recentlyPlayed.filter(id => id !== track.id)].slice(0, 20);
   saveRecentlyPlayed();
@@ -2728,7 +2867,7 @@ function buildPlaylistCoverCollage(trackList) {
   }
 
   return covers
-    .map(src => `<img loading="lazy" src="${escapeHtmlAttr(src)}" alt="" />`)
+    .map(src => `<img loading="lazy" decoding="async" fetchpriority="low" src="${escapeHtmlAttr(src)}" alt="" />`)
     .join("");
 }
 

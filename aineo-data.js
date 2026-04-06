@@ -50,6 +50,8 @@
       favorite: Boolean(track.favorite ?? defaults.favorite),
       play_count: Number(track.play_count || defaults.play_count || 0) || 0,
       last_played: track.last_played || defaults.last_played || "",
+      date_added: track.date_added || track.added_at || "",
+      search_keywords: normalizeStringArray(track.search_keywords || track.searchKeywords),
       has_lyrics: Boolean(track.has_lyrics || track.lyrics || track.lyrics_file),
       has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length)
     };

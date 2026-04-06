@@ -42,7 +42,7 @@
       return `
         <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
           <div class="album-card-cover-wrap">
-            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
+            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
           </div>
           <div class="album-card-meta">
             <h3>${escapeHtml(album.name)}</h3>

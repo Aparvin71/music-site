@@ -78,16 +78,14 @@ function bindModal() {
 }
 
 async function loadTracks() {
-  const res = await fetch(`tracks.json?v=${Date.now()}`, { cache: "no-store" });
-  const data = await res.json();
+  const data = await (window.AineoShared?.fetchJson ? window.AineoShared.fetchJson("tracks.json", []) : fetch("tracks.json", { cache: "no-cache" }).then(res => res.json()));
   allTracks = Array.isArray(data) ? data.map(normalizeTrack) : [];
   albumTracks = allTracks.filter(track => track.album.toLowerCase() === albumParam.toLowerCase());
 }
 
 async function loadAlbumsMetadata() {
   try {
-    const res = await fetch(`albums.json?v=${Date.now()}`, { cache: "no-store" });
-    const data = await res.json();
+    const data = await (window.AineoShared?.fetchJson ? window.AineoShared.fetchJson("albums.json", []) : fetch("albums.json", { cache: "no-cache" }).then(res => res.json()));
     albumLibrary = Array.isArray(data) ? data.map(normalizeAlbumMetadata) : [];
   } catch (error) {
     console.warn("albums.json could not be loaded.", error);
@@ -277,7 +275,7 @@ function renderAlbumPage() {
             ${relatedSongs.length ? relatedSongs.map((track, index) => `
               <button class="album-related-card" type="button" data-related-index="${index}">
                 <span class="album-related-cover-wrap">
-                  ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" loading="lazy" />` : `<div class="album-related-cover album-related-cover-fallback">♪</div>`}
+                  ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-related-cover album-related-cover-fallback">♪</div>`}
                 </span>
                 <span class="album-related-copy">
                   <strong>${escapeHtml(track.title)}</strong>
@@ -381,7 +379,7 @@ function renderQueue() {
   wrap.innerHTML = currentQueue.map((track, index) => `
     <div class="queue-row ${index === currentQueueIndex ? "active" : ""}" draggable="true" data-queue-index="${index}">
       <button class="queue-drag-handle" data-queue-drag-handle="${index}" type="button" aria-label="Drag to reorder ${escapeHtmlAttr(track.title)}">↕</button>
-      ${track.cover ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />` : `<div class="queue-cover"></div>`}
+      ${track.cover ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="queue-cover"></div>`}
       <div class="queue-main">
         <div class="queue-title-row">
           <h3>${escapeHtml(track.title)}</h3>

@@ -5556,3 +5556,78 @@ body.orientation-guard-active {
   .continue-listening-actions { grid-column: 1 / -1; justify-content: stretch; }
   .continue-listening-actions .action-btn { flex: 1 1 0; }
 }
+
+
+/* v41.5 Smart playlists + search */
+.search-scope-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.search-scope-chip {
+  border: 1px solid #2d3340;
+  background: #10151c;
+  color: #d7deea;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.search-scope-chip.active {
+  background: #1e2632;
+  border-color: #6f8db6;
+  color: #fff;
+}
+.search-meta {
+  margin: 10px 0 0;
+  color: #9fb0c8;
+  font-size: 12px;
+}
+.smart-playlist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 14px;
+}
+.smart-playlist-chip {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+}
+.smart-playlist-icon {
+  width: 1.1rem;
+  text-align: center;
+  opacity: 0.9;
+}
+@media (min-width: 641px) {
+  .smart-playlist-list {
+    gap: 10px;
+  }
+}
+
+
+/* =========================================
+   PERFORMANCE HELPERS
+========================================= */
+.music-center-column > .library-panel,
+.music-center-column > .about-panel,
+.music-right-rail > .library-panel,
+.music-right-rail > .lyrics-panel,
+.music-right-rail > .queue-panel {
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
+}
+
+.album-card-cover,
+.mini-card-cover,
+.offline-card-cover,
+.queue-cover,
+.album-related-cover {
+  image-rendering: auto;
+  backface-visibility: hidden;
+}

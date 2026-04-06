@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v41.4.0-immediate-next-3";
+const CACHE_VERSION = "v41.5.1-performance-speed-pass";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -228,10 +228,14 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (['/tracks.json', '/albums.json'].includes(url.pathname) || url.pathname.endsWith('/tracks.json') || url.pathname.endsWith('/albums.json')) {
-    event.respondWith(fetch(req).then((res) => {
-      if (res && res.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(normalizeRequest(req), res.clone()));
-      return res;
-    }).catch(() => findCachedResponse(req)));
+    event.respondWith((async () => {
+      const cached = await findCachedResponse(req);
+      const networkFetch = fetch(req).then((res) => {
+        if (res && res.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(normalizeRequest(req), res.clone()));
+        return res;
+      }).catch(() => cached);
+      return cached || networkFetch;
+    })());
     return;
   }
 

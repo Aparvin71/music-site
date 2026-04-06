@@ -33,7 +33,7 @@ window.AineoOffline = (() => {
       method: 'GET',
       mode: preferNoCors ? 'no-cors' : 'cors',
       credentials: 'omit',
-      cache: 'no-store'
+      cache: 'no-cache'
     });
   }
 
@@ -229,7 +229,7 @@ window.AineoOffline = (() => {
       <article class="offline-card${currentTrack?.id === track.id ? ' is-current' : ''}" data-offline-index="${index}">
         <button class="offline-card-main" data-offline-play="${index}" type="button">
           ${track.cover
-            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="offline-card-cover" loading="lazy" />`
+            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="offline-card-cover" loading="lazy" decoding="async" fetchpriority="low" />`
             : `<div class="offline-card-cover offline-card-placeholder">No Cover</div>`}
           <div class="offline-card-meta">
             <strong>${escapeHtml(track.title)}</strong>

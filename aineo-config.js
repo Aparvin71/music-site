@@ -7,11 +7,13 @@
     downloadedTracks: "aineo_downloaded_tracks",
     lastQueue: "aineo_last_queue",
     tracksCache: "aineo_tracks_cache",
-    offlineBannerDismissed: "aineo_offline_banner_dismissed"
+    offlineBannerDismissed: "aineo_offline_banner_dismissed",
+      playStats: "aineo_play_stats"
   };
 
   window.AineoConfig = {
-    version: "v41.4.0",
+    version: "v41.5.1",
+    assetVersion: "41.5.1",
     defaultArtist: "Allen Parvin",
     defaultAlbum: "Singles",
     defaultCollectionLabel: "All Songs",
@@ -24,8 +26,11 @@
         album: 150,
         mini: 150
       },
-      topMobileTagLimit: 12
+      topMobileTagLimit: 12,
+      smartPlaylistLimit: 12,
+      searchDebounceMs: 120
     },
+    searchScopes: ["all", "titles", "albums", "lyrics", "scripture", "tags", "playlists"],
     trackDefaults: {
       collection: "All Songs",
       featured: false,
