@@ -7627,3 +7627,80 @@ select:focus,
     font-size: 9px;
   }
 }
+
+
+/* v42.2.4 final stable mobile + featured collection polish */
+@media (min-width: 700px) and (max-width: 1099px) {
+  .music-page-layout .music-layout-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .music-page-layout .music-left-rail,
+  .music-page-layout .music-center-column,
+  .music-page-layout .music-right-rail {
+    display: contents;
+  }
+
+  .music-page-layout .playlist-section-card { order: 3; }
+  .music-page-layout .browse-hub-card { order: 4; }
+  .music-page-layout #featuredCollectionCard { order: 5; }
+  .music-page-layout .albums-panel { order: 6; }
+  .music-page-layout .music-left-rail > .library-panel { order: 7; }
+  .music-page-layout #continueListeningCard { order: 8; }
+  .music-page-layout .featured-tracklist-panel { order: 9; }
+  .music-page-layout .lyrics-panel { order: 10; }
+  .music-page-layout [data-collapsible="favorites"] { order: 11; }
+  .music-page-layout [data-collapsible="recent"] { order: 12; }
+  .music-page-layout #downloadedSection { order: 13; }
+  .music-page-layout .queue-panel { order: 14; }
+}
+
+@media (max-width: 699px) {
+  .music-page-layout .playlist-section-card { order: 3; }
+  .music-page-layout .browse-hub-card { order: 4; padding: 13px; }
+  .music-page-layout #featuredCollectionCard { order: 5; }
+
+  .music-page-layout .playlist-list .filter-chip,
+  .music-page-layout .playlist-list .playlist-btn,
+  .music-page-layout .smart-playlist-list .filter-chip,
+  .music-page-layout .tag-list .tag-chip,
+  .music-page-layout .tag-list .filter-chip {
+    min-height: 42px;
+    font-size: 11px;
+    line-height: 1.15;
+    padding: 8px 8px;
+  }
+
+  .music-page-layout .smart-playlist-list .filter-chip {
+    font-size: 10px;
+    min-height: 48px;
+    padding: 8px 8px;
+  }
+
+  .music-page-layout .smart-playlist-icon {
+    font-size: 11px;
+    width: 0.9rem;
+  }
+
+  .music-page-layout .smart-playlist-label .chip-count {
+    font-size: 8.5px;
+  }
+
+  .music-page-layout .lyrics-content,
+  .music-page-layout .player-sheet-lyrics,
+  .music-page-layout .player-tab-panel[data-player-panel="lyrics"] {
+    max-height: 180px;
+    line-height: 1.5;
+  }
+
+  .music-page-layout .page-card,
+  .music-page-layout .library-panel,
+  .music-page-layout .albums-panel,
+  .music-page-layout .queue-panel,
+  .music-page-layout .featured-album-card,
+  .music-page-layout .about-panel {
+    margin-bottom: 10px;
+  }
+}

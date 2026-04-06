@@ -1221,7 +1221,16 @@ function getCurrentCollectionMeta() {
 
 function getFeaturedCollection() {
   const collection = getCurrentCollectionMeta();
-  return collection.tracks.length ? collection : null;
+  if (!collection?.tracks?.length) return null;
+  if (collection.key === "all-songs") {
+    return {
+      ...collection,
+      name: "All Songs",
+      subtitle: "Entire music library",
+      openMode: "collection"
+    };
+  }
+  return collection;
 }
 
 function scrollToFeaturedCollection() {
