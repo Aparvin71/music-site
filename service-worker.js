@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v41.2.0-layout-desktop-tablet";
+const CACHE_VERSION = "v41.2.1-desktop-tablet-polish";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
