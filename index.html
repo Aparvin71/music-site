@@ -266,10 +266,10 @@
 
 
   <div class="sticky-player" aria-label="Audio player">
-    <div class="sticky-player-left sticky-player-panel">
+    <div class="sticky-player-left">
       <img id="nowCover" src="" alt="Album cover" class="now-cover" />
       <div class="now-meta">
-        <p class="label"><span class="now-status-dot" aria-hidden="true"></span>Now Playing</p>
+        <p class="label">Now Playing</p>
         <h3 id="nowTitle">Select a song</h3>
         <p id="nowArtist">—</p>
         <p id="nowAlbum">—</p>
@@ -277,14 +277,14 @@
       </div>
     </div>
 
-    <div class="sticky-player-center sticky-player-panel">
-      <div class="transport transport-pill">
+    <div class="sticky-player-center">
+      <div class="transport">
         <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
         <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
         <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
       </div>
 
-      <div class="progress-wrap progress-pill">
+      <div class="progress-wrap">
         <span id="currentTime">0:00</span>
         <label class="visually-hidden" for="seekBar">Seek through track</label>
         <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
@@ -292,15 +292,12 @@
       </div>
     </div>
 
-    <div class="sticky-player-right sticky-player-panel">
-      <div class="player-utility-header">
-        <p class="player-utility-label">Quick Actions</p>
-        <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button">Open Player</button>
-      </div>
+    <div class="sticky-player-right">
       <div class="track-actions compact-actions">
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
         <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
         <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+        <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button">Open Player</button>
 
         <button
           id="moreActionsBtn"
