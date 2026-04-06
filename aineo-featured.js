@@ -93,7 +93,7 @@
   }
 
   function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, openPlaylistModalForTrack, saveTrackOffline, triggerDownload, safeFileName, addTrackToQueue } = ctx;
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, openPlaylistModalForTrack, saveTrackOffline, triggerDownload, safeFileName, addTrackToQueue, openTrackActionSheet } = ctx;
     if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
     const album = getFeaturedCollection();
     if (!album) {
@@ -118,6 +118,7 @@
           <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">+ Playlist</button>
           <button class="mini-action-btn" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button">${isDownloaded(track) ? 'Saved' : 'Offline'}</button>
           <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
+          <button class="mini-action-btn" data-track-more="${escapeHtmlAttr(track.id)}" type="button">•••</button>
           <button class="mini-action-btn" data-download-track="${escapeHtmlAttr(track.id)}" type="button">Download</button>
         </div>
       </div>`;
@@ -151,6 +152,9 @@
     }));
     els.featuredTrackList.querySelectorAll('[data-play-next-track]').forEach(btn => btn.addEventListener('click', () => {
       const track = album.tracks.find(t => t.id === btn.dataset.playNextTrack); if (track) addTrackToQueue?.(track, { playNext: true });
+    }));
+    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
+      const track = album.tracks.find(t => t.id === btn.dataset.trackMore); if (track) openTrackActionSheet?.(track, e.currentTarget);
     }));
     els.featuredTrackList.querySelectorAll('[data-download-track]').forEach(btn => btn.addEventListener('click', () => {
       const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack); if (track?.src) triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);

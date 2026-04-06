@@ -6541,3 +6541,21 @@ select:focus,
     animation: none !important;
   }
 }
+
+
+/* v41.8.0 track actions + queue polish */
+.queue-position-pill { display:inline-flex; align-items:center; margin-top:0.45rem; padding:0.18rem 0.5rem; border-radius:999px; background:rgba(143,180,232,0.14); color:#cfe2ff; font-size:11px; font-weight:700; }
+.queue-position-pill--current { background:rgba(98,214,156,0.16); color:#b7ffdc; }
+.track-action-sheet-open { overflow:hidden; }
+.track-action-sheet { position:fixed; inset:0; z-index:2500; }
+.track-action-sheet.hidden { display:none !important; }
+.track-action-sheet-backdrop { position:absolute; inset:0; background:rgba(5,8,14,0.62); backdrop-filter:blur(8px); }
+.track-action-sheet-panel { position:absolute; left:50%; bottom:0; transform:translateX(-50%); width:min(100%,520px); background:linear-gradient(180deg, rgba(22,28,38,0.98), rgba(13,17,23,0.98)); border:1px solid rgba(126,163,216,0.18); border-radius:24px 24px 0 0; padding:0.9rem 1rem calc(1rem + env(safe-area-inset-bottom)); box-shadow:0 -18px 48px rgba(0,0,0,0.35); }
+.track-action-sheet-handle { width:54px; height:5px; border-radius:999px; background:rgba(255,255,255,0.2); margin:0 auto 0.9rem; }
+.track-action-sheet-header h2 { margin:0 0 0.2rem; font-size:1.1rem; }
+.track-action-sheet-meta { margin:0; color:#b7c0cf; font-size:0.95rem; }
+.track-action-sheet-actions { display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-top:1rem; }
+.track-action-sheet-actions .action-btn, .track-action-sheet-footer .action-btn { width:100%; justify-content:center; }
+.track-action-sheet-footer { margin-top:0.8rem; }
+@media (max-width:700px) { .track-action-sheet-actions { grid-template-columns:1fr; } }
+@media (min-width:1025px) { .track-action-sheet-panel { bottom:2rem; border-radius:24px; } }

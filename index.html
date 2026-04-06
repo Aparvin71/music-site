@@ -509,8 +509,30 @@
   </div>
 
 
+
+  <div id="trackActionSheet" class="track-action-sheet hidden" aria-hidden="true">
+    <div id="trackActionSheetBackdrop" class="track-action-sheet-backdrop"></div>
+    <div class="track-action-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="trackActionSheetTitle">
+      <div class="track-action-sheet-handle" aria-hidden="true"></div>
+      <div class="track-action-sheet-header">
+        <p class="eyebrow">Quick Actions</p>
+        <h2 id="trackActionSheetTitle">Track actions</h2>
+        <p id="trackActionSheetMeta" class="track-action-sheet-meta">Choose what to do next.</p>
+      </div>
+      <div class="track-action-sheet-actions">
+        <button id="trackActionPlayNextBtn" class="action-btn" type="button">Play Next</button>
+        <button id="trackActionAddPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
+        <button id="trackActionSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+        <button id="trackActionGoAlbumBtn" class="action-btn secondary-btn" type="button">Go to Album</button>
+      </div>
+      <div class="track-action-sheet-footer">
+        <button id="trackActionCloseBtn" class="action-btn secondary-btn" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.7.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.8.0</span></p>
     <p class="footer-links footer-links--admin">
       <a href="./changelog.html">Changelog</a>
       <a href="./feedback.html">Feedback</a>

@@ -17,6 +17,7 @@
       const stateClass = isPlayingTrack ? "is-playing" : isCurrentTrack ? "is-paused" : "";
       const playLabel = isPlayingTrack ? "Pause" : "Play";
       const playIcon = isPlayingTrack ? "❚❚" : "▶";
+      const queueBadge = isCurrentTrack ? `<span class="queue-position-pill queue-position-pill--current">Now Playing</span>` : (currentQueue.length && index === activeIndex + 1) ? `<span class="queue-position-pill">Up Next</span>` : "";
 
       return `
         <div class="queue-row ${active} ${stateClass}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
@@ -32,10 +33,11 @@
               <span>${escapeHtml(track.album)}</span>
               ${track.year ? `<span>${escapeHtml(String(track.year))}</span>` : ""}
             </div>
-            ${track.tags.length ? `<div class="queue-tags">${escapeHtml(track.tags.join(" • "))}</div>` : ""}
+            ${queueBadge}${track.tags.length ? `<div class="queue-tags">${escapeHtml(track.tags.join(" • "))}</div>` : ""}
           </div>
           <div class="queue-actions">
             <button class="mini-action-btn" data-queue-play-next="${index}" type="button">Play Next</button>
+            <button class="mini-action-btn" data-queue-more="${index}" type="button">•••</button>
             <button class="mini-action-btn" data-queue-remove="${index}" type="button">Remove</button>
           </div>
         </div>

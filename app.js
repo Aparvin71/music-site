@@ -22,6 +22,8 @@ let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
 let autoScrollEnabled = loadAutoScrollEnabled();
+let actionSheetTrackId = "";
+let actionSheetTriggerEl = null;
 
 const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   favorites: "aineo_favorites",
@@ -196,7 +198,16 @@ const els = {
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
   playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
-  offlineStatusMount: document.getElementById("offlineStatusMount")
+  offlineStatusMount: document.getElementById("offlineStatusMount"),
+  trackActionSheet: document.getElementById("trackActionSheet"),
+  trackActionSheetBackdrop: document.getElementById("trackActionSheetBackdrop"),
+  trackActionSheetTitle: document.getElementById("trackActionSheetTitle"),
+  trackActionSheetMeta: document.getElementById("trackActionSheetMeta"),
+  trackActionPlayNextBtn: document.getElementById("trackActionPlayNextBtn"),
+  trackActionAddPlaylistBtn: document.getElementById("trackActionAddPlaylistBtn"),
+  trackActionSaveOfflineBtn: document.getElementById("trackActionSaveOfflineBtn"),
+  trackActionGoAlbumBtn: document.getElementById("trackActionGoAlbumBtn"),
+  trackActionCloseBtn: document.getElementById("trackActionCloseBtn")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -681,6 +692,27 @@ function clearQueueList() {
   renderQueue();
   syncQueuePlaybackUI();
 }
+function openTrackActionSheet(track, triggerEl = null) {
+  if (!track || !els.trackActionSheet) return;
+  actionSheetTrackId = track.id;
+  actionSheetTriggerEl = triggerEl || null;
+  if (els.trackActionSheetTitle) els.trackActionSheetTitle.textContent = track.title || "Track actions";
+  if (els.trackActionSheetMeta) els.trackActionSheetMeta.textContent = `${track.album || "Singles"}${track.duration ? ` • ${track.duration}` : ""}`;
+  if (els.trackActionSaveOfflineBtn) els.trackActionSaveOfflineBtn.textContent = isDownloaded(track) ? "Remove Offline" : "Save Offline";
+  els.trackActionSheet.classList.remove("hidden");
+  els.trackActionSheet.setAttribute("aria-hidden", "false");
+  document.body.classList.add("track-action-sheet-open");
+}
+
+function closeTrackActionSheet() {
+  if (!els.trackActionSheet) return;
+  els.trackActionSheet.classList.add("hidden");
+  els.trackActionSheet.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("track-action-sheet-open");
+  actionSheetTrackId = "";
+  actionSheetTriggerEl = null;
+}
+
 function handleTrackEnded() {
   if (!currentQueue.length) return;
   if (repeatMode === "one") {
@@ -920,6 +952,32 @@ function bindUI() {
   on(els.playlistModalBackdrop, "click", closePlaylistModal);
   on(els.closePlaylistModalBtn, "click", closePlaylistModal);
   on(els.saveToPlaylistBtn, "click", saveTrackToPlaylistFromModal);
+  on(els.trackActionSheetBackdrop, "click", closeTrackActionSheet);
+  on(els.trackActionCloseBtn, "click", closeTrackActionSheet);
+  on(els.trackActionPlayNextBtn, "click", () => {
+    const track = tracks.find(item => item.id === actionSheetTrackId);
+    if (!track) return;
+    addTrackToQueue(track, { playNext: true });
+    closeTrackActionSheet();
+  });
+  on(els.trackActionAddPlaylistBtn, "click", () => {
+    const track = tracks.find(item => item.id === actionSheetTrackId);
+    if (!track) return;
+    closeTrackActionSheet();
+    window.requestAnimationFrame(() => openPlaylistModalForTrack(track, actionSheetTriggerEl || els.trackActionAddPlaylistBtn));
+  });
+  on(els.trackActionSaveOfflineBtn, "click", () => {
+    const track = tracks.find(item => item.id === actionSheetTrackId);
+    if (!track) return;
+    toggleTrackOffline(track);
+    closeTrackActionSheet();
+  });
+  on(els.trackActionGoAlbumBtn, "click", () => {
+    const track = tracks.find(item => item.id === actionSheetTrackId);
+    if (!track) return;
+    closeTrackActionSheet();
+    setAlbumFilter(track.album);
+  });
 
   if (els.playerSheetSeekBar) {
     els.playerSheetSeekBar.addEventListener("input", () => {
@@ -948,6 +1006,7 @@ function bindUI() {
       closeLyricsModal();
       closeAlbumModal();
       closePlaylistModal();
+      closeTrackActionSheet();
       closePlayerSheet();
       closeMobilePlayerDrawer();
       closeMobileNav();
@@ -1518,7 +1577,8 @@ function renderFeaturedTrackList() {
     saveTrackOffline,
     triggerDownload,
     safeFileName,
-    addTrackToQueue
+    addTrackToQueue,
+    openTrackActionSheet
   });
 }
 
@@ -2360,6 +2420,7 @@ function renderQueue() {
         renderQueue,
         syncQueuePlaybackUI,
         openAndScrollQueueToCurrentTrack,
+        openTrackActionSheet,
         setQueueDragIndex(value) {
           queueDragIndex = value;
         },
