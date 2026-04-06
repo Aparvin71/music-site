@@ -115,6 +115,10 @@
               </button>
             </div>
             <div id="albumsSectionBody" class="section-body">
+              <div class="browse-shelf-intro">
+                <p>Browse collections quickly from the top of the app.</p>
+                <a class="browse-shelf-link" href="./albums.html">Open all</a>
+              </div>
             <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
           </section>
 
@@ -150,6 +154,12 @@
           />
           <div id="searchScopeBar" class="search-scope-bar" aria-label="Search scope"></div>
           <p id="searchMeta" class="search-meta">Search songs, albums, tags, playlists, lyrics, and scripture.</p>
+          <div class="library-quick-links" aria-label="Quick browse links">
+            <a class="library-quick-link" href="#featuredCollectionCard">Featured</a>
+            <a class="library-quick-link" href="#albumsHeading">Albums</a>
+            <a class="library-quick-link" href="#featuredTrackListTitle">Tracks</a>
+            <a class="library-quick-link" href="#playlistsHeading">Playlists</a>
+          </div>
         </div>
       </section>
 
@@ -179,7 +189,7 @@
         </div>
       </section>
 
-      <section class="featured-album-card" id="featuredAlbumCard" aria-labelledby="featuredAlbumTitle">
+      <section class="featured-album-card" id="featuredCollectionCard" aria-labelledby="featuredAlbumTitle">
         <div class="featured-cover-wrap">
           <img
             id="featuredAlbumCover"
@@ -194,6 +204,7 @@
           <h2 id="featuredAlbumTitle">Loading album...</h2>
           <p id="featuredAlbumArtist">—</p>
           <p id="featuredAlbumCount">—</p>
+          <p class="featured-quick-copy">Start here for the fastest way to play, shuffle, save offline, or open the full collection page.</p>
 
           <div class="featured-actions">
             <button id="playAlbumBtn" class="action-btn" type="button">Play Collection</button>
@@ -206,8 +217,9 @@
       </section>
 
       <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
-        <div class="section-header">
+        <div class="section-header section-header--with-link">
           <h2 id="featuredTrackListTitle">Tracks</h2>
+          <a class="browse-shelf-link" href="#featuredCollectionCard">Back to featured</a>
         </div>
 
         <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
@@ -498,7 +510,7 @@
 
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.6.0</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.6.3</span></p>
     <p class="footer-links footer-links--admin">
       <a href="./changelog.html">Changelog</a>
       <a href="./feedback.html">Feedback</a>
