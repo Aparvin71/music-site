@@ -57,19 +57,34 @@
 
   function renderFeaturedAlbum({ els, getFeaturedCollection }) {
     const collection = getFeaturedCollection();
+    const formatDuration = (tracks) => {
+      const secs = (tracks || []).reduce((sum, track) => sum + (Number(track.duration_seconds) || 0), 0);
+      if (!secs) return "";
+      const hours = Math.floor(secs / 3600);
+      const mins = Math.floor((secs % 3600) / 60);
+      return hours ? `${hours} hr ${mins} min` : `${mins} min`;
+    };
+    const previewMarkup = (tracks) => (tracks || []).slice(0, 3).map((track, index) =>
+      `<span class="featured-preview-pill">${index + 1}. ${String(track.title || "Untitled").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}</span>`
+    ).join("");
     if (!collection) {
       if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
       if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
       if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
+      if (els.featuredCollectionStats) els.featuredCollectionStats.innerHTML = "";
+      if (els.featuredCollectionLead) els.featuredCollectionLead.textContent = "Choose a playlist, album, or tag to load a collection here.";
+      if (els.featuredCollectionPreview) els.featuredCollectionPreview.innerHTML = "";
       if (els.featuredAlbumCover) {
         els.featuredAlbumCover.src = "";
         els.featuredAlbumCover.alt = "No collection cover";
       }
       if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
       if (els.openAlbumBtn) {
-        els.openAlbumBtn.textContent = "Open Collection";
+        els.openAlbumBtn.textContent = "View Collection";
         els.openAlbumBtn.disabled = true;
       }
+      if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
+      if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
       return;
     }
     if (els.featuredAlbumCover) {
@@ -79,11 +94,27 @@
     if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name;
     if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || "Allen Parvin";
     if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? "" : "s"}`;
+    if (els.featuredCollectionStats) {
+      const duration = formatDuration(collection.tracks);
+      const year = collection.tracks[0]?.year ? `<span class="featured-stat-pill">${collection.tracks[0].year}</span>` : "";
+      const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
+      const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
+      els.featuredCollectionStats.innerHTML = `${type}${durationPill}${year}`;
+    }
+    if (els.featuredCollectionLead) {
+      const firstTrack = collection.tracks[0]?.title || "the first song";
+      els.featuredCollectionLead.textContent = `Start here with Play All or Shuffle Play. Tap View ${collection.openMode === "album" ? "Album" : "Collection"} for the full story, then jump in with ${firstTrack}.`;
+    }
+    if (els.featuredCollectionPreview) {
+      els.featuredCollectionPreview.innerHTML = previewMarkup(collection.tracks);
+    }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? "inline-flex" : "none";
     if (els.openAlbumBtn) {
-      els.openAlbumBtn.textContent = collection.openMode === "album" ? "Open Album" : "Open Collection";
+      els.openAlbumBtn.textContent = collection.openMode === "album" ? "View Album" : "View Collection";
       els.openAlbumBtn.disabled = false;
     }
+    if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
+    if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
   }
 
   function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {

@@ -204,14 +204,16 @@
           <h2 id="featuredAlbumTitle">Loading album...</h2>
           <p id="featuredAlbumArtist">—</p>
           <p id="featuredAlbumCount">—</p>
-          <p class="featured-quick-copy">Start here for the fastest way to play, shuffle, save offline, or open the full collection page.</p>
+          <div id="featuredCollectionStats" class="featured-stat-row" aria-live="polite"></div>
+          <p id="featuredCollectionLead" class="featured-quick-copy">Start here for the fastest way to play, shuffle, save offline, or open the full collection page.</p>
+          <div id="featuredCollectionPreview" class="featured-track-preview" aria-live="polite"></div>
 
-          <div class="featured-actions">
-            <button id="playAlbumBtn" class="action-btn" type="button">Play Collection</button>
-            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
+          <div class="featured-actions featured-actions--primary">
+            <button id="playAlbumBtn" class="action-btn" type="button">Play All</button>
+            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Play</button>
             <button id="saveAlbumOfflineBtn" class="action-btn secondary-btn" type="button">Save Collection Offline</button>
             <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
-            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">Open Collection</button>
+            <button id="openAlbumBtn" class="action-btn secondary-btn" type="button">View Collection</button>
           </div>
         </div>
       </section>
@@ -408,8 +410,8 @@
             <p id="albumModalInfo">—</p>
 
             <div class="album-modal-actions">
-              <button id="albumModalPlayBtn" class="action-btn" type="button">Play Collection</button>
-              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
+              <button id="albumModalPlayBtn" class="action-btn" type="button">Play All</button>
+              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Play</button>
               <button id="albumModalSaveOfflineBtn" class="action-btn secondary-btn" type="button">Save Collection Offline</button>
               <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
             </div>
