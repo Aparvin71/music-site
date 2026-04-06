@@ -151,7 +151,7 @@
         ${smartPlaylists.map(item => `
           <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button">
             <span class="smart-playlist-icon" aria-hidden="true">${item.icon}</span>
-            <span class="smart-playlist-label">${escapeHtml(item.name)} <span class="chip-count">(${item.tracks.length})</span></span>
+            ${escapeHtml(item.name)} <span class="chip-count">(${item.tracks.length})</span>
           </button>
         `).join("")}
       </div>

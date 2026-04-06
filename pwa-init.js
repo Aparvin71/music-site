@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.1.4";
+const AINEO_APP_VERSION = "v42.0.0";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -165,44 +165,8 @@ function initInstallExperience() {
   window.addEventListener("appinstalled", () => { deferredInstallPrompt = null; dismissInstallUi(); });
   document.querySelectorAll("[data-open-install-modal]").forEach(btn => btn.addEventListener("click", openInstallModal));
 }
-
-function initInteractionPolish() {
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-  const rippleSelectors = [
-    ".action-btn", ".mini-action-btn", ".control-btn", ".playlist-btn", ".tag-chip", ".filter-chip",
-    ".search-scope-chip", ".section-toggle", ".library-quick-link", ".browse-shelf-link", ".control-link"
-  ];
-
-  const rippleTargets = document.querySelectorAll(rippleSelectors.join(","));
-  rippleTargets.forEach((el) => {
-    if (el.dataset.rippleBound === "true") return;
-    el.dataset.rippleBound = "true";
-    el.addEventListener("pointerdown", (event) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
-      const rect = el.getBoundingClientRect();
-      const ripple = document.createElement("span");
-      ripple.className = "tap-ripple";
-      ripple.style.left = `${event.clientX - rect.left}px`;
-      ripple.style.top = `${event.clientY - rect.top}px`;
-      el.appendChild(ripple);
-      window.setTimeout(() => ripple.remove(), 700);
-    });
-  });
-
-  const actionableRows = document.querySelectorAll('.featured-track-row, .album-track-row, .queue-row, .mini-card, .album-card, .catalog-card');
-  actionableRows.forEach((row) => {
-    if (row.dataset.pressBound === "true") return;
-    row.dataset.pressBound = "true";
-    row.addEventListener('pointerdown', () => row.classList.add('is-pressed'), { passive: true });
-    const clear = () => row.classList.remove('is-pressed');
-    row.addEventListener('pointerup', clear, { passive: true });
-    row.addEventListener('pointercancel', clear, { passive: true });
-    row.addEventListener('pointerleave', clear, { passive: true });
-  });
-}
 function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
