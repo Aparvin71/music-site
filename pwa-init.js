@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v41.6.0";
+const AINEO_APP_VERSION = "v41.6.2";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -169,4 +169,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); });
+document.addEventListener("DOMContentLoaded", () => { initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });

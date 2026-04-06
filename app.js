@@ -671,6 +671,15 @@ function queueCurrentTrackNext() {
   addTrackToQueue(track, { playNext: true });
 }
 
+
+
+function clearQueueList() {
+  currentQueue = [];
+  currentQueueIndex = -1;
+  saveQueueState();
+  renderQueue();
+  syncQueuePlaybackUI();
+}
 function handleTrackEnded() {
   if (!currentQueue.length) return;
   if (repeatMode === "one") {
@@ -777,6 +786,24 @@ function bindUI() {
   on(els.shuffleQueueBtnDesktop, "click", () => {
     startPlaybackFromList(getCurrentCollectionTracks(), true);
     openAndScrollQueueToCurrentTrack();
+  });
+
+  on(els.queuePlayListBtn, "click", () => {
+    const list = getCurrentCollectionTracks();
+    if (!list.length) return;
+    startPlaybackFromList(list, false);
+    openAndScrollQueueToCurrentTrack();
+  });
+
+  on(els.queueShuffleListBtn, "click", () => {
+    const list = getCurrentCollectionTracks();
+    if (!list.length) return;
+    startPlaybackFromList(list, true);
+    openAndScrollQueueToCurrentTrack();
+  });
+
+  on(els.queueClearBtn, "click", () => {
+    clearQueueList();
   });
 
   on(els.playAlbumBtn, "click", () => {
