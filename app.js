@@ -169,7 +169,8 @@ const els = {
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
-  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel")
+  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
+  offlineStatusMount: document.getElementById("offlineStatusMount")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -178,6 +179,7 @@ async function init() {
   loadStoredData();
   bindUI();
   bindMediaSessionHandlers();
+  initOfflineStatus();
   initCollapsibles();
   initMobilePlayerDrawer();
   initMobileNav();
@@ -190,10 +192,102 @@ async function init() {
   renderRecentlyPlayed();
   renderMyPlaylists();
   renderDownloadedSongs();
+  ensureOfflineAssetsReady();
   renderQueue();
   showResumeBannerIfAvailable();
   updatePlayerSheet();
   handleSongQueryParam();
+}
+
+
+function saveTracksCache(nextTracks) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.tracksCache || "aineo_tracks_cache", JSON.stringify(nextTracks));
+  } catch (error) {
+    console.warn("Could not cache tracks locally:", error);
+  }
+}
+
+function loadTracksCache() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.tracksCache || "aineo_tracks_cache");
+    const parsed = JSON.parse(raw || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function ensureOfflineStatusMount() {
+  if (els.offlineStatusMount) return els.offlineStatusMount;
+  const main = document.getElementById("mainContent");
+  if (!main) return null;
+  const mount = document.createElement("section");
+  mount.id = "offlineStatusMount";
+  mount.className = "offline-status-wrap";
+  main.insertBefore(mount, main.firstChild);
+  els.offlineStatusMount = mount;
+  return mount;
+}
+
+function renderOfflineStatus({ forceVisible = false, emphasizeSaved = false } = {}) {
+  const mount = ensureOfflineStatusMount();
+  if (!mount) return;
+
+  const isOffline = navigator.onLine === false;
+  const savedCount = Array.isArray(downloadedTracks) ? downloadedTracks.length : 0;
+  const shouldShow = forceVisible || isOffline;
+
+  if (!shouldShow) {
+    mount.innerHTML = '';
+    mount.classList.add('hidden');
+    return;
+  }
+
+  mount.classList.remove('hidden');
+  mount.innerHTML = `
+    <div class="offline-status-card${isOffline ? ' is-offline' : ''}">
+      <div class="offline-status-copy">
+        <p class="eyebrow">${isOffline ? 'Offline Mode' : 'Connection Restored'}</p>
+        <h2>${isOffline ? 'You are offline' : 'Back online'}</h2>
+        <p>${isOffline
+          ? (savedCount
+              ? `Showing cached pages and your ${savedCount} saved offline song${savedCount === 1 ? '' : 's'}. Songs that were not saved may need internet before they can play.`
+              : 'Showing cached pages and library data. Save songs offline while connected to make them playable without internet.')
+          : (emphasizeSaved
+              ? 'Your saved songs and cached pages are ready for offline use.'
+              : 'Streaming and offline saving are fully available again.')}
+        </p>
+      </div>
+      <div class="offline-status-actions">
+        <button type="button" class="action-btn secondary-btn small-action-btn" data-scroll-offline>${savedCount ? 'View Downloaded' : 'How Offline Works'}</button>
+      </div>
+    </div>
+  `;
+
+  mount.querySelector('[data-scroll-offline]')?.addEventListener('click', () => {
+    const target = savedCount ? document.getElementById('downloadedList') : document.getElementById('downloadedSection');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function initOfflineStatus() {
+  ensureOfflineStatusMount();
+  renderOfflineStatus();
+  window.addEventListener('online', () => renderOfflineStatus({ forceVisible: true, emphasizeSaved: true }));
+  window.addEventListener('offline', () => renderOfflineStatus({ forceVisible: true }));
+}
+
+function ensureOfflineAssetsReady() {
+  if (!navigator.onLine || !tracks.length || !downloadedTracks.length || !("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
+  const savedTracks = downloadedTracks
+    .map(id => tracks.find(track => track.id === id))
+    .filter(Boolean);
+
+  const audioUrls = savedTracks.map(track => track.src).filter(Boolean);
+  const artworkUrls = savedTracks.map(track => track.cover).filter(Boolean);
+  if (audioUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_AUDIO_URLS', urls: audioUrls });
+  if (artworkUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: artworkUrls });
 }
 
 /* =========================
@@ -206,12 +300,22 @@ async function loadTracks() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const data = await res.json();
-    tracks = Array.isArray(data)
+    const nextTracks = Array.isArray(data)
       ? data.map((track, index) => normalizeTrack(track, index))
       : [];
+
+    tracks = nextTracks;
     filteredTracks = [...tracks];
+    saveTracksCache(nextTracks);
   } catch (error) {
     console.error("Error loading tracks.json:", error);
+    const cachedTracks = loadTracksCache();
+    if (cachedTracks.length) {
+      tracks = cachedTracks.map((track, index) => normalizeTrack(track, index));
+      filteredTracks = [...tracks];
+      renderOfflineStatus({ forceVisible: true, emphasizeSaved: true });
+      return;
+    }
     tracks = [];
     filteredTracks = [];
     renderEmptyLibraryState("Could not load music library.");
@@ -399,6 +503,7 @@ function saveCustomPlaylists() {
 
 function saveDownloadedTracks() {
   localStorage.setItem(STORAGE_KEYS.downloadedTracks, JSON.stringify(downloadedTracks));
+  renderOfflineStatus({ forceVisible: navigator.onLine === false });
 }
 
 function saveQueueState() {
@@ -483,6 +588,9 @@ function bindUI() {
       updateMediaSessionPlaybackState();
     });
     els.audioPlayer.addEventListener("ended", playNextTrack);
+    els.audioPlayer.addEventListener("error", () => {
+      if (navigator.onLine === false) renderOfflineStatus({ forceVisible: true });
+    });
   }
 
   on(els.openLyricsBtn, "click", () => openLyricsModal(els.openLyricsBtn));

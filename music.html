@@ -69,6 +69,7 @@
   
   <div class="app-shell music-app-shell">
     <main id="mainContent" class="main-content main-content--music-order">
+      <section id="offlineStatusMount" class="offline-status-wrap hidden" aria-live="polite"></section>
       <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite">
         <div class="sticky-filter-bar-inner">
           <div class="filter-info">
@@ -213,7 +214,7 @@
         <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
       </section>
 
-      <section class="library-panel" aria-labelledby="downloadedHeading">
+      <section id="downloadedSection" class="library-panel" aria-labelledby="downloadedHeading">
         <div class="section-header">
           <h2 id="downloadedHeading">Downloaded Songs</h2>
         </div>

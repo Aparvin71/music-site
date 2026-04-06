@@ -5,11 +5,13 @@
     resume: "aineo_resume",
     customPlaylists: "aineo_custom_playlists",
     downloadedTracks: "aineo_downloaded_tracks",
-    lastQueue: "aineo_last_queue"
+    lastQueue: "aineo_last_queue",
+    tracksCache: "aineo_tracks_cache",
+    offlineBannerDismissed: "aineo_offline_banner_dismissed"
   };
 
   window.AineoConfig = {
-    version: "v41.0.4",
+    version: "v41.1.0",
     defaultArtist: "Allen Parvin",
     defaultAlbum: "Singles",
     defaultCollectionLabel: "All Songs",

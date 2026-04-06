@@ -34,6 +34,7 @@ window.AineoOffline = (() => {
     }
 
     postServiceWorkerMessage({ type: 'CACHE_AUDIO_URLS', urls: [track.src] });
+    postServiceWorkerMessage({ type: 'CACHE_URLS', urls: [track.cover].filter(Boolean) });
 
     updateButtons(track);
     renderDownloadedSongs();
@@ -60,6 +61,7 @@ window.AineoOffline = (() => {
     setDownloadedTracks(downloadedTracks.filter(id => id !== track.id));
     saveDownloadedTracks();
     postServiceWorkerMessage({ type: 'REMOVE_AUDIO_URLS', urls: [track.src].filter(Boolean) });
+    postServiceWorkerMessage({ type: 'REMOVE_URLS', urls: [track.cover].filter(Boolean) });
 
     updateButtons(track);
     renderDownloadedSongs();

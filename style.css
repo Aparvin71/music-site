@@ -4261,3 +4261,57 @@ body.orientation-guard-active {
     font-size: 12px;
   }
 }
+
+
+/* =========================================
+   OFFLINE STATUS
+========================================= */
+.offline-status-wrap {
+  margin-bottom: 14px;
+}
+
+.offline-status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(45,60,84,0.92), rgba(23,26,33,0.96));
+  border: 1px solid #3f526e;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+}
+
+.offline-status-card.is-offline {
+  border-color: #6f8db6;
+}
+
+.offline-status-copy h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+.offline-status-copy p:last-child {
+  margin: 0;
+  color: #d7deea;
+  font-size: 14px;
+}
+
+.offline-status-actions {
+  flex-shrink: 0;
+}
+
+@media (max-width: 720px) {
+  .offline-status-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .offline-status-actions {
+    width: 100%;
+  }
+
+  .offline-status-actions .action-btn {
+    width: 100%;
+  }
+}
