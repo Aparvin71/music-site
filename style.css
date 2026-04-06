@@ -4317,7 +4317,7 @@ body.orientation-guard-active {
 }
 
 
-/* v41.2.1 desktop + tablet layout refresh */
+/* v41.2.2 desktop + tablet layout refresh */
 .music-page-layout .music-layout-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -4373,13 +4373,23 @@ body.orientation-guard-active {
   }
 
   .music-page-layout .music-layout-shell {
-    grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+    grid-template-columns: minmax(0, 1.32fr) minmax(280px, 0.82fr);
     align-items: start;
   }
 
   .music-page-layout .music-left-rail {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    align-items: start;
+  }
+
+  .music-page-layout .music-left-rail .playlist-section-card {
+    grid-column: 1 / -1;
+  }
+
+  .music-page-layout .music-left-rail .albums-panel,
+  .music-page-layout .music-left-rail .library-panel {
+    min-height: 100%;
   }
 
   .music-page-layout .music-center-column {
@@ -4393,7 +4403,7 @@ body.orientation-guard-active {
   }
 
   .music-page-layout .album-grid--four {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .music-page-layout .featured-album-card {
@@ -4495,7 +4505,7 @@ body.orientation-guard-active {
 }
 
 
-/* v41.2.1 desktop + tablet polish */
+/* v41.2.2 desktop + tablet polish */
 .music-page-layout {
   background:
     radial-gradient(circle at top center, rgba(111, 141, 182, 0.12), transparent 32%),
@@ -4596,11 +4606,21 @@ body.orientation-guard-active {
   }
 
   .music-page-layout .music-left-rail {
-    gap: 12px;
+    gap: 14px;
   }
 
   .music-page-layout .music-left-rail > section {
     min-height: 100%;
+  }
+
+  .music-page-layout .music-left-rail .playlist-section-card,
+  .music-page-layout .music-left-rail .albums-panel,
+  .music-page-layout .music-left-rail .library-panel {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+  }
+
+  .music-page-layout .music-left-rail .albums-panel {
+    align-self: start;
   }
 
   .music-page-layout .music-right-rail {
@@ -4614,6 +4634,33 @@ body.orientation-guard-active {
   .music-page-layout .music-library-card--compact h2,
   .music-page-layout .about-panel--compact h2 {
     font-size: 18px;
+  }
+
+  .music-page-layout .playlist-toolbar--combined {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .music-page-layout .playlist-toolbar--combined .action-btn {
+    flex: 1 1 180px;
+  }
+
+  .music-page-layout .playlist-subsection-label {
+    margin-top: 12px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #90b4e8;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .music-page-layout .album-card {
+    padding: 10px;
   }
 
   .music-page-layout .featured-album-card {
@@ -4637,6 +4684,37 @@ body.orientation-guard-active {
     bottom: 10px;
     border: 1px solid rgba(111, 141, 182, 0.18);
     border-radius: 18px;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 879px) {
+  .music-page-layout .music-layout-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .music-page-layout .music-right-rail {
+    grid-column: 1;
+    position: static;
+  }
+
+  .music-page-layout .music-left-rail {
+    grid-template-columns: 1fr;
+  }
+
+  .music-page-layout .music-left-rail .playlist-section-card,
+  .music-page-layout .music-left-rail .albums-panel,
+  .music-page-layout .music-left-rail .library-panel {
+    min-height: auto;
+  }
+
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 880px) and (max-width: 1099px) {
+  .music-page-layout .album-grid--four {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
