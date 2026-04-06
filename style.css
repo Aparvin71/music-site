@@ -6654,3 +6654,188 @@ select:focus,
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+
+
+/* =========================================
+   v42.1.0 MOTION + INTERACTION FINAL POLISH
+========================================= */
+.tap-ripple {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.2);
+  background: radial-gradient(circle, rgba(255,255,255,0.45) 0%, rgba(144,180,232,0.18) 55%, rgba(144,180,232,0) 72%);
+  animation: aineoTapRipple 680ms var(--aineo-ease-standard) forwards;
+  mix-blend-mode: screen;
+}
+
+@keyframes aineoTapRipple {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(12); }
+}
+
+@keyframes aineoShimmerSweep {
+  0% { background-position: -220% 0; }
+  100% { background-position: 220% 0; }
+}
+
+.section-toggle,
+.library-quick-link,
+.browse-shelf-link,
+.control-link,
+.action-btn,
+.mini-action-btn,
+.control-btn,
+.playlist-btn,
+.tag-chip,
+.filter-chip,
+.search-scope-chip {
+  isolation: isolate;
+}
+
+.featured-track-row,
+.album-track-row,
+.queue-row,
+.album-card,
+.mini-card,
+.catalog-card {
+  transition: transform var(--aineo-fast) ease, box-shadow var(--aineo-medium) var(--aineo-ease-standard), border-color var(--aineo-fast) ease, background-color var(--aineo-fast) ease;
+  transform-origin: center center;
+}
+
+.featured-track-row.is-pressed,
+.album-track-row.is-pressed,
+.queue-row.is-pressed,
+.album-card.is-pressed,
+.mini-card.is-pressed,
+.catalog-card.is-pressed {
+  transform: scale(0.992);
+}
+
+.library-panel,
+.about-panel,
+.featured-album-card,
+.featured-tracklist-panel,
+.queue-panel,
+.lyrics-panel,
+.page-card {
+  position: relative;
+}
+
+.library-panel::before,
+.about-panel::before,
+.featured-album-card::before,
+.featured-tracklist-panel::before,
+.queue-panel::before,
+.lyrics-panel::before,
+.page-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 28%, rgba(144,180,232,0.05) 70%, rgba(255,255,255,0) 100%);
+  opacity: 0.45;
+}
+
+.music-page-layout .featured-album-card::after {
+  background: radial-gradient(circle at top right, rgba(144, 180, 232, 0.16), transparent 34%), radial-gradient(circle at bottom left, rgba(107, 183, 255, 0.08), transparent 26%);
+}
+
+.music-page-layout .featured-actions .action-btn:first-child,
+.sticky-player #playBtn,
+#playerSheetPlayBtn {
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 30%, rgba(255,255,255,0.06));
+}
+
+.music-page-layout .featured-actions .action-btn:first-child:hover,
+.sticky-player #playBtn:hover,
+#playerSheetPlayBtn:hover {
+  box-shadow: 0 0.8rem 2.4rem rgba(144, 180, 232, 0.28);
+}
+
+.music-page-layout .playlist-btn.active,
+.music-page-layout .tag-chip.active,
+.music-page-layout .filter-chip.active,
+.music-page-layout .search-scope-chip.active {
+  background-image: linear-gradient(120deg, rgba(144,180,232,0.22), rgba(144,180,232,0.1));
+}
+
+.music-page-layout .sticky-player::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0) 18%, rgba(144,180,232,0.08) 52%, rgba(255,255,255,0) 100%);
+  opacity: 0.9;
+}
+
+.music-page-layout .sticky-player .seek-wrap::before,
+.player-sheet-progress::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0) 100%);
+  background-size: 220% 100%;
+  animation: aineoShimmerSweep 4.8s linear infinite;
+  opacity: 0.45;
+}
+
+.music-page-layout .sticky-player .seek-wrap,
+.player-sheet-progress {
+  position: relative;
+  overflow: hidden;
+}
+
+.music-page-layout .album-grid,
+.library-quick-links,
+.smart-playlist-list {
+  scroll-padding-inline: 10px;
+}
+
+.music-page-layout .album-grid > *,
+.library-quick-links > *,
+.smart-playlist-list > * {
+  animation: aineoSlideFadeIn var(--aineo-medium) var(--aineo-ease-standard) both;
+}
+
+.music-page-layout .album-grid > *:nth-child(2),
+.library-quick-links > *:nth-child(2),
+.smart-playlist-list > *:nth-child(2) { animation-delay: 40ms; }
+.music-page-layout .album-grid > *:nth-child(3),
+.library-quick-links > *:nth-child(3),
+.smart-playlist-list > *:nth-child(3) { animation-delay: 80ms; }
+.music-page-layout .album-grid > *:nth-child(4),
+.library-quick-links > *:nth-child(4),
+.smart-playlist-list > *:nth-child(4) { animation-delay: 120ms; }
+
+@media (hover: none) {
+  .page-card:hover,
+  .about-panel:hover,
+  .featured-album-card:hover,
+  .album-card:hover,
+  .mini-card:hover,
+  .catalog-card:hover,
+  .queue-row:hover,
+  .featured-track-row:hover,
+  .album-track-row:hover,
+  .sidebar-section:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tap-ripple,
+  .music-page-layout .album-grid > *,
+  .library-quick-links > *,
+  .smart-playlist-list > *,
+  .music-page-layout .sticky-player .seek-wrap::before,
+  .player-sheet-progress::before {
+    animation: none !important;
+  }
+}
