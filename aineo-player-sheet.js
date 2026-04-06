@@ -2,7 +2,7 @@
 (function(){
   const PLAYER_SHEET_TABS = ['lyrics', 'queue'];
 
-  function initGestures({ els, getPlayerSheetTab, setPlayerSheetTab, playNextTrack, playPreviousTrack, closePlayerSheet }) {
+  function initGestures({ els, getPlayerSheetTab, setPlayerSheetTab, playNextTrack, playPreviousTrack, closePlayerSheet, openPlayerSheet }) {
     if (!els.playerSheetContent) return;
     const interactiveSelector = 'button, a, input, select, textarea, label, [role="tab"]';
     let gesture = null;
@@ -65,25 +65,77 @@
     }, { passive: true });
 
     els.playerSheetContent.addEventListener('touchcancel', () => { gesture = null; reset(); }, { passive: true });
+
+    const stickyPlayer = els.stickyPlayer || document.querySelector('.sticky-player');
+    if (stickyPlayer) {
+      const primaryHitAreas = stickyPlayer.querySelectorAll('.sticky-player-left, .sticky-player-center, #nowCover, .now-meta');
+      primaryHitAreas.forEach(area => {
+        area?.addEventListener('click', event => {
+          if (event.target.closest('button, input, a, label')) return;
+          openPlayerSheet(area);
+        });
+      });
+
+      let miniGesture = null;
+      const interactiveMini = 'button, input, a, label';
+      stickyPlayer.addEventListener('touchstart', event => {
+        if (window.matchMedia('(min-width: 1101px)').matches) return;
+        if (event.touches.length !== 1) return;
+        if (event.target.closest(interactiveMini)) return;
+        const touch = event.touches[0];
+        miniGesture = { startX: touch.clientX, startY: touch.clientY, dx: 0, dy: 0 };
+      }, { passive: true });
+
+      stickyPlayer.addEventListener('touchmove', event => {
+        if (!miniGesture || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        miniGesture.dx = touch.clientX - miniGesture.startX;
+        miniGesture.dy = touch.clientY - miniGesture.startY;
+      }, { passive: true });
+
+      const endMiniGesture = () => {
+        if (!miniGesture) return;
+        const { dx, dy } = miniGesture;
+        if (dy < -42 && Math.abs(dy) > Math.abs(dx) * 1.15) {
+          openPlayerSheet(stickyPlayer);
+        }
+        miniGesture = null;
+      };
+      stickyPlayer.addEventListener('touchend', endMiniGesture, { passive: true });
+      stickyPlayer.addEventListener('touchcancel', () => { miniGesture = null; }, { passive: true });
+    }
+
   }
 
   function open({ els, triggerEl, setLastFocusedElement, lockBodyScroll, updatePlayerSheet }) {
     if (!els.playerSheet) return;
+    const sheet = els.playerSheet;
     setLastFocusedElement(triggerEl || document.activeElement || null);
-    els.playerSheet.classList.remove('hidden');
-    els.playerSheet.setAttribute('aria-hidden', 'false');
+    sheet.classList.remove('hidden');
+    sheet.setAttribute('aria-hidden', 'false');
+    sheet.classList.remove('is-closing');
     lockBodyScroll(true);
     updatePlayerSheet();
+    requestAnimationFrame(() => {
+      sheet.classList.add('is-open');
+    });
   }
 
   function close({ els, isAnyModalOpen, lockBodyScroll, restoreFocus }) {
     if (!els.playerSheet) return;
-    els.playerSheet.classList.add('hidden');
-    els.playerSheet.setAttribute('aria-hidden', 'true');
-    if (!isAnyModalOpen()) {
-      lockBodyScroll(false);
-      restoreFocus();
-    }
+    const sheet = els.playerSheet;
+    sheet.classList.remove('is-open');
+    sheet.classList.add('is-closing');
+    window.setTimeout(() => {
+      if (sheet.classList.contains('is-open')) return;
+      sheet.classList.add('hidden');
+      sheet.classList.remove('is-closing');
+      sheet.setAttribute('aria-hidden', 'true');
+      if (!isAnyModalOpen()) {
+        lockBodyScroll(false);
+        restoreFocus();
+      }
+    }, 220);
   }
 
   function setTab({ tabName }) {

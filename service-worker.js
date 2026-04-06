@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v41.6.3-mobile-queue-playlists";
+const CACHE_VERSION = "v41.7.0-player-transition";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

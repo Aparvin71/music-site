@@ -152,6 +152,7 @@ const els = {
   addToPlaylistBtn: document.getElementById("addToPlaylistBtn"),
   saveOfflineBtn: document.getElementById("saveOfflineBtn"),
   openPlayerSheetBtn: document.getElementById("openPlayerSheetBtn"),
+  stickyPlayer: document.querySelector(".sticky-player"),
 
   playlistModal: document.getElementById("playlistModal"),
   playlistModalBackdrop: document.getElementById("playlistModalBackdrop"),
@@ -2505,7 +2506,8 @@ function initPlayerSheetGestures() {
     setPlayerSheetTab,
     playNextTrack,
     playPreviousTrack,
-    closePlayerSheet
+    closePlayerSheet,
+    openPlayerSheet
   });
 }
 
