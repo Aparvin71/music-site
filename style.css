@@ -6839,3 +6839,178 @@ select:focus,
     animation: none !important;
   }
 }
+
+
+/* =========================================
+   v42.1.1 PLAYLIST AREA MOBILE + TABLET FIT PASS
+========================================= */
+
+.playlist-toolbar--combined {
+  align-items: stretch;
+}
+
+.playlist-subsection-label {
+  margin: 14px 0 6px;
+  color: #d7deea;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.playlist-subsection-copy {
+  margin: 0 0 10px;
+  color: #b7c0cf;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.playlist-list-item {
+  display: grid;
+  gap: 10px;
+}
+
+.playlist-list-item-title {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: left;
+}
+
+.playlist-list-item-title strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.playlist-list-item-title span {
+  display: block;
+  margin-top: 4px;
+  color: #b7c0cf;
+  font-size: 12px;
+}
+
+@media (max-width: 1100px) {
+  .music-page-layout .playlist-section-card {
+    overflow: hidden;
+  }
+
+  .playlist-toolbar--combined {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playlist-toolbar--combined > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .playlist-toolbar--combined .action-btn {
+    width: 100%;
+  }
+
+  .playlist-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+    gap: 8px;
+    overflow: visible;
+    margin: 0 0 12px;
+    padding: 0;
+    scroll-snap-type: none;
+  }
+
+  .playlist-list .filter-chip,
+  .smart-playlist-list .filter-chip {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    white-space: normal;
+    min-height: 42px;
+    line-height: 1.2;
+  }
+
+  .smart-playlist-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    padding: 0;
+    margin-bottom: 12px;
+    scroll-snap-type: none;
+  }
+
+  .playlist-list--custom {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+    overflow: visible;
+    gap: 10px;
+    padding: 0;
+    margin-bottom: 0;
+    scroll-snap-type: none;
+  }
+
+  .playlist-list-item {
+    min-width: 0;
+    height: 100%;
+  }
+
+  .playlist-list-item-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .playlist-toolbar--combined {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .playlist-toolbar--combined > :last-child {
+    grid-column: auto;
+  }
+
+  .playlist-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .smart-playlist-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .playlist-list--custom {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .playlist-toolbar--combined {
+    top: 0;
+    margin-bottom: 10px;
+  }
+
+  .playlist-list,
+  .smart-playlist-list,
+  .playlist-list--custom {
+    grid-template-columns: 1fr;
+  }
+
+  .playlist-list-item {
+    padding: 12px 12px 10px;
+    border-radius: 14px;
+  }
+
+  .playlist-list-item-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .playlist-list-item-actions .mini-action-btn {
+    min-height: 40px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .playlist-subsection-copy {
+    font-size: 12px;
+  }
+}
