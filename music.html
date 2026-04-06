@@ -85,9 +85,11 @@
 
       <div class="music-layout-shell">
         <aside class="music-left-rail" aria-label="Browse music library">
-          <section class="library-panel playlist-section-card">
-            <div class="section-header">
-              <h2 id="playlistsHeading">Playlists</h2>
+          <section class="library-panel playlist-section-card collapsible-section open" data-collapsible="playlists">
+            <div class="section-header section-header-collapsible">
+              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="playlistSectionBody">
+                <span id="playlistsHeading">Playlists</span><span class="toggle-icon" aria-hidden="true">▾</span>
+              </button>
             </div>
             <div id="playlistSectionBody" class="section-body">
               <div class="playlist-toolbar playlist-toolbar--combined">
@@ -100,16 +102,21 @@
             </div>
           </section>
 
-          <section class="albums-panel" aria-labelledby="albumsHeading">
-            <div class="section-header">
-              <h2 id="albumsHeading">Albums</h2>
+          <section class="albums-panel collapsible-section open" data-collapsible="albums" aria-labelledby="albumsHeading">
+            <div class="section-header section-header-collapsible">
+              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="albumsSectionBody">
+                <span id="albumsHeading">Albums</span><span class="toggle-icon" aria-hidden="true">▾</span>
+              </button>
             </div>
+            <div id="albumsSectionBody" class="section-body">
             <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
           </section>
 
-          <section class="library-panel" aria-labelledby="tagsHeading">
-            <div class="section-header">
-              <h2 id="tagsHeading">Browse by Tag</h2>
+          <section class="library-panel collapsible-section open" data-collapsible="tags" aria-labelledby="tagsHeading">
+            <div class="section-header section-header-collapsible">
+              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="tagSectionBody">
+                <span id="tagsHeading">Browse by Tag</span><span class="toggle-icon" aria-hidden="true">▾</span>
+              </button>
             </div>
             <div id="tagSectionBody" class="section-body">
               <div id="tagList" class="tag-list" aria-live="polite"></div>
@@ -149,6 +156,21 @@
         </div>
       </section>
 
+      <section id="continueListeningCard" class="page-card continue-listening-card hidden" aria-live="polite">
+        <div class="continue-listening-cover-wrap">
+          <img id="continueListeningCover" class="continue-listening-cover" src="" alt="Continue listening cover" />
+        </div>
+        <div class="continue-listening-copy">
+          <p class="eyebrow">Continue Listening</p>
+          <h2 id="continueListeningTitle">Pick up where you left off</h2>
+          <p id="continueListeningMeta" class="continue-listening-meta">Resume your last song and position.</p>
+        </div>
+        <div class="continue-listening-actions">
+          <button id="resumeSongBtn" class="action-btn" type="button">Resume</button>
+          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
+        </div>
+      </section>
+
       <section class="featured-album-card" id="featuredAlbumCard" aria-labelledby="featuredAlbumTitle">
         <div class="featured-cover-wrap">
           <img
@@ -184,18 +206,6 @@
           <p class="empty-message">No tracks available.</p>
         </div>
       </section>
-
-      <section id="resumeBanner" class="resume-banner hidden" aria-live="polite">
-        <div class="resume-copy">
-          <strong>Resume Listening</strong>
-          <p id="resumeText">Continue where you left off.</p>
-        </div>
-
-        <div class="resume-actions">
-          <button id="resumeSongBtn" class="action-btn" type="button">Resume Song</button>
-          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
-        </div>
-      </section>
         </div>
 
         <aside class="music-right-rail" aria-label="Current song details">
@@ -219,18 +229,26 @@
         </div>
       </section>
 
-      <section class="library-panel" aria-labelledby="favoritesHeading">
-        <div class="section-header">
-          <h2 id="favoritesHeading">Favorites</h2>
+      <section class="library-panel collapsible-section open" data-collapsible="favorites" aria-labelledby="favoritesHeading">
+        <div class="section-header section-header-collapsible">
+          <button class="section-toggle" type="button" aria-expanded="true" aria-controls="favoritesSectionBody">
+            <span id="favoritesHeading">Favorites</span><span class="toggle-icon" aria-hidden="true">▾</span>
+          </button>
         </div>
+        <div id="favoritesSectionBody" class="section-body">
         <div id="favoritesList" class="mini-grid" aria-live="polite"></div>
+        </div>
       </section>
 
-      <section class="library-panel" aria-labelledby="recentlyPlayedHeading">
-        <div class="section-header">
-          <h2 id="recentlyPlayedHeading">Recently Played</h2>
+      <section class="library-panel collapsible-section open" data-collapsible="recent" aria-labelledby="recentlyPlayedHeading">
+        <div class="section-header section-header-collapsible">
+          <button class="section-toggle" type="button" aria-expanded="true" aria-controls="recentlyPlayedSectionBody">
+            <span id="recentlyPlayedHeading">Recently Played</span><span class="toggle-icon" aria-hidden="true">▾</span>
+          </button>
         </div>
+        <div id="recentlyPlayedSectionBody" class="section-body">
         <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
+        </div>
       </section>
 
       <section id="downloadedSection" class="library-panel" aria-labelledby="downloadedHeading">
@@ -238,6 +256,7 @@
           <h2 id="downloadedHeading">Downloaded Songs</h2>
         </div>
         <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
+        </div>
       </section>
 
       <section class="queue-panel collapsible-section open" data-collapsible="queue">
@@ -279,9 +298,11 @@
 
     <div class="sticky-player-center">
       <div class="transport">
+        <button id="shuffleModeBtn" class="control-btn mode-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false">🔀</button>
         <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
         <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
         <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+        <button id="repeatModeBtn" class="control-btn mode-btn" type="button" aria-label="Toggle repeat mode" aria-pressed="false">🔁</button>
       </div>
 
       <div class="progress-wrap">
@@ -297,6 +318,7 @@
         <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
         <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
         <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+        <button id="playNextBtn" class="action-btn secondary-btn" type="button">Play Next</button>
         <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button">Open Player</button>
 
         <button
@@ -430,14 +452,17 @@
           </div>
 
           <div class="player-sheet-transport">
+            <button id="playerSheetShuffleBtn" class="control-btn mode-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false">🔀</button>
             <button id="playerSheetPrevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
             <button id="playerSheetPlayBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
             <button id="playerSheetNextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+            <button id="playerSheetRepeatBtn" class="control-btn mode-btn" type="button" aria-label="Toggle repeat mode" aria-pressed="false">🔁</button>
           </div>
 
           <div class="player-sheet-actions">
             <button id="playerSheetAddToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
             <button id="playerSheetSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+            <button id="playerSheetPlayNextBtn" class="action-btn secondary-btn" type="button">Play Next</button>
             <button id="playerSheetShareBtn" class="action-btn secondary-btn" type="button">Share</button>
           </div>
         </section>
@@ -459,7 +484,7 @@
 
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.0.4</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v41.4.0</span></p>
     <p class="footer-links">
       <a href="./home.html">Home</a>
       <a href="./index.html">Music</a>

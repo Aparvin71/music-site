@@ -7,6 +7,12 @@ let currentQueueIndex = -1;
 let favorites = [];
 let recentlyPlayed = [];
 let resumeTrackSrc = null;
+let resumeTrackTime = 0;
+let resumeTrackTitle = '';
+let shuffleModeEnabled = false;
+let repeatMode = "off";
+let pendingResumeSeek = null;
+let lastResumePersistAt = 0;
 let lastFocusedElement = null;
 let customPlaylists = {};
 let downloadedTracks = [];
@@ -22,7 +28,8 @@ const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   resume: "aineo_resume",
   customPlaylists: "aineo_custom_playlists",
   downloadedTracks: "aineo_downloaded_tracks",
-  lastQueue: "aineo_last_queue"
+  lastQueue: "aineo_last_queue",
+  playbackModes: "aineo_playback_modes"
 };
 
 const filters = {
@@ -121,6 +128,10 @@ const els = {
   resumeText: document.getElementById("resumeText"),
   resumeSongBtn: document.getElementById("resumeSongBtn"),
   dismissResumeBtn: document.getElementById("dismissResumeBtn"),
+  continueListeningCard: document.getElementById("continueListeningCard"),
+  continueListeningCover: document.getElementById("continueListeningCover"),
+  continueListeningTitle: document.getElementById("continueListeningTitle"),
+  continueListeningMeta: document.getElementById("continueListeningMeta"),
 
   stickyFilterBar: document.getElementById("stickyFilterBar"),
   stickyFilterBarInner: document.querySelector("#stickyFilterBar .sticky-filter-bar-inner"),
@@ -163,6 +174,12 @@ const els = {
   playerSheetPrevBtn: document.getElementById("playerSheetPrevBtn"),
   playerSheetPlayBtn: document.getElementById("playerSheetPlayBtn"),
   playerSheetNextBtn: document.getElementById("playerSheetNextBtn"),
+  shuffleModeBtn: document.getElementById("shuffleModeBtn"),
+  repeatModeBtn: document.getElementById("repeatModeBtn"),
+  playNextBtn: document.getElementById("playNextBtn"),
+  playerSheetShuffleBtn: document.getElementById("playerSheetShuffleBtn"),
+  playerSheetRepeatBtn: document.getElementById("playerSheetRepeatBtn"),
+  playerSheetPlayNextBtn: document.getElementById("playerSheetPlayNextBtn"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
@@ -197,6 +214,7 @@ async function init() {
   ensureOfflineAssetsReady();
   renderQueue();
   showResumeBannerIfAvailable();
+  updatePlaybackModeButtons();
   updatePlayerSheet();
   handleSongQueryParam();
 }
@@ -483,6 +501,12 @@ function loadStoredData() {
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
   resumeTrackSrc = resume?.src || null;
+  resumeTrackTime = Number(resume?.time || 0) || 0;
+  resumeTrackTitle = resume?.title || "";
+
+  const playbackModes = loadJsonFromStorage(STORAGE_KEYS.playbackModes, null);
+  shuffleModeEnabled = Boolean(playbackModes?.shuffle);
+  repeatMode = ["off", "all", "one"].includes(playbackModes?.repeat) ? playbackModes.repeat : "off";
 }
 
 function loadJsonFromStorage(key, fallback) {
@@ -534,8 +558,10 @@ function restoreSavedQueue() {
   currentQueueIndex = Math.max(0, Math.min(savedQueue.index || 0, currentQueue.length - 1));
 }
 
-function saveResume(track) {
+function saveResume(track, timeOverride) {
   if (!track) return;
+
+  const resumeTime = Math.max(0, Number(timeOverride ?? els.audioPlayer?.currentTime ?? 0) || 0);
 
   localStorage.setItem(
     STORAGE_KEYS.resume,
@@ -543,16 +569,117 @@ function saveResume(track) {
       src: track.src,
       title: track.title,
       artist: track.artist,
-      album: track.album
+      album: track.album,
+      time: resumeTime
     })
   );
 
   resumeTrackSrc = track.src;
+  resumeTrackTime = resumeTime;
+  resumeTrackTitle = track.title || "";
 }
 
 function clearResume() {
   localStorage.removeItem(STORAGE_KEYS.resume);
   resumeTrackSrc = null;
+  resumeTrackTime = 0;
+  resumeTrackTitle = "";
+}
+function savePlaybackModes() {
+  localStorage.setItem(
+    STORAGE_KEYS.playbackModes,
+    JSON.stringify({ shuffle: shuffleModeEnabled, repeat: repeatMode })
+  );
+}
+
+function formatSecondsToClock(totalSeconds) {
+  const total = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function updatePlaybackModeButtons() {
+  const repeatLabelMap = { off: "Repeat Off", all: "Repeat All", one: "Repeat One" };
+  [els.shuffleModeBtn, els.playerSheetShuffleBtn].forEach(btn => {
+    if (!btn) return;
+    btn.classList.toggle("is-active", shuffleModeEnabled);
+    btn.setAttribute("aria-pressed", shuffleModeEnabled ? "true" : "false");
+    btn.title = shuffleModeEnabled ? "Shuffle On" : "Shuffle Off";
+  });
+  [els.repeatModeBtn, els.playerSheetRepeatBtn].forEach(btn => {
+    if (!btn) return;
+    btn.classList.toggle("is-active", repeatMode !== "off");
+    btn.dataset.repeatMode = repeatMode;
+    btn.setAttribute("aria-pressed", repeatMode !== "off" ? "true" : "false");
+    btn.title = repeatLabelMap[repeatMode];
+    btn.textContent = repeatMode === "one" ? "🔂" : "🔁";
+  });
+}
+
+function toggleShuffleMode() {
+  shuffleModeEnabled = !shuffleModeEnabled;
+  if (shuffleModeEnabled && currentQueue.length) {
+    const current = getCurrentTrack();
+    const others = currentQueue.filter(track => !current || track.id !== current.id);
+    currentQueue = current ? [current, ...shuffleArray(others)] : shuffleArray([...currentQueue]);
+    currentQueueIndex = current ? 0 : currentQueueIndex;
+    saveQueueState();
+    renderQueue();
+  }
+  savePlaybackModes();
+  updatePlaybackModeButtons();
+}
+
+function toggleRepeatMode() {
+  repeatMode = repeatMode === "off" ? "all" : repeatMode === "all" ? "one" : "off";
+  savePlaybackModes();
+  updatePlaybackModeButtons();
+}
+
+function addTrackToQueue(track, options = {}) {
+  if (!track) return;
+  const playNext = Boolean(options.playNext);
+  if (!currentQueue.length) {
+    const collectionTracks = getCurrentCollectionTracks();
+    currentQueue = collectionTracks.length ? [...collectionTracks] : [track];
+    currentQueueIndex = currentQueue.findIndex(item => item.id === track.id);
+    if (currentQueueIndex < 0) {
+      currentQueue.push(track);
+      currentQueueIndex = 0;
+    }
+  }
+
+  const existingIndex = currentQueue.findIndex(item => item.id === track.id);
+  if (existingIndex >= 0) currentQueue.splice(existingIndex, 1);
+
+  const insertIndex = playNext ? Math.max(currentQueueIndex + 1, 0) : currentQueue.length;
+  currentQueue.splice(insertIndex, 0, track);
+  if (existingIndex >= 0 && existingIndex < currentQueueIndex) currentQueueIndex -= 1;
+  saveQueueState();
+  renderQueue();
+  showToast?.(playNext ? `Playing next: ${track.title}` : `Added to queue: ${track.title}`);
+}
+
+function queueCurrentTrackNext() {
+  const track = getCurrentTrack();
+  if (!track) return;
+  addTrackToQueue(track, { playNext: true });
+}
+
+function handleTrackEnded() {
+  if (!currentQueue.length) return;
+  if (repeatMode === "one") {
+    els.audioPlayer.currentTime = 0;
+    els.audioPlayer.play().catch(() => {});
+    return;
+  }
+  const atEnd = currentQueueIndex >= currentQueue.length - 1;
+  if (atEnd && repeatMode === "off") {
+    updatePlayButton();
+    return;
+  }
+  playNextTrack();
 }
 
 /* =========================
@@ -566,6 +693,9 @@ function bindUI() {
   on(els.playBtn, "click", togglePlayPause);
   on(els.prevBtn, "click", playPreviousTrack);
   on(els.nextBtn, "click", playNextTrack);
+  on(els.shuffleModeBtn, "click", toggleShuffleMode);
+  on(els.repeatModeBtn, "click", toggleRepeatMode);
+  on(els.playNextBtn, "click", queueCurrentTrackNext);
 
   on(els.seekBar, "input", () => {
     if (!els.audioPlayer || !isFinite(els.audioPlayer.duration)) return;
@@ -577,6 +707,12 @@ function bindUI() {
     els.audioPlayer.addEventListener("timeupdate", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
+      const current = getCurrentTrack();
+      const now = Date.now();
+      if (current && now - lastResumePersistAt > 2500) {
+        saveResume(current);
+        lastResumePersistAt = now;
+      }
     });
     els.audioPlayer.addEventListener("loadedmetadata", () => {
       updateProgressUI();
@@ -1259,7 +1395,8 @@ function renderFeaturedTrackList() {
     openPlaylistModalForTrack,
     saveTrackOffline,
     triggerDownload,
-    safeFileName
+    safeFileName,
+    addTrackToQueue
   });
 }
 
@@ -1291,6 +1428,14 @@ function playTrack(track) {
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
 
   els.audioPlayer.src = track.src;
+  pendingResumeSeek = track.src === resumeTrackSrc && resumeTrackTime > 1 ? resumeTrackTime : null;
+  const applyResumeSeek = () => {
+    if (pendingResumeSeek !== null && Number.isFinite(els.audioPlayer.duration)) {
+      els.audioPlayer.currentTime = Math.min(pendingResumeSeek, Math.max(0, els.audioPlayer.duration - 1));
+      pendingResumeSeek = null;
+    }
+  };
+  els.audioPlayer.addEventListener("loadedmetadata", applyResumeSeek, { once: true });
   els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
 
   updateNowPlaying(track);
@@ -1316,24 +1461,39 @@ function playFromQueueIndex(index) {
 function playPreviousTrack() {
   if (!currentQueue.length) {
     if (!getCurrentCollectionTracks().length) return;
-    setQueue(getCurrentCollectionTracks(), false);
+    setQueue(getCurrentCollectionTracks(), shuffleModeEnabled);
   }
 
   if (!currentQueue.length) return;
 
-  currentQueueIndex = currentQueueIndex <= 0 ? currentQueue.length - 1 : currentQueueIndex - 1;
+  if (shuffleModeEnabled && currentQueue.length > 1) {
+    currentQueueIndex = currentQueueIndex <= 0 ? currentQueue.length - 1 : currentQueueIndex - 1;
+  } else {
+    currentQueueIndex = currentQueueIndex <= 0 ? currentQueue.length - 1 : currentQueueIndex - 1;
+  }
   playTrack(currentQueue[currentQueueIndex]);
 }
 
 function playNextTrack() {
   if (!currentQueue.length) {
     if (!getCurrentCollectionTracks().length) return;
-    setQueue(getCurrentCollectionTracks(), false);
+    setQueue(getCurrentCollectionTracks(), shuffleModeEnabled);
   }
 
   if (!currentQueue.length) return;
 
-  currentQueueIndex = currentQueueIndex >= currentQueue.length - 1 ? 0 : currentQueueIndex + 1;
+  if (repeatMode === "one") {
+    playTrack(currentQueue[currentQueueIndex]);
+    return;
+  }
+
+  const isAtEnd = currentQueueIndex >= currentQueue.length - 1;
+  if (isAtEnd && repeatMode === "off") {
+    els.audioPlayer.pause();
+    return;
+  }
+
+  currentQueueIndex = isAtEnd ? 0 : currentQueueIndex + 1;
   playTrack(currentQueue[currentQueueIndex]);
 }
 
@@ -2082,18 +2242,23 @@ function scrollQueueToCurrentTrack() {
 ========================= */
 
 function showResumeBannerIfAvailable() {
-  if (!resumeTrackSrc || !els.resumeBanner || !els.resumeText) return;
+  if (!resumeTrackSrc || !els.continueListeningCard) return;
 
   const track = tracks.find(t => t.src === resumeTrackSrc);
   if (!track) return;
 
-  els.resumeText.textContent = `${track.title} • ${track.artist} • ${track.album}`;
-  els.resumeBanner.classList.remove("hidden");
+  if (els.continueListeningCover) {
+    els.continueListeningCover.src = track.cover || "";
+    els.continueListeningCover.alt = `${track.title} cover`;
+  }
+  if (els.continueListeningTitle) els.continueListeningTitle.textContent = track.title;
+  if (els.continueListeningMeta) els.continueListeningMeta.textContent = `${track.album} • Resume from ${formatSecondsToClock(resumeTrackTime || 0)}`;
+  els.continueListeningCard.classList.remove("hidden");
 }
 
 function hideResumeBanner() {
-  if (els.resumeBanner) {
-    els.resumeBanner.classList.add("hidden");
+  if (els.continueListeningCard) {
+    els.continueListeningCard.classList.add("hidden");
   }
 }
 
@@ -2215,6 +2380,7 @@ function openPlayerSheetLyricsPanel() {
 }
 
 function updatePlayerSheet() {
+  updatePlaybackModeButtons();
   window.AineoPlayerSheet.update({
     els,
     track: getCurrentTrack(),
