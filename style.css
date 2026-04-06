@@ -5261,3 +5261,266 @@ body.orientation-guard-active {
     right: auto;
   }
 }
+
+
+/* v41.3.3 mobile + tablet top-half polish */
+.music-page-layout .music-library-card--compact,
+.music-page-layout .about-panel--compact,
+.music-page-layout .featured-album-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.music-page-layout .music-library-card--compact::before,
+.music-page-layout .featured-album-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at top right, rgba(144, 180, 232, 0.12), transparent 42%);
+}
+
+.music-page-layout .about-panel--compact::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(144, 180, 232, 0.05), transparent 40%);
+}
+
+.music-page-layout .music-library-card-copy,
+.music-page-layout .featured-meta,
+.music-page-layout .about-panel--compact > * {
+  position: relative;
+  z-index: 1;
+}
+
+.music-page-layout .music-library-card--compact {
+  background: linear-gradient(180deg, rgba(28, 34, 44, 0.98), rgba(20, 24, 31, 0.98));
+  border-color: rgba(111, 141, 182, 0.24);
+}
+
+.music-page-layout .about-panel--compact {
+  background: linear-gradient(180deg, rgba(24, 29, 38, 0.98), rgba(18, 22, 29, 0.98));
+  border-color: rgba(111, 141, 182, 0.16);
+}
+
+.music-page-layout .music-library-card--compact .eyebrow,
+.music-page-layout .featured-meta .eyebrow {
+  margin-bottom: 6px;
+}
+
+.music-page-layout .music-library-card--compact .hero-text,
+.music-page-layout .about-panel--compact p {
+  color: #d3dbe7;
+}
+
+.music-page-layout .music-library-card-search #searchInput {
+  height: 46px;
+  border-radius: 14px;
+  border-color: rgba(111, 141, 182, 0.34);
+  background: rgba(12, 16, 22, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.music-page-layout .about-panel-actions .action-btn {
+  min-height: 38px;
+}
+
+.music-page-layout .featured-meta h2 {
+  line-height: 1.15;
+}
+
+.music-page-layout .featured-meta #featuredAlbumArtist,
+.music-page-layout .featured-meta #featuredAlbumCount {
+  color: #d3dbe7;
+}
+
+.music-page-layout .featured-actions .action-btn {
+  min-height: 38px;
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .music-library-card--compact,
+  .music-page-layout .about-panel--compact,
+  .music-page-layout .featured-album-card {
+    padding: 14px;
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .music-page-layout .music-library-card--compact .eyebrow,
+  .music-page-layout .featured-meta .eyebrow,
+  .music-page-layout .about-panel--compact .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+  }
+
+  .music-page-layout .music-library-card--compact h2,
+  .music-page-layout .about-panel--compact h2 {
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+
+  .music-page-layout .music-library-card--compact .hero-text,
+  .music-page-layout .about-panel--compact p {
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .music-page-layout .music-library-card-search {
+    margin-top: 10px;
+  }
+
+  .music-page-layout .music-library-card-search #searchInput {
+    height: 44px;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .music-page-layout .playlist-section-card,
+  .music-page-layout .albums-panel,
+  .music-page-layout .music-left-rail .library-panel {
+    background: linear-gradient(180deg, rgba(25, 30, 39, 0.98), rgba(19, 23, 31, 0.98));
+    border-color: rgba(111, 141, 182, 0.18);
+  }
+
+  .music-page-layout .album-grid--four {
+    gap: 10px;
+  }
+
+  .music-page-layout .album-card {
+    padding: 7px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .music-page-layout .featured-album-card {
+    grid-template-columns: 84px 1fr;
+    gap: 12px;
+  }
+
+  .music-page-layout .featured-cover,
+  .music-page-layout .featured-cover-wrap {
+    width: 84px;
+  }
+
+  .music-page-layout .featured-cover {
+    height: 84px;
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.24);
+  }
+
+  .music-page-layout .featured-meta h2 {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .music-page-layout .featured-meta #featuredAlbumArtist,
+  .music-page-layout .featured-meta #featuredAlbumCount {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+
+  .music-page-layout .featured-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .music-page-layout .featured-actions .action-btn {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 10px;
+    font-size: 11px;
+    line-height: 1.2;
+    justify-content: center;
+  }
+
+  .music-page-layout .featured-actions .action-btn:first-child,
+  .music-page-layout .featured-actions .action-btn:nth-child(2) {
+    grid-column: span 1;
+  }
+
+  .music-page-layout .featured-actions .action-btn:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1099px) {
+  .music-page-layout .music-library-card--compact,
+  .music-page-layout .about-panel--compact,
+  .music-page-layout .featured-album-card {
+    border-radius: 20px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
+  }
+
+  .music-page-layout .music-library-card--compact {
+    grid-template-columns: minmax(0, 1.1fr) minmax(250px, 0.9fr);
+    gap: 16px;
+    padding: 18px;
+  }
+
+  .music-page-layout .music-library-card--compact h2,
+  .music-page-layout .about-panel--compact h2 {
+    font-size: 19px;
+  }
+
+  .music-page-layout .music-library-card--compact .hero-text,
+  .music-page-layout .about-panel--compact p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .music-page-layout .music-library-card-search #searchInput {
+    height: 48px;
+  }
+
+  .music-page-layout .playlist-section-card,
+  .music-page-layout .albums-panel,
+  .music-page-layout .music-left-rail .library-panel {
+    border-radius: 18px;
+  }
+
+  .music-page-layout .album-grid--four {
+    gap: 12px;
+  }
+
+  .music-page-layout .album-card {
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .music-page-layout .featured-album-card {
+    grid-template-columns: 124px 1fr;
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .music-page-layout .featured-cover {
+    width: 124px;
+    height: 124px;
+    border-radius: 16px;
+    box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+  }
+
+  .music-page-layout .featured-meta h2 {
+    font-size: 23px;
+    margin-bottom: 6px;
+  }
+
+  .music-page-layout .featured-meta #featuredAlbumArtist,
+  .music-page-layout .featured-meta #featuredAlbumCount {
+    font-size: 13px;
+  }
+
+  .music-page-layout .featured-actions {
+    gap: 8px;
+  }
+
+  .music-page-layout .featured-actions .action-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
