@@ -16,6 +16,7 @@ let lastResumePersistAt = 0;
 let lastFocusedElement = null;
 let customPlaylists = {};
 let downloadedTracks = [];
+window.downloadedTracks = downloadedTracks;
 let playStats = {};
 let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
@@ -293,7 +294,7 @@ function renderOfflineStatus({ forceVisible = false, emphasizeSaved = false } = 
         <h2>${isOffline ? 'You are offline' : 'Back online'}</h2>
         <p>${isOffline
           ? (savedCount
-              ? `Showing cached pages and your ${savedCount} saved offline song${savedCount === 1 ? '' : 's'}. Songs that were not saved may need internet before they can play.`
+              ? `Showing cached pages and your ${savedCount} saved offline song${savedCount === 1 ? '' : 's'}. Look for “Saved Offline ✓” on tracks and collections. Songs that were not saved may need internet before they can play.`
               : 'Showing cached pages and library data. Save songs offline while connected to make them playable without internet.')
           : (emphasizeSaved
               ? 'Your saved songs and cached pages are ready for offline use.'
@@ -516,6 +517,7 @@ function loadStoredData() {
   recentlyPlayed = loadJsonFromStorage(STORAGE_KEYS.recentlyPlayed, []);
   customPlaylists = loadJsonFromStorage(STORAGE_KEYS.customPlaylists, {});
   downloadedTracks = loadJsonFromStorage(STORAGE_KEYS.downloadedTracks, []);
+  window.downloadedTracks = downloadedTracks;
   playStats = loadJsonFromStorage(STORAGE_KEYS.playStats, {});
 
   const resume = loadJsonFromStorage(STORAGE_KEYS.resume, null);
@@ -701,7 +703,14 @@ function openTrackActionSheet(track, triggerEl = null) {
   actionSheetTriggerEl = triggerEl || null;
   if (els.trackActionSheetTitle) els.trackActionSheetTitle.textContent = track.title || "Track actions";
   if (els.trackActionSheetMeta) els.trackActionSheetMeta.textContent = `${track.album || "Singles"}${track.duration ? ` • ${track.duration}` : ""}`;
-  if (els.trackActionSaveOfflineBtn) els.trackActionSaveOfflineBtn.textContent = isDownloaded(track) ? "Remove Offline" : "Save Offline";
+  if (els.trackActionSaveOfflineBtn) {
+    const offlineState = window.AineoOffline?.getTrackOfflineUiState
+      ? window.AineoOffline.getTrackOfflineUiState({ track, downloadedTracks })
+      : { actionLabel: isDownloaded(track) ? "Remove Offline" : "Save Offline", disabled: false, downloaded: false };
+    els.trackActionSaveOfflineBtn.textContent = offlineState.actionLabel;
+    els.trackActionSaveOfflineBtn.disabled = Boolean(offlineState.disabled);
+    els.trackActionSaveOfflineBtn.classList.toggle('is-saved-offline', Boolean(offlineState.downloaded));
+  }
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
@@ -1636,6 +1645,12 @@ function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
 function playTrack(track) {
   if (!track || !track.src || !els.audioPlayer) return;
 
+  if (navigator.onLine === false && !isDownloaded(track)) {
+    renderOfflineStatus({ forceVisible: true, emphasizeSaved: true });
+    showToast?.('This song was not saved offline yet.');
+    return;
+  }
+
   const queueIndex = currentQueue.findIndex(t => t.id === track.id);
   if (queueIndex >= 0) {
     currentQueueIndex = queueIndex;
@@ -2108,13 +2123,27 @@ function updateOfflineButtons(track = getCurrentTrack()) {
 function updateCollectionOfflineButtons(trackList = getFeaturedCollection()?.tracks || []) {
   if (!window.AineoOffline) return;
   const downloaded = window.AineoOffline.isCollectionDownloaded({ tracks: trackList, downloadedTracks });
-  if (els.saveAlbumOfflineBtn) els.saveAlbumOfflineBtn.textContent = downloaded ? "Remove Collection Offline" : "Save Collection Offline";
+  const offline = navigator.onLine === false;
+  if (els.saveAlbumOfflineBtn) {
+    els.saveAlbumOfflineBtn.textContent = downloaded
+      ? 'Collection Saved ✓'
+      : (offline ? 'Needs Internet' : 'Save Collection Offline');
+    els.saveAlbumOfflineBtn.disabled = !downloaded && offline;
+    els.saveAlbumOfflineBtn.classList.toggle('is-saved-offline', downloaded);
+    els.saveAlbumOfflineBtn.classList.toggle('is-offline-disabled', !downloaded && offline);
+  }
 }
 
 function updateAlbumModalOfflineButton(album = getAlbumModalAlbum()) {
   if (!window.AineoOffline || !els.albumModalSaveOfflineBtn) return;
   const downloaded = window.AineoOffline.isCollectionDownloaded({ tracks: album?.tracks || [], downloadedTracks });
-  els.albumModalSaveOfflineBtn.textContent = downloaded ? "Remove Collection Offline" : "Save Collection Offline";
+  const offline = navigator.onLine === false;
+  els.albumModalSaveOfflineBtn.textContent = downloaded
+    ? 'Collection Saved ✓'
+    : (offline ? 'Needs Internet' : 'Save Collection Offline');
+  els.albumModalSaveOfflineBtn.disabled = !downloaded && offline;
+  els.albumModalSaveOfflineBtn.classList.toggle('is-saved-offline', downloaded);
+  els.albumModalSaveOfflineBtn.classList.toggle('is-offline-disabled', !downloaded && offline);
 }
 
 async function saveTrackOffline(track) {
@@ -2123,6 +2152,7 @@ async function saveTrackOffline(track) {
     downloadedTracks,
     setDownloadedTracks(nextDownloadedTracks) {
       downloadedTracks = nextDownloadedTracks;
+      window.downloadedTracks = downloadedTracks;
     },
     saveDownloadedTracks,
     els,
@@ -2142,6 +2172,7 @@ async function removeTrackOffline(track) {
     downloadedTracks,
     setDownloadedTracks(nextDownloadedTracks) {
       downloadedTracks = nextDownloadedTracks;
+      window.downloadedTracks = downloadedTracks;
     },
     saveDownloadedTracks,
     renderDownloadedSongs,
@@ -2161,6 +2192,7 @@ async function toggleTrackOffline(track) {
     downloadedTracks,
     setDownloadedTracks(nextDownloadedTracks) {
       downloadedTracks = nextDownloadedTracks;
+      window.downloadedTracks = downloadedTracks;
     },
     saveDownloadedTracks,
     els,
@@ -2180,6 +2212,7 @@ async function toggleCollectionOffline(trackList) {
     downloadedTracks,
     setDownloadedTracks(nextDownloadedTracks) {
       downloadedTracks = nextDownloadedTracks;
+      window.downloadedTracks = downloadedTracks;
     },
     saveDownloadedTracks,
     els,

@@ -16,11 +16,39 @@ window.AineoOffline = (() => {
     return list.every(track => downloadedTracks.includes(track.id));
   }
 
-  function updateButtons({ track, downloadedTracks, els }) {
+  function getTrackOfflineUiState({ track, downloadedTracks }) {
     const downloaded = isDownloaded({ track, downloadedTracks });
-    const label = downloaded ? 'Remove Offline' : 'Save Offline';
-    if (els.saveOfflineBtn) els.saveOfflineBtn.textContent = label;
-    if (els.playerSheetSaveOfflineBtn) els.playerSheetSaveOfflineBtn.textContent = label;
+    const offline = navigator.onLine === false;
+    return {
+      downloaded,
+      offline,
+      canSaveNow: !offline,
+      canPlayNow: !offline || downloaded,
+      buttonLabel: downloaded
+        ? 'Saved Offline ✓'
+        : (offline ? 'Needs Internet' : 'Save Offline ⬇'),
+      actionLabel: downloaded ? 'Remove Offline' : (offline ? 'Needs Internet' : 'Save Offline'),
+      disabled: !downloaded && offline
+    };
+  }
+
+  function applyOfflineButtonState(button, state) {
+    if (!button) return;
+    button.textContent = state.buttonLabel;
+    button.disabled = Boolean(state.disabled);
+    button.dataset.offlineState = state.downloaded ? 'saved' : (state.offline ? 'offline-unavailable' : 'ready');
+    button.classList.toggle('is-saved-offline', state.downloaded);
+    button.classList.toggle('is-offline-disabled', state.disabled);
+    button.title = state.downloaded
+      ? 'This song is saved and can play offline.'
+      : (state.disabled ? 'Reconnect to save this song for offline playback.' : 'Save this song for offline playback.');
+    button.setAttribute('aria-disabled', state.disabled ? 'true' : 'false');
+  }
+
+  function updateButtons({ track, downloadedTracks, els }) {
+    const state = getTrackOfflineUiState({ track, downloadedTracks });
+    applyOfflineButtonState(els.saveOfflineBtn, state);
+    applyOfflineButtonState(els.playerSheetSaveOfflineBtn, state);
   }
 
   function postServiceWorkerMessage(message) {
@@ -234,6 +262,7 @@ window.AineoOffline = (() => {
           <div class="offline-card-meta">
             <strong>${escapeHtml(track.title)}</strong>
             <span>${escapeHtml(track.album)}</span>
+            <small class="offline-card-status">Saved offline ✓</small>
           </div>
         </button>
         <div class="offline-card-actions">
@@ -265,6 +294,7 @@ window.AineoOffline = (() => {
   return {
     isDownloaded,
     isCollectionDownloaded,
+    getTrackOfflineUiState,
     updateButtons,
     saveTrackOffline,
     removeTrackOffline,

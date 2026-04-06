@@ -6624,3 +6624,33 @@ select:focus,
     padding-bottom: 2px;
   }
 }
+
+
+.action-btn.is-saved-offline,
+.mini-action-btn.is-saved-offline {
+  background: rgba(90, 170, 120, 0.18);
+  border-color: rgba(90, 170, 120, 0.5);
+  color: #dff5e5;
+}
+
+.action-btn.is-offline-disabled,
+.mini-action-btn.is-offline-disabled,
+.action-btn:disabled.is-offline-disabled,
+.mini-action-btn:disabled.is-offline-disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.08);
+  color: #b7c0cf;
+}
+
+.offline-card-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  color: #9fe0b1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}

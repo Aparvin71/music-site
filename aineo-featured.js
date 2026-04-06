@@ -137,6 +137,9 @@
       const playState = getFeaturedTrackPlayState(track);
       const isPlaying = playState.isCurrentTrack ? 'playing' : '';
       const isFav = isFavorite(track) ? 'favorited' : '';
+      const offlineState = window.AineoOffline?.getTrackOfflineUiState
+        ? window.AineoOffline.getTrackOfflineUiState({ track, downloadedTracks: (window.downloadedTracks || []) })
+        : { buttonLabel: isDownloaded(track) ? 'Saved Offline ✓' : 'Save Offline ⬇', disabled: false };
       return `
       <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}">
         <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" data-track-title="${escapeHtmlAttr(track.title)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
@@ -147,7 +150,7 @@
           <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">${isFavorite(track) ? '★' : '☆'}</button>
           <button class="mini-action-btn" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button">Lyrics</button>
           <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">+ Playlist</button>
-          <button class="mini-action-btn" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button">${isDownloaded(track) ? 'Saved' : 'Offline'}</button>
+          <button class="mini-action-btn ${offlineState.disabled ? 'is-offline-disabled' : ''} ${isDownloaded(track) ? 'is-saved-offline' : ''}" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button" ${offlineState.disabled ? 'disabled aria-disabled="true"' : ''}>${escapeHtml(offlineState.buttonLabel)}</button>
           <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
           <button class="mini-action-btn" data-track-more="${escapeHtmlAttr(track.id)}" type="button">•••</button>
           <button class="mini-action-btn" data-download-track="${escapeHtmlAttr(track.id)}" type="button">Download</button>
