@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v41.3.3-mobile-tablet-density-pass";
+const CACHE_VERSION = "v41.3.4-offline-fix-player-center";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -59,11 +59,36 @@ function normalizeRequest(input) {
   const request = input instanceof Request ? input : new Request(input, { mode: 'cors' });
   const url = new URL(request.url);
   url.search = '';
-  return new Request(url.toString(), { method: 'GET', mode: request.mode === 'navigate' ? 'same-origin' : 'cors', credentials: 'omit' });
+  const sameOrigin = url.origin === self.location.origin;
+  return new Request(url.toString(), {
+    method: 'GET',
+    mode: request.mode === 'navigate' ? 'same-origin' : (sameOrigin ? 'same-origin' : 'no-cors'),
+    credentials: 'omit'
+  });
 }
 
 async function findCachedResponse(request) {
   return (await caches.match(request, { ignoreSearch: true })) || (await caches.match(normalizeRequest(request), { ignoreSearch: true }));
+}
+
+function responseCanBeCached(response) {
+  return Boolean(response && (response.ok || response.type === 'opaque'));
+}
+
+async function fetchForCache(url) {
+  const normalized = normalizeRequest(url);
+  try {
+    const response = await fetch(normalized);
+    if (responseCanBeCached(response)) return { request: normalized, response };
+  } catch (error) {}
+
+  const noCorsRequest = new Request(new URL(url, self.location.origin).toString(), {
+    method: 'GET',
+    mode: 'no-cors',
+    credentials: 'omit'
+  });
+  const response = await fetch(noCorsRequest);
+  return { request: normalizeRequest(noCorsRequest), response };
 }
 
 async function cacheUrls(cacheName, urls) {
@@ -74,8 +99,10 @@ async function cacheUrls(cacheName, urls) {
         const request = normalizeRequest(url);
         const existing = await cache.match(request, { ignoreSearch: true });
         if (existing) return;
-        const response = await fetch(request);
-        if (response && response.ok) await cache.put(request, response.clone());
+        const fetched = await fetchForCache(url);
+        if (responseCanBeCached(fetched.response)) {
+          await cache.put(request, fetched.response.clone());
+        }
       } catch (error) {
         console.warn('Failed to cache URL:', url, error);
       }

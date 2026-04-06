@@ -5254,11 +5254,12 @@ body.orientation-guard-active {
 
 @media (min-width: 1100px) {
   .music-page-layout .sticky-player {
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(calc(100vw - 44px), 1360px);
-    max-width: 1360px;
-    right: auto;
+    left: max(22px, calc(50vw - 680px));
+    right: max(22px, calc(50vw - 680px));
+    width: auto;
+    max-width: none;
+    transform: none;
+    margin: 0;
   }
 }
 

@@ -28,6 +28,19 @@ window.AineoOffline = (() => {
     navigator.serviceWorker.controller.postMessage(message);
   }
 
+  function buildCacheRequest(url, preferNoCors = false) {
+    return new Request(url, {
+      method: 'GET',
+      mode: preferNoCors ? 'no-cors' : 'cors',
+      credentials: 'omit',
+      cache: 'no-store'
+    });
+  }
+
+  function responseCanBeCached(response) {
+    return Boolean(response && (response.ok || response.type === 'opaque'));
+  }
+
   async function cacheUrlsDirect(cacheName, urls) {
     if (!('caches' in window)) return { cached: [], failed: urls || [] };
     const cache = await caches.open(cacheName);
@@ -35,15 +48,28 @@ window.AineoOffline = (() => {
     const failed = [];
     for (const url of uniq(urls)) {
       try {
-        const request = new Request(url, { mode: 'cors' });
-        const existing = await cache.match(request);
+        const existing = await cache.match(url, { ignoreSearch: true });
         if (existing) {
           cached.push(url);
           continue;
         }
-        const response = await fetch(request, { mode: 'cors', credentials: 'omit' });
-        if (!response || !response.ok) throw new Error(`HTTP ${response?.status || 'fetch-failed'}`);
-        await cache.put(request, response.clone());
+
+        let response = null;
+        try {
+          response = await fetch(buildCacheRequest(url, false));
+        } catch (error) {
+          response = null;
+        }
+
+        if (!responseCanBeCached(response)) {
+          response = await fetch(buildCacheRequest(url, true));
+        }
+
+        if (!responseCanBeCached(response)) {
+          throw new Error(`HTTP ${response?.status || 'fetch-failed'}`);
+        }
+
+        await cache.put(url, response.clone());
         cached.push(url);
       } catch (error) {
         failed.push(url);
@@ -55,7 +81,7 @@ window.AineoOffline = (() => {
   async function removeUrlsDirect(cacheName, urls) {
     if (!('caches' in window)) return;
     const cache = await caches.open(cacheName);
-    await Promise.all(uniq(urls).map(url => cache.delete(new Request(url, { mode: 'cors' }))));
+    await Promise.all(uniq(urls).map(url => cache.delete(url, { ignoreSearch: true })));
   }
 
   function getTrackAssetUrls(track) {
