@@ -55,6 +55,7 @@ const els = {
   featuredAlbumCount: document.getElementById("featuredAlbumCount"),
   playAlbumBtn: document.getElementById("playAlbumBtn"),
   shuffleAlbumBtn: document.getElementById("shuffleAlbumBtn"),
+  saveAlbumOfflineBtn: document.getElementById("saveAlbumOfflineBtn"),
   downloadAlbumBtn: document.getElementById("downloadAlbumBtn"),
   openAlbumBtn: document.getElementById("openAlbumBtn"),
 
@@ -112,6 +113,7 @@ const els = {
   albumModalTracks: document.getElementById("albumModalTracks"),
   albumModalPlayBtn: document.getElementById("albumModalPlayBtn"),
   albumModalShuffleBtn: document.getElementById("albumModalShuffleBtn"),
+  albumModalSaveOfflineBtn: document.getElementById("albumModalSaveOfflineBtn"),
   albumModalDownloadBtn: document.getElementById("albumModalDownloadBtn"),
   closeAlbumBtn: document.getElementById("closeAlbumBtn"),
 
@@ -286,8 +288,10 @@ function ensureOfflineAssetsReady() {
 
   const audioUrls = savedTracks.map(track => track.src).filter(Boolean);
   const artworkUrls = savedTracks.map(track => track.cover).filter(Boolean);
+  const lyricUrls = savedTracks.map(track => track.lyrics_file).filter(Boolean);
   if (audioUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_AUDIO_URLS', urls: audioUrls });
   if (artworkUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: artworkUrls });
+  if (lyricUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: lyricUrls });
 }
 
 /* =========================
@@ -636,6 +640,12 @@ function bindUI() {
     startPlaybackFromList(collection.tracks, true);
   });
 
+  on(els.saveAlbumOfflineBtn, "click", async () => {
+    const collection = getFeaturedCollection();
+    if (!collection) return;
+    await toggleCollectionOffline(collection.tracks);
+  });
+
   on(els.downloadAlbumBtn, "click", () => {
     const collection = getFeaturedCollection();
     if (!collection?.album_zip) return;
@@ -670,6 +680,13 @@ function bindUI() {
     if (!album) return;
     startPlaybackFromList(album.tracks, true);
     scrollAlbumModalToCurrentTrack();
+  });
+
+  on(els.albumModalSaveOfflineBtn, "click", async () => {
+    const album = getAlbumModalAlbum();
+    if (!album) return;
+    await toggleCollectionOffline(album.tracks);
+    updateAlbumModalOfflineButton(album);
   });
 
   on(els.albumModalDownloadBtn, "click", () => {
@@ -1210,6 +1227,7 @@ function renderFeaturedAlbum() {
     els,
     getFeaturedCollection
   });
+  updateCollectionOfflineButtons();
 }
 
 function getFeaturedTrackPlayState(track) {
@@ -1551,6 +1569,7 @@ function openAlbumModal(album, triggerEl = null) {
   if (els.albumModalDownloadBtn) {
     els.albumModalDownloadBtn.style.display = album.album_zip ? "inline-flex" : "none";
   }
+  updateAlbumModalOfflineButton(album);
 
   if (els.albumModalTracks) {
     els.albumModalTracks.innerHTML = album.tracks
@@ -1708,40 +1727,20 @@ function updateOfflineButtons(track = getCurrentTrack()) {
   });
 }
 
-function saveTrackOffline(track) {
-  return window.AineoOffline.saveTrackOffline({
-    track,
-    downloadedTracks,
-    setDownloadedTracks(nextDownloadedTracks) {
-      downloadedTracks = nextDownloadedTracks;
-    },
-    saveDownloadedTracks,
-    els,
-    renderDownloadedSongs,
-    renderFeaturedTrackList,
-    updateButtons: updateOfflineButtons,
-    flashButtonText
-  });
+function updateCollectionOfflineButtons(trackList = getFeaturedCollection()?.tracks || []) {
+  if (!window.AineoOffline) return;
+  const downloaded = window.AineoOffline.isCollectionDownloaded({ tracks: trackList, downloadedTracks });
+  if (els.saveAlbumOfflineBtn) els.saveAlbumOfflineBtn.textContent = downloaded ? "Remove Collection Offline" : "Save Collection Offline";
 }
 
-function removeTrackOffline(track) {
-  return window.AineoOffline.removeTrackOffline({
-    track,
-    downloadedTracks,
-    setDownloadedTracks(nextDownloadedTracks) {
-      downloadedTracks = nextDownloadedTracks;
-    },
-    saveDownloadedTracks,
-    renderDownloadedSongs,
-    renderFeaturedTrackList,
-    updateButtons: updateOfflineButtons,
-    els,
-    flashButtonText
-  });
+function updateAlbumModalOfflineButton(album = getAlbumModalAlbum()) {
+  if (!window.AineoOffline || !els.albumModalSaveOfflineBtn) return;
+  const downloaded = window.AineoOffline.isCollectionDownloaded({ tracks: album?.tracks || [], downloadedTracks });
+  els.albumModalSaveOfflineBtn.textContent = downloaded ? "Remove Collection Offline" : "Save Collection Offline";
 }
 
-function toggleTrackOffline(track) {
-  return window.AineoOffline.toggleTrackOffline({
+async function saveTrackOffline(track) {
+  const result = await window.AineoOffline.saveTrackOffline({
     track,
     downloadedTracks,
     setDownloadedTracks(nextDownloadedTracks) {
@@ -1754,6 +1753,66 @@ function toggleTrackOffline(track) {
     updateButtons: updateOfflineButtons,
     flashButtonText
   });
+  updateCollectionOfflineButtons();
+  updateAlbumModalOfflineButton();
+  return result;
+}
+
+async function removeTrackOffline(track) {
+  const result = await window.AineoOffline.removeTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    els,
+    flashButtonText
+  });
+  updateCollectionOfflineButtons();
+  updateAlbumModalOfflineButton();
+  return result;
+}
+
+async function toggleTrackOffline(track) {
+  const result = await window.AineoOffline.toggleTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    els,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    flashButtonText
+  });
+  updateCollectionOfflineButtons();
+  updateAlbumModalOfflineButton();
+  return result;
+}
+
+async function toggleCollectionOffline(trackList) {
+  const result = await window.AineoOffline.toggleCollectionOffline({
+    tracks: trackList,
+    downloadedTracks,
+    setDownloadedTracks(nextDownloadedTracks) {
+      downloadedTracks = nextDownloadedTracks;
+    },
+    saveDownloadedTracks,
+    els,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons: updateOfflineButtons,
+    flashButtonText
+  });
+  updateCollectionOfflineButtons(trackList);
+  updateAlbumModalOfflineButton();
+  return result;
 }
 
 function renderDownloadedSongs() {

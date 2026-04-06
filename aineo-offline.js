@@ -1,6 +1,19 @@
 window.AineoOffline = (() => {
+  const DIRECT_AUDIO_CACHE = 'aineo-user-offline-audio';
+  const DIRECT_ASSET_CACHE = 'aineo-user-offline-assets';
+
+  function uniq(values) {
+    return [...new Set((values || []).filter(Boolean))];
+  }
+
   function isDownloaded({ track, downloadedTracks }) {
     return Boolean(track && Array.isArray(downloadedTracks) && downloadedTracks.includes(track.id));
+  }
+
+  function isCollectionDownloaded({ tracks, downloadedTracks }) {
+    const list = Array.isArray(tracks) ? tracks.filter(Boolean) : [];
+    if (!list.length) return false;
+    return list.every(track => downloadedTracks.includes(track.id));
   }
 
   function updateButtons({ track, downloadedTracks, els }) {
@@ -15,7 +28,57 @@ window.AineoOffline = (() => {
     navigator.serviceWorker.controller.postMessage(message);
   }
 
-  function saveTrackOffline({
+  async function cacheUrlsDirect(cacheName, urls) {
+    if (!('caches' in window)) return { cached: [], failed: urls || [] };
+    const cache = await caches.open(cacheName);
+    const cached = [];
+    const failed = [];
+    for (const url of uniq(urls)) {
+      try {
+        const request = new Request(url, { mode: 'cors' });
+        const existing = await cache.match(request);
+        if (existing) {
+          cached.push(url);
+          continue;
+        }
+        const response = await fetch(request, { mode: 'cors', credentials: 'omit' });
+        if (!response || !response.ok) throw new Error(`HTTP ${response?.status || 'fetch-failed'}`);
+        await cache.put(request, response.clone());
+        cached.push(url);
+      } catch (error) {
+        failed.push(url);
+      }
+    }
+    return { cached, failed };
+  }
+
+  async function removeUrlsDirect(cacheName, urls) {
+    if (!('caches' in window)) return;
+    const cache = await caches.open(cacheName);
+    await Promise.all(uniq(urls).map(url => cache.delete(new Request(url, { mode: 'cors' }))));
+  }
+
+  function getTrackAssetUrls(track) {
+    return {
+      audio: [track?.src].filter(Boolean),
+      assets: [track?.cover, track?.lyrics_file].filter(Boolean)
+    };
+  }
+
+  async function cacheTrackAssets(track) {
+    const { audio, assets } = getTrackAssetUrls(track);
+    const audioResult = await cacheUrlsDirect(DIRECT_AUDIO_CACHE, audio);
+    const assetResult = await cacheUrlsDirect(DIRECT_ASSET_CACHE, assets);
+    postServiceWorkerMessage({ type: 'CACHE_AUDIO_URLS', urls: audio });
+    postServiceWorkerMessage({ type: 'CACHE_URLS', urls: assets });
+    return {
+      ok: audio.length ? audioResult.cached.length === audio.length : true,
+      audio: audioResult,
+      assets: assetResult
+    };
+  }
+
+  async function saveTrackOffline({
     track,
     downloadedTracks,
     setDownloadedTracks,
@@ -28,13 +91,16 @@ window.AineoOffline = (() => {
   }) {
     if (!track?.src) return false;
 
+    const cacheResult = await cacheTrackAssets(track);
+    if (!cacheResult.ok) {
+      if (flashButtonText && els?.saveOfflineBtn && !document.hidden) flashButtonText(els.saveOfflineBtn, 'Offline Failed');
+      return false;
+    }
+
     if (!downloadedTracks.includes(track.id)) {
       setDownloadedTracks([track.id, ...downloadedTracks]);
       saveDownloadedTracks();
     }
-
-    postServiceWorkerMessage({ type: 'CACHE_AUDIO_URLS', urls: [track.src] });
-    postServiceWorkerMessage({ type: 'CACHE_URLS', urls: [track.cover].filter(Boolean) });
 
     updateButtons(track);
     renderDownloadedSongs();
@@ -45,7 +111,7 @@ window.AineoOffline = (() => {
     return true;
   }
 
-  function removeTrackOffline({
+  async function removeTrackOffline({
     track,
     downloadedTracks,
     setDownloadedTracks,
@@ -60,8 +126,11 @@ window.AineoOffline = (() => {
 
     setDownloadedTracks(downloadedTracks.filter(id => id !== track.id));
     saveDownloadedTracks();
-    postServiceWorkerMessage({ type: 'REMOVE_AUDIO_URLS', urls: [track.src].filter(Boolean) });
-    postServiceWorkerMessage({ type: 'REMOVE_URLS', urls: [track.cover].filter(Boolean) });
+    const { audio, assets } = getTrackAssetUrls(track);
+    postServiceWorkerMessage({ type: 'REMOVE_AUDIO_URLS', urls: audio });
+    postServiceWorkerMessage({ type: 'REMOVE_URLS', urls: assets });
+    await removeUrlsDirect(DIRECT_AUDIO_CACHE, audio);
+    await removeUrlsDirect(DIRECT_ASSET_CACHE, assets);
 
     updateButtons(track);
     renderDownloadedSongs();
@@ -72,12 +141,38 @@ window.AineoOffline = (() => {
     return true;
   }
 
-  function toggleTrackOffline(args) {
+  async function toggleTrackOffline(args) {
     const downloaded = isDownloaded({ track: args.track, downloadedTracks: args.downloadedTracks });
-    if (downloaded) {
-      return removeTrackOffline(args);
-    }
+    if (downloaded) return removeTrackOffline(args);
     return saveTrackOffline(args);
+  }
+
+  async function saveCollectionOffline(args) {
+    const tracks = (args.tracks || []).filter(track => track?.src);
+    let successCount = 0;
+    for (const track of tracks) {
+      const ok = await saveTrackOffline({ ...args, track });
+      if (ok) successCount += 1;
+      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
+    }
+    return successCount;
+  }
+
+  async function removeCollectionOffline(args) {
+    const tracks = (args.tracks || []).filter(Boolean);
+    let removedCount = 0;
+    for (const track of tracks) {
+      const ok = await removeTrackOffline({ ...args, track });
+      if (ok) removedCount += 1;
+      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
+    }
+    return removedCount;
+  }
+
+  async function toggleCollectionOffline(args) {
+    const allSaved = isCollectionDownloaded({ tracks: args.tracks || [], downloadedTracks: args.downloadedTracks || [] });
+    if (allSaved) return removeCollectionOffline(args);
+    return saveCollectionOffline(args);
   }
 
   function renderDownloadedSongs({
@@ -143,10 +238,14 @@ window.AineoOffline = (() => {
 
   return {
     isDownloaded,
+    isCollectionDownloaded,
     updateButtons,
     saveTrackOffline,
     removeTrackOffline,
     toggleTrackOffline,
+    saveCollectionOffline,
+    removeCollectionOffline,
+    toggleCollectionOffline,
     renderDownloadedSongs
   };
 })();

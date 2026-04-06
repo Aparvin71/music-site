@@ -186,7 +186,7 @@ function renderAlbumPage() {
           <div class="featured-actions album-page-hero-actions">
             <button id="albumPagePlayBtn" class="action-btn" type="button">Play Album</button>
             <button id="albumPageShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
-            ${album.album_zip ? `<button id="albumPageDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>` : ""}
+            <button id="albumPageSaveOfflineBtn" class="action-btn secondary-btn" type="button">Save Album Offline</button>${album.album_zip ? `<button id="albumPageDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>` : ""}
           </div>
         </div>
       </div>
@@ -294,6 +294,22 @@ function renderAlbumPage() {
   document.getElementById("albumPagePlayBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, false, 0));
   document.getElementById("albumPageShuffleBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, true, 0));
   document.getElementById("albumPageDownloadBtn")?.addEventListener("click", () => triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`));
+  document.getElementById("albumPageSaveOfflineBtn")?.addEventListener("click", async () => {
+    if (!window.AineoOffline) return;
+    const btn = document.getElementById("albumPageSaveOfflineBtn");
+    const tracks = album.tracks || [];
+    const downloadedTracks = JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]");
+    const allSaved = window.AineoOffline.isCollectionDownloaded({ tracks, downloadedTracks });
+    const result = allSaved
+      ? await window.AineoOffline.removeCollectionOffline({ tracks, downloadedTracks, setDownloadedTracks(next){ localStorage.setItem("aineo_downloaded_tracks", JSON.stringify(next)); }, saveDownloadedTracks(){} })
+      : await window.AineoOffline.saveCollectionOffline({ tracks, downloadedTracks, setDownloadedTracks(next){ localStorage.setItem("aineo_downloaded_tracks", JSON.stringify(next)); }, saveDownloadedTracks(){} });
+    if (btn) btn.textContent = window.AineoOffline.isCollectionDownloaded({ tracks, downloadedTracks: JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]") }) ? "Remove Album Offline" : "Save Album Offline";
+  });
+  const albumOfflineBtn = document.getElementById("albumPageSaveOfflineBtn");
+  if (albumOfflineBtn && window.AineoOffline) {
+    const downloadedTracks = JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]");
+    albumOfflineBtn.textContent = window.AineoOffline.isCollectionDownloaded({ tracks: album.tracks || [], downloadedTracks }) ? "Remove Album Offline" : "Save Album Offline";
+  }
 
   albumPageEls.root.querySelectorAll("[data-play-index]").forEach(btn => {
     btn.addEventListener("click", () => startPlaybackFromList(albumTracks, false, Number(btn.dataset.playIndex)));
