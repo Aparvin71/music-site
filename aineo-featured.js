@@ -1,3 +1,4 @@
+
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -31,7 +32,12 @@
     els.albumGrid.innerHTML = albums.map(album => {
       const isActive = filters.selectedAlbum === album.name;
       if (window.AineoUI?.renderAlbumCard) {
-        return window.AineoUI.renderAlbumCard({ album, isActive, escapeHtml, escapeAttr: escapeHtmlAttr });
+        return window.AineoUI.renderAlbumCard({
+          album,
+          isActive,
+          escapeHtml,
+          escapeAttr: escapeHtmlAttr
+        });
       }
       return `
         <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
@@ -58,12 +64,25 @@
       const mins = Math.floor((secs % 3600) / 60);
       return hours ? `${hours} hr ${mins} min` : `${mins} min`;
     };
+    const previewMarkup = (tracks) => (tracks || []).slice(0, 3).map((track, index) =>
+      `<span class="featured-preview-pill">${index + 1}. ${String(track.title || "Untitled").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}</span>`
+    ).join("");
     if (!collection) {
       if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
       if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
       if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
+      if (els.featuredCollectionStats) els.featuredCollectionStats.innerHTML = "";
+      if (els.featuredCollectionLead) els.featuredCollectionLead.textContent = "Choose a playlist, album, or tag to load a collection here.";
+      if (els.featuredCollectionPreview) els.featuredCollectionPreview.innerHTML = "";
+      if (els.featuredAlbumCover) {
+        els.featuredAlbumCover.src = "";
+        els.featuredAlbumCover.alt = "No collection cover";
+      }
       if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-      if (els.openAlbumBtn) els.openAlbumBtn.disabled = true;
+      if (els.openAlbumBtn) {
+        els.openAlbumBtn.textContent = "View Collection";
+        els.openAlbumBtn.disabled = true;
+      }
       if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
       if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
       return;
@@ -72,23 +91,26 @@
       els.featuredAlbumCover.src = collection.cover || "";
       els.featuredAlbumCover.alt = `${collection.name} cover`;
     }
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name || 'All Songs';
-    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || 'Entire music library';
-    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? '' : 's'}`;
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name;
+    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || "Allen Parvin";
+    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? "" : "s"}`;
     if (els.featuredCollectionStats) {
       const duration = formatDuration(collection.tracks);
+      const year = collection.tracks[0]?.year ? `<span class="featured-stat-pill">${collection.tracks[0].year}</span>` : "";
       const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
       const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
-      els.featuredCollectionStats.innerHTML = `${type}${durationPill}`;
+      els.featuredCollectionStats.innerHTML = `${type}${durationPill}${year}`;
     }
     if (els.featuredCollectionLead) {
-      els.featuredCollectionLead.textContent = collection.name === 'All Songs'
-        ? 'Start here with the full music library. Play, shuffle, or filter down to a smaller collection.'
-        : `Start here with Play or Shuffle, or jump into ${collection.name}.`;
+      const firstTrack = collection.tracks[0]?.title || "the first song";
+      els.featuredCollectionLead.textContent = `Start here with Play All or Shuffle Play. Tap View ${collection.openMode === "album" ? "Album" : "Collection"} for the full story, then jump in with ${firstTrack}.`;
     }
-    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
+    if (els.featuredCollectionPreview) {
+      els.featuredCollectionPreview.innerHTML = previewMarkup(collection.tracks);
+    }
+    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? "inline-flex" : "none";
     if (els.openAlbumBtn) {
-      els.openAlbumBtn.textContent = collection.openMode === 'album' ? 'Open Album' : 'Open Collection';
+      els.openAlbumBtn.textContent = collection.openMode === "album" ? "View Album" : "View Collection";
       els.openAlbumBtn.disabled = false;
     }
     if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
@@ -102,37 +124,36 @@
   }
 
   function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, openPlaylistModalForTrack, saveTrackOffline, triggerDownload, safeFileName, addTrackToQueue, openTrackActionSheet } = ctx;
     if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
-    const collection = getFeaturedCollection();
-    if (!collection) {
-      els.featuredTrackListTitle.textContent = 'All Songs';
+    const album = getFeaturedCollection();
+    if (!album) {
+      els.featuredTrackListTitle.textContent = 'Collection Tracks';
       els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
       return;
     }
-    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
-    els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
-      const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
+    els.featuredTrackListTitle.textContent = `${album.name} Tracks`;
+    els.featuredTrackList.innerHTML = album.tracks.map((track, index) => {
+      const playState = getFeaturedTrackPlayState(track);
       const isPlaying = playState.isCurrentTrack ? 'playing' : '';
       const isFav = isFavorite(track) ? 'favorited' : '';
-      const offlineSaved = isDownloaded ? isDownloaded(track) : false;
+      const offlineState = window.AineoOffline?.getTrackOfflineUiState
+        ? window.AineoOffline.getTrackOfflineUiState({ track, downloadedTracks: (window.downloadedTracks || []) })
+        : { buttonLabel: isDownloaded(track) ? 'Saved Offline ✓' : 'Save Offline ⬇', disabled: false };
       return `
       <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}">
-        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
+        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" data-track-title="${escapeHtmlAttr(track.title)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
         <div class="featured-track-main">
-          <div class="featured-track-title-line">
-            <strong class="featured-track-title" title="${escapeHtmlAttr(track.title)}">${escapeHtml(track.title)}</strong>
-            ${track.duration ? `<span class="featured-track-duration" title="${escapeHtmlAttr(track.duration)}">${escapeHtml(track.duration)}</span>` : ''}
-          </div>
-          <div class="featured-track-meta-line">
-            <span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span>
-          </div>
+          <div class="featured-track-title-line"><strong>${index + 1}. ${escapeHtml(track.title)}</strong>${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ''}</div>
         </div>
         <div class="featured-track-actions">
-          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
-          <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
+          <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">${isFavorite(track) ? '★' : '☆'}</button>
+          <button class="mini-action-btn" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button">Lyrics</button>
+          <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">+ Playlist</button>
+          <button class="mini-action-btn ${offlineState.disabled ? 'is-offline-disabled' : ''} ${isDownloaded(track) ? 'is-saved-offline' : ''}" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button" ${offlineState.disabled ? 'disabled aria-disabled="true"' : ''}>${escapeHtml(offlineState.buttonLabel)}</button>
+          <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
+          <button class="mini-action-btn" data-track-more="${escapeHtmlAttr(track.id)}" type="button">•••</button>
+          <button class="mini-action-btn" data-download-track="${escapeHtmlAttr(track.id)}" type="button">Download</button>
         </div>
       </div>`;
     }).join('');
@@ -140,46 +161,37 @@
     els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
       btn.addEventListener('click', () => {
         const idx = Number(btn.dataset.featuredIndex);
-        const track = collection.tracks[idx];
+        const track = album.tracks[idx];
         if (!track) return;
-        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) {
-          togglePlayPause();
-          return;
-        }
+        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) { togglePlayPause(); return; }
         syncQueueToCurrentCollection(true);
-        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
+        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(album.tracks, false);
         playFromQueueIndex(idx);
       });
     });
-
     els.featuredTrackList.querySelectorAll('[data-favorite-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
+      const track = album.tracks.find(t => t.id === btn.dataset.favoriteTrack);
       if (!track) return;
       toggleFavorite(track);
       renderFeaturedTrackList(ctx);
     }));
-
     els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
-      if (track) openLyricsModalForTrack(track, e.currentTarget);
+      const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack); if (track) openLyricsModalForTrack(track, e.currentTarget);
     }));
-
-    els.featuredTrackList.querySelectorAll('[data-offline-track]').forEach(btn => btn.addEventListener('click', async e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.offlineTrack);
-      if (!track) return;
-      e.currentTarget.disabled = true;
-      try {
-        const currentlySaved = isDownloaded ? isDownloaded(track) : false;
-        if (currentlySaved && removeTrackOffline) await removeTrackOffline(track);
-        else if (saveTrackOffline) await saveTrackOffline(track);
-      } finally {
-        renderFeaturedTrackList(ctx);
-      }
+    els.featuredTrackList.querySelectorAll('[data-add-playlist-track]').forEach(btn => btn.addEventListener('click', e => {
+      const track = album.tracks.find(t => t.id === btn.dataset.addPlaylistTrack); if (track) openPlaylistModalForTrack(track, e.currentTarget);
     }));
-
+    els.featuredTrackList.querySelectorAll('[data-save-offline-track]').forEach(btn => btn.addEventListener('click', () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.saveOfflineTrack); if (track) saveTrackOffline(track);
+    }));
+    els.featuredTrackList.querySelectorAll('[data-play-next-track]').forEach(btn => btn.addEventListener('click', () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.playNextTrack); if (track) addTrackToQueue?.(track, { playNext: true });
+    }));
     els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
-      if (track) openTrackActionSheet?.(track, e.currentTarget);
+      const track = album.tracks.find(t => t.id === btn.dataset.trackMore); if (track) openTrackActionSheet?.(track, e.currentTarget);
+    }));
+    els.featuredTrackList.querySelectorAll('[data-download-track]').forEach(btn => btn.addEventListener('click', () => {
+      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack); if (track?.src) triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     }));
   }
 
