@@ -153,41 +153,47 @@
 
     const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats })
       .map(item => ({ ...item, shortName: smartNameMap[item.key] || item.name }));
+    const playlists = [{ name: 'All Songs', count: Array.isArray(allTracks) ? allTracks.length : 0 }]
+      .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
 
-    const playlists = [...map.entries()]
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => a.name.localeCompare(b.name));
+    const quickFilterIcons = {
+      favorites: '★',
+      recent: '🕘',
+      downloaded: '⬇',
+      'most-played': '🔥',
+      'recently-added': '✨',
+      scripture: '✝',
+      worship: '♪'
+    };
 
-    const quickFilters = [`
-      <button class="filter-chip playlist-filter-chip quick-filter-pill ${!hasActiveFilter() ? 'active' : ''}" data-playlist="All Songs" type="button" title="All Songs">
-        <span class="playlist-filter-text">All Songs</span>
+    const quickFiltersMarkup = smartPlaylists.map(item => `
+      <button class="filter-chip quick-filter-icon-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}" aria-label="${escapeHtmlAttr(item.name)}">
+        <span class="quick-filter-icon" aria-hidden="true">${quickFilterIcons[item.key] || item.icon || '•'}</span>
       </button>
-    `];
+    `).join('');
 
-    smartPlaylists.forEach(item => {
-      quickFilters.push(`
-        <button class="filter-chip playlist-filter-chip quick-filter-pill ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
-          <span class="playlist-filter-text">${escapeHtml(item.shortName)}</span>
+    const playlistMarkup = playlists.map(playlist => {
+      const isAllSongs = playlist.name === 'All Songs';
+      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
+      const label = isAllSongs ? 'All Songs' : playlist.name;
+      return `
+        <button class="filter-chip playlist-card-pill ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
+          <span class="playlist-card-pill__title">${escapeHtml(label)}</span>
+          <span class="playlist-card-pill__meta">${playlist.count} song${playlist.count === 1 ? '' : 's'}</span>
         </button>
-      `);
-    });
-
-    const playlistPills = playlists.length
-      ? playlists.map(playlist => `
-          <button class="filter-chip playlist-filter-chip playlist-name-pill ${filters.selectedPlaylist === playlist.name ? 'active' : ''}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
-            <span class="playlist-filter-text">${escapeHtml(playlist.name)}</span>
-          </button>
-        `).join('')
-      : `<p class="empty-message">No playlists found.</p>`;
+      `;
+    }).join('');
 
     container.innerHTML = `
-      <div class="playlist-section-group">
-        <p class="playlist-section-label">Quick Filters</p>
-        <div class="quick-filter-grid">${quickFilters.join('')}</div>
-      </div>
-      <div class="playlist-section-group">
-        <p class="playlist-section-label">Playlists</p>
-        <div class="playlist-pill-grid">${playlistPills}</div>
+      <div class="playlist-filter-sections">
+        <div class="playlist-filter-block">
+          <p class="playlist-filter-heading">Quick Filters</p>
+          <div class="quick-filter-grid">${quickFiltersMarkup}</div>
+        </div>
+        <div class="playlist-filter-block playlist-filter-block--playlists">
+          <p class="playlist-filter-heading">Playlists</p>
+          <div class="playlist-pill-grid">${playlistMarkup}</div>
+        </div>
       </div>
     `;
 
@@ -197,7 +203,6 @@
         else onSetPlaylistFilter?.(btn.dataset.playlist);
       });
     });
-
     container.querySelectorAll('[data-smart-playlist]').forEach(btn => {
       btn.addEventListener('click', () => onSetSmartPlaylistFilter?.(btn.dataset.smartPlaylist));
     });
