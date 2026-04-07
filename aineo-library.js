@@ -102,11 +102,11 @@
 
     return [
       { key: 'favorites', name: 'Favorites', icon: '★', tracks: favoriteTracks },
-      { key: 'recent', name: 'Recently Played', icon: '🕘', tracks: recentTracks },
-      { key: 'downloaded', name: 'Downloaded', icon: '⬇', tracks: downloaded },
+      { key: 'recent', name: 'Recent', icon: '🕘', tracks: recentTracks },
+      { key: 'downloaded', name: 'Offline', icon: '⬇', tracks: downloaded },
       { key: 'most-played', name: 'Most Played', icon: '🔥', tracks: mostPlayed },
-      { key: 'recently-added', name: 'Recently Added', icon: '✨', tracks: recentlyAdded },
-      { key: 'scripture', name: 'Scripture Songs', icon: '✝', tracks: scriptureSongs },
+      { key: 'recently-added', name: 'New', icon: '✨', tracks: recentlyAdded },
+      { key: 'scripture', name: 'Scripture', icon: '✝', tracks: scriptureSongs },
       { key: 'worship', name: 'Worship', icon: '♪', tracks: worshipSongs }
     ].filter(item => item.tracks.length);
   }
@@ -152,7 +152,7 @@
           <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
             <span class="smart-playlist-icon" aria-hidden="true">${item.icon}</span>
             <span class="smart-playlist-label">${escapeHtml(item.name)}</span>
-            <span class="chip-count">${item.tracks.length}</span>
+            
           </button>
         `).join("")}
       </div>
@@ -165,7 +165,7 @@
         <button class="filter-chip playlist-filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
           <span class="playlist-filter-icon" aria-hidden="true">${isAllSongs ? "🎵" : "•"}</span>
           <span class="playlist-filter-label">${isAllSongs ? "All Songs" : escapeHtml(playlist.name)}</span>
-          <span class="chip-count">${playlist.count}</span>
+          
         </button>
       `;
     }).join("");
