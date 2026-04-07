@@ -147,13 +147,9 @@
           <div class="featured-track-title-line"><strong>${index + 1}. ${escapeHtml(track.title)}</strong>${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ''}</div>
         </div>
         <div class="featured-track-actions">
-          <button class="mini-action-btn ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button">${isFavorite(track) ? '★' : '☆'}</button>
-          <button class="mini-action-btn" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button">Lyrics</button>
-          <button class="mini-action-btn" data-add-playlist-track="${escapeHtmlAttr(track.id)}" type="button">+ Playlist</button>
-          <button class="mini-action-btn ${offlineState.disabled ? 'is-offline-disabled' : ''} ${isDownloaded(track) ? 'is-saved-offline' : ''}" data-save-offline-track="${escapeHtmlAttr(track.id)}" type="button" ${offlineState.disabled ? 'disabled aria-disabled="true"' : ''}>${escapeHtml(offlineState.buttonLabel)}</button>
-          <button class="mini-action-btn" data-play-next-track="${escapeHtmlAttr(track.id)}" type="button">Play Next</button>
-          <button class="mini-action-btn" data-track-more="${escapeHtmlAttr(track.id)}" type="button">•••</button>
-          <button class="mini-action-btn" data-download-track="${escapeHtmlAttr(track.id)}" type="button">Download</button>
+          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}">${isFavorite(track) ? '★' : '☆'}</button>
+          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics">♪</button>
+          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions">⋯</button>
         </div>
       </div>`;
     }).join('');
@@ -177,21 +173,13 @@
     }));
     els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
       const track = album.tracks.find(t => t.id === btn.dataset.lyricsTrack); if (track) openLyricsModalForTrack(track, e.currentTarget);
-    }));
-    els.featuredTrackList.querySelectorAll('[data-add-playlist-track]').forEach(btn => btn.addEventListener('click', e => {
-      const track = album.tracks.find(t => t.id === btn.dataset.addPlaylistTrack); if (track) openPlaylistModalForTrack(track, e.currentTarget);
-    }));
-    els.featuredTrackList.querySelectorAll('[data-save-offline-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.saveOfflineTrack); if (track) saveTrackOffline(track);
-    }));
-    els.featuredTrackList.querySelectorAll('[data-play-next-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.playNextTrack); if (track) addTrackToQueue?.(track, { playNext: true });
+    })); if (track) openPlaylistModalForTrack(track, e.currentTarget);
+    })); if (track) saveTrackOffline(track);
+    })); if (track) addTrackToQueue?.(track, { playNext: true });
     }));
     els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
       const track = album.tracks.find(t => t.id === btn.dataset.trackMore); if (track) openTrackActionSheet?.(track, e.currentTarget);
-    }));
-    els.featuredTrackList.querySelectorAll('[data-download-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = album.tracks.find(t => t.id === btn.dataset.downloadTrack); if (track?.src) triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
+    })); if (track?.src) triggerDownload(track.src, `${safeFileName(track.title)}.mp3`);
     }));
   }
 
