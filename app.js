@@ -210,6 +210,7 @@ const els = {
   trackActionPlayNextBtn: document.getElementById("trackActionPlayNextBtn"),
   trackActionAddPlaylistBtn: document.getElementById("trackActionAddPlaylistBtn"),
   trackActionSaveOfflineBtn: document.getElementById("trackActionSaveOfflineBtn"),
+  trackActionDownloadBtn: document.getElementById("trackActionDownloadBtn"),
   trackActionGoAlbumBtn: document.getElementById("trackActionGoAlbumBtn"),
   trackActionCloseBtn: document.getElementById("trackActionCloseBtn")
 };
@@ -1321,6 +1322,7 @@ function updateLibraryView() {
   renderTags(filteredTracks);
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
+  renderFeaturedTrackList();
   renderSearchUi();
 }
 
@@ -1678,6 +1680,7 @@ function playTrack(track) {
   saveQueueState();
   renderQueue();
   renderFavorites();
+  renderFeaturedTrackList();
   updateUrlForTrack(track);
   window.requestIdleCallback ? window.requestIdleCallback(() => prefetchUpcomingTrack(), { timeout: 700 }) : window.setTimeout(prefetchUpcomingTrack, 250);
 }
@@ -2055,6 +2058,7 @@ function toggleCurrentFavorite() {
   const track = getCurrentTrack();
   if (!track) return;
   toggleFavorite(track);
+  renderFeaturedTrackList();
 }
 
 function toggleFavorite(track) {
@@ -2280,7 +2284,8 @@ function renderMyPlaylistsLegacyV1() {
       }
       renderAlbums(filteredTracks);
       renderFeaturedAlbum();
-          renderQueue();
+      renderFeaturedTrackList();
+      renderQueue();
       scrollToTop();
     });
   });
@@ -3008,6 +3013,7 @@ function applyCustomPlaylistFilter(name) {
   filteredTracks = result.filteredTracks;
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
+  renderFeaturedTrackList();
   renderQueue();
   scrollToFeaturedCollection();
 }

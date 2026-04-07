@@ -688,6 +688,37 @@ a:hover {
   border-color: #b7b7b7;
 }
 
+.mini-action-btn--icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.featured-track-actions--icon-only {
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.featured-track-row {
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.featured-track-title-line strong {
+  font-size: 13px;
+}
+
+.featured-track-duration {
+  font-size: 11px;
+}
+
 /* =========================================
    LYRICS / SCRIPTURE
 ========================================= */
@@ -1801,22 +1832,34 @@ a:hover {
   }
 
   .featured-track-play {
-    width: 100%;
-    height: 42px;
-    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
   }
-.featured-track-main {
-  order: 1;
-}
 
-.featured-track-actions {
-  order: 2;
-}
+  .featured-track-row {
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
 
-.featured-track-play {
-  order: 3;
-  margin-top: 2px;
-}
+  .featured-track-main,
+  .featured-track-actions,
+  .featured-track-play {
+    order: initial;
+    margin-top: 0;
+  }
+
+  .featured-track-actions--icon-only {
+    gap: 4px;
+  }
+
+  .mini-action-btn--icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
 
 
   .queue-row,
