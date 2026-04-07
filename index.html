@@ -157,7 +157,7 @@
           <div class="library-quick-links" aria-label="Quick browse links">
             <a class="library-quick-link" href="#featuredCollectionCard">Featured</a>
             <a class="library-quick-link" href="#albumsHeading">Albums</a>
-            <a class="library-quick-link" href="#featuredTrackListTitle">Tracks</a>
+            <a class="library-quick-link" href="#queueHeading">Library List</a>
             <a class="library-quick-link" href="#playlistsHeading">Playlists</a>
           </div>
         </div>
@@ -177,7 +177,7 @@
       <section class="page-card browse-hub-card" aria-labelledby="browseHubHeading">
         <div class="browse-hub-copy">
           <p class="eyebrow">Browse Music</p>
-          <h2 id="browseHubHeading">Start with playlists, albums, tags, or the featured collection</h2>
+          <h2 id="browseHubHeading">Start with playlists, albums, tags, or the full library</h2>
           <p class="hero-text">Everything in the top browse area is organized for quick jumping on phones and tablets.</p>
         </div>
         <div class="browse-hub-links" aria-label="Browse shortcuts">
@@ -230,16 +230,6 @@
         </div>
       </section>
 
-      <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
-        <div class="section-header section-header--with-link">
-          <h2 id="featuredTrackListTitle">Tracks</h2>
-          <a class="browse-shelf-link" href="#featuredCollectionCard">Back to featured</a>
-        </div>
-
-        <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
-          <p class="empty-message">No tracks available.</p>
-        </div>
-      </section>
         </div>
 
         <aside class="music-right-rail" aria-label="Current song details">
@@ -301,7 +291,7 @@
             aria-expanded="true"
             aria-controls="queueSectionBody"
           >
-            <span id="queueHeading">Song Queue</span>
+            <span id="queueHeading">Library List + Up Next</span>
             <span class="toggle-icon" aria-hidden="true">▾</span>
           </button>
           <p id="queueCount">0 songs</p>
@@ -309,11 +299,10 @@
 
         <div id="queueSectionBody" class="section-body">
           <div class="queue-toolbar" aria-label="Queue actions">
-            <button id="queuePlayListBtn" class="action-btn small-action-btn" type="button">Play List</button>
+            <button id="queuePlayListBtn" class="action-btn small-action-btn" type="button">Play All</button>
             <button id="queueShuffleListBtn" class="action-btn secondary-btn small-action-btn" type="button">Shuffle</button>
-            <button id="queueClearBtn" class="action-btn secondary-btn small-action-btn" type="button">Clear</button>
           </div>
-          <p class="queue-helper-text">Tap a song to jump there fast, or use Play Next to move it right behind the current song.</p>
+          <p class="queue-helper-text">This is your main all-songs list and your up-next view in one place. Tap any song to jump there fast, or use Play Next from the more menu to move it right behind the current song.</p>
           <div id="queueList" class="queue-list" aria-live="polite"></div>
         </div>
       </section>
