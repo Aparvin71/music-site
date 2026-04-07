@@ -145,30 +145,35 @@
     const playlists = [{ name: "All Songs", count: Array.isArray(allTracks) ? allTracks.length : 0 }]
       .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
 
-    const smartMarkup = smartPlaylists.length ? `
-      <div class="playlist-subsection-label playlist-subsection-label--compact">Quick Filters</div>
-      <div class="smart-playlist-list compact-filter-row">
-        ${smartPlaylists.map(item => `
-          <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
+    const items = smartPlaylists.map(item => ({
+      type: 'smart',
+      key: item.key,
+      name: item.name,
+      icon: item.icon,
+      active: filters.selectedSmartPlaylist === item.key
+    })).concat(playlists.map(playlist => {
+      const isAllSongs = playlist.name === "All Songs";
+      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name);
+      return {
+        type: 'playlist',
+        key: playlist.name,
+        name: isAllSongs ? 'All Songs' : playlist.name,
+        icon: isAllSongs ? '♫' : '•',
+        active
+      };
+    }));
+
+    container.innerHTML = `
+      <div class="playlist-subsection-label playlist-subsection-label--compact">Quick Filters &amp; Playlists</div>
+      <div class="smart-playlist-list compact-filter-row compact-filter-grid">
+        ${items.map(item => `
+          <button class="filter-chip smart-playlist-chip playlist-grid-chip ${item.active ? 'active' : ''}" ${item.type === 'smart' ? `data-smart-playlist="${escapeHtmlAttr(item.key)}"` : `data-playlist="${escapeHtmlAttr(item.key)}"`} type="button" title="${escapeHtmlAttr(item.name)}">
             <span class="smart-playlist-icon" aria-hidden="true">${item.icon}</span>
             <span class="smart-playlist-label">${escapeHtml(item.name)}</span>
-            
           </button>
-        `).join("")}
+        `).join('')}
       </div>
-    ` : '';
-
-    container.innerHTML = smartMarkup + playlists.map(playlist => {
-      const isAllSongs = playlist.name === "All Songs";
-      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? "active" : "";
-      return `
-        <button class="filter-chip playlist-filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
-          <span class="playlist-filter-icon" aria-hidden="true">${isAllSongs ? "🎵" : "•"}</span>
-          <span class="playlist-filter-label">${isAllSongs ? "All Songs" : escapeHtml(playlist.name)}</span>
-          
-        </button>
-      `;
-    }).join("");
+    `;
 
     container.querySelectorAll("[data-playlist]").forEach(btn => {
       btn.addEventListener("click", () => {
