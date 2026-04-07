@@ -8530,3 +8530,188 @@ select:focus,
     font-size: 11px !important;
   }
 }
+
+
+/* =========================================
+   v42.3.6 button alignment + music page polish
+========================================= */
+.action-btn,
+.secondary-btn,
+.mini-action-btn,
+.filter-chip,
+.playlist-btn,
+.tag-chip,
+.control-btn,
+.playlist-filter-chip,
+.smart-playlist-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.action-btn,
+.secondary-btn,
+.filter-chip,
+.playlist-btn,
+.tag-chip,
+.playlist-filter-chip,
+.smart-playlist-chip {
+  color: #f7fbff;
+}
+
+.music-page-layout .playlist-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  align-items: stretch;
+}
+
+.music-page-layout .playlist-filter-chip {
+  min-width: 0;
+  width: 100%;
+  min-height: 58px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 1px solid #38475c;
+  background: #1a2230;
+  color: #f7fbff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+.music-page-layout .playlist-filter-chip:hover,
+.music-page-layout .playlist-filter-chip.active {
+  background: #233247;
+  border-color: #7fa3d8;
+  color: #ffffff;
+}
+
+.music-page-layout .playlist-filter-text {
+  display: block;
+  width: 100%;
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: inherit;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.music-page-layout .playlist-filter-icon {
+  display: none !important;
+}
+
+.music-page-layout .featured-track-actions {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.music-page-layout .featured-track-actions .mini-action-btn.mini-action-btn--icon {
+  width: 32px !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  text-align: center !important;
+}
+
+.music-page-layout .featured-track-actions .mini-action-btn.mini-action-btn--icon::after {
+  display: flex !important;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  color: #f7fbff;
+}
+
+.music-page-layout .featured-track-title,
+.music-page-layout .featured-track-title-line strong {
+  color: #ffffff !important;
+}
+
+.music-page-layout .featured-track-duration {
+  color: #aec4e4 !important;
+}
+
+.music-page-layout .featured-track-album {
+  color: #d4dfef !important;
+}
+
+@media (max-width: 1099px) {
+  .music-page-layout .playlist-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .music-page-layout .playlist-filter-chip {
+    min-height: 60px;
+    padding: 8px 5px;
+  }
+}
+
+@media (max-width: 820px) {
+  .music-page-layout .playlist-filter-text {
+    font-size: 10.5px;
+  }
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .playlist-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .music-page-layout .playlist-filter-chip {
+    min-height: 62px;
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .music-page-layout .playlist-filter-text {
+    font-size: 10px;
+    line-height: 1.1;
+  }
+
+  .music-page-layout .featured-track-actions .mini-action-btn.mini-action-btn--icon {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .music-page-layout .playlist-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .music-page-layout .playlist-filter-chip {
+    min-height: 58px;
+    padding: 6px 3px;
+  }
+
+  .music-page-layout .playlist-filter-text {
+    font-size: 9.5px;
+  }
+}
