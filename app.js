@@ -227,6 +227,7 @@ async function init() {
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
+  currentCollectionKey = 'all-songs';
   restoreSavedQueue();
   updateLibraryView();
   renderFavorites();
