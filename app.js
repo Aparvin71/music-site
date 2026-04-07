@@ -227,6 +227,7 @@ async function init() {
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
+  currentCollectionKey = 'all-songs';
   restoreSavedQueue();
   updateLibraryView();
   renderFavorites();
@@ -1587,6 +1588,7 @@ function renderFeaturedTrackList() {
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
     saveTrackOffline,
+    removeTrackOffline,
     triggerDownload,
     safeFileName,
     addTrackToQueue,
@@ -3069,6 +3071,7 @@ function renderPlaylistWorkspace() {
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
     saveTrackOffline,
+    removeTrackOffline,
     triggerDownload,
     safeFileName,
     customPlaylists,

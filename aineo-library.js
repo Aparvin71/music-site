@@ -102,11 +102,11 @@
 
     return [
       { key: 'favorites', name: 'Favorites', icon: '★', tracks: favoriteTracks },
-      { key: 'recent', name: 'Recently Played', icon: '🕘', tracks: recentTracks },
-      { key: 'downloaded', name: 'Downloaded', icon: '⬇', tracks: downloaded },
+      { key: 'recent', name: 'Recent', icon: '🕘', tracks: recentTracks },
+      { key: 'downloaded', name: 'Offline', icon: '⬇', tracks: downloaded },
       { key: 'most-played', name: 'Most Played', icon: '🔥', tracks: mostPlayed },
-      { key: 'recently-added', name: 'Recently Added', icon: '✨', tracks: recentlyAdded },
-      { key: 'scripture', name: 'Scripture Songs', icon: '✝', tracks: scriptureSongs },
+      { key: 'recently-added', name: 'New', icon: '✨', tracks: recentlyAdded },
+      { key: 'scripture', name: 'Scripture', icon: '✝', tracks: scriptureSongs },
       { key: 'worship', name: 'Worship', icon: '♪', tracks: worshipSongs }
     ].filter(item => item.tracks.length);
   }
@@ -141,58 +141,63 @@
       });
     });
 
-    const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats });
-    const playlists = [{ name: "All Songs", count: Array.isArray(allTracks) ? allTracks.length : 0 }]
-      .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
-
-    const shortLabelMap = {
+    const smartNameMap = {
       favorites: 'Favorites',
       recent: 'Recent',
       downloaded: 'Offline',
-      'most-played': 'Top',
+      'most-played': 'Most Played',
       'recently-added': 'New',
       scripture: 'Scripture',
       worship: 'Worship'
     };
 
-    const smartMarkup = smartPlaylists.length ? `
-      <div class="playlist-subsection-label">Quick Filters</div>
-      <div class="smart-playlist-list quick-filters-grid">
-        ${smartPlaylists.map(item => {
-          const shortLabel = shortLabelMap[item.key] || item.name;
-          return `
-          <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
-            <span class="smart-playlist-label" data-full-label="${escapeHtmlAttr(item.name)}">${escapeHtml(shortLabel)}</span>
-            <span class="chip-count">${item.tracks.length}</span>
-          </button>`;
-        }).join("")}
-      </div>
-    ` : '';
+    const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats })
+      .map(item => ({ ...item, shortName: smartNameMap[item.key] || item.name }));
 
-    const playlistMarkup = `
-      <div class="playlist-subsection-label">Playlists</div>
-      <div class="playlist-pill-list">
-        ${playlists.map(playlist => {
-          const isAllSongs = playlist.name === "All Songs";
-          const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? "active" : "";
-          return `
-            <button class="filter-chip playlist-pill ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
-              <span class="playlist-pill-label">${isAllSongs ? "All Songs" : escapeHtml(playlist.name)}</span>
-              <span class="chip-count">${playlist.count}</span>
-            </button>
-          `;
-        }).join("")}
+    const playlists = [...map.entries()]
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+
+    const quickFilters = [`
+      <button class="filter-chip playlist-filter-chip quick-filter-pill ${!hasActiveFilter() ? 'active' : ''}" data-playlist="All Songs" type="button" title="All Songs">
+        <span class="playlist-filter-text">All Songs</span>
+      </button>
+    `];
+
+    smartPlaylists.forEach(item => {
+      quickFilters.push(`
+        <button class="filter-chip playlist-filter-chip quick-filter-pill ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
+          <span class="playlist-filter-text">${escapeHtml(item.shortName)}</span>
+        </button>
+      `);
+    });
+
+    const playlistPills = playlists.length
+      ? playlists.map(playlist => `
+          <button class="filter-chip playlist-filter-chip playlist-name-pill ${filters.selectedPlaylist === playlist.name ? 'active' : ''}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
+            <span class="playlist-filter-text">${escapeHtml(playlist.name)}</span>
+          </button>
+        `).join('')
+      : `<p class="empty-message">No playlists found.</p>`;
+
+    container.innerHTML = `
+      <div class="playlist-section-group">
+        <p class="playlist-section-label">Quick Filters</p>
+        <div class="quick-filter-grid">${quickFilters.join('')}</div>
+      </div>
+      <div class="playlist-section-group">
+        <p class="playlist-section-label">Playlists</p>
+        <div class="playlist-pill-grid">${playlistPills}</div>
       </div>
     `;
 
-    container.innerHTML = smartMarkup + playlistMarkup;
-
-    container.querySelectorAll("[data-playlist]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (btn.dataset.playlist === "All Songs") onClearAll?.();
+    container.querySelectorAll('[data-playlist]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.playlist === 'All Songs') onClearAll?.();
         else onSetPlaylistFilter?.(btn.dataset.playlist);
       });
     });
+
     container.querySelectorAll('[data-smart-playlist]').forEach(btn => {
       btn.addEventListener('click', () => onSetSmartPlaylistFilter?.(btn.dataset.smartPlaylist));
     });
