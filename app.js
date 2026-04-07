@@ -227,7 +227,6 @@ async function init() {
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
-  currentCollectionKey = 'all-songs';
   restoreSavedQueue();
   updateLibraryView();
   renderFavorites();
@@ -883,7 +882,7 @@ function bindUI() {
       openAlbumModal(collection, e.currentTarget);
       return;
     }
-    scrollToTrackList();
+    scrollToFeaturedCollection();
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);
@@ -1045,7 +1044,7 @@ function setAlbumFilter(albumName) {
     value: albumName,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1058,7 +1057,7 @@ function setPlaylistFilter(playlistName) {
     value: playlistName,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1071,7 +1070,7 @@ function setSmartPlaylistFilter(smartKey) {
     value: smartKey,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1084,7 +1083,7 @@ function setTagFilter(tagName) {
     value: tagName,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1097,7 +1096,7 @@ function setSearchFilter(term) {
     value: term,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1108,7 +1107,7 @@ function clearAllFilters() {
     searchInput: els.searchInput,
     onAfterChange: () => {
       updateLibraryView();
-      scrollToTrackList();
+      scrollToFeaturedCollection();
     }
   });
 }
@@ -1225,18 +1224,12 @@ function getFeaturedCollection() {
   return collection.tracks.length ? collection : null;
 }
 
-function scrollToTrackList() {
-  const target = document.getElementById("featuredTrackListTitle")?.closest(".featured-tracklist-panel")
-    || document.getElementById("featuredTrackList")
-    || els.featuredTrackList;
+function scrollToFeaturedCollection() {
+  const target = els.featuredAlbumCard || document.getElementById("featuredAlbumCard");
   if (!target) return;
   const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
   const top = window.scrollY + target.getBoundingClientRect().top - headerHeight - 16;
   window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
-}
-
-function scrollToFeaturedCollection() {
-  scrollToTrackList();
 }
 
 function syncQueueToCurrentCollection(force = false) {
@@ -1594,7 +1587,6 @@ function renderFeaturedTrackList() {
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
     saveTrackOffline,
-    removeTrackOffline,
     triggerDownload,
     safeFileName,
     addTrackToQueue,
@@ -2280,7 +2272,6 @@ function renderMyPlaylistsLegacyV1() {
       filters.selectedAlbum = null;
       filters.selectedPlaylist = null;
       filters.selectedTag = null;
-      filters.selectedSmartPlaylist = null;
       filters.searchTerm = "";
       if (els.searchInput) els.searchInput.value = "";
       if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${btn.dataset.customPlaylist}`;
@@ -2294,7 +2285,7 @@ function renderMyPlaylistsLegacyV1() {
       renderFeaturedAlbum();
       renderFeaturedTrackList();
       renderQueue();
-      scrollToTrackList();
+      scrollToTop();
     });
   });
 
@@ -2737,7 +2728,6 @@ function hasActiveFilter() {
     filters.selectedAlbum ||
     filters.selectedPlaylist ||
     filters.selectedTag ||
-    filters.selectedSmartPlaylist ||
     filters.searchTerm
   );
 }
@@ -3024,7 +3014,7 @@ function applyCustomPlaylistFilter(name) {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   renderQueue();
-  scrollToTrackList();
+  scrollToFeaturedCollection();
 }
 
 function setActiveCustomPlaylist(name) {
@@ -3079,7 +3069,6 @@ function renderPlaylistWorkspace() {
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
     saveTrackOffline,
-    removeTrackOffline,
     triggerDownload,
     safeFileName,
     customPlaylists,
