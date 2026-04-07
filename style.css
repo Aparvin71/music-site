@@ -8715,3 +8715,167 @@ select:focus,
     font-size: 9.5px;
   }
 }
+
+/* =========================================
+   v42.3.7 QUICK FILTERS + PLAYLIST PILL REPAIR
+========================================= */
+.music-page-layout .playlist-filter-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.music-page-layout .quick-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.music-page-layout .playlist-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.music-page-layout .playlist-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 8px 12px;
+  line-height: 1.1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #f6f8fc;
+}
+
+.music-page-layout .playlist-filter-chip .playlist-filter-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-page-layout .playlist-filter-chip .playlist-filter-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.music-page-layout .playlist-filter-chip--smart {
+  width: 100%;
+  padding-inline: 10px;
+  font-size: 12px;
+}
+
+.music-page-layout .playlist-filter-chip--playlist {
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding-inline: 14px;
+  text-align: left;
+}
+
+.music-page-layout .playlist-pill-row .playlist-filter-chip--playlist {
+  justify-content: center;
+}
+
+.music-page-layout .playlist-list,
+.music-page-layout .smart-playlist-list {
+  display: block;
+}
+
+.music-page-layout .playlist-list > .playlist-filter-grid,
+.music-page-layout .playlist-list > .quick-filter-grid,
+.music-page-layout .playlist-list > .playlist-pill-row,
+.music-page-layout .playlist-list > .playlist-filter-stack {
+  width: 100%;
+}
+
+@media (min-width: 1100px) {
+  .music-page-layout .music-left-rail {
+    min-width: 320px;
+    max-width: 360px;
+  }
+
+  .music-page-layout .quick-filter-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-row {
+    gap: 10px;
+  }
+
+  .music-page-layout .playlist-filter-chip--playlist {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1099px) {
+  .music-page-layout .quick-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .music-page-layout .playlist-filter-chip--playlist {
+    width: 100%;
+  }
+}
+
+@media (max-width: 699px) {
+  .music-page-layout .playlist-filter-stack {
+    gap: 10px;
+  }
+
+  .music-page-layout .quick-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .music-page-layout .playlist-pill-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .music-page-layout .playlist-filter-chip {
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  .music-page-layout .playlist-filter-chip--smart {
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+
+  .music-page-layout .playlist-filter-chip--playlist {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .music-page-layout .quick-filter-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .music-page-layout .playlist-filter-chip {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 10.5px;
+  }
+}

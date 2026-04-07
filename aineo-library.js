@@ -156,28 +156,30 @@
     const playlists = [{ name: 'All Songs', count: Array.isArray(allTracks) ? allTracks.length : 0 }]
       .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
 
-    const chips = [];
-    smartPlaylists.forEach(item => {
-      chips.push(`
-        <button class="filter-chip playlist-filter-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
-          <span class="playlist-filter-icon" aria-hidden="true">${item.icon}</span>
-          <span class="playlist-filter-text">${escapeHtml(item.shortName)}</span>
-        </button>
-      `);
-    });
+    const quickFilterChips = smartPlaylists.map(item => `
+      <button class="filter-chip playlist-filter-chip playlist-filter-chip--smart ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
+        <span class="playlist-filter-icon" aria-hidden="true">${item.icon}</span>
+        <span class="playlist-filter-text">${escapeHtml(item.shortName)}</span>
+      </button>
+    `).join('');
 
-    playlists.forEach(playlist => {
+    const playlistChips = playlists.map(playlist => {
       const isAllSongs = playlist.name === 'All Songs';
       const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
       const label = isAllSongs ? 'All Songs' : playlist.name;
-      chips.push(`
-        <button class="filter-chip playlist-filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
+      return `
+        <button class="filter-chip playlist-filter-chip playlist-filter-chip--playlist ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
           <span class="playlist-filter-text">${escapeHtml(label)}</span>
         </button>
-      `);
-    });
+      `;
+    }).join('');
 
-    container.innerHTML = `<div class="playlist-filter-grid">${chips.join('')}</div>`;
+    container.innerHTML = `
+      <div class="playlist-filter-stack">
+        <div class="quick-filter-grid">${quickFilterChips}</div>
+        <div class="playlist-pill-row">${playlistChips}</div>
+      </div>
+    `;
 
     container.querySelectorAll('[data-playlist]').forEach(btn => {
       btn.addEventListener('click', () => {
