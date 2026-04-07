@@ -7741,3 +7741,109 @@ select:focus,
     font-size: 12px;
   }
 }
+
+
+/* v42.3.9 quick filter readability + centering repair */
+.music-page-layout .playlist-toolbar--combined {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.music-page-layout .playlist-toolbar--combined .action-btn,
+.music-page-layout .playlist-jump-btn,
+.music-page-layout .queue-toolbar .action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.15;
+  min-height: 40px;
+}
+
+.music-page-layout .quick-filters-grid,
+.music-page-layout .playlist-pill-list {
+  align-items: stretch;
+}
+
+.music-page-layout .quick-filters-grid .filter-chip,
+.music-page-layout .playlist-pill-list .filter-chip,
+.music-page-layout .playlist-pill-list .playlist-pill,
+.music-page-layout .quick-filters-grid .smart-playlist-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.music-page-layout .quick-filters-grid .smart-playlist-label,
+.music-page-layout .playlist-pill-label {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 699px) {
+  .music-page-layout .quick-filters-grid {
+    grid-template-columns: repeat(4, minmax(72px, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .music-page-layout .quick-filters-grid .filter-chip,
+  .music-page-layout .quick-filters-grid .smart-playlist-chip {
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 10px;
+    letter-spacing: 0;
+  }
+
+  .music-page-layout .playlist-pill-list .filter-chip,
+  .music-page-layout .playlist-pill-list .playlist-pill {
+    min-height: 36px;
+    padding: 7px 10px;
+    font-size: 11px;
+  }
+
+  .music-page-layout .quick-filters-grid .smart-playlist-label,
+  .music-page-layout .playlist-pill-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .music-page-layout .playlist-toolbar--combined {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .music-page-layout .playlist-toolbar--combined > :last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 700px) and (max-width: 1099px) {
+  .music-page-layout .quick-filters-grid {
+    grid-template-columns: repeat(4, minmax(88px, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-list {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+}
+
+@media (min-width: 1100px) {
+  .music-page-layout .quick-filters-grid {
+    grid-template-columns: repeat(4, minmax(110px, 1fr));
+  }
+
+  .music-page-layout .playlist-pill-list {
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+  }
+
+  .music-page-layout .playlist-toolbar--combined {
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
+  }
+}

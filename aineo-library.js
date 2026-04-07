@@ -149,7 +149,7 @@
       favorites: 'Favorites',
       recent: 'Recent',
       downloaded: 'Offline',
-      'most-played': 'Top Played',
+      'most-played': 'Top',
       'recently-added': 'New',
       scripture: 'Scripture',
       worship: 'Worship'
