@@ -210,7 +210,6 @@ const els = {
   trackActionPlayNextBtn: document.getElementById("trackActionPlayNextBtn"),
   trackActionAddPlaylistBtn: document.getElementById("trackActionAddPlaylistBtn"),
   trackActionSaveOfflineBtn: document.getElementById("trackActionSaveOfflineBtn"),
-  trackActionDownloadBtn: document.getElementById("trackActionDownloadBtn"),
   trackActionGoAlbumBtn: document.getElementById("trackActionGoAlbumBtn"),
   trackActionCloseBtn: document.getElementById("trackActionCloseBtn")
 };

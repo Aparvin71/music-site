@@ -688,37 +688,6 @@ a:hover {
   border-color: #b7b7b7;
 }
 
-.mini-action-btn--icon {
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-size: 15px;
-  line-height: 1;
-}
-
-.featured-track-actions--icon-only {
-  gap: 6px;
-  flex-wrap: nowrap;
-}
-
-.featured-track-row {
-  grid-template-columns: 36px minmax(0, 1fr) auto;
-  gap: 8px;
-  padding: 8px 10px;
-}
-
-.featured-track-title-line strong {
-  font-size: 13px;
-}
-
-.featured-track-duration {
-  font-size: 11px;
-}
-
 /* =========================================
    LYRICS / SCRIPTURE
 ========================================= */
@@ -1832,34 +1801,22 @@ a:hover {
   }
 
   .featured-track-play {
-    width: 36px;
-    height: 36px;
-    border-radius: 999px;
+    width: 100%;
+    height: 42px;
+    border-radius: 12px;
   }
+.featured-track-main {
+  order: 1;
+}
 
-  .featured-track-row {
-    grid-template-columns: 36px minmax(0, 1fr) auto;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-  }
+.featured-track-actions {
+  order: 2;
+}
 
-  .featured-track-main,
-  .featured-track-actions,
-  .featured-track-play {
-    order: initial;
-    margin-top: 0;
-  }
-
-  .featured-track-actions--icon-only {
-    gap: 4px;
-  }
-
-  .mini-action-btn--icon {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-  }
+.featured-track-play {
+  order: 3;
+  margin-top: 2px;
+}
 
 
   .queue-row,
@@ -7668,5 +7625,117 @@ select:focus,
 
   .music-page-layout .smart-playlist-label .chip-count {
     font-size: 9px;
+  }
+}
+
+
+/* =========================================
+   v42.2.9 ULTRA-COMPACT TRACK ACTIONS
+========================================= */
+
+@media (max-width: 1024px) {
+  .music-page-layout .featured-track-row {
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 8px;
+    padding: 8px 10px;
+    align-items: center;
+  }
+
+  .music-page-layout .featured-track-main {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .music-page-layout .featured-track-title-line {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .music-page-layout .featured-track-title-line strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
+
+  .music-page-layout .featured-track-duration {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 11px;
+  }
+
+  .music-page-layout .featured-track-meta-line {
+    margin-top: 2px;
+    gap: 4px;
+    font-size: 11px;
+    line-height: 1.2;
+  }
+
+  .music-page-layout .featured-track-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .music-page-layout .featured-track-actions .mini-action-btn,
+  .music-page-layout .album-track-actions .mini-action-btn {
+    width: 26px;
+    min-width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    line-height: 1;
+    aspect-ratio: 1 / 1;
+  }
+
+  .music-page-layout .featured-track-play {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .featured-track-row {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 6px;
+    padding: 7px 8px;
+  }
+
+  .music-page-layout .featured-track-play {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  .music-page-layout .featured-track-actions {
+    gap: 3px;
+  }
+
+  .music-page-layout .featured-track-actions .mini-action-btn,
+  .music-page-layout .album-track-actions .mini-action-btn {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    font-size: 10px;
+  }
+
+  .music-page-layout .featured-track-title-line strong {
+    font-size: 12px;
+  }
+
+  .music-page-layout .featured-track-duration,
+  .music-page-layout .featured-track-meta-line {
+    font-size: 10px;
   }
 }
