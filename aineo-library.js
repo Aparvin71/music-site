@@ -146,12 +146,13 @@
       .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
 
     const smartMarkup = smartPlaylists.length ? `
-      <div class="playlist-subsection-label">Smart Playlists</div>
-      <div class="smart-playlist-list">
+      <div class="playlist-subsection-label playlist-subsection-label--compact">Quick Filters</div>
+      <div class="smart-playlist-list compact-filter-row">
         ${smartPlaylists.map(item => `
-          <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button">
+          <button class="filter-chip smart-playlist-chip ${filters.selectedSmartPlaylist === item.key ? "active" : ""}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}">
             <span class="smart-playlist-icon" aria-hidden="true">${item.icon}</span>
-            <span class="smart-playlist-label">${escapeHtml(item.name)} <span class="chip-count">(${item.tracks.length})</span></span>
+            <span class="smart-playlist-label">${escapeHtml(item.name)}</span>
+            <span class="chip-count">${item.tracks.length}</span>
           </button>
         `).join("")}
       </div>
@@ -161,9 +162,10 @@
       const isAllSongs = playlist.name === "All Songs";
       const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? "active" : "";
       return `
-        <button class="filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button">
-          ${isAllSongs ? "🎵 All Songs" : escapeHtml(playlist.name)}
-          <span class="chip-count">(${playlist.count})</span>
+        <button class="filter-chip playlist-filter-chip ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(playlist.name)}">
+          <span class="playlist-filter-icon" aria-hidden="true">${isAllSongs ? "🎵" : "•"}</span>
+          <span class="playlist-filter-label">${isAllSongs ? "All Songs" : escapeHtml(playlist.name)}</span>
+          <span class="chip-count">${playlist.count}</span>
         </button>
       `;
     }).join("");

@@ -119,8 +119,8 @@
       <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}">
         <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
         <div class="featured-track-main">
-          <div class="featured-track-title-line"><strong>${index + 1}. ${escapeHtml(track.title)}</strong>${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ''}</div>
-          <div class="featured-track-meta-line"><span>${escapeHtml(track.album || '')}</span>${track.artist ? `<span>• ${escapeHtml(track.artist)}</span>` : ''}</div>
+          <div class="featured-track-title-line"><strong title="${escapeHtmlAttr(track.title)}">${index + 1}. ${escapeHtml(track.title)}</strong>${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ''}</div>
+          <div class="featured-track-meta-line"><span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span></div>
         </div>
         <div class="featured-track-actions">
           <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}">${isFavorite(track) ? '★' : '☆'}</button>

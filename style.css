@@ -7876,3 +7876,150 @@ select:focus,
     font-size: 12px;
   }
 }
+
+
+/* =========================================
+   V42.3.2 SIMPLIFICATION PASS
+========================================= */
+.music-page-layout .featured-track-main {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.music-page-layout .featured-track-title-line,
+.music-page-layout .featured-track-meta-line {
+  min-width: 0;
+}
+
+.music-page-layout .featured-track-title-line strong {
+  color: #f4f4f4 !important;
+  opacity: 1 !important;
+}
+
+.music-page-layout .featured-track-meta-line {
+  color: #b7c0cf;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-page-layout .featured-track-album {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.music-page-layout #playlistList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.music-page-layout .playlist-subsection-label--compact {
+  margin-bottom: 6px;
+}
+
+.music-page-layout .compact-filter-row,
+.music-page-layout .smart-playlist-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.music-page-layout .playlist-filter-chip,
+.music-page-layout .smart-playlist-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 9px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.music-page-layout .playlist-filter-icon,
+.music-page-layout .smart-playlist-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  min-width: 14px;
+}
+
+.music-page-layout .chip-count {
+  opacity: 0.72;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .music-page-layout .playlist-toolbar {
+    gap: 6px;
+  }
+
+  .music-page-layout .playlist-toolbar .action-btn {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .music-page-layout .playlist-filter-chip,
+  .music-page-layout .smart-playlist-chip {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .music-page-layout .playlist-subsection-copy {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .playlist-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .music-page-layout .playlist-toolbar .action-btn {
+    min-width: 0;
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .music-page-layout .smart-playlist-chip,
+  .music-page-layout .playlist-filter-chip {
+    min-height: 28px;
+    border-radius: 999px;
+    padding: 5px 8px;
+  }
+
+  .music-page-layout .smart-playlist-chip .smart-playlist-label,
+  .music-page-layout .playlist-filter-chip .playlist-filter-label,
+  .music-page-layout .chip-count {
+    display: none;
+  }
+
+  .music-page-layout .smart-playlist-chip,
+  .music-page-layout .playlist-filter-chip {
+    min-width: 30px;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .music-page-layout #playlistList,
+  .music-page-layout .smart-playlist-list {
+    gap: 6px;
+  }
+
+  .music-page-layout .featured-track-title-line strong {
+    font-size: 13px !important;
+  }
+
+  .music-page-layout .featured-track-meta-line,
+  .music-page-layout .featured-track-duration {
+    font-size: 11px !important;
+  }
+}
