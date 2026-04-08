@@ -2057,19 +2057,38 @@ function toggleFavorite(track) {
   renderFavorites();
 }
 
+
+function setInlineActionButtonContent(button, { icon, label, title, mobileOnlyIcon = false } = {}) {
+  if (!button) return;
+  const safeIcon = String(icon || '');
+  const safeLabel = String(label || '');
+  button.innerHTML = `<span class="action-icon" aria-hidden="true">${escapeHtml(safeIcon)}</span><span class="action-label${mobileOnlyIcon ? ' action-label--mobile-hidden' : ''}">${escapeHtml(safeLabel)}</span>`;
+  if (title) {
+    button.title = title;
+    button.setAttribute('aria-label', title);
+  } else if (safeLabel) {
+    button.title = safeLabel;
+    button.setAttribute('aria-label', safeLabel);
+  }
+}
+
 function updateFavoriteButton() {
   const track = getCurrentTrack();
   if (!els.favoriteSongBtn) return;
 
   if (!track) {
-    els.favoriteSongBtn.textContent = "☆ Favorite";
+    setInlineActionButtonContent(els.favoriteSongBtn, { icon: '☆', label: 'Favorite', title: 'Favorite' });
     if (els.playerSheetFavoriteBtn) els.playerSheetFavoriteBtn.textContent = "☆ Favorite";
     return;
   }
 
-  const label = isFavorite(track) ? "★ Favorited" : "☆ Favorite";
-  els.favoriteSongBtn.textContent = label;
-  if (els.playerSheetFavoriteBtn) els.playerSheetFavoriteBtn.textContent = label;
+  const favorited = isFavorite(track);
+  setInlineActionButtonContent(els.favoriteSongBtn, {
+    icon: favorited ? '★' : '☆',
+    label: favorited ? 'Favorited' : 'Favorite',
+    title: favorited ? 'Favorited' : 'Favorite'
+  });
+  if (els.playerSheetFavoriteBtn) els.playerSheetFavoriteBtn.textContent = favorited ? "★ Favorited" : "☆ Favorite";
 }
 
 function renderFavorites() {

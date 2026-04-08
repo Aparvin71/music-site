@@ -354,20 +354,31 @@
 
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
-        <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
-        <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
-        <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
-        <button id="playNextBtn" class="action-btn secondary-btn" type="button">Play Next</button>
-        <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button">Open Player</button>
+        <button id="favoriteSongBtn" class="action-btn secondary-btn primary-inline-action" type="button" aria-label="Favorite">
+          <span class="action-icon" aria-hidden="true">☆</span><span class="action-label">Favorite</span>
+        </button>
+        <button id="addToPlaylistBtn" class="action-btn secondary-btn primary-inline-action" type="button" aria-label="Add to playlist">
+          <span class="action-icon" aria-hidden="true">＋</span><span class="action-label">Playlist</span>
+        </button>
+        <button id="saveOfflineBtn" class="action-btn secondary-btn primary-inline-action" type="button" aria-label="Save offline">
+          <span class="action-icon" aria-hidden="true">⬇</span><span class="action-label">Offline</span>
+        </button>
+        <button id="playNextBtn" class="action-btn secondary-btn primary-inline-action" type="button" aria-label="Play next">
+          <span class="action-icon" aria-hidden="true">↪</span><span class="action-label">Play Next</span>
+        </button>
+        <button id="openPlayerSheetBtn" class="action-btn secondary-btn primary-inline-action" type="button" aria-label="Open player">
+          <span class="action-icon" aria-hidden="true">⬆</span><span class="action-label">Open Player</span>
+        </button>
 
         <button
           id="moreActionsBtn"
-          class="action-btn secondary-btn mobile-more-btn"
+          class="action-btn secondary-btn mobile-more-btn primary-inline-action"
           type="button"
           aria-expanded="false"
           aria-controls="mobileActionsDrawer"
+          aria-label="More actions"
         >
-          More
+          <span class="action-icon" aria-hidden="true">⋯</span><span class="action-label">More</span>
         </button>
 
         <div id="mobileActionsDrawer" class="mobile-actions-drawer hidden">

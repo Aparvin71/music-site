@@ -34,7 +34,9 @@ window.AineoOffline = (() => {
 
   function applyOfflineButtonState(button, state) {
     if (!button) return;
-    button.textContent = state.buttonLabel;
+    const icon = state.downloaded ? '✓' : (state.offline ? '!' : '⬇');
+    const label = state.downloaded ? 'Offline Saved' : (state.offline ? 'Needs Internet' : 'Offline');
+    button.innerHTML = `<span class="action-icon" aria-hidden="true">${icon}</span><span class="action-label">${label}</span>`;
     button.disabled = Boolean(state.disabled);
     button.dataset.offlineState = state.downloaded ? 'saved' : (state.offline ? 'offline-unavailable' : 'ready');
     button.classList.toggle('is-saved-offline', state.downloaded);
@@ -42,6 +44,7 @@ window.AineoOffline = (() => {
     button.title = state.downloaded
       ? 'This song is saved and can play offline.'
       : (state.disabled ? 'Reconnect to save this song for offline playback.' : 'Save this song for offline playback.');
+    button.setAttribute('aria-label', button.title);
     button.setAttribute('aria-disabled', state.disabled ? 'true' : 'false');
   }
 
