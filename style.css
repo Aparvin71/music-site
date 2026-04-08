@@ -9040,3 +9040,91 @@ select:focus,
 .album-modal-cover {
   image-rendering: auto;
 }
+
+
+/* ===== v42.3.26 album pages polish pass ===== */
+.album-page-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin: 0 0 14px;
+  color: #aebcd0;
+  font-size: 13px;
+}
+
+.album-page-breadcrumbs a {
+  color: #cfe2ff;
+  text-decoration: none;
+}
+
+.album-page-breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.album-page-artist-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.album-track-number-pill,
+.album-track-status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(24, 33, 46, 0.88);
+  color: #d7e5fb;
+  border: 1px solid rgba(126, 163, 216, 0.14);
+}
+
+.album-page-track-row--redesign .queue-position-pill--current {
+  box-shadow: 0 0 0 1px rgba(126, 163, 216, 0.24);
+}
+
+.album-page-track-row--redesign.is-paused {
+  border-color: rgba(126, 163, 216, 0.34);
+}
+
+.album-page-track-row--redesign .featured-track-play {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.album-page-track-main-hit {
+  cursor: pointer;
+}
+
+.album-page-track-main-hit:focus-visible {
+  outline: 2px solid rgba(144, 180, 232, 0.72);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.album-page-inline-links .quick-link-pill {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#albumPageQueueList .queue-row.active {
+  border-color: #7ea3d8;
+  box-shadow: 0 0 0 1px rgba(126, 163, 216, 0.22);
+}
+
+@media (max-width: 760px) {
+  .album-page-breadcrumbs {
+    margin-bottom: 12px;
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .album-page-inline-links {
+    gap: 8px;
+  }
+}

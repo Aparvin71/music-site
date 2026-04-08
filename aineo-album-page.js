@@ -66,9 +66,18 @@ function bindPlayer() {
   });
 
   audio.addEventListener("timeupdate", updateProgressUI);
-  audio.addEventListener("loadedmetadata", updateProgressUI);
-  audio.addEventListener("play", updatePlayButton);
-  audio.addEventListener("pause", updatePlayButton);
+  audio.addEventListener("loadedmetadata", () => {
+    updateProgressUI();
+    syncAlbumTrackPlaybackUI();
+  });
+  audio.addEventListener("play", () => {
+    updatePlayButton();
+    syncAlbumTrackPlaybackUI();
+  });
+  audio.addEventListener("pause", () => {
+    updatePlayButton();
+    syncAlbumTrackPlaybackUI();
+  });
   audio.addEventListener("ended", handleTrackEnded);
 }
 
@@ -135,6 +144,23 @@ function normalizeTrack(track) {
   };
 }
 
+
+function getTrackPlayState(track) {
+  const currentTrack = getCurrentTrack();
+  const isCurrentTrack = Boolean(currentTrack && track && currentTrack.id === track.id);
+  const isPlaying = Boolean(isCurrentTrack && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused && albumPageEls.audioPlayer.src);
+  return {
+    isCurrentTrack,
+    isPlaying,
+    icon: isPlaying ? "❚❚" : "▶",
+    label: isPlaying ? "Pause" : "Play"
+  };
+}
+
+function getArtistPageHref(artist) {
+  return './about.html';
+}
+
 function renderAlbumPage() {
   if (!albumPageEls.root) return;
   if (!albumTracks.length) {
@@ -171,6 +197,13 @@ function renderAlbumPage() {
           <p class="eyebrow">Album</p>
           <h1 class="album-page-title">${escapeHtml(album.name)}</h1>
           <p class="album-page-subtitle">${escapeHtml(album.artist)}</p>
+          <div class="album-page-breadcrumbs" aria-label="Album breadcrumb">
+            <a href="./home.html">Home</a>
+            <span aria-hidden="true">/</span>
+            <a href="./albums.html">Albums</a>
+            <span aria-hidden="true">/</span>
+            <span>${escapeHtml(album.name)}</span>
+          </div>
           <div class="album-page-stat-row album-page-stat-row--hero">
             <span class="album-stat-pill">${albumTracks.length} song${albumTracks.length === 1 ? "" : "s"}</span>
             ${totalDuration ? `<span class="album-stat-pill">${escapeHtml(totalDuration)}</span>` : ""}
@@ -191,6 +224,7 @@ function renderAlbumPage() {
             <a class="quick-link-pill" href="./index.html">Music</a>
             <a class="quick-link-pill" href="./albums.html">All Albums</a>
             <a class="quick-link-pill" href="./about.html">About</a>
+            <a class="quick-link-pill" href="./contact.html">Request a Song</a>
           </div>
         </div>
       </div>
@@ -203,19 +237,22 @@ function renderAlbumPage() {
             <p class="eyebrow">Track List</p>
             <h2>${escapeHtml(album.name)}</h2>
           </div>
-          <p class="hero-text">Tap any track to play now, queue next, or open lyrics without leaving the album.</p>
+          <p class="hero-text">Play the full album, tap any track to start there, or queue songs for later without leaving the page.</p>
         </div>
         <div class="featured-track-list album-page-track-list album-page-track-list--redesign">
-          ${albumTracks.map((track, index) => `
-            <div class="featured-track-row album-page-track-row album-page-track-row--redesign ${getCurrentTrack()?.id === track.id ? "playing" : ""}">
-              <button class="featured-track-play" type="button" data-play-index="${index}" aria-label="Play ${escapeHtmlAttr(track.title)}">▶</button>
-              <div class="featured-track-main">
+          ${albumTracks.map((track, index) => {
+            const playState = getTrackPlayState(track);
+            return `
+            <div class="featured-track-row album-page-track-row album-page-track-row--redesign ${playState.isCurrentTrack ? "playing" : ""}">
+              <button class="featured-track-play ${playState.isCurrentTrack ? "is-current" : ""}" type="button" data-play-index="${index}" aria-label="${playState.label} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? "true" : "false"}">${playState.icon}</button>
+              <div class="featured-track-main album-page-track-main-hit" data-play-index="${index}" role="button" tabindex="0" aria-label="Play ${escapeHtmlAttr(track.title)}">
                 <div class="featured-track-title-line">
                   <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
                   ${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ""}
                 </div>
                 <div class="featured-track-meta-line album-page-track-meta-line">
-                  ${track.tags?.length ? track.tags.slice(0,3).map(tag => `<span class="album-inline-chip album-track-chip">${escapeHtml(tag)}</span>`).join("") : `<span class="muted">${escapeHtml(track.artist)}</span>`}
+                  <span class="album-track-number-pill">Track ${index + 1}</span>${track.tags?.length ? track.tags.slice(0, 2).map(tag => `<span class="album-inline-chip album-track-chip">${escapeHtml(tag)}</span>`).join("") : ""}
+                  ${playState.isCurrentTrack ? `<span class="queue-position-pill queue-position-pill--current">${playState.isPlaying ? "Now Playing" : "Paused"}</span>` : `<span class="album-track-status-pill">Ready</span>`}
                 </div>
               </div>
               <div class="featured-track-actions album-page-track-actions album-page-track-actions--redesign">
@@ -223,8 +260,8 @@ function renderAlbumPage() {
                 <button class="mini-action-btn" type="button" data-add-queue="${index}">Add Queue</button>
                 <button class="mini-action-btn" type="button" data-lyrics-index="${index}">Lyrics</button>
               </div>
-            </div>
-          `).join("")}
+            </div>`;
+          }).join("")}
         </div>
       </section>
 
@@ -262,8 +299,8 @@ function renderAlbumPage() {
         <section class="queue-panel album-page-info-card">
           <div class="queue-header">
             <div>
-              <h2>Queue</h2>
-              <p>${album.name}</p>
+              <h2>Album Queue</h2>
+              <p>${album.name} • ${albumTracks.length} tracks</p>
             </div>
           </div>
           <div id="albumPageQueueList" class="queue-list"></div>
@@ -293,7 +330,13 @@ function renderAlbumPage() {
       </aside>
     </div>
   `;
-  document.getElementById("albumPagePlayBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, false, 0));
+  document.getElementById("albumPagePlayBtn")?.addEventListener("click", () => {
+    if (isAlbumContextActive()) {
+      togglePlayPause();
+      return;
+    }
+    startPlaybackFromList(albumTracks, false, 0);
+  });
   document.getElementById("albumPageShuffleBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, true, 0));
   document.getElementById("albumPageDownloadBtn")?.addEventListener("click", () => triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`));
   document.getElementById("albumPageSaveOfflineBtn")?.addEventListener("click", async () => {
@@ -314,7 +357,29 @@ function renderAlbumPage() {
   }
 
   albumPageEls.root.querySelectorAll("[data-play-index]").forEach(btn => {
-    btn.addEventListener("click", () => startPlaybackFromList(albumTracks, false, Number(btn.dataset.playIndex)));
+    const activate = () => {
+      const index = Number(btn.dataset.playIndex);
+      const targetTrack = albumTracks[index];
+      const currentTrack = getCurrentTrack();
+      if (currentTrack && targetTrack && currentTrack.id === targetTrack.id) {
+        togglePlayPause();
+        renderAlbumPage();
+        return;
+      }
+      startPlaybackFromList(albumTracks, false, index);
+    };
+    btn.addEventListener("click", event => {
+      if (btn.classList.contains('album-page-track-main-hit') && event.target.closest('.album-page-track-actions')) return;
+      activate();
+    });
+    if (btn.classList.contains('album-page-track-main-hit')) {
+      btn.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activate();
+        }
+      });
+    }
   });
   albumPageEls.root.querySelectorAll("[data-play-next]").forEach(btn => {
     btn.addEventListener("click", () => addTrackToQueue(albumTracks[Number(btn.dataset.playNext)], { playNext: true }));
@@ -391,14 +456,23 @@ function renderQueue() {
         </div>
         <p class="queue-artist">${escapeHtml(track.artist)}</p>
         <div class="queue-actions">
-          <button class="mini-action-btn" type="button" data-queue-play="${index}">Play</button>
+          <button class="mini-action-btn" type="button" data-queue-play="${index}">${index === currentQueueIndex && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused ? "Pause" : "Play"}</button>
           <button class="mini-action-btn" type="button" data-queue-remove="${index}">Remove</button>
         </div>
       </div>
     </div>
   `).join("");
 
-  wrap.querySelectorAll("[data-queue-play]").forEach(btn => btn.addEventListener("click", () => playFromQueueIndex(Number(btn.dataset.queuePlay))));
+  wrap.querySelectorAll("[data-queue-play]").forEach(btn => btn.addEventListener("click", () => {
+    const index = Number(btn.dataset.queuePlay);
+    if (index === currentQueueIndex && albumPageEls.audioPlayer && albumPageEls.audioPlayer.src) {
+      togglePlayPause();
+      syncAlbumTrackPlaybackUI();
+      renderQueue();
+      return;
+    }
+    playFromQueueIndex(index);
+  }));
   wrap.querySelectorAll("[data-queue-remove]").forEach(btn => btn.addEventListener("click", () => {
     const index = Number(btn.dataset.queueRemove);
     currentQueue.splice(index, 1);
@@ -489,6 +563,28 @@ function cancelAlbumQueueTouchDrag() {
   activeAlbumQueueTouchDrag = null;
 }
 
+function syncAlbumTrackPlaybackUI() {
+  const currentTrack = getCurrentTrack();
+  const isPlaying = Boolean(currentTrack && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused && albumPageEls.audioPlayer.src);
+
+  document.querySelectorAll('.album-page-track-row--redesign').forEach((row, index) => {
+    const track = albumTracks[index];
+    if (!track) return;
+    const isCurrent = Boolean(currentTrack && currentTrack.id === track.id);
+    row.classList.toggle('playing', isCurrent);
+    row.classList.toggle('is-paused', isCurrent && !isPlaying);
+    const playButton = row.querySelector('[data-play-index]');
+    if (playButton) {
+      playButton.textContent = isCurrent && isPlaying ? '❚❚' : '▶';
+      playButton.setAttribute('aria-label', `${isCurrent && isPlaying ? 'Pause' : 'Play'} ${track.title}`);
+      playButton.setAttribute('aria-pressed', isCurrent && isPlaying ? 'true' : 'false');
+      playButton.classList.toggle('is-current', isCurrent);
+    }
+    const pill = row.querySelector('.queue-position-pill--current');
+    if (pill) pill.textContent = isPlaying ? 'Now Playing' : 'Paused';
+  });
+}
+
 function playTrack(track) {
   if (!track || !track.src || !albumPageEls.audioPlayer) return;
   albumPageEls.audioPlayer.src = track.src;
@@ -497,6 +593,7 @@ function playTrack(track) {
   updatePlayButton();
   updateProgressUI();
   renderAlbumPage();
+  syncAlbumTrackPlaybackUI();
 }
 
 function playFromQueueIndex(index) {
@@ -551,7 +648,14 @@ function updateNowPlaying(track) {
 }
 
 function updatePlayButton() {
-  if (albumPageEls.playBtn) albumPageEls.playBtn.textContent = albumPageEls.audioPlayer?.paused ? "▶" : "❚❚";
+  const paused = Boolean(albumPageEls.audioPlayer?.paused);
+  if (albumPageEls.playBtn) albumPageEls.playBtn.textContent = paused ? "▶" : "❚❚";
+  const heroPlayBtn = document.getElementById("albumPagePlayBtn");
+  if (heroPlayBtn) {
+    const isAlbumActive = isAlbumContextActive();
+    heroPlayBtn.textContent = isAlbumActive && !paused ? "Pause Album" : isAlbumActive && paused ? "Resume Album" : "Play Album";
+    heroPlayBtn.setAttribute("aria-pressed", isAlbumActive && !paused ? "true" : "false");
+  }
 }
 
 function updateProgressUI() {

@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.25";
+const AINEO_APP_VERSION = "v42.3.26";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -31,14 +31,24 @@ function initBasicMobileNav() {
   if (window.__AINEO_APP_JS_NAV__) return;
   const toggle = document.getElementById("mobileNavToggle");
   const nav = document.getElementById("siteNavLinks");
-  if (!toggle || !nav) return;
+  if (!toggle || !nav || toggle.dataset.navBound === "true") return;
+  toggle.dataset.navBound = "true";
   toggle.addEventListener("click", () => {
     const isOpen = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     toggle.textContent = isOpen ? "✕" : "☰";
   });
-  nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => closeMobileNav(toggle, nav)));
-  window.addEventListener("resize", () => { if (window.innerWidth > 640) closeMobileNav(toggle, nav); });
+  nav.querySelectorAll("a").forEach((link) => {
+    if (link.dataset.navCloseBound === "true") return;
+    link.dataset.navCloseBound = "true";
+    link.addEventListener("click", () => closeMobileNav(toggle, nav));
+  });
+  if (!window.__AINEO_APP_JS_NAV_RESIZE__) {
+    window.__AINEO_APP_JS_NAV_RESIZE__ = true;
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 640) closeMobileNav(toggle, nav);
+    });
+  }
 }
 
 function isTouchDevice() {
@@ -108,10 +118,26 @@ function ensureInstallUi() {
     modal.innerHTML = `<div class="install-modal-backdrop" data-close-install-modal></div><div class="install-modal-content" role="dialog" aria-modal="true" aria-labelledby="installModalTitle"><div class="install-modal-header"><div><p class="eyebrow">Install</p><h2 id="installModalTitle">Get the Aineo Music App</h2></div><button type="button" class="control-btn" data-close-install-modal aria-label="Close install dialog">✕</button></div><div class="install-modal-body"><p class="page-lead">Install Aineo Music for a cleaner, app-like experience.</p><div id="installModalSteps" class="install-steps"></div><div class="card-actions"><button id="confirmInstallBtn" type="button" class="action-btn">Install App</button><a class="action-btn secondary-btn" href="./install.html">Install Guide</a></div></div></div>`;
     document.body.appendChild(modal);
   }
-  banner.querySelector("[data-open-install-modal]")?.addEventListener("click", openInstallModal);
-  banner.querySelector("[data-dismiss-install]")?.addEventListener("click", dismissInstallUi);
-  modal.querySelectorAll("[data-close-install-modal]").forEach(btn => btn.addEventListener("click", closeInstallModal));
-  modal.querySelector("#confirmInstallBtn")?.addEventListener("click", triggerInstallPrompt);
+  const openBtn = banner.querySelector("[data-open-install-modal]");
+  if (openBtn && openBtn.dataset.installBound !== "true") {
+    openBtn.dataset.installBound = "true";
+    openBtn.addEventListener("click", openInstallModal);
+  }
+  const dismissBtn = banner.querySelector("[data-dismiss-install]");
+  if (dismissBtn && dismissBtn.dataset.installBound !== "true") {
+    dismissBtn.dataset.installBound = "true";
+    dismissBtn.addEventListener("click", dismissInstallUi);
+  }
+  modal.querySelectorAll("[data-close-install-modal]").forEach(btn => {
+    if (btn.dataset.installBound === "true") return;
+    btn.dataset.installBound = "true";
+    btn.addEventListener("click", closeInstallModal);
+  });
+  const confirmBtn = modal.querySelector("#confirmInstallBtn");
+  if (confirmBtn && confirmBtn.dataset.installBound !== "true") {
+    confirmBtn.dataset.installBound = "true";
+    confirmBtn.addEventListener("click", triggerInstallPrompt);
+  }
 }
 function installStepsMarkup() {
   if (deferredInstallPrompt) return `<ol class="utility-list"><li>Tap <strong>Install App</strong> below.</li><li>Confirm the browser prompt.</li><li>Launch Aineo Music from your home screen or apps list.</li></ol>`;
