@@ -81,18 +81,32 @@
     if (!els.myPlaylistList) return;
     const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
     if (!names.length) {
-      els.myPlaylistList.classList.remove('playlist-v2-grid');
-      els.myPlaylistList.classList.add('playlist-v2-list', 'playlist-list--custom-chips');
-      els.myPlaylistList.innerHTML = `<p class="empty-message">No custom playlists yet.</p>`;
+      els.myPlaylistList.classList.remove('playlist-v2-list', 'playlist-list--custom-chips');
+      els.myPlaylistList.classList.add('playlist-pill-grid', 'playlist-pill-grid--custom');
+      els.myPlaylistList.innerHTML = `<p class="empty-message playlist-empty-message">No custom playlists yet.</p>`;
       return;
     }
 
-    els.myPlaylistList.classList.remove('playlist-v2-grid');
-    els.myPlaylistList.classList.add('playlist-v2-list', 'playlist-list--custom-chips');
+    els.myPlaylistList.classList.remove('playlist-v2-list', 'playlist-list--custom-chips');
+    els.myPlaylistList.classList.add('playlist-pill-grid', 'playlist-pill-grid--custom');
     els.myPlaylistList.innerHTML = names.map(name => {
       const list = getCustomPlaylistTracks(name);
       const active = name === activeCustomPlaylistName ? 'active' : '';
-      return `<div class="playlist-chip-row ${active}" data-playlist-card="${escapeHtmlAttr(name)}"><button class="filter-chip ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button">${escapeHtml(name)} <span class="chip-count">(${list.length})</span></button><button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">▶</button><button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">⤮</button><button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">✕</button></div>`;
+      const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
+      return `
+        <div class="playlist-card playlist-card--custom ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
+          <button class="playlist-card-main playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
+            <span class="playlist-card-pill__eyebrow">Custom Playlist</span>
+            <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
+            <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
+          </button>
+          <div class="playlist-card-actions">
+            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">Play</button>
+            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">Shuffle</button>
+            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">Delete</button>
+          </div>
+        </div>
+      `;
     }).join('');
 
     els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => {

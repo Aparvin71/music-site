@@ -1,0 +1,10 @@
+v42.3.38
+
+Playlist Section Polish Pass
+
+Changes
+- Unified the visual language between built-in playlists and custom playlists
+- Converted custom playlists into matching card-style tiles
+- Added a cleaner Custom Playlists subsection shell and helper copy
+- Kept custom playlist actions directly on each card: Play / Shuffle / Delete
+- Updated version markers and service worker cache tag
