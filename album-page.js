@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   window.AineoShared?.initSecondaryPageNav?.();
+  window.initBasicMobileNav?.();
   ensureAlbumPageMobileNavFallback();
   window.AineoAlbumPage?.init?.();
 });
