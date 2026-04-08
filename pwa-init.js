@@ -28,11 +28,10 @@ function closeMobileNav(toggle, nav) {
 }
 
 function initBasicMobileNav() {
+  if (window.__AINEO_APP_JS_NAV__) return;
   const toggle = document.getElementById("mobileNavToggle");
   const nav = document.getElementById("siteNavLinks");
   if (!toggle || !nav) return;
-  if (toggle.dataset.navBound === "true") return;
-  toggle.dataset.navBound = "true";
   toggle.addEventListener("click", () => {
     const isOpen = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");

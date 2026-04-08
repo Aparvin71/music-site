@@ -18,8 +18,8 @@
     if (!host) return null;
     const workspace = document.createElement('section');
     workspace.id = 'playlistWorkspace';
-    workspace.className = 'page-card playlist-workspace-card';
-    workspace.innerHTML = `<div class="playlist-workspace-head"><div><p class="eyebrow">My Playlist</p><h3 id="playlistWorkspaceTitle">Custom Playlist</h3><p id="playlistWorkspaceMeta" class="page-lead playlist-workspace-meta">Select or create a playlist to manage it here.</p></div><div class="playlist-workspace-actions"><button id="playlistWorkspaceNewBtn" class="action-btn secondary-btn" type="button">+ New Playlist</button></div></div><div id="playlistWorkspaceBody"></div>`;
+    workspace.className = 'page-card playlist-workspace-card playlist-workspace-card--compact';
+    workspace.innerHTML = `<div class="playlist-workspace-head"><div><p class="eyebrow">Custom Playlists</p><h3 id="playlistWorkspaceTitle">Playlist</h3><p id="playlistWorkspaceMeta" class="page-lead playlist-workspace-meta">Create or pick a playlist to manage it here.</p></div><div class="playlist-workspace-actions"><button id="playlistWorkspaceNewBtn" class="action-btn secondary-btn small-action-btn" type="button">+ New</button></div></div><div id="playlistWorkspaceBody"></div>`;
     host.insertAdjacentElement('afterend', workspace);
     const newBtn = document.getElementById('playlistWorkspaceNewBtn');
     if (newBtn && onCreatePlaylist) newBtn.addEventListener('click', onCreatePlaylist);
@@ -103,11 +103,11 @@
     title.textContent = activeCustomPlaylistName;
     meta.textContent = `${list.length} song${list.length === 1 ? '' : 's'} in this playlist.`;
     if (!list.length) {
-      body.innerHTML = `<div class="playlist-workspace-toolbar"><button class="action-btn" type="button" data-playlist-workspace-library>Show in Library</button></div><p class="empty-message">This playlist is empty. Add songs from the library or featured collection.</p>`;
+      body.innerHTML = `<div class="playlist-workspace-toolbar"><button class="action-btn secondary-btn small-action-btn" type="button" data-playlist-workspace-library>Show in Library</button></div><p class="empty-message">This playlist is empty. Add songs from the library.</p>`;
       body.querySelector('[data-playlist-workspace-library]')?.addEventListener('click', () => applyCustomPlaylistFilter(activeCustomPlaylistName));
       return;
     }
-    body.innerHTML = `<div class="playlist-workspace-toolbar"><button class="action-btn" type="button" data-playlist-workspace-play>Play</button><button class="action-btn secondary-btn" type="button" data-playlist-workspace-shuffle>Shuffle</button><button class="action-btn secondary-btn" type="button" data-playlist-workspace-library>Show in Library</button></div><div class="playlist-workspace-tracks"></div>`;
+    body.innerHTML = `<div class="playlist-workspace-toolbar"><button class="action-btn small-action-btn" type="button" data-playlist-workspace-play>Play</button><button class="action-btn secondary-btn small-action-btn" type="button" data-playlist-workspace-shuffle>Shuffle</button><button class="action-btn secondary-btn small-action-btn" type="button" data-playlist-workspace-library>Show in Library</button></div><div class="playlist-workspace-tracks"></div>`;
     body.querySelector('[data-playlist-workspace-play]')?.addEventListener('click', () => startPlaybackFromList(list, false, 0));
     body.querySelector('[data-playlist-workspace-shuffle]')?.addEventListener('click', () => startPlaybackFromList(list, true, 0));
     body.querySelector('[data-playlist-workspace-library]')?.addEventListener('click', () => applyCustomPlaylistFilter(activeCustomPlaylistName));
@@ -184,7 +184,7 @@
     els.myPlaylistList.innerHTML = names.map(name => {
       const list = getCustomPlaylistTracks(name);
       const active = name === activeCustomPlaylistName ? 'active' : '';
-      return `<article class="playlist-list-item ${active}" data-playlist-card="${escapeHtmlAttr(name)}"><button class="playlist-list-item-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button"><strong>${escapeHtml(name)}</strong><span>${list.length} song${list.length === 1 ? '' : 's'}</span></button><div class="playlist-list-item-actions"><button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button">Play</button><button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button">Shuffle</button><button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button">Library</button><button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button">Delete</button></div></article>`;
+      return `<article class="playlist-list-item playlist-list-item--compact ${active}" data-playlist-card="${escapeHtmlAttr(name)}"><button class="playlist-list-item-title" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button"><strong>${escapeHtml(name)}</strong><span>${list.length} song${list.length === 1 ? '' : 's'}</span></button><div class="playlist-list-item-actions"><button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">▶</button><button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">⤮</button><button class="mini-action-btn" data-custom-playlist-focus="${escapeHtmlAttr(name)}" type="button" title="Show ${escapeHtmlAttr(name)} in Library">⌕</button><button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">✕</button></div></article>`;
     }).join('');
     els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => setActiveCustomPlaylist(btn.dataset.openCustomPlaylist)));
     els.myPlaylistList.querySelectorAll('[data-custom-playlist-play]').forEach(btn => btn.addEventListener('click', () => { const name = btn.dataset.customPlaylistPlay; const list = getCustomPlaylistTracks(name); if (list.length) { setActiveCustomPlaylist(name); startPlaybackFromList(list, false, 0); } }));
