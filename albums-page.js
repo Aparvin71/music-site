@@ -2,54 +2,56 @@ document.addEventListener("DOMContentLoaded", initAlbumsPage);
 
 async function initAlbumsPage() {
   window.AineoShared?.initSecondaryPageNav?.();
+
   const grid = document.getElementById("albumsGrid");
   if (!grid) return;
 
-  const [albumsData, tracksData] = await Promise.all([
-    window.AineoShared.fetchJson("./albums.json", []),
-    window.AineoShared.fetchJson("./tracks.json", [])
-  ]);
-
+  const albumsData = await window.AineoShared.fetchJson("./albums.json", []);
   const albums = Array.isArray(albumsData) ? albumsData : [];
-  const tracks = Array.isArray(tracksData) ? tracksData : [];
-  const trackCounts = window.AineoShared.getTrackCounts(tracks);
 
   if (!albums.length) {
     grid.innerHTML = `
       <article class="page-card">
         <p class="eyebrow">No albums yet</p>
-        <h2>Your album library is empty.</h2>
-        <p>Add entries to <code>albums.json</code> to populate this page.</p>
+        <h2>Your album shelf is empty.</h2>
+        <p>Upload tracks with album metadata to populate this page.</p>
       </article>
     `;
     return;
   }
 
-  grid.innerHTML = albums.map(album => {
-    const title = window.AineoShared.escapeHtml(album.title || album.name || "Untitled Album");
-    const albumName = album.title || album.name || "";
-    const slug = encodeURIComponent(albumName);
-    const cover = album.cover
-      ? `<img src="${window.AineoShared.escapeAttr(album.cover)}" alt="${window.AineoShared.escapeAttr(title)} artwork" loading="lazy" />`
-      : `<div class="catalog-card-cover-fallback">♪</div>`;
-    const badges = (Array.isArray(album.badges) ? album.badges : []).slice(0, 3);
-    const pills = badges.length
-      ? `<div class="quick-link-pills">${badges.map(badge => `<span class="quick-link-pill quick-link-pill--static">#${window.AineoShared.escapeHtml(badge)}</span>`).join("")}</div>`
-      : "";
-    const count = trackCounts[String(albumName).toLowerCase()] || Number(album.track_count || album.song_count || 0) || 0;
-    const description = album.description ? `<p>${window.AineoShared.escapeHtml(album.description)}</p>` : "";
+  const escapeHtml = window.AineoShared?.escapeHtml || ((value) => String(value || ""));
+  const escapeAttr = window.AineoShared?.escapeAttr || escapeHtml;
+  const normalizeStringArray = window.AineoShared?.normalizeStringArray || ((value) => Array.isArray(value) ? value : String(value || "").split(",").map(v => v.trim()).filter(Boolean));
 
-    return `
-      <a class="catalog-card" href="./album.html?album=${slug}">
-        <div class="catalog-card-cover">${cover}</div>
-        <div class="catalog-card-copy">
-          <p class="eyebrow">Album</p>
-          <h2>${title}</h2>
-          <p>${count} song${count === 1 ? "" : "s"}</p>
-          ${description}
-          ${pills}
-        </div>
-      </a>
-    `;
-  }).join("");
+  grid.innerHTML = albums
+    .slice()
+    .sort((a, b) => String(a.title || a.name || "").localeCompare(String(b.title || b.name || "")))
+    .map((album) => {
+      const title = album.title || album.name || "Untitled Album";
+      const artist = album.artist || "Allen Parvin";
+      const year = album.year ? ` • ${escapeHtml(String(album.year))}` : "";
+      const trackCount = Number(album.track_count || album.song_count || 0) || 0;
+      const description = album.description || album.album_description || "Open this album page for the story, theme, tracks, and scripture references.";
+      const badges = normalizeStringArray(album.badges || album.album_badges).slice(0, 4);
+      const cover = album.cover || "";
+      return `
+        <a class="catalog-card" href="./album.html?album=${encodeURIComponent(title)}">
+          <div class="catalog-card-cover">
+            ${cover
+              ? `<img src="${escapeAttr(cover)}" alt="${escapeAttr(title)} cover" loading="lazy" decoding="async" />`
+              : `<div class="catalog-card-cover-fallback">♪</div>`}
+          </div>
+          <div class="catalog-card-copy">
+            <p class="eyebrow">Album</p>
+            <h2>${escapeHtml(title)}</h2>
+            <p>${escapeHtml(artist)}${year}</p>
+            <p>${trackCount} song${trackCount === 1 ? "" : "s"}</p>
+            <p>${escapeHtml(description)}</p>
+            ${badges.length ? `<div class="quick-link-pills">${badges.map((badge) => `<span class="quick-link-pill quick-link-pill--static">${escapeHtml(badge)}</span>`).join("")}</div>` : ""}
+          </div>
+        </a>
+      `;
+    })
+    .join("");
 }
