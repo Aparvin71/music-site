@@ -7627,3 +7627,79 @@ select:focus,
     font-size: 9px;
   }
 }
+
+
+/* =========================================
+   V42.3.21 TRACK ROW STABILITY POLISH
+========================================= */
+.featured-track-row,
+.playlist-track-row,
+.album-page-track-row {
+  border-color: rgba(94, 142, 205, 0.18);
+  background: linear-gradient(180deg, rgba(20, 26, 34, 0.95), rgba(15, 20, 28, 0.92));
+}
+
+.featured-track-row:hover,
+.playlist-track-row:hover,
+.album-page-track-row:hover {
+  border-color: rgba(126, 163, 216, 0.5);
+  background: linear-gradient(180deg, rgba(29, 37, 49, 0.98), rgba(20, 27, 36, 0.96));
+}
+
+.featured-track-row.playing,
+.playlist-track-row.playing,
+.album-page-track-row.playing {
+  border-color: rgba(144, 180, 232, 0.7);
+  box-shadow: 0 0 0 1px rgba(144, 180, 232, 0.18), 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.featured-track-play {
+  background: #202a38;
+  border-color: rgba(126, 163, 216, 0.35);
+}
+
+.featured-track-play:hover {
+  background: #2a3950;
+}
+
+.featured-track-actions {
+  gap: 6px;
+}
+
+.featured-track-actions .mini-action-btn,
+.playlist-track-row .mini-action-btn,
+.album-page-track-actions .mini-action-btn {
+  background: #18202b;
+  border-color: rgba(94, 142, 205, 0.22);
+}
+
+.featured-track-actions .mini-action-btn:hover,
+.playlist-track-row .mini-action-btn:hover,
+.album-page-track-actions .mini-action-btn:hover {
+  background: #223044;
+  border-color: rgba(126, 163, 216, 0.45);
+}
+
+@media (max-width: 640px) {
+  .featured-track-row,
+  .playlist-track-row,
+  .album-page-track-row {
+    padding: 12px;
+  }
+
+  .featured-track-actions,
+  .playlist-track-row .featured-track-actions,
+  .album-page-track-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .featured-track-actions .mini-action-btn,
+  .playlist-track-row .mini-action-btn,
+  .album-page-track-actions .mini-action-btn {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+  }
+}

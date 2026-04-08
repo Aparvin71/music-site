@@ -35,22 +35,10 @@ const params = new URLSearchParams(window.location.search);
 const albumParam = params.get("album") || "";
 
 async function initAlbumPage() {
-  initMobileNav();
   bindPlayer();
   bindModal();
   await Promise.all([loadTracks(), loadAlbumsMetadata()]);
   renderAlbumPage();
-}
-
-function initMobileNav() {
-  const toggle = albumPageEls.mobileNavToggle;
-  const nav = albumPageEls.siteNavLinks;
-  if (!toggle || !nav) return;
-  toggle.addEventListener("click", () => {
-    const open = nav.classList.toggle("nav-open");
-    toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    toggle.textContent = open ? "✕" : "☰";
-  });
 }
 
 function bindPlayer() {
@@ -190,7 +178,6 @@ function renderAlbumPage() {
           <div class="quick-link-pills album-page-inline-links">
             <a class="quick-link-pill" href="./index.html">Music</a>
             <a class="quick-link-pill" href="./albums.html">All Albums</a>
-            <a class="quick-link-pill" href="./artists.html">Artists</a>
           </div>
         </div>
       </div>

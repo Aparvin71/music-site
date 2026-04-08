@@ -1,4 +1,3 @@
-window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
 let currentTrackIndex = -1;
@@ -221,7 +220,6 @@ async function init() {
   initOfflineStatus();
   initCollapsibles();
   initMobilePlayerDrawer();
-  initMobileNav();
   initPlayerSheetGestures();
   initTabletStickyFilterBar();
   await loadTracks();
