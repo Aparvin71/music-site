@@ -9424,3 +9424,17 @@ select:focus,
     grid-template-columns: 1fr;
   }
 }
+
+
+.playlist-subsection-header{
+  margin-top: 1rem;
+  margin-bottom: .5rem;
+}
+
+.playlist-subsection-header .playlist-subsection-label{
+  margin-bottom: .25rem;
+}
+
+.playlist-subsection-shell{
+  margin-top: 0;
+}
