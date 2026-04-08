@@ -190,17 +190,13 @@ const els = {
   playNextBtn: document.getElementById("playNextBtn"),
   playerSheetShuffleBtn: document.getElementById("playerSheetShuffleBtn"),
   playerSheetRepeatBtn: document.getElementById("playerSheetRepeatBtn"),
-  playerSheetPlayNextBtn: document.getElementById("playerSheetPlayNextBtn"),
-  playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
-  playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
+  playerSheetPlayNextBtn: document.getElementById("playerSheetPlayNextBtn"),  playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
-  playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),
-  playerSheetQueuePanel: document.getElementById("playerSheetQueuePanel"),
-  offlineStatusMount: document.getElementById("offlineStatusMount"),
+  playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),  offlineStatusMount: document.getElementById("offlineStatusMount"),
   trackActionSheet: document.getElementById("trackActionSheet"),
   trackActionSheetBackdrop: document.getElementById("trackActionSheetBackdrop"),
   trackActionSheetTitle: document.getElementById("trackActionSheetTitle"),
@@ -924,14 +920,6 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
-  on(els.playerSheetLyricsBtn, "click", () => {
-    if (window.matchMedia("(max-width: 640px)").matches) {
-      closePlayerSheet();
-      window.requestAnimationFrame(() => openLyricsModal(els.playerSheetLyricsBtn));
-      return;
-    }
-    openPlayerSheetLyricsPanel();
-  });
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
