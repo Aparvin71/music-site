@@ -9339,7 +9339,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.38 playlist section polish pass ===== */
+/* ===== v42.3.42 playlist section polish pass ===== */
 .music-page-layout .playlist-subsection-shell {
   margin-top: 10px;
   padding-top: 10px;
@@ -9440,7 +9440,7 @@ select:focus,
 }
 
 
-/* v42.3.41 hard refresh UI fix */
+/* v42.3.42 hard refresh UI fix */
 .playlist-subsection-standalone{
   margin-top: 1.25rem;
   margin-bottom: .65rem;
