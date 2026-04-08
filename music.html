@@ -97,6 +97,7 @@
             <div id="playlistSectionBody" class="section-body">
               <div class="playlist-toolbar playlist-toolbar--combined">
                 <a href="#favoritesHeading" class="action-btn secondary-btn small-action-btn playlist-jump-btn">Favorites</a>
+                <a href="#queueHeading" class="action-btn secondary-btn small-action-btn playlist-jump-btn">Queue</a>
                 <button id="createPlaylistBtn" class="action-btn secondary-btn small-action-btn" type="button">+ New Playlist</button>
               </div>
               <div id="playlistList" class="playlist-list" aria-live="polite"></div>
@@ -119,6 +120,17 @@
               </div>
             <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
           </section>
+
+          <section class="library-panel collapsible-section open" data-collapsible="tags" aria-labelledby="tagsHeading">
+            <div class="section-header section-header-collapsible">
+              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="tagSectionBody">
+                <span id="tagsHeading">Browse by Tag</span><span class="toggle-icon" aria-hidden="true">▾</span>
+              </button>
+            </div>
+            <div id="tagSectionBody" class="section-body">
+              <div id="tagList" class="tag-list" aria-live="polite"></div>
+            </div>
+          </section>
         </aside>
 
         <div class="music-center-column">
@@ -127,7 +139,7 @@
           <p class="eyebrow">Music Library</p>
           <h2>Original songs, worship tracks, and thoughtful music</h2>
           <p class="hero-text">
-            Browse by playlist or album and listen through a single, simple All Songs list.
+            Browse by playlist, album, or tag and listen through curated collections.
           </p>
         </div>
         <div class="music-library-card-search">
@@ -140,7 +152,7 @@
             spellcheck="false"
           />
           <div id="searchScopeBar" class="search-scope-bar" aria-label="Search scope"></div>
-          <p id="searchMeta" class="search-meta">Search songs, albums, playlists, lyrics, and scripture.</p>
+          <p id="searchMeta" class="search-meta">Search songs, albums, tags, playlists, lyrics, and scripture.</p>
           <div class="library-quick-links" aria-label="Quick browse links">
             <a class="library-quick-link" href="#featuredCollectionCard">Featured</a>
             <a class="library-quick-link" href="#albumsHeading">Albums</a>
@@ -158,6 +170,20 @@
         </p>
         <div class="card-actions about-panel-actions">
           <a class="action-btn secondary-btn small-action-btn" href="./about.html">Read More About the Music</a>
+        </div>
+      </section>
+
+      <section class="page-card browse-hub-card" aria-labelledby="browseHubHeading">
+        <div class="browse-hub-copy">
+          <p class="eyebrow">Browse Music</p>
+          <h2 id="browseHubHeading">Start with playlists, albums, tags, or the featured collection</h2>
+          <p class="hero-text">Everything in the top browse area is organized for quick jumping on phones and tablets.</p>
+        </div>
+        <div class="browse-hub-links" aria-label="Browse shortcuts">
+          <a class="browse-hub-link" href="#playlistsHeading">Playlists</a>
+          <a class="browse-hub-link" href="#featuredCollectionCard">Featured</a>
+          <a class="browse-hub-link" href="#albumsHeading">Albums</a>
+          <a class="browse-hub-link" href="#tagsHeading">Tags</a>
         </div>
       </section>
 
@@ -182,7 +208,7 @@
             id="featuredAlbumCover"
             class="featured-cover"
             src=""
-            alt="Selected collection cover"
+            alt="Featured collection cover"
           />
         </div>
 
@@ -265,6 +291,32 @@
           <h2 id="downloadedHeading">Downloaded Songs</h2>
         </div>
         <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="queue-panel collapsible-section open" data-collapsible="queue">
+        <div class="queue-header section-header-collapsible">
+          <button
+            class="section-toggle"
+            type="button"
+            aria-expanded="true"
+            aria-controls="queueSectionBody"
+          >
+            <span id="queueHeading">Song Queue</span>
+            <span class="toggle-icon" aria-hidden="true">▾</span>
+          </button>
+          <p id="queueCount">0 songs</p>
+        </div>
+
+        <div id="queueSectionBody" class="section-body">
+          <div class="queue-toolbar" aria-label="Queue actions">
+            <button id="queuePlayListBtn" class="action-btn small-action-btn" type="button">Play List</button>
+            <button id="queueShuffleListBtn" class="action-btn secondary-btn small-action-btn" type="button">Shuffle</button>
+            <button id="queueClearBtn" class="action-btn secondary-btn small-action-btn" type="button">Clear</button>
+          </div>
+          <p class="queue-helper-text">Tap a song to jump there fast, or use Play Next to move it right behind the current song.</p>
+          <div id="queueList" class="queue-list" aria-live="polite"></div>
+        </div>
       </section>
 
         </aside>
@@ -324,6 +376,7 @@
           <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
           <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
+          <button id="playQueueBtn" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
         </div>
 
@@ -331,6 +384,7 @@
           <button id="copyLyricsBtnDesktop" class="action-btn secondary-btn" type="button">Copy</button>
           <button id="shareSongBtnDesktop" class="action-btn secondary-btn" type="button">Link</button>
           <button id="downloadSongBtnDesktop" class="action-btn secondary-btn" type="button">Download</button>
+          <button id="playQueueBtnDesktop" class="action-btn" type="button">Play Queue</button>
           <button id="shuffleQueueBtnDesktop" class="action-btn secondary-btn" type="button">Shuffle</button>
         </div>
       </div>
