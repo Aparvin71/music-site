@@ -9438,3 +9438,28 @@ select:focus,
 .playlist-subsection-shell{
   margin-top: 0;
 }
+
+
+/* v42.3.41 hard refresh UI fix */
+.playlist-subsection-standalone{
+  margin-top: 1.25rem;
+  margin-bottom: .65rem;
+  padding-top: .25rem;
+}
+
+.playlist-subsection-label--standalone{
+  display:block;
+  margin:0 0 .3rem 0;
+}
+
+.playlist-subsection-copy--standalone{
+  margin:.1rem 0 0 0;
+}
+
+.playlist-list--custom-standalone{
+  margin-top:0 !important;
+}
+
+#featuredCollectionCard{
+  display:none !important;
+}

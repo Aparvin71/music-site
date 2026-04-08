@@ -1,0 +1,9 @@
+Aineo Music v42.3.41
+
+Hard refresh UI fix:
+- Force removed any remaining Selected Collection card markup
+- Added CSS fallback to hide #featuredCollectionCard if cached HTML still tries to show it
+- Moved Custom Playlists heading into its own standalone header block
+- Put custom playlist buttons on the row below
+- Added ?v=42.3.41 cache-busting query strings to music page CSS/JS includes
+- Updated service worker cache version to v42.3.41
