@@ -190,7 +190,7 @@ function renderAlbumPage() {
           <div class="quick-link-pills album-page-inline-links">
             <a class="quick-link-pill" href="./index.html">Music</a>
             <a class="quick-link-pill" href="./albums.html">All Albums</a>
-            <a class="quick-link-pill" href="./about.html">About</a>
+            <a class="quick-link-pill" href="./artists.html">Artists</a>
           </div>
         </div>
       </div>
