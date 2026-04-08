@@ -810,15 +810,6 @@ function bindUI() {
   on(els.downloadSongBtn, "click", downloadCurrentSong);
   on(els.downloadSongBtnDesktop, "click", downloadCurrentSong);
 
-    startPlaybackFromList(getCurrentCollectionTracks(), false);
-    openAndScrollQueueToCurrentTrack();
-    closeMobilePlayerDrawer();
-  });
-
-    startPlaybackFromList(getCurrentCollectionTracks(), false);
-    openAndScrollQueueToCurrentTrack();
-  });
-
   on(els.shuffleQueueBtn, "click", () => {
     startPlaybackFromList(getCurrentCollectionTracks(), true);
     openAndScrollQueueToCurrentTrack();
