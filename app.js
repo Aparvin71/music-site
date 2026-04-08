@@ -34,7 +34,8 @@ const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   downloadedTracks: "aineo_downloaded_tracks",
   playStats: "aineo_play_stats",
   lastQueue: "aineo_last_queue",
-  playbackModes: "aineo_playback_modes"
+  playbackModes: "aineo_playback_modes",
+  playerState: "aineo_player_state"
 };
 
 const filters = {
@@ -224,6 +225,7 @@ async function init() {
   currentCollectionKey = 'all-songs';
   restoreSavedQueue();
   updateLibraryView();
+  restoreSavedPlaybackContext();
   renderFavorites();
   renderRecentlyPlayed();
   renderMyPlaylists();
@@ -574,6 +576,57 @@ function restoreSavedQueue() {
   currentQueueIndex = Math.max(0, Math.min(savedQueue.index || 0, currentQueue.length - 1));
 }
 
+function savePlayerState(track = getCurrentTrack(), timeOverride) {
+  const player = els.audioPlayer;
+  const resumeTime = Math.max(0, Number(timeOverride ?? player?.currentTime ?? 0) || 0);
+  const queueTrackIds = Array.isArray(currentQueue) ? currentQueue.map(item => item.id).filter(Boolean) : [];
+  const state = {
+    trackId: track?.id || "",
+    trackSrc: track?.src || "",
+    time: resumeTime,
+    paused: Boolean(player?.paused ?? true),
+    queueTrackIds,
+    queueIndex: currentQueueIndex,
+    collectionKey: getCurrentCollectionKey?.() || currentCollectionKey || "all-songs",
+    updatedAt: Date.now()
+  };
+
+  localStorage.setItem(STORAGE_KEYS.playerState, JSON.stringify(state));
+}
+
+function restoreSavedPlaybackContext() {
+  const state = loadJsonFromStorage(STORAGE_KEYS.playerState, null);
+  if (!state) return;
+
+  if (Array.isArray(state.queueTrackIds) && state.queueTrackIds.length) {
+    const queueTracks = state.queueTrackIds
+      .map(id => tracks.find(track => track.id === id))
+      .filter(Boolean);
+    if (queueTracks.length) {
+      currentQueue = queueTracks;
+      currentQueueIndex = Math.max(0, Math.min(Number(state.queueIndex) || 0, queueTracks.length - 1));
+    }
+  }
+
+  const stateTrack = tracks.find(track => track.id === state.trackId)
+    || tracks.find(track => track.src === state.trackSrc)
+    || null;
+  if (!stateTrack) return;
+
+  const queueIndex = currentQueue.findIndex(track => track.id === stateTrack.id);
+  if (queueIndex >= 0) currentQueueIndex = queueIndex;
+  currentTrackIndex = filteredTracks.findIndex(track => track.id === stateTrack.id);
+  resumeTrackSrc = stateTrack.src;
+  resumeTrackTime = Math.max(0, Number(state.time) || 0);
+  resumeTrackTitle = stateTrack.title || "";
+
+  updateNowPlaying(stateTrack);
+  updateMediaSessionMetadata(stateTrack);
+  updateLyricsPanel(stateTrack);
+  updateScripturePanel(stateTrack);
+  renderQueue();
+}
+
 function saveResume(track, timeOverride) {
   if (!track) return;
 
@@ -582,6 +635,7 @@ function saveResume(track, timeOverride) {
   localStorage.setItem(
     STORAGE_KEYS.resume,
     JSON.stringify({
+      trackId: track.id,
       src: track.src,
       title: track.title,
       artist: track.artist,
@@ -590,6 +644,8 @@ function saveResume(track, timeOverride) {
     })
   );
 
+  savePlayerState(track, resumeTime);
+
   resumeTrackSrc = track.src;
   resumeTrackTime = resumeTime;
   resumeTrackTitle = track.title || "";
@@ -597,6 +653,7 @@ function saveResume(track, timeOverride) {
 
 function clearResume() {
   localStorage.removeItem(STORAGE_KEYS.resume);
+  localStorage.removeItem(STORAGE_KEYS.playerState);
   resumeTrackSrc = null;
   resumeTrackTime = 0;
   resumeTrackTitle = "";
@@ -689,6 +746,7 @@ function clearQueueList() {
   currentQueue = [];
   currentQueueIndex = -1;
   saveQueueState();
+  savePlayerState();
   renderQueue();
   syncQueuePlaybackUI();
 }
@@ -786,12 +844,14 @@ function bindUI() {
     els.audioPlayer.addEventListener("play", () => {
       updatePlayButton();
       updateMediaSessionPlaybackState();
+      savePlayerState();
     });
     els.audioPlayer.addEventListener("pause", () => {
       updatePlayButton();
       updateMediaSessionPlaybackState();
+      savePlayerState();
     });
-    els.audioPlayer.addEventListener("ended", playNextTrack);
+    els.audioPlayer.addEventListener("ended", handleTrackEnded);
     els.audioPlayer.addEventListener("error", () => {
       if (navigator.onLine === false) renderOfflineStatus({ forceVisible: true });
     });
@@ -971,6 +1031,7 @@ function bindUI() {
     els.playerSheetSeekBar.addEventListener("input", () => {
       if (!els.audioPlayer || !isFinite(els.audioPlayer.duration)) return;
       const percent = Number(els.playerSheetSeekBar.value) / 100;
+      setRangeProgress(els.playerSheetSeekBar, Number(els.playerSheetSeekBar.value));
       els.audioPlayer.currentTime = percent * els.audioPlayer.duration;
     });
   }
@@ -990,6 +1051,30 @@ function bindUI() {
   });
 
   document.addEventListener("keydown", e => {
+    const target = e.target;
+    const tagName = target?.tagName || "";
+    const isTypingTarget = Boolean(target?.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(tagName));
+
+    if (!isTypingTarget && (e.code === "Space" || e.key.toLowerCase() === "k")) {
+      e.preventDefault();
+      togglePlayPause();
+      return;
+    }
+
+    if (!isTypingTarget && e.key.toLowerCase() === "j" && els.audioPlayer?.src) {
+      e.preventDefault();
+      els.audioPlayer.currentTime = Math.max(0, (els.audioPlayer.currentTime || 0) - 10);
+      updateProgressUI();
+      return;
+    }
+
+    if (!isTypingTarget && e.key.toLowerCase() === "l" && els.audioPlayer?.src && Number.isFinite(els.audioPlayer.duration)) {
+      e.preventDefault();
+      els.audioPlayer.currentTime = Math.min(els.audioPlayer.duration, (els.audioPlayer.currentTime || 0) + 10);
+      updateProgressUI();
+      return;
+    }
+
     if (e.key === "Escape") {
       closeLyricsModal();
       closeAlbumModal();
@@ -1616,6 +1701,7 @@ function setQueue(trackList, shuffle = false) {
   currentQueue = shuffle ? shuffleArray([...trackList]) : [...trackList];
   currentQueueIndex = currentQueue.length ? 0 : -1;
   saveQueueState();
+  savePlayerState();
   renderQueue();
 }
 
@@ -1660,6 +1746,7 @@ function playTrack(track) {
   addToRecentlyPlayed(track);
   saveResume(track);
   saveQueueState();
+  savePlayerState(track, pendingResumeSeek ?? els.audioPlayer.currentTime ?? 0);
   renderQueue();
   renderFavorites();
   renderFeaturedTrackList();
@@ -1844,6 +1931,12 @@ function updatePlayButton() {
   syncQueuePlaybackUI();
 }
 
+function setRangeProgress(el, value) {
+  if (!el) return;
+  const numeric = Math.max(0, Math.min(100, Number(value) || 0));
+  el.style.setProperty("--range-progress", `${numeric}%`);
+}
+
 function updateProgressUI() {
   if (!els.audioPlayer) return;
 
@@ -1854,13 +1947,17 @@ function updateProgressUI() {
   if (els.duration) els.duration.textContent = formatTime(duration);
 
   if (els.seekBar) {
-    els.seekBar.value = duration ? String((current / duration) * 100) : "0";
+    const progress = duration ? (current / duration) * 100 : 0;
+    els.seekBar.value = String(progress);
+    setRangeProgress(els.seekBar, progress);
   }
 
   if (els.playerSheetCurrentTime) els.playerSheetCurrentTime.textContent = formatTime(current);
   if (els.playerSheetDuration) els.playerSheetDuration.textContent = formatTime(duration);
   if (els.playerSheetSeekBar) {
-    els.playerSheetSeekBar.value = duration ? String((current / duration) * 100) : "0";
+    const progress = duration ? (current / duration) * 100 : 0;
+    els.playerSheetSeekBar.value = String(progress);
+    setRangeProgress(els.playerSheetSeekBar, progress);
   }
 
   updateSyncedLyricsProgress();
