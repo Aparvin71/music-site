@@ -104,8 +104,6 @@ const els = {
   favoriteSongBtn: document.getElementById("favoriteSongBtn"),
   downloadSongBtn: document.getElementById("downloadSongBtn"),
   downloadSongBtnDesktop: document.getElementById("downloadSongBtnDesktop"),
-  playQueueBtn: document.getElementById("playQueueBtn"),
-  playQueueBtnDesktop: document.getElementById("playQueueBtnDesktop"),
   shuffleQueueBtn: document.getElementById("shuffleQueueBtn"),
   shuffleQueueBtnDesktop: document.getElementById("shuffleQueueBtnDesktop"),
   moreActionsBtn: document.getElementById("moreActionsBtn"),

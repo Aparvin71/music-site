@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", initArtistPage);
 
 async function initArtistPage() {
   window.AineoShared?.initSecondaryPageNav?.();
+  window.initBasicMobileNav?.();
   const root = document.getElementById("artistPageRoot");
   if (!root) return;
 

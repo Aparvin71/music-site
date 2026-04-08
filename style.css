@@ -9013,3 +9013,30 @@ select:focus,
   outline-offset: 3px;
   border-radius: 10px;
 }
+
+
+/* =========================================
+   STABILITY / POLISH PASS v42.3.22
+========================================= */
+:where(button, .action-btn, .mini-action-btn, .control-btn, .filter-chip, .playlist-btn, .tag-chip, .search-scope-chip, .quick-link-pill, .library-quick-link):focus-visible {
+  outline: 2px solid #90b4e8;
+  outline-offset: 2px;
+}
+
+:where(.action-btn, .mini-action-btn, .control-btn, .filter-chip, .playlist-btn, .tag-chip, .search-scope-chip, .quick-link-pill, .library-quick-link) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:where(.action-btn, .mini-action-btn, .control-btn, .filter-chip, .playlist-btn, .tag-chip, .search-scope-chip, .quick-link-pill, .library-quick-link, .quick-link-pill--static) {
+  text-decoration-thickness: 0;
+}
+
+.catalog-card img,
+.album-card img,
+.mini-card img,
+.featured-cover,
+.queue-cover,
+.now-cover,
+.album-modal-cover {
+  image-rendering: auto;
+}
