@@ -2590,7 +2590,7 @@ function triggerDownload(url, filename) {
    FULL PLAYER SHEET
 ========================= */
 
-const PLAYER_SHEET_TABS = ["lyrics", "queue"];
+const PLAYER_SHEET_TABS = ["lyrics"];
 
 function initPlayerSheetGestures() {
   window.AineoPlayerSheet.initGestures({

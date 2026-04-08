@@ -1,6 +1,6 @@
 
 (function(){
-  const PLAYER_SHEET_TABS = ['lyrics', 'queue'];
+  const PLAYER_SHEET_TABS = ['lyrics'];
 
   function initGestures({ els, getPlayerSheetTab, setPlayerSheetTab, playNextTrack, playPreviousTrack, closePlayerSheet, openPlayerSheet }) {
     if (!els.playerSheetContent) return;
