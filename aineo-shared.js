@@ -69,23 +69,17 @@
     }
     const toggle = document.getElementById("mobileNavToggle");
     const nav = document.getElementById("siteNavLinks");
-    if (!toggle || !nav || toggle.dataset.navBound === "true") return;
-    const close = () => {
-      nav.classList.remove("nav-open");
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.textContent = "☰";
-    };
-    toggle.dataset.navBound = "true";
+    if (!toggle || !nav) return;
     toggle.addEventListener("click", () => {
       const isOpen = nav.classList.toggle("nav-open");
       toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
       toggle.textContent = isOpen ? "✕" : "☰";
     });
-    nav.querySelectorAll("a").forEach(link => {
-      if (link.dataset.navCloseBound === "true") return;
-      link.dataset.navCloseBound = "true";
-      link.addEventListener("click", close);
-    });
+    nav.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
+      nav.classList.remove("nav-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = "☰";
+    }));
   }
 
   function renderScriptureLinks(refs, options = {}) {

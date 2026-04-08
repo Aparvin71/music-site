@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", initArtistsPage);
 
 async function initArtistsPage() {
   window.AineoShared?.initSecondaryPageNav?.();
-  window.initBasicMobileNav?.();
   const grid = document.getElementById("artistsGrid");
   if (!grid) return;
 
