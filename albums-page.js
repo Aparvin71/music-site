@@ -1,7 +1,26 @@
 document.addEventListener("DOMContentLoaded", initAlbumsPage);
 
+function ensureAlbumsPageMobileNav() {
+  const toggle = document.getElementById("mobileNavToggle");
+  const nav = document.getElementById("siteNavLinks");
+  if (!toggle || !nav) return;
+  if (toggle.dataset.navBound === "true") return;
+  toggle.dataset.navBound = "true";
+  toggle.addEventListener("click", () => {
+    const open = nav.classList.toggle("nav-open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "✕" : "☰";
+  });
+  nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
+    nav.classList.remove("nav-open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = "☰";
+  }));
+}
+
 async function initAlbumsPage() {
   window.AineoShared?.initSecondaryPageNav?.();
+  ensureAlbumsPageMobileNav();
 
   const grid = document.getElementById("albumsGrid");
   if (!grid) return;
