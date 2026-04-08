@@ -9293,3 +9293,47 @@ select:focus,
     margin-top: 2px !important;
   }
 }
+
+
+/* ===== v42.3.37 custom playlist + player fixes ===== */
+.playlist-list--custom-chips {
+  display: grid;
+  gap: 8px;
+}
+
+.playlist-list--custom-chips .playlist-chip-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.playlist-list--custom-chips .filter-chip {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.player-sheet-header #playerSheetFavoriteBtn {
+  min-width: 42px;
+  padding: 0 10px;
+  white-space: nowrap;
+  justify-self: end;
+  z-index: 2;
+}
+
+@media (max-width: 640px) {
+  .player-sheet-header {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .player-sheet-header #playerSheetFavoriteBtn {
+    min-width: 38px;
+    padding: 0 8px;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .playlist-list--custom-chips .playlist-chip-row {
+    grid-template-columns: minmax(0, 1fr) auto auto auto;
+  }
+}

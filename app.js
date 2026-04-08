@@ -975,6 +975,8 @@ function bindUI() {
   on(els.playerSheetPlayBtn, "click", togglePlayPause);
   on(els.playerSheetPrevBtn, "click", playPreviousTrack);
   on(els.playerSheetNextBtn, "click", playNextTrack);
+  on(els.playerSheetShuffleBtn, "click", toggleShuffleMode);
+  on(els.playerSheetRepeatBtn, "click", toggleRepeatMode);
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
@@ -2159,7 +2161,12 @@ function updateFavoriteButton() {
 
   const label = isFavorite(track) ? "★ Favorited" : "☆ Favorite";
   els.favoriteSongBtn.textContent = label;
-  if (els.playerSheetFavoriteBtn) els.playerSheetFavoriteBtn.textContent = label;
+  if (els.playerSheetFavoriteBtn) {
+    const icon = isFavorite(track) ? "★" : "☆";
+    els.playerSheetFavoriteBtn.textContent = icon;
+    els.playerSheetFavoriteBtn.setAttribute("aria-label", isFavorite(track) ? "Favorited" : "Favorite");
+    els.playerSheetFavoriteBtn.title = isFavorite(track) ? "Favorited" : "Favorite";
+  }
 }
 
 function renderFavorites() {
