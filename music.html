@@ -129,7 +129,7 @@
           <p class="eyebrow">Music Library</p>
           <h2>Original songs, worship tracks, and thoughtful music</h2>
           <p class="hero-text">
-            Browse by playlist or album and listen through a single, simple All Songs list.
+            Start with All Songs by default, then narrow the track list instantly with playlists, albums, search, or favorites.
           </p>
         </div>
         <div class="music-library-card-search">
@@ -144,9 +144,9 @@
           <div id="searchScopeBar" class="search-scope-bar" aria-label="Search scope"></div>
           <p id="searchMeta" class="search-meta">Search songs, albums, playlists, lyrics, and scripture.</p>
           <div class="library-quick-links" aria-label="Quick browse links">
-                        <a class="library-quick-link" href="#albumsHeading">Albums</a>
-            <a class="library-quick-link" href="#featuredTrackListTitle">Tracks</a>
             <a class="library-quick-link" href="#playlistsHeading">Playlists</a>
+            <a class="library-quick-link" href="#albumsHeading">Albums</a>
+            <a class="library-quick-link" href="#featuredTrackListTitle">Tracks</a>
           </div>
         </div>
       </section>
@@ -177,38 +177,9 @@
         </div>
       </section>
 
-      <section class="featured-album-card" id="featuredCollectionCard" aria-labelledby="featuredAlbumTitle">
-        <div class="featured-cover-wrap">
-          <img
-            id="featuredAlbumCover"
-            class="featured-cover"
-            src=""
-            alt="Selected collection cover"
-          />
-        </div>
-
-        <div class="featured-meta">
-          <p class="eyebrow">Selected Collection</p>
-          <h2 id="featuredAlbumTitle">Loading album...</h2>
-          <p id="featuredAlbumArtist">—</p>
-          <p id="featuredAlbumCount">—</p>
-          <div id="featuredCollectionStats" class="featured-stat-row" aria-live="polite"></div>
-          <p id="featuredCollectionLead" class="featured-quick-copy">Start here for the fastest way to play, shuffle, save offline, or open the full collection page.</p>
-          <div id="featuredCollectionPreview" class="featured-track-preview" aria-live="polite"></div>
-
-          <div class="featured-actions featured-actions--primary">
-            <button id="playAlbumBtn" class="action-btn" type="button">Play All</button>
-            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Play</button>
-            <button id="saveAlbumOfflineBtn" class="action-btn secondary-btn" type="button">Save Collection Offline</button>
-            <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
-          </div>
-        </div>
-      </section>
-
       <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
-        <div class="section-header section-header--with-link">
+        <div class="section-header">
           <h2 id="featuredTrackListTitle">Tracks</h2>
-          <a class="browse-shelf-link" href="#featuredCollectionCard">Back to featured</a>
         </div>
 
         <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
