@@ -677,14 +677,19 @@ function updatePlaybackModeButtons() {
   [els.shuffleModeBtn, els.playerSheetShuffleBtn].forEach(btn => {
     if (!btn) return;
     btn.classList.toggle("is-active", shuffleModeEnabled);
+    btn.dataset.modeState = shuffleModeEnabled ? "on" : "off";
     btn.setAttribute("aria-pressed", shuffleModeEnabled ? "true" : "false");
+    btn.setAttribute("aria-label", shuffleModeEnabled ? "Shuffle On" : "Shuffle Off");
     btn.title = shuffleModeEnabled ? "Shuffle On" : "Shuffle Off";
+    btn.textContent = "🔀";
   });
   [els.repeatModeBtn, els.playerSheetRepeatBtn].forEach(btn => {
     if (!btn) return;
     btn.classList.toggle("is-active", repeatMode !== "off");
     btn.dataset.repeatMode = repeatMode;
+    btn.dataset.modeState = repeatMode;
     btn.setAttribute("aria-pressed", repeatMode !== "off" ? "true" : "false");
+    btn.setAttribute("aria-label", repeatLabelMap[repeatMode]);
     btn.title = repeatLabelMap[repeatMode];
     btn.textContent = repeatMode === "one" ? "🔂" : "🔁";
   });
@@ -917,16 +922,6 @@ function bindUI() {
     const collection = getFeaturedCollection();
     if (!collection?.album_zip) return;
     triggerDownload(collection.album_zip, `${safeFileName(collection.name)}.zip`);
-  });
-
-  on(els.openAlbumBtn, "click", e => {
-    const collection = getFeaturedCollection();
-    if (!collection) return;
-    if (collection.openMode === "album") {
-      openAlbumModal(collection, e.currentTarget);
-      return;
-    }
-    scrollToTrackList();
   });
 
   on(els.closeLyricsBtn, "click", closeLyricsModal);

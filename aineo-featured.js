@@ -63,7 +63,6 @@
       if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
       if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
       if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-      if (els.openAlbumBtn) els.openAlbumBtn.disabled = true;
       if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
       if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
       return;
@@ -83,14 +82,10 @@
     }
     if (els.featuredCollectionLead) {
       els.featuredCollectionLead.textContent = collection.name === 'All Songs'
-        ? 'Start here with the full music library. Play, shuffle, or filter down to a smaller collection.'
-        : `Start here with Play or Shuffle, or jump into ${collection.name}.`;
+        ? 'Start here with the full music library. Play or shuffle the whole library, or filter down to a smaller collection.'
+        : `Start here with Play or Shuffle for ${collection.name}.`;
     }
     if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
-    if (els.openAlbumBtn) {
-      els.openAlbumBtn.textContent = collection.openMode === 'album' ? 'Open Album' : 'Open Collection';
-      els.openAlbumBtn.disabled = false;
-    }
     if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
     if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
   }

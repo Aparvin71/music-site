@@ -1,0 +1,7 @@
+Aineo Music v42.3.35 UI Tweak Pass
+
+Included updates:
+- Removed Featured quick link from Music Library card
+- Removed duplicate View/Open Collection button from Selected Collection card
+- Added clearer shuffle/repeat mode badges in sticky and full player controls
+- Removed the extra Lyrics tab button from full player mode
