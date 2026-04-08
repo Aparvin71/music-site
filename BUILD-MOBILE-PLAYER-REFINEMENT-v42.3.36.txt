@@ -1,0 +1,6 @@
+v42.3.36 Mobile Player Refinement
+
+- Centered shuffle/repeat state badges
+- Reduced mobile full-player cover art
+- Centered Now Playing / Player heading on mobile
+- Tightened title/artist/album spacing to free room for scripture

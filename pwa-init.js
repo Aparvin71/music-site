@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.35";
+const AINEO_APP_VERSION = "v42.3.36";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 

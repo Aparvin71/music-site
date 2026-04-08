@@ -9185,3 +9185,111 @@ select:focus,
     gap: 8px;
   }
 }
+
+
+/* ===== v42.3.36 mobile full-player refinement ===== */
+.mode-btn {
+  padding-bottom: 8px;
+}
+
+.mode-btn[data-mode-state="on"]::after,
+.mode-btn[data-mode-state="all"]::after,
+.mode-btn[data-mode-state="one"]::after {
+  left: 50%;
+  right: auto;
+  bottom: 3px;
+  transform: translateX(-50%);
+  min-width: 22px;
+  height: 14px;
+  padding: 0 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(144,180,232,0.55);
+  background: rgba(8, 12, 18, 0.96);
+  font-size: 8px;
+  line-height: 12px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.28);
+}
+
+.mode-btn[data-mode-state="one"]::after {
+  min-width: 16px;
+  padding: 0 4px;
+}
+
+@media (max-width: 640px) {
+  .player-sheet-header {
+    position: relative;
+    grid-template-columns: auto 1fr auto;
+    display: grid;
+    align-items: center;
+    padding: 16px 16px 14px;
+  }
+
+  .player-sheet-heading {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(60vw, 220px);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .player-sheet-heading .eyebrow,
+  .player-sheet-heading h2 {
+    text-align: center;
+  }
+
+  .player-sheet-heading .eyebrow {
+    margin-bottom: 2px;
+  }
+
+  .player-sheet-heading h2 {
+    margin-top: 0;
+    line-height: 1.05;
+  }
+
+  .player-sheet-cover {
+    width: min(100%, 144px) !important;
+    border-radius: 18px;
+  }
+
+  .player-sheet-now {
+    padding: 12px 14px 14px !important;
+    gap: 10px !important;
+  }
+
+  .player-sheet-cover-wrap {
+    margin-bottom: 2px;
+  }
+
+  .player-sheet-meta {
+    gap: 1px !important;
+    padding-top: 0 !important;
+  }
+
+  .player-sheet-meta h3 {
+    margin: 0 0 2px !important;
+    line-height: 1.02 !important;
+  }
+
+  .player-sheet-meta p {
+    margin: 0 !important;
+    line-height: 1.18 !important;
+  }
+
+  #playerSheetTrackArtist,
+  #playerSheetTrackAlbum {
+    font-size: 0.94rem;
+  }
+
+  #playerSheetTrackScripture {
+    margin-top: 4px !important;
+    max-height: 84px;
+    line-height: 1.26 !important;
+  }
+
+  .player-sheet-progress {
+    margin-top: 2px !important;
+  }
+}
