@@ -1,0 +1,9 @@
+Aineo Music v42.3.57
+
+Base: v42.3.56
+
+Changes:
+- corrected custom playlist button height to match main playlist buttons
+- kept custom playlists in multi-column grid
+- kept selected custom playlist action tray below the grid
+- preserved v42.3.55/56 upgrades with no intentional regressions
