@@ -1,0 +1,17 @@
+Aineo Music build v42.3.59
+
+Base: v42.3.58 stable
+Pass: UX + Performance Polish
+
+Included
+- active track emphasis polish
+- lyric focus styling polish
+- safer focus-visible states for controls
+- tighter mobile spacing in music page cards
+- static logo lazy/decode optimization
+- cache/version refresh
+
+Validation
+- kept stable layout intact
+- no custom playlist sizing changes
+- ready for hard refresh after upload

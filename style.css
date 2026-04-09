@@ -10356,3 +10356,71 @@ button:active{
     grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* ===== v42.3.59 UX + performance polish ===== */
+:root {
+  --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+  --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
+}
+
+.page-card,
+.library-panel,
+.playlist-section-card {
+  box-shadow: var(--aineo-soft-shadow);
+}
+
+button:focus-visible,
+.filter-chip:focus-visible,
+.playlist-card-pill:focus-visible,
+.track-btn:focus-visible,
+.mini-action-btn:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(15, 17, 21, 0.96), 0 0 0 4px rgba(142, 197, 255, 0.5);
+}
+
+.featured-track-row.playing,
+.album-track-row.playing,
+.queue-row.is-playing,
+.queue-item.is-playing {
+  background: linear-gradient(180deg, rgba(142, 197, 255, 0.08), rgba(142, 197, 255, 0.03));
+  border-left: 3px solid rgba(142, 197, 255, 0.75);
+  box-shadow: var(--aineo-soft-outline), var(--aineo-soft-shadow);
+}
+
+.lyric-line {
+  opacity: 0.6;
+  transition: opacity 0.22s ease, color 0.22s ease, transform 0.22s ease;
+}
+
+.lyric-line.active {
+  color: #ffffff;
+  opacity: 1;
+  font-weight: 600;
+  transform: translateX(2px);
+}
+
+.music-page-layout .playlist-toolbar--combined > *,
+.music-page-layout .quick-filter-icon-chip,
+.music-page-layout .playlist-card-pill,
+.music-page-layout #myPlaylistList .playlist-card-pill--custom-compact {
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .music-page-layout .playlist-section-card,
+  .music-page-layout .page-card {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .music-page-layout .playlist-toolbar--combined,
+  .music-page-layout .playlist-pill-grid,
+  .music-page-layout #myPlaylistList {
+    gap: 7px !important;
+  }
+}
