@@ -3471,6 +3471,7 @@ body.orientation-guard-active {
 }
 
 
+
 .player-sheet .synced-lyrics,
 .modal-body .synced-lyrics {
   gap: 4px;
@@ -10358,7 +10359,7 @@ button:active{
 }
 
 
-/* ===== v42.3.64 UX + performance polish ===== */
+/* ===== v42.3.65 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10423,4 +10424,50 @@ a:focus-visible {
   .music-page-layout #myPlaylistList {
     gap: 7px !important;
   }
+}
+
+
+
+/* v42.3.65 lyrics polish: remove per-line highlight and use soft center fade */
+.synced-lyrics {
+  position: relative;
+  overflow-y: auto;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 12%,
+    rgba(0, 0, 0, 0.9) 22%,
+    #000 34%,
+    #000 66%,
+    rgba(0, 0, 0, 0.9) 78%,
+    rgba(0, 0, 0, 0.55) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 12%,
+    rgba(0, 0, 0, 0.9) 22%,
+    #000 34%,
+    #000 66%,
+    rgba(0, 0, 0, 0.9) 78%,
+    rgba(0, 0, 0, 0.55) 88%,
+    transparent 100%
+  );
+}
+
+.lyric-line {
+  opacity: 0.9;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 2px 0;
+}
+
+.lyric-line.active,
+.lyric-line.is-past,
+.lyric-line.is-upcoming {
+  opacity: inherit;
+  color: inherit;
+  font-weight: inherit;
+  background: transparent;
+  box-shadow: none;
 }
