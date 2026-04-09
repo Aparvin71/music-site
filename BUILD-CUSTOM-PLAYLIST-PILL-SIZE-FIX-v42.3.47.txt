@@ -1,7 +1,7 @@
-Aineo Music v42.3.47
+Aineo Music v42.3.48
 
 Custom playlist tweak pass:
 - Restored Play / Shuffle / Delete buttons below each custom playlist button
 - Forced custom playlist main pill to match built-in playlist pill width/height
 - Kept custom playlists in the same 2-column grid structure
-- Synced version markers and cache-busting to v42.3.47
+- Synced version markers and cache-busting to v42.3.48
