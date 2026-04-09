@@ -1,6 +1,102 @@
-const AINEO_APP_VERSION = "v42.3.67";
+const AINEO_APP_VERSION = "v42.3.68";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
+
+const STANDALONE_WELCOME_DISMISSED_KEY = "aineo_standalone_welcome_dismissed";
+
+function ensureStandaloneLaunchScreen() {
+  let splash = document.getElementById("standaloneLaunchScreen");
+  if (splash) return splash;
+  splash = document.createElement("div");
+  splash.id = "standaloneLaunchScreen";
+  splash.className = "standalone-launch-screen hidden";
+  splash.setAttribute("aria-hidden", "true");
+  splash.innerHTML = `
+    <div class="standalone-launch-screen-inner">
+      <div class="standalone-launch-logo-wrap">
+        <img src="./icons/apple-touch-icon.png" alt="Aineo Music icon" class="standalone-launch-logo" />
+      </div>
+      <p class="standalone-launch-kicker">Aineo Music</p>
+      <h1 class="standalone-launch-title">Opening your music library</h1>
+    </div>
+  `;
+  document.body.appendChild(splash);
+  return splash;
+}
+
+function showStandaloneLaunchScreen() {
+  if (!isStandalone()) return;
+  const splash = ensureStandaloneLaunchScreen();
+  splash.classList.remove("hidden");
+  splash.classList.add("show");
+  splash.setAttribute("aria-hidden", "false");
+  document.body.classList.add("standalone-launch-active");
+  window.setTimeout(() => {
+    splash.classList.remove("show");
+    splash.classList.add("is-hiding");
+    splash.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("standalone-launch-active");
+    window.setTimeout(() => {
+      splash.classList.add("hidden");
+      splash.classList.remove("is-hiding");
+    }, 260);
+  }, 850);
+}
+
+function ensureStandaloneWelcomeCard() {
+  let card = document.getElementById("standaloneWelcomeCard");
+  if (card) return card;
+  card = document.createElement("div");
+  card.id = "standaloneWelcomeCard";
+  card.className = "standalone-welcome hidden";
+  card.setAttribute("aria-hidden", "true");
+  card.innerHTML = `
+    <div class="standalone-welcome-backdrop" data-close-standalone-welcome></div>
+    <div class="standalone-welcome-card" role="dialog" aria-modal="true" aria-labelledby="standaloneWelcomeTitle">
+      <div class="standalone-welcome-grabber" aria-hidden="true"></div>
+      <p class="eyebrow">iPhone app mode</p>
+      <h2 id="standaloneWelcomeTitle">A cleaner standalone experience</h2>
+      <ul class="utility-list standalone-welcome-list">
+        <li>Swipe <strong>up</strong> on the mini player to open the full player.</li>
+        <li>Swipe <strong>down</strong> on the full player header to close it.</li>
+        <li>The player now sits higher above the iPhone home bar.</li>
+      </ul>
+      <div class="card-actions">
+        <button type="button" class="action-btn" data-dismiss-standalone-welcome>Continue</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(card);
+  card.querySelectorAll("[data-close-standalone-welcome], [data-dismiss-standalone-welcome]").forEach(btn => {
+    btn.addEventListener("click", dismissStandaloneWelcome);
+  });
+  return card;
+}
+
+function openStandaloneWelcome() {
+  const card = ensureStandaloneWelcomeCard();
+  card.classList.remove("hidden");
+  card.classList.add("show");
+  card.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function dismissStandaloneWelcome() {
+  const card = document.getElementById("standaloneWelcomeCard");
+  if (!card) return;
+  localStorage.setItem(STANDALONE_WELCOME_DISMISSED_KEY, AINEO_APP_VERSION);
+  card.classList.remove("show");
+  card.classList.add("hidden");
+  card.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+function maybeShowStandaloneWelcome() {
+  if (!isStandalone() || !isIosSafari() && !/iPad|iPhone|iPod/.test(navigator.userAgent || "")) return;
+  if (localStorage.getItem(STANDALONE_WELCOME_DISMISSED_KEY) === AINEO_APP_VERSION) return;
+  window.setTimeout(openStandaloneWelcome, 1100);
+}
+
 
 async function registerStandaloneServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
@@ -245,4 +341,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });

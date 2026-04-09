@@ -323,7 +323,7 @@
         return;
       }
 
-      // v42.3.67: keep lyric following/centering, but remove per-line state styling
+      // v42.3.68: keep lyric following/centering, but remove per-line state styling
       // so imperfect sync does not visually highlight the wrong line.
       lineEls.forEach(lineEl => lineEl.classList.remove("active", "is-past", "is-upcoming"));
 

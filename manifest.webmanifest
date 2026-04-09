@@ -48,19 +48,19 @@
   ],
   "shortcuts": [
     {
-      "name": "All Songs",
-      "short_name": "Songs",
-      "url": "./music.html"
+      "name": "Music",
+      "short_name": "Music",
+      "url": "./music.html?source=pwa"
     },
     {
       "name": "Albums",
       "short_name": "Albums",
-      "url": "./albums.html"
+      "url": "./albums.html?source=pwa"
     },
     {
       "name": "Install Guide",
       "short_name": "Install",
-      "url": "./install.html"
+      "url": "./install.html?source=pwa"
     }
   ]
 }
