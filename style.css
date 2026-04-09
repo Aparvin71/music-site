@@ -3463,12 +3463,7 @@ body.orientation-guard-active {
   background: transparent;
 }
 
-.lyric-line.active {
-  background: transparent;
-  color: inherit;
-  box-shadow: none;
-  font-weight: inherit;
-}
+.lyric-line.active { background: transparent; color: inherit; box-shadow: none; font-weight: inherit; }
 
 
 
@@ -10359,7 +10354,7 @@ button:active{
 }
 
 
-/* ===== v42.3.65 UX + performance polish ===== */
+/* ===== v42.3.66 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10398,12 +10393,7 @@ a:focus-visible {
   transition: opacity 0.22s ease, color 0.22s ease, transform 0.22s ease;
 }
 
-.lyric-line.active {
-  color: #ffffff;
-  opacity: 1;
-  font-weight: 600;
-  transform: translateX(2px);
-}
+.lyric-line.active { background: transparent; color: inherit; box-shadow: none; font-weight: inherit; }
 
 .music-page-layout .playlist-toolbar--combined > *,
 .music-page-layout .quick-filter-icon-chip,
@@ -10428,32 +10418,12 @@ a:focus-visible {
 
 
 
-/* v42.3.65 lyrics polish: remove per-line highlight and use soft center fade */
+
 .synced-lyrics {
   position: relative;
   overflow-y: auto;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.55) 12%,
-    rgba(0, 0, 0, 0.9) 22%,
-    #000 34%,
-    #000 66%,
-    rgba(0, 0, 0, 0.9) 78%,
-    rgba(0, 0, 0, 0.55) 88%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    rgba(0, 0, 0, 0.55) 12%,
-    rgba(0, 0, 0, 0.9) 22%,
-    #000 34%,
-    #000 66%,
-    rgba(0, 0, 0, 0.9) 78%,
-    rgba(0, 0, 0, 0.55) 88%,
-    transparent 100%
-  );
+  
+  
 }
 
 .lyric-line {

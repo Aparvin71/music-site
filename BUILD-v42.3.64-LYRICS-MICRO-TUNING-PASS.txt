@@ -1,4 +1,4 @@
-Aineo Music v42.3.65 — Lyrics Micro-Tuning Pass
+Aineo Music v42.3.66 — Lyrics Micro-Tuning Pass
 
 Included:
 - tightened synced lyric parsing and duplicate/meta cleanup
