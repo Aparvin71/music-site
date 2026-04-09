@@ -1,0 +1,10 @@
+Aineo Music v42.3.56
+
+Built from v42.3.55 next-level player upgrade.
+
+Changes in this package:
+- Restored custom playlist buttons to the same compact grid/card presentation as the main playlist buttons.
+- Removed the long single-pill look introduced in v42.3.55.
+- Kept the selected custom playlist action tray below the grid.
+- Preserved the mini visualizer, swipe gestures, hold-to-preview, and smart queue upgrades from v42.3.55.
+- Bumped app, footer, and cache version references to v42.3.56.

@@ -10130,3 +10130,77 @@ button:active{
   .player-cover-visualizer-bars { gap: 6px; inset: 12px -4px; }
   .player-cover-visualizer-bar { width: 6px; }
 }
+
+/* ===== v42.3.56 custom playlist column restore ===== */
+.music-page-layout #myPlaylistList{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  align-items:start !important;
+  grid-auto-flow:row !important;
+  grid-auto-rows:auto !important;
+}
+
+.music-page-layout #myPlaylistList .playlist-card-pill--custom-compact{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:68px !important;
+  height:auto !important;
+  max-height:none !important;
+  padding:10px 9px !important;
+  border-radius:14px !important;
+  display:grid !important;
+  align-content:center !important;
+  justify-items:center !important;
+  text-align:center !important;
+  white-space:normal !important;
+  overflow:hidden !important;
+  line-height:1.1 !important;
+  box-sizing:border-box !important;
+}
+
+.music-page-layout #myPlaylistList .playlist-card-pill--custom-compact .playlist-card-pill__title{
+  display:-webkit-box !important;
+  width:100% !important;
+  margin:0 !important;
+  white-space:normal !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  -webkit-line-clamp:2 !important;
+  -webkit-box-orient:vertical !important;
+  line-height:1.15 !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+}
+
+.music-page-layout #myPlaylistList .playlist-card-pill--custom-compact .playlist-card-pill__meta{
+  display:block !important;
+  margin-top:5px !important;
+  color:#b7c0cf !important;
+  font-size:11px !important;
+  line-height:1 !important;
+}
+
+.music-page-layout #myPlaylistList .custom-playlist-action-tray{
+  grid-column:1 / -1 !important;
+}
+
+@media (min-width: 480px) and (max-width: 899px){
+  .music-page-layout #myPlaylistList{
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 900px){
+  .music-page-layout #myPlaylistList{
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px){
+  .music-page-layout #myPlaylistList{
+    grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  }
+}
