@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.3.72-v69-based-sticky-clear-and-text-fixes";
+const CACHE_VERSION = "v42.3.73-v71-sticky-clear-and-text-fixes";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
