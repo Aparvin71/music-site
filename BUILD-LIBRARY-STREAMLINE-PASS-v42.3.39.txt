@@ -1,8 +1,8 @@
-Aineo Music v42.3.49
+Aineo Music v42.3.50
 
 Library streamline pass:
 - Removed the Selected Collection / featured card from music.html
 - Kept All Songs as the default library view
 - Simplified the Tracks section header
 - Polished Music Library card copy and quick links order
-- Updated service worker cache version to v42.3.49
+- Updated service worker cache version to v42.3.50

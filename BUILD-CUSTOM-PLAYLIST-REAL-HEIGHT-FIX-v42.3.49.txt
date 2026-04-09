@@ -1,7 +1,7 @@
-Aineo Music v42.3.49
+Aineo Music v42.3.50
 
 Custom playlist real height fix:
 - Overrode the older .playlist-card--custom .playlist-card-main min-height rule
 - Locked custom playlist main button to 68px height
 - Kept Play / Shuffle / Delete below the custom playlist button
-- Synced version markers and cache-busting to v42.3.49
+- Synced version markers and cache-busting to v42.3.50

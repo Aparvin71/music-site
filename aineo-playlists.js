@@ -95,15 +95,16 @@
       const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
       return `
         <div class="playlist-card playlist-card--custom ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-          <button class="playlist-card-main playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
+          <button class="filter-chip playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
             <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
             <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
           </button>
-          <div class="playlist-card-actions playlist-card-actions--below">
+          ${active ? `
+          <div class="playlist-card-actions playlist-card-actions--below playlist-card-actions--selected-tray">
             <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">Play</button>
             <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">Shuffle</button>
             <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">Delete</button>
-          </div>
+          </div>` : ``}
         </div>
       `;
     }).join('');

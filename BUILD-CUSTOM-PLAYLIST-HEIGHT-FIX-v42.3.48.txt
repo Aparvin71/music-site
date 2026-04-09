@@ -1,7 +1,7 @@
-Aineo Music v42.3.49
+Aineo Music v42.3.50
 
 Custom playlist height fix:
 - Locked custom playlist main button height to match built-in playlist pill height
 - Reduced internal spacing and clamped title to one line
 - Kept Play / Shuffle / Delete below the custom playlist button
-- Synced version markers and cache-busting to v42.3.49
+- Synced version markers and cache-busting to v42.3.50

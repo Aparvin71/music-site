@@ -1,7 +1,7 @@
-Aineo Music v42.3.49
+Aineo Music v42.3.50
 
 Custom playlist row size fix:
 - Changed custom playlist cards to a compact row layout
 - Kept the main custom playlist button the same height as built-in playlist buttons
 - Moved Play / Shuffle / Delete into compact side buttons
-- Synced version markers and cache-busting to v42.3.49
+- Synced version markers and cache-busting to v42.3.50

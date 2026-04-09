@@ -1,0 +1,6 @@
+Aineo Music v42.3.50
+
+Actual fix for custom playlist height mismatch:
+- Custom playlists now render as the same pill-style button as built-in playlists
+- Only the selected custom playlist shows Play / Shuffle / Delete below it
+- This keeps non-selected custom playlist buttons the same size as built-in playlist buttons

@@ -1,3 +1,3 @@
-Aineo Music v42.3.49 Smart Player Upgrade
+Aineo Music v42.3.50 Smart Player Upgrade
 
 Includes stronger playback memory/state restore, keyboard shortcuts (Space/K/J/L), progress-fill seekbar polish, and version/cache refresh for cleaner rollout.
