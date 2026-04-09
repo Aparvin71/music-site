@@ -5,6 +5,7 @@
     filters.selectedPlaylist = null;
     filters.selectedTag = null;
     filters.selectedSmartPlaylist = null;
+    filters.selectedCustomPlaylist = null;
   }
 
   function clearSearch(searchInput, filters) {
@@ -24,6 +25,7 @@
       if (type === "playlist") filters.selectedPlaylist = value;
       if (type === "tag") filters.selectedTag = value;
       if (type === "smart-playlist") filters.selectedSmartPlaylist = value;
+      if (type === "custom-playlist") filters.selectedCustomPlaylist = value;
     }
 
     onAfterChange?.();
@@ -111,11 +113,15 @@
     ].filter(item => item.tracks.length);
   }
 
-  function getFilteredTracks({ tracks, filters, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {} }) {
+  function getFilteredTracks({ tracks, filters, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {}, customPlaylists = {} }) {
     let result = Array.isArray(tracks) ? [...tracks] : [];
 
     if (filters.selectedAlbum) result = result.filter(track => track.album === filters.selectedAlbum);
     if (filters.selectedPlaylist) result = result.filter(track => (track.playlists || []).includes(filters.selectedPlaylist));
+    if (filters.selectedCustomPlaylist) {
+      const playlistIds = new Set(customPlaylists?.[filters.selectedCustomPlaylist] || []);
+      result = result.filter(track => playlistIds.has(track.id));
+    }
     if (filters.selectedTag) result = result.filter(track => (track.tags || []).includes(filters.selectedTag));
     if (filters.selectedSmartPlaylist) {
       const smart = getSmartPlaylistDefinitions({ tracks: result, favorites, recentlyPlayed, downloadedTracks, playStats })

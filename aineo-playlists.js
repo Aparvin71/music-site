@@ -3,7 +3,7 @@
   function normalizeState({ customPlaylists, activeCustomPlaylistName }) {
     const names = Object.keys(customPlaylists || {}).sort((a,b) => a.localeCompare(b));
     if (!names.length) return null;
-    if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return names[0];
+    if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return null;
     return activeCustomPlaylistName;
   }
 
@@ -51,23 +51,17 @@
     return { saved: true, playlistName };
   }
 
-  function applyCustomPlaylistFilter({ name, customPlaylists, tracks, els, filters, setCurrentCollectionKey }) {
-    const ids = customPlaylists[name] || [];
-    const filteredTracks = ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
+  function applyCustomPlaylistFilter({ name, customPlaylists, filters, searchInput, onAfterChange }) {
+    if (!name || !customPlaylists?.[name]) return { applied: false };
     filters.selectedAlbum = null;
     filters.selectedPlaylist = null;
     filters.selectedTag = null;
+    filters.selectedSmartPlaylist = null;
+    filters.selectedCustomPlaylist = name;
     filters.searchTerm = '';
-    if (els.searchInput) els.searchInput.value = '';
-    if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${name}`;
-    if (els.stickyFilterBar) els.stickyFilterBar.classList.remove('hidden');
-    if (els.filterTypeBadge) {
-      els.filterTypeBadge.textContent = 'My Playlist';
-      els.filterTypeBadge.className = 'filter-type-badge playlist';
-      els.filterTypeBadge.style.display = 'inline-flex';
-    }
-    setCurrentCollectionKey(`custom-playlist:${name}`);
-    return { filteredTracks };
+    if (searchInput) searchInput.value = '';
+    onAfterChange?.();
+    return { applied: true, name };
   }
 
   function setActiveCustomPlaylist({ name, customPlaylists, currentActiveName }) {

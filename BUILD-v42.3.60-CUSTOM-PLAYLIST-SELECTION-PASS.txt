@@ -1,0 +1,10 @@
+Aineo Music build v42.3.60
+
+Built from stable v42.3.59.
+
+Included in this pass:
+- removed automatic custom playlist preselection
+- custom playlists only show selected state when actually selected
+- custom playlist selection now participates in the same sticky clear-filter flow as other library filters
+- clearing filters also clears the custom playlist selected state
+- preserved the stable v42.3.59 layout and player features

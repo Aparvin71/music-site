@@ -51,6 +51,7 @@ const filters = {
   selectedPlaylist: null,
   selectedTag: null,
   selectedSmartPlaylist: null,
+  selectedCustomPlaylist: null,
   searchTerm: "",
   searchScope: "all"
 };
@@ -1397,7 +1398,7 @@ function clearAllFilters() {
 }
 
 function getFilteredTracks() {
-  return window.AineoLibrary.getFilteredTracks({ tracks, filters, favorites, recentlyPlayed, downloadedTracks, playStats });
+  return window.AineoLibrary.getFilteredTracks({ tracks, filters, favorites, recentlyPlayed, downloadedTracks, playStats, customPlaylists });
 }
 
 /* =========================
@@ -1413,6 +1414,7 @@ function getCurrentCollectionKey() {
   if (filters.selectedPlaylist) return `playlist:${filters.selectedPlaylist}`;
   if (filters.selectedTag) return `tag:${filters.selectedTag}`;
   if (filters.selectedSmartPlaylist) return `smart:${filters.selectedSmartPlaylist}`;
+  if (filters.selectedCustomPlaylist) return `custom-playlist:${filters.selectedCustomPlaylist}`;
   if (filters.searchTerm) return `search:${filters.searchScope || "all"}:${filters.searchTerm.toLowerCase()}`;
   return "all-songs";
 }
@@ -1456,6 +1458,19 @@ function getCurrentCollectionMeta() {
       key: getCurrentCollectionKey(),
       name: `#${filters.selectedTag}`,
       subtitle: "Filtered by tag",
+      cover: fallbackCover,
+      tracks: collectionTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
+  if (filters.selectedCustomPlaylist) {
+    return {
+      type: "custom-playlist",
+      key: getCurrentCollectionKey(),
+      name: filters.selectedCustomPlaylist,
+      subtitle: "My Playlist",
       cover: fallbackCover,
       tracks: collectionTracks,
       album_zip: "",
@@ -1613,6 +1628,8 @@ function updateLibraryView() {
   renderFeaturedAlbum();
   renderFeaturedTrackList();
   renderSearchUi();
+  renderMyPlaylists();
+  renderPlaylistWorkspace();
 }
 
 function getSearchScopeLabel(scopeKey = "all") {
@@ -1755,6 +1772,11 @@ function renderActiveFilterLabel() {
     buttonText = "Clear Tag";
     badgeText = "Tag";
     badgeClass = "tag";
+  } else if (filters.selectedCustomPlaylist) {
+    text = `My Playlist: ${filters.selectedCustomPlaylist}`;
+    buttonText = "Clear My Playlist";
+    badgeText = "My Playlist";
+    badgeClass = "playlist";
   } else if (filters.selectedSmartPlaylist) {
     const smartPlaylists = window.AineoLibrary.getSmartPlaylistDefinitions({ tracks, favorites, recentlyPlayed, downloadedTracks, playStats });
     const smart = smartPlaylists.find(item => item.key === filters.selectedSmartPlaylist);
@@ -3042,6 +3064,7 @@ function hasActiveFilter() {
     filters.selectedPlaylist ||
     filters.selectedTag ||
     filters.selectedSmartPlaylist ||
+    filters.selectedCustomPlaylist ||
     filters.searchTerm
   );
 }
@@ -3221,8 +3244,14 @@ let playlistItemDragIndex = null;
 function normalizeCustomPlaylistState() {
   activeCustomPlaylistName = window.AineoPlaylists.normalizeState({
     customPlaylists,
-    activeCustomPlaylistName
+    activeCustomPlaylistName: filters.selectedCustomPlaylist || null
   });
+  if (filters.selectedCustomPlaylist && activeCustomPlaylistName !== filters.selectedCustomPlaylist) {
+    filters.selectedCustomPlaylist = activeCustomPlaylistName;
+  }
+  if (!filters.selectedCustomPlaylist) {
+    activeCustomPlaylistName = null;
+  }
 }
 
 function getCustomPlaylistTracks(name) {
@@ -3315,20 +3344,15 @@ function applyCustomPlaylistFilter(name) {
   const result = window.AineoPlaylists.applyCustomPlaylistFilter({
     name,
     customPlaylists,
-    tracks,
-    els,
     filters,
-    setCurrentCollectionKey(value) {
-      currentCollectionKey = value;
+    searchInput: els.searchInput,
+    onAfterChange: () => {
+      activeCustomPlaylistName = name;
+      updateLibraryView();
+      scrollToTrackList();
     }
   });
-  if (!result) return;
-  filteredTracks = result.filteredTracks;
-  renderAlbums(filteredTracks);
-  renderFeaturedAlbum();
-  renderFeaturedTrackList();
-  renderQueue();
-  scrollToTrackList();
+  if (!result?.applied) return;
 }
 
 function setActiveCustomPlaylist(name) {
@@ -3338,6 +3362,9 @@ function setActiveCustomPlaylist(name) {
     currentActiveName: activeCustomPlaylistName
   });
   activeCustomPlaylistName = result.activeName;
+  if (result.activeName) {
+    filters.selectedCustomPlaylist = result.activeName;
+  }
   if (!result.changed) return;
   renderMyPlaylists();
   renderPlaylistWorkspace();
