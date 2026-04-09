@@ -94,15 +94,15 @@
       const active = name === activeCustomPlaylistName ? 'active' : '';
       const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
       return `
-        <div class="playlist-card playlist-card--custom playlist-card--custom-row ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-          <button class="playlist-card-main playlist-card-pill playlist-card-pill--custom-row ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
+        <div class="playlist-card playlist-card--custom ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
+          <button class="playlist-card-main playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
             <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
             <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
           </button>
-          <div class="playlist-card-actions playlist-card-actions--compact">
-            <button class="mini-action-btn mini-action-btn--compact" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}" aria-label="Play ${escapeHtmlAttr(name)}">▶</button>
-            <button class="mini-action-btn mini-action-btn--compact" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}" aria-label="Shuffle ${escapeHtmlAttr(name)}">↻</button>
-            <button class="mini-action-btn mini-action-btn--compact danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}" aria-label="Delete ${escapeHtmlAttr(name)}">✕</button>
+          <div class="playlist-card-actions playlist-card-actions--below">
+            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">Play</button>
+            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">Shuffle</button>
+            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">Delete</button>
           </div>
         </div>
       `;
