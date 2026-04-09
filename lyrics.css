@@ -1,0 +1,43 @@
+/* v42.3.66 Lyrics Style (No Highlight + Center Fade Polish) */
+
+#lyrics-container,
+.lyrics-container,
+.lyrics-center-fade {
+  position: relative;
+  overflow-y: auto;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 12%,
+    rgba(0, 0, 0, 0.9) 22%,
+    #000 34%,
+    #000 66%,
+    rgba(0, 0, 0, 0.9) 78%,
+    rgba(0, 0, 0, 0.55) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 0, 0, 0.55) 12%,
+    rgba(0, 0, 0, 0.9) 22%,
+    #000 34%,
+    #000 66%,
+    rgba(0, 0, 0, 0.9) 78%,
+    rgba(0, 0, 0, 0.55) 88%,
+    transparent 100%
+  );
+}
+
+.lyric-line {
+  opacity: 0.9;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 0.18rem 0;
+}
+
+/* No per-line highlight */
+.lyric-line.active {
+  opacity: 0.9;
+  font-weight: inherit;
+  color: inherit;
+}
