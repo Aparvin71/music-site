@@ -1,9 +1,9 @@
-Aineo Music v42.3.51
+Aineo Music v42.3.52
 
 Root-cause fix pass:
-- Synced all hardcoded app version markers to v42.3.51
+- Synced all hardcoded app version markers to v42.3.52
 - Updated pwa-init.js app version constant
 - Updated aineo-config.js version value
 - Updated footer version text across site pages
 - Added fresh ?v=42.3.42 cache-busting query strings to HTML CSS/JS includes
-- Refreshed service-worker.js version to v42.3.51
+- Refreshed service-worker.js version to v42.3.52

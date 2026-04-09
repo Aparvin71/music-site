@@ -7844,7 +7844,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.51 MOBILE / TABLET ICON-ONLY TRACK ACTIONS
+   v42.3.52 MOBILE / TABLET ICON-ONLY TRACK ACTIONS
 ========================================= */
 .music-page-layout .featured-track-main {
   min-width: 0;
@@ -8269,7 +8269,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.51 MOBILE LAYOUT + TRACK ROW REPAIR
+   v42.3.52 MOBILE LAYOUT + TRACK ROW REPAIR
 ========================================= */
 .music-page-layout .compact-filter-grid,
 .music-page-layout #playlistList,
@@ -8429,7 +8429,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.51 playlist grid + track row repair
+   v42.3.52 playlist grid + track row repair
 ========================================= */
 .music-page-layout .playlist-filter-grid {
   display: grid;
@@ -8635,7 +8635,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.51 button alignment + music page polish
+   v42.3.52 button alignment + music page polish
 ========================================= */
 .action-btn,
 .secondary-btn,
@@ -8820,7 +8820,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.51 PLAYLIST AREA POLISH PASS
+   v42.3.52 PLAYLIST AREA POLISH PASS
 ========================================= */
 .music-page-layout .browse-hub-card { display: none !important; }
 
@@ -9073,7 +9073,7 @@ select:focus,
 
 
 /* =========================================
-   STABILITY / POLISH PASS v42.3.51
+   STABILITY / POLISH PASS v42.3.52
 ========================================= */
 :where(button, .action-btn, .mini-action-btn, .control-btn, .filter-chip, .playlist-btn, .tag-chip, .search-scope-chip, .quick-link-pill, .library-quick-link):focus-visible {
   outline: 2px solid #90b4e8;
@@ -9099,7 +9099,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.51 album pages polish pass ===== */
+/* ===== v42.3.52 album pages polish pass ===== */
 .album-page-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -9187,7 +9187,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.51 mobile full-player refinement ===== */
+/* ===== v42.3.52 mobile full-player refinement ===== */
 .mode-btn {
   padding-bottom: 8px;
 }
@@ -9295,7 +9295,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.51 custom playlist + player fixes ===== */
+/* ===== v42.3.52 custom playlist + player fixes ===== */
 .playlist-list--custom-chips {
   display: grid;
   gap: 8px;
@@ -9339,7 +9339,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.51 playlist section polish pass ===== */
+/* ===== v42.3.52 playlist section polish pass ===== */
 .music-page-layout .playlist-subsection-shell {
   margin-top: 10px;
   padding-top: 10px;
@@ -9440,7 +9440,7 @@ select:focus,
 }
 
 
-/* v42.3.51 hard refresh UI fix */
+/* v42.3.52 hard refresh UI fix */
 .playlist-subsection-standalone{
   margin-top: 1.25rem;
   margin-bottom: .65rem;
@@ -9465,7 +9465,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist layout fix */
+/* v42.3.52 custom playlist layout fix */
 .music-page-layout .playlist-subsection-block {
   margin-top: 1rem;
   margin-bottom: 0.65rem;
@@ -9493,7 +9493,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist size match */
+/* v42.3.52 custom playlist size match */
 .music-page-layout .playlist-list--custom-standalone{
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -9513,7 +9513,7 @@ select:focus,
 }
 
 
-/* v42.3.51 playlist consistency pass */
+/* v42.3.52 playlist consistency pass */
 .music-page-layout .playlist-list--custom-standalone .playlist-card-pill,
 .music-page-layout .playlist-pill-grid--custom .playlist-card-pill{
   border-radius: 16px !important;
@@ -9558,7 +9558,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist row size fix */
+/* v42.3.52 custom playlist row size fix */
 .music-page-layout .playlist-card--custom-row{
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) auto !important;
@@ -9602,7 +9602,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist pill size fix */
+/* v42.3.52 custom playlist pill size fix */
 .music-page-layout .playlist-list--custom-standalone,
 .music-page-layout .playlist-pill-grid--custom{
   display: grid !important;
@@ -9677,7 +9677,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist height fix */
+/* v42.3.52 custom playlist height fix */
 .music-page-layout .playlist-card--custom{
   gap: 4px !important;
 }
@@ -9714,7 +9714,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist real height fix */
+/* v42.3.52 custom playlist real height fix */
 .music-page-layout .playlist-card--custom .playlist-card-main{
   min-height: 68px !important;
   height: 68px !important;
@@ -9746,7 +9746,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist pill + selected tray */
+/* v42.3.52 custom playlist pill + selected tray */
 .music-page-layout .playlist-pill-grid--custom,
 .music-page-layout .playlist-list--custom-standalone{
   display: grid !important;
@@ -9807,7 +9807,7 @@ select:focus,
 }
 
 
-/* v42.3.51 custom playlist separate action tray */
+/* v42.3.52 custom playlist separate action tray */
 .music-page-layout .playlist-list--custom-standalone{
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -9875,4 +9875,62 @@ select:focus,
   .music-page-layout .playlist-list--custom-standalone{
     grid-template-columns: 1fr !important;
   }
+}
+
+
+/* v42.3.52 custom playlist pill height lock */
+.music-page-layout .playlist-list--custom-standalone > .playlist-card-pill,
+.music-page-layout .playlist-list--custom-standalone > button.playlist-card-pill,
+.music-page-layout .playlist-pill-grid--custom > .playlist-card-pill,
+.music-page-layout .playlist-pill-grid--custom > button.playlist-card-pill{
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 68px !important;
+  height: 68px !important;
+  max-height: 68px !important;
+  padding: 8px 9px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  line-height: 1 !important;
+  align-self: start !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone > .playlist-card-pill .playlist-card-pill__title,
+.music-page-layout .playlist-pill-grid--custom > .playlist-card-pill .playlist-card-pill__title{
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.05 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone > .playlist-card-pill .playlist-card-pill__meta,
+.music-page-layout .playlist-pill-grid--custom > .playlist-card-pill .playlist-card-pill__meta{
+  display: block !important;
+  margin: 2px 0 0 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone{
+  grid-auto-rows: 68px !important;
+  align-items: start !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone > .custom-playlist-action-tray{
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
 }

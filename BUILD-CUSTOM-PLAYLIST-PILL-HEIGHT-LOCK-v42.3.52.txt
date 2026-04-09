@@ -1,0 +1,7 @@
+Aineo Music v42.3.52
+
+Custom playlist pill height lock:
+- Hard-locked custom playlist pill height to 68px
+- Removed inherited spacing/line-height effects on the pill element
+- Kept the separate custom playlist action tray below the grid
+- Synced version markers and cache-busting to v42.3.52
