@@ -7844,7 +7844,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.44 MOBILE / TABLET ICON-ONLY TRACK ACTIONS
+   v42.3.45 MOBILE / TABLET ICON-ONLY TRACK ACTIONS
 ========================================= */
 .music-page-layout .featured-track-main {
   min-width: 0;
@@ -8269,7 +8269,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.44 MOBILE LAYOUT + TRACK ROW REPAIR
+   v42.3.45 MOBILE LAYOUT + TRACK ROW REPAIR
 ========================================= */
 .music-page-layout .compact-filter-grid,
 .music-page-layout #playlistList,
@@ -8429,7 +8429,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.44 playlist grid + track row repair
+   v42.3.45 playlist grid + track row repair
 ========================================= */
 .music-page-layout .playlist-filter-grid {
   display: grid;
@@ -8635,7 +8635,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.44 button alignment + music page polish
+   v42.3.45 button alignment + music page polish
 ========================================= */
 .action-btn,
 .secondary-btn,
@@ -8820,7 +8820,7 @@ select:focus,
 
 
 /* =========================================
-   v42.3.44 PLAYLIST AREA POLISH PASS
+   v42.3.45 PLAYLIST AREA POLISH PASS
 ========================================= */
 .music-page-layout .browse-hub-card { display: none !important; }
 
@@ -9073,7 +9073,7 @@ select:focus,
 
 
 /* =========================================
-   STABILITY / POLISH PASS v42.3.44
+   STABILITY / POLISH PASS v42.3.45
 ========================================= */
 :where(button, .action-btn, .mini-action-btn, .control-btn, .filter-chip, .playlist-btn, .tag-chip, .search-scope-chip, .quick-link-pill, .library-quick-link):focus-visible {
   outline: 2px solid #90b4e8;
@@ -9099,7 +9099,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.44 album pages polish pass ===== */
+/* ===== v42.3.45 album pages polish pass ===== */
 .album-page-breadcrumbs {
   display: flex;
   flex-wrap: wrap;
@@ -9187,7 +9187,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.44 mobile full-player refinement ===== */
+/* ===== v42.3.45 mobile full-player refinement ===== */
 .mode-btn {
   padding-bottom: 8px;
 }
@@ -9295,7 +9295,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.44 custom playlist + player fixes ===== */
+/* ===== v42.3.45 custom playlist + player fixes ===== */
 .playlist-list--custom-chips {
   display: grid;
   gap: 8px;
@@ -9339,7 +9339,7 @@ select:focus,
 }
 
 
-/* ===== v42.3.44 playlist section polish pass ===== */
+/* ===== v42.3.45 playlist section polish pass ===== */
 .music-page-layout .playlist-subsection-shell {
   margin-top: 10px;
   padding-top: 10px;
@@ -9440,7 +9440,7 @@ select:focus,
 }
 
 
-/* v42.3.44 hard refresh UI fix */
+/* v42.3.45 hard refresh UI fix */
 .playlist-subsection-standalone{
   margin-top: 1.25rem;
   margin-bottom: .65rem;
@@ -9465,7 +9465,7 @@ select:focus,
 }
 
 
-/* v42.3.44 custom playlist layout fix */
+/* v42.3.45 custom playlist layout fix */
 .music-page-layout .playlist-subsection-block {
   margin-top: 1rem;
   margin-bottom: 0.65rem;
@@ -9493,7 +9493,7 @@ select:focus,
 }
 
 
-/* v42.3.44 custom playlist size match */
+/* v42.3.45 custom playlist size match */
 .music-page-layout .playlist-list--custom-standalone{
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -9510,4 +9510,49 @@ select:focus,
   display: flex !important;
   flex-direction: column !important;
   justify-content: center !important;
+}
+
+
+/* v42.3.45 playlist consistency pass */
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill{
+  border-radius: 16px !important;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill:hover,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill:hover{
+  transform: translateY(-1px) !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill.active,
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill[aria-pressed="true"],
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill.active,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill[aria-pressed="true"]{
+  box-shadow: 0 0 0 1px rgba(142,197,255,.32), 0 10px 24px rgba(0,0,0,.22) !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill__title,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill__title{
+  line-height: 1.2 !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill__meta,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-pill__meta{
+  margin-top: 0.2rem !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-actions,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-actions{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-actions .mini-action-btn,
+.music-page-layout .playlist-pill-grid--custom .playlist-card-actions .mini-action-btn{
+  min-height: 34px !important;
+  border-radius: 12px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
 }
