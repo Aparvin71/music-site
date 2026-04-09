@@ -30,6 +30,7 @@ COVERS_DIR = SITE_DIR / "covers"
 OUTPUT_FILE = SITE_DIR / "tracks.json"
 LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
 TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
+LYRICS_DIR = SITE_DIR / "lyrics"
 
 AUDIO_EXTENSIONS = [".mp3"]
 
@@ -380,47 +381,78 @@ def get_track_override(file_name: str, title: str, slug: str, track_meta_map: di
             return track_meta_map[key]
     return {}
 
-def load_lrc_manifest() -> dict:
-    if not LRC_MANIFEST_FILE.exists():
-        print(f"No {LRC_MANIFEST_NAME} found. Skipping lyrics_file mapping.")
-        return {}
-
-    try:
-        with open(LRC_MANIFEST_FILE, "r", encoding="utf-8") as f:
-            entries = json.load(f)
-    except Exception as e:
-        print(f"Could not read {LRC_MANIFEST_NAME}: {e}")
-        return {}
-
-    if not isinstance(entries, list):
-        print(f"{LRC_MANIFEST_NAME} is not a JSON list. Skipping lyrics_file mapping.")
-        return {}
-
+def build_lrc_mapping_from_lyrics_folder() -> dict:
     mapping = {}
-    for entry in entries:
-        if not isinstance(entry, dict):
-            continue
+    if not LYRICS_DIR.exists():
+        print(f"No lyrics folder found at {LYRICS_DIR}.")
+        return mapping
 
-        lyrics_file = str(entry.get("lyrics_file") or "").strip()
-        mp3_name = str(entry.get("mp3") or "").strip()
-        title = str(entry.get("title") or "").strip()
-
-        if not lyrics_file:
-            continue
-
+    lrc_files = sorted(LYRICS_DIR.glob("*.lrc"))
+    for lrc_path in lrc_files:
+        relative_path = f"lyrics/{lrc_path.name}"
+        stem = lrc_path.stem
         candidate_keys = {
-            mp3_name.lower(),
-            clean_title(mp3_name).lower(),
-            slugify(clean_title(mp3_name)),
-            title.lower(),
-            slugify(title),
+            stem.lower(),
+            clean_title(stem).lower(),
+            slugify(stem),
+            slugify(stem.replace("-", " ")),
+            slugify(stem.replace("dont", "don't")),
+            slugify(stem.replace("its", "it's")),
+            slugify(stem.replace("im", "i'm")),
         }
-
         for key in candidate_keys:
             if key:
-                mapping[key] = lyrics_file
+                mapping.setdefault(key, relative_path)
 
-    print(f"Loaded {len(entries)} LRC manifest entries from {LRC_MANIFEST_NAME}.")
+    print(f"Loaded {len(lrc_files)} LRC files from lyrics folder fallback.")
+    return mapping
+
+
+def load_lrc_manifest() -> dict:
+    mapping = {}
+
+    if LRC_MANIFEST_FILE.exists():
+        try:
+            with open(LRC_MANIFEST_FILE, "r", encoding="utf-8") as f:
+                entries = json.load(f)
+        except Exception as e:
+            print(f"Could not read {LRC_MANIFEST_NAME}: {e}")
+            entries = []
+
+        if isinstance(entries, list):
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+
+                lyrics_file = str(entry.get("lyrics_file") or "").strip()
+                mp3_name = str(entry.get("mp3") or "").strip()
+                title = str(entry.get("title") or "").strip()
+
+                if not lyrics_file:
+                    continue
+
+                candidate_keys = {
+                    mp3_name.lower(),
+                    clean_title(mp3_name).lower(),
+                    slugify(clean_title(mp3_name)),
+                    title.lower(),
+                    slugify(title),
+                }
+
+                for key in candidate_keys:
+                    if key:
+                        mapping[key] = lyrics_file
+
+            print(f"Loaded {len(entries)} LRC manifest entries from {LRC_MANIFEST_NAME}.")
+        else:
+            print(f"{LRC_MANIFEST_NAME} is not a JSON list. Skipping manifest entries.")
+    else:
+        print(f"No {LRC_MANIFEST_NAME} found. Falling back to /lyrics folder scan.")
+
+    fallback_map = build_lrc_mapping_from_lyrics_folder()
+    for key, value in fallback_map.items():
+        mapping.setdefault(key, value)
+
     return mapping
 
 

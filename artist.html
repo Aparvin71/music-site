@@ -1,100 +1,58 @@
-document.addEventListener("DOMContentLoaded", initAlbumsPage);
-
-async function initAlbumsPage() {
-  window.AineoShared?.initSecondaryPageNav?.();
-  const grid = document.getElementById("albumsGrid");
-  if (!grid) return;
-
-  const escapeHtml = window.AineoShared?.escapeHtml || (value => String(value || ""));
-  const escapeAttr = window.AineoShared?.escapeAttr || escapeHtml;
-  const fetchJson = window.AineoShared?.fetchJson || (async (url, fallback = []) => {
-    try {
-      const response = await fetch(url, { cache: "no-cache" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      return fallback;
-    }
-  });
-
-  let albums = await fetchJson("./albums.json", []);
-  if (!Array.isArray(albums) || !albums.length) {
-    const tracks = await fetchJson("./tracks.json", []);
-    const byAlbum = new Map();
-    (Array.isArray(tracks) ? tracks : []).forEach(track => {
-      const name = String(track.album || "Singles").trim() || "Singles";
-      if (!byAlbum.has(name)) {
-        byAlbum.set(name, {
-          title: name,
-          slug: String(track.album_slug || "").trim(),
-          year: track.year || "",
-          artist: track.artist || "Allen Parvin",
-          cover: track.cover || "",
-          description: track.album_description || "",
-          theme: track.album_theme || "",
-          story: track.album_story || "",
-          badges: Array.isArray(track.album_badges) ? track.album_badges : [],
-          track_count: 0,
-          album_zip: track.album_zip || ""
-        });
-      }
-      const album = byAlbum.get(name);
-      album.track_count += 1;
-      if (!album.cover && track.cover) album.cover = track.cover;
-      if (!album.year && track.year) album.year = track.year;
-      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-    });
-    albums = [...byAlbum.values()];
-  }
-
-  const normalizedAlbums = (Array.isArray(albums) ? albums : [])
-    .map(album => ({
-      title: String(album.title || album.name || "Untitled Album").trim(),
-      slug: String(album.slug || "").trim(),
-      artist: String(album.artist || "Allen Parvin").trim(),
-      cover: String(album.cover || "").trim(),
-      year: album.year || "",
-      description: String(album.description || album.album_description || "").trim(),
-      theme: String(album.theme || album.album_theme || "").trim(),
-      story: String(album.story || album.album_story || "").trim(),
-      badges: Array.isArray(album.badges) ? album.badges : [],
-      track_count: Number(album.track_count || album.song_count || 0) || 0,
-      album_zip: String(album.album_zip || "").trim()
-    }))
-    .filter(album => album.title)
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  if (!normalizedAlbums.length) {
-    grid.innerHTML = `
-      <article class="page-card">
-        <p class="eyebrow">No albums yet</p>
-        <h2>Your album shelf is empty.</h2>
-        <p>Add tracks with album metadata to populate this page.</p>
-      </article>
-    `;
-    return;
-  }
-
-  grid.innerHTML = normalizedAlbums.map(album => {
-    const subtitle = [album.track_count ? `${album.track_count} song${album.track_count === 1 ? "" : "s"}` : "", album.year ? String(album.year) : ""]
-      .filter(Boolean)
-      .join(" • ");
-    const meta = [album.artist, subtitle].filter(Boolean).join(" • ");
-    const badges = album.badges.length
-      ? `<div class="quick-link-pills">${album.badges.slice(0, 4).map(badge => `<span class="quick-link-pill quick-link-pill--static">${escapeHtml(badge)}</span>`).join("")}</div>`
-      : "";
-    const blurb = album.description || album.theme || album.story || "Open the album page for the full track list and story.";
-    return `
-      <a class="catalog-card" href="./album.html?album=${encodeURIComponent(album.title)}" aria-label="Open ${escapeAttr(album.title)} album page">
-        <div class="catalog-card-cover">${album.cover ? `<img src="${escapeAttr(album.cover)}" alt="${escapeAttr(album.title)} cover" loading="lazy" decoding="async" />` : `<div class="catalog-card-cover-fallback">♪</div>`}</div>
-        <div class="catalog-card-copy">
-          <p class="eyebrow">Album</p>
-          <h2>${escapeHtml(album.title)}</h2>
-          ${meta ? `<p>${escapeHtml(meta)}</p>` : ""}
-          <p>${escapeHtml(blurb)}</p>
-          ${badges}
-        </div>
-      </a>
-    `;
-  }).join("");
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Artist page for the Aineo Music library." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>Artist - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.62" />
+  <script src="./pwa-init.js?v=42.3.62" defer></script>
+  <script src="./aineo-shared.js?v=42.3.62" defer></script>
+  <script src="./artist-page.js?v=42.3.62" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section id="artistPageRoot" class="artist-page-root"><section class="page-card page-hero-card"><p class="eyebrow">Artist</p><h1>Loading artist...</h1></section></section>
+  </main>
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.62</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body>
+</html>
