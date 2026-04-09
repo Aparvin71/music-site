@@ -1,8 +1,8 @@
-Aineo Music v42.3.48
+Aineo Music v42.3.49
 
 Playlist consistency pass:
 - Matched custom playlist card hover behavior to playlist cards
 - Matched active/highlight styling
 - Matched title/meta spacing
 - Matched action button sizing and layout
-- Synced version markers and cache-busting to v42.3.48
+- Synced version markers and cache-busting to v42.3.49
