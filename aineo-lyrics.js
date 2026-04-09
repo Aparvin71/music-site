@@ -1,202 +1,183 @@
-(function () {
-  const LYRICS_FALLBACK_MIN_LINE_SECONDS = 2.4;
-  const LYRICS_FALLBACK_MAX_LINE_SECONDS = 6;
-
-  function getTrackDurationSeconds(track) {
-    if (!track) return 0;
-    if (Number.isFinite(track.duration_seconds) && track.duration_seconds > 0) return Number(track.duration_seconds);
-
-    const durationLabel = String(track.duration || "").trim();
-    const match = durationLabel.match(/^(\d+):(\d{2})(?::(\d{2}))?$/);
-    if (!match) return 0;
-
-    if (match[3] != null) {
-      return (Number(match[1]) * 3600) + (Number(match[2]) * 60) + Number(match[3]);
-    }
-
-    return (Number(match[1]) * 60) + Number(match[2]);
+(function(){
+  function getVisibleAlbums(trackList) {
+    const map = new Map();
+    (trackList || []).forEach(track => {
+      const albumName = track.album || "Singles";
+      if (!map.has(albumName)) {
+        map.set(albumName, {
+          name: albumName,
+          cover: track.cover || "",
+          artist: track.artist || "Allen Parvin",
+          year: track.year || "",
+          tracks: [],
+          album_zip: track.album_zip || ""
+        });
+      }
+      const album = map.get(albumName);
+      album.tracks.push(track);
+      if (!album.cover && track.cover) album.cover = track.cover;
+      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
+    });
+    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  function getPlainLyricsLines(track) {
-    return String(track?.lyrics || "")
-      .replace(/\r\n?/g, "\n")
-      .split("\n")
-      .map(line => line.trim())
-      .filter(Boolean);
+  function renderAlbums({ els, trackList, filters, getVisibleAlbums, escapeHtml, escapeHtmlAttr, setAlbumFilter }) {
+    if (!els.albumGrid) return;
+    const albums = getVisibleAlbums(trackList);
+    if (!albums.length) {
+      els.albumGrid.innerHTML = `<p class="empty-message">No albums found.</p>`;
+      return;
+    }
+    els.albumGrid.innerHTML = albums.map(album => {
+      const isActive = filters.selectedAlbum === album.name;
+      if (window.AineoUI?.renderAlbumCard) {
+        return window.AineoUI.renderAlbumCard({ album, isActive, escapeHtml, escapeAttr: escapeHtmlAttr });
+      }
+      return `
+        <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
+          <div class="album-card-cover-wrap">
+            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
+          </div>
+          <div class="album-card-meta">
+            <h3>${escapeHtml(album.name)}</h3>
+            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
+          </div>
+        </button>`;
+    }).join("");
+    els.albumGrid.querySelectorAll('[data-album]').forEach(btn => {
+      btn.addEventListener('click', () => setAlbumFilter(btn.dataset.album));
+    });
   }
 
-  function buildEstimatedLyricsFromPlainText(track) {
-    if (!track) return [];
-    const lines = getPlainLyricsLines(track);
-    if (!lines.length) return [];
-
-    if (Array.isArray(track.estimatedSyncedLyrics) && track.estimatedSyncedLyrics.length) {
-      return track.estimatedSyncedLyrics;
+  function renderFeaturedAlbum({ els, getFeaturedCollection }) {
+    const collection = getFeaturedCollection();
+    const formatDuration = (tracks) => {
+      const secs = (tracks || []).reduce((sum, track) => sum + (Number(track.duration_seconds) || 0), 0);
+      if (!secs) return "";
+      const hours = Math.floor(secs / 3600);
+      const mins = Math.floor((secs % 3600) / 60);
+      return hours ? `${hours} hr ${mins} min` : `${mins} min`;
+    };
+    if (!collection) {
+      if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
+      if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
+      if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
+      if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
+      if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
+      if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
+      return;
     }
+    if (els.featuredAlbumCover) {
+      els.featuredAlbumCover.src = collection.cover || "";
+      els.featuredAlbumCover.alt = `${collection.name} cover`;
+    }
+    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name || 'All Songs';
+    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || 'Entire music library';
+    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? '' : 's'}`;
+    if (els.featuredCollectionStats) {
+      const duration = formatDuration(collection.tracks);
+      const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
+      const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
+      els.featuredCollectionStats.innerHTML = `${type}${durationPill}`;
+    }
+    if (els.featuredCollectionLead) {
+      els.featuredCollectionLead.textContent = collection.name === 'All Songs'
+        ? 'Start here with the full music library. Play or shuffle the whole library, or filter down to a smaller collection.'
+        : `Start here with Play or Shuffle for ${collection.name}.`;
+    }
+    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
+    if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
+    if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
+  }
 
-    const duration = getTrackDurationSeconds(track);
-    const safeDuration = duration > 0
-      ? duration
-      : Math.min(lines.length * LYRICS_FALLBACK_MAX_LINE_SECONDS, Math.max(lines.length * LYRICS_FALLBACK_MIN_LINE_SECONDS, 180));
+  function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
+    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
+    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
+    return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
+  }
 
-    const step = lines.length > 1
-      ? Math.max(LYRICS_FALLBACK_MIN_LINE_SECONDS, Math.min(LYRICS_FALLBACK_MAX_LINE_SECONDS, safeDuration / Math.max(lines.length, 1)))
-      : safeDuration;
+  function renderFeaturedTrackList(ctx) {
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
+    if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
+    const collection = getFeaturedCollection();
+    if (!collection) {
+      els.featuredTrackListTitle.textContent = 'All Songs';
+      els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
+      return;
+    }
+    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
+    els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
+      const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
+      const isPlaying = playState.isCurrentTrack ? 'playing' : '';
+      const isFav = isFavorite(track) ? 'favorited' : '';
+      const offlineSaved = isDownloaded ? isDownloaded(track) : false;
+      return `
+      <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
+        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
+        <div class="featured-track-main">
+          <div class="featured-track-title-line">
+            <strong class="featured-track-title" title="${escapeHtmlAttr(track.title)}">${escapeHtml(track.title)}</strong>
+            ${track.duration ? `<span class="featured-track-duration" title="${escapeHtmlAttr(track.duration)}">${escapeHtml(track.duration)}</span>` : ''}
+          </div>
+          <div class="featured-track-meta-line">
+            <span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span>
+          </div>
+        </div>
+        <div class="featured-track-actions">
+          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
+          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
+          <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
+          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
+        </div>
+      </div>`;
+    }).join('');
 
-    track.estimatedSyncedLyrics = lines.map((line, index) => ({
-      time: Number((index * step).toFixed(3)),
-      text: line
+    els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (Date.now && Date.now() < (window.__AINEO_SUPPRESS_PREVIEW_CLICK_UNTIL__ || 0)) return;
+        const idx = Number(btn.dataset.featuredIndex);
+        const track = collection.tracks[idx];
+        if (!track) return;
+        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) {
+          togglePlayPause();
+          return;
+        }
+        syncQueueToCurrentCollection(true);
+        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
+        playFromQueueIndex(idx);
+      });
+    });
+
+    els.featuredTrackList.querySelectorAll('[data-favorite-track]').forEach(btn => btn.addEventListener('click', () => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
+      if (!track) return;
+      toggleFavorite(track);
+      renderFeaturedTrackList(ctx);
     }));
 
-    return track.estimatedSyncedLyrics;
-  }
+    els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
+      if (track) openLyricsModalForTrack(track, e.currentTarget);
+    }));
 
-  function getRenderableLyricsLines(track) {
-    if (Array.isArray(track?.syncedLyrics) && track.syncedLyrics.length) {
-      return track.syncedLyrics;
-    }
-
-    return buildEstimatedLyricsFromPlainText(track);
-  }
-
-  function parseLrcText(lrcText) {
-    return String(lrcText || "")
-      .replace(/\r\n?/g, "\n")
-      .split("\n")
-      .map(line => {
-        const match = line.match(/^\[(\d{1,2}):(\d{2}(?:\.\d{1,3})?)\](.*)$/);
-        if (!match) return null;
-        const minutes = Number(match[1]);
-        const seconds = Number(match[2]);
-        const text = match[3].trim();
-        return Number.isFinite(minutes) && Number.isFinite(seconds) && text
-          ? { time: minutes * 60 + seconds, text }
-          : null;
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.time - b.time);
-  }
-
-  function findActiveLyricIndex(lines, currentTime) {
-    if (!Array.isArray(lines) || !lines.length) return -1;
-
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-      if (currentTime >= lines[i].time) return i;
-    }
-
-    return -1;
-  }
-
-  function buildLyricsMarkup(track, emptyMessage = "No lyrics available.", helpers = {}) {
-    const { escapeHtml = String, escapeHtmlAttr = String, nl2br = String } = helpers;
-    if (!track) {
-      return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
-    }
-
-    const lyricsLines = getRenderableLyricsLines(track);
-    if (lyricsLines.length) {
-      return `
-        <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
-          ${lyricsLines.map((line, index) => `
-            <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    if (track.lyrics) {
-      return `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`;
-    }
-
-    return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
-  }
-
-  function getLyricsScrollContainer(container) {
-    if (!container) return null;
-
-    return container.closest(".lyrics-content, .lyrics-modal-body, .player-tab-panel, .modal-body")
-      || container.parentElement
-      || container;
-  }
-
-  function scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled) {
-    const scrollContainer = getLyricsScrollContainer(container);
-    if (!scrollContainer || !activeLine || scrollContainer.offsetParent === null) return;
-
-    const containerRect = scrollContainer.getBoundingClientRect();
-    const lineRect = activeLine.getBoundingClientRect();
-    const lineTop = lineRect.top - containerRect.top + scrollContainer.scrollTop;
-    const targetScrollTop = Math.max(0, lineTop - (scrollContainer.clientHeight * 0.45) + (activeLine.clientHeight / 2));
-
-    scrollContainer.scrollTo({
-      top: targetScrollTop,
-      behavior: autoScrollEnabled ? "smooth" : "auto"
-    });
-  }
-
-  function renderLyricsInto({ container, track, emptyMessage, requestToken, onRendered, escapeHtml, escapeHtmlAttr, nl2br }) {
-    if (!container) return;
-
-    container.dataset.trackId = track?.id || "";
-    container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
-    onRendered?.();
-
-    if (!track?.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) return;
-
-    track._syncedLyricsLoading = true;
-    fetch(`${track.lyrics_file}?v=1`, { cache: "no-store" })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then(text => {
-        track.syncedLyrics = parseLrcText(text);
-        track._syncedLyricsLoaded = true;
-      })
-      .catch(error => {
-        console.warn(`Could not load synced lyrics for ${track.title}:`, error);
-        track.syncedLyrics = [];
-        track._syncedLyricsLoaded = true;
-      })
-      .finally(() => {
-        track._syncedLyricsLoading = false;
-        if (container.dataset.trackId === track.id) {
-          container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
-          onRendered?.(requestToken);
-        }
-      });
-  }
-
-  function updateProgress({ track, currentTime, autoScrollEnabled }) {
-    const activeIndex = findActiveLyricIndex(getRenderableLyricsLines(track), currentTime);
-
-    document.querySelectorAll(".synced-lyrics").forEach(container => {
-      const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
-      const lineEls = container.querySelectorAll(".lyric-line");
-
-      if (!isCurrentTrack || activeIndex < 0) {
-        container.dataset.activeIndex = "";
-        return;
+    els.featuredTrackList.querySelectorAll('[data-offline-track]').forEach(btn => btn.addEventListener('click', async e => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.offlineTrack);
+      if (!track) return;
+      e.currentTarget.disabled = true;
+      try {
+        const currentlySaved = isDownloaded ? isDownloaded(track) : false;
+        if (currentlySaved && removeTrackOffline) await removeTrackOffline(track);
+        else if (saveTrackOffline) await saveTrackOffline(track);
+      } finally {
+        renderFeaturedTrackList(ctx);
       }
+    }));
 
-      const activeLine = lineEls[activeIndex];
-      if (!activeLine) return;
-      if (container.dataset.activeIndex === String(activeIndex)) return;
-
-      container.dataset.activeIndex = String(activeIndex);
-
-      if (autoScrollEnabled) {
-        scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled);
-      }
-    });
+    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
+      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
+      if (track) openTrackActionSheet?.(track, e.currentTarget);
+    }));
   }
 
-  window.AineoLyricsEngine = {
-    parseLrcText,
-    findActiveLyricIndex,
-    getRenderableLyricsLines,
-    buildLyricsMarkup,
-    renderLyricsInto,
-    updateProgress
-  };
+  window.AineoFeatured = { getVisibleAlbums, renderAlbums, renderFeaturedAlbum, getFeaturedTrackPlayState, renderFeaturedTrackList };
 })();

@@ -1,0 +1,12 @@
+Aineo Music v42.3.62 — Lyrics Sync Tightening Pass
+
+Included:
+- tighter synced-lyrics tracking using requestAnimationFrame while audio is playing
+- small built-in global lyric lead for a snappier feel
+- support for per-track lyrics_offset / lyricsOffset values in tracks.json
+- broader LRC parsing support for [offset:] metadata and repeated timestamps on a single line
+- cache/version bump for cleaner rollout
+
+Notes:
+- this improves app-side lyric timing behavior without changing your existing hosted .lrc files
+- if individual songs are still off, add a per-track lyrics_offset value in tracks.json for those songs

@@ -1,113 +1,152 @@
-(function () {
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+
+(function(){
+  function normalizeState({ customPlaylists, activeCustomPlaylistName }) {
+    const names = Object.keys(customPlaylists || {}).sort((a,b) => a.localeCompare(b));
+    if (!names.length) return null;
+    if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return null;
+    return activeCustomPlaylistName;
   }
 
-  function escapeAttr(value) {
-    return escapeHtml(value);
+  function getCustomPlaylistTracks({ name, customPlaylists, tracks }) {
+    const ids = customPlaylists?.[name] || [];
+    return ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
   }
 
-  function getJsonCacheKey(url) {
-    return `aineo_json_cache:${String(url).replace(/[^a-z0-9._-]+/gi, "_")}`;
+  function ensureWorkspace() { return null; }
+
+  function openPlaylistModal({ els, customPlaylists, track, triggerEl, setLastFocusedElement, setPlaylistPickerTrackId, lockBodyScroll }) {
+    if (!els.playlistModal) return;
+    setLastFocusedElement(triggerEl || document.activeElement || null);
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+    if (els.playlistSelect) {
+      els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>` + names.map(name => `<option value="${escapeHtmlAttr(name)}">${escapeHtml(name)}</option>`).join('');
+    }
+    if (els.newPlaylistName) els.newPlaylistName.value = '';
+    setPlaylistPickerTrackId(track?.id || null);
+    els.playlistModal.classList.remove('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll(true);
   }
 
-  async function fetchJson(url, fallback) {
-    const version = window.AineoConfig?.assetVersion || window.AineoConfig?.version || "1";
-    const requestUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
-    const cacheKey = getJsonCacheKey(url);
-    try {
-      const response = await fetch(requestUrl, { cache: "no-cache" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
-      return data;
-    } catch (error) {
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-      console.warn(`Could not load ${url}:`, error);
-      return fallback;
+  function closePlaylistModal({ els, isAnyModalOpen, lockBodyScroll, restoreFocus, onClosed }) {
+    if (!els.playlistModal) return;
+    els.playlistModal.classList.add('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'true');
+    onClosed?.();
+    if (!isAnyModalOpen()) {
+      lockBodyScroll(false);
+      restoreFocus();
     }
   }
 
-  function normalizeStringArray(value) {
-    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
-    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
-    return [];
+  function saveTrackToPlaylistFromModal({ els, customPlaylists, playlistPickerTrackId }) {
+    const typedName = els.newPlaylistName?.value?.trim();
+    const selectedName = els.playlistSelect?.value?.trim();
+    const playlistName = typedName || selectedName;
+    if (!playlistName) return { saved: false };
+    if (!customPlaylists[playlistName]) customPlaylists[playlistName] = [];
+    if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
+      customPlaylists[playlistName].push(playlistPickerTrackId);
+    }
+    return { saved: true, playlistName };
   }
 
-  function getTrackCounts(tracks) {
-    return tracks.reduce((map, track) => {
-      const album = String(track.album || "").trim().toLowerCase();
-      if (!album) return map;
-      map[album] = (map[album] || 0) + 1;
-      return map;
-    }, {});
+  function applyCustomPlaylistFilter({ name, customPlaylists, filters, searchInput, onAfterChange }) {
+    if (!name || !customPlaylists?.[name]) return { applied: false };
+    filters.selectedAlbum = null;
+    filters.selectedPlaylist = null;
+    filters.selectedTag = null;
+    filters.selectedSmartPlaylist = null;
+    filters.selectedCustomPlaylist = name;
+    filters.searchTerm = '';
+    if (searchInput) searchInput.value = '';
+    onAfterChange?.();
+    return { applied: true, name };
   }
 
-  function groupTracksByArtist(tracks) {
-    const map = new Map();
-    tracks.forEach(track => {
-      const artist = String(track.artist || "").trim();
-      if (!artist) return;
-      if (!map.has(artist)) map.set(artist, []);
-      map.get(artist).push(track);
-    });
-    return [...map.entries()].map(([artist, artistTracks]) => ({ artist, tracks: artistTracks }));
+  function setActiveCustomPlaylist({ name, customPlaylists, currentActiveName }) {
+    if (!name || !customPlaylists[name]) return { activeName: currentActiveName, changed: false };
+    return { activeName: name, changed: name !== currentActiveName };
   }
 
-  function initSecondaryPageNav() {
-    if (typeof window.initBasicMobileNav === "function") {
-      window.initBasicMobileNav();
+  function renderWorkspace() { return null; }
+
+  function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
+    if (!els.myPlaylistList) return;
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+
+    if (!names.length) {
+      els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+      els.myPlaylistList.innerHTML = `<p class="empty-message playlist-empty-message">No custom playlists yet.</p>`;
       return;
     }
-    const toggle = document.getElementById("mobileNavToggle");
-    const nav = document.getElementById("siteNavLinks");
-    if (!toggle || !nav || toggle.dataset.navBound === "true") return;
-    const close = () => {
-      nav.classList.remove("nav-open");
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.textContent = "☰";
-    };
-    toggle.dataset.navBound = "true";
-    toggle.addEventListener("click", () => {
-      const isOpen = nav.classList.toggle("nav-open");
-      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      toggle.textContent = isOpen ? "✕" : "☰";
-    });
-    nav.querySelectorAll("a").forEach(link => {
-      if (link.dataset.navCloseBound === "true") return;
-      link.dataset.navCloseBound = "true";
-      link.addEventListener("click", close);
-    });
+
+    const activeName = normalizeState({ customPlaylists, activeCustomPlaylistName });
+    const hasSelectionFocus = Boolean(filters?.selectedPlaylist || filters?.selectedSmartPlaylist || filters?.selectedCustomPlaylist);
+    const visibleNames = activeName
+      ? names.filter(name => name === activeName)
+      : (hasSelectionFocus ? [] : names);
+
+    els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+
+    const gridMarkup = visibleNames.map(name => {
+      const list = getCustomPlaylistTracks(name);
+      const active = name === activeName ? 'active' : '';
+      const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
+      return `
+        <button class="filter-chip playlist-card-pill playlist-card-pill--custom-compact ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}" aria-label="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}">
+          <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
+        </button>
+      `;
+    }).join('');
+
+    const trayMarkup = activeName ? `
+      <div class="custom-playlist-action-tray" data-custom-playlist-tray="${escapeHtmlAttr(activeName)}">
+        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)} · ${escapeHtml(getCustomPlaylistTracks(activeName).length)} song${getCustomPlaylistTracks(activeName).length === 1 ? '' : 's'}</div>
+        <div class="playlist-card-actions playlist-card-actions--selected-tray">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(activeName)}" type="button" title="Play ${escapeHtmlAttr(activeName)}">Play</button>
+          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(activeName)}" type="button" title="Shuffle ${escapeHtmlAttr(activeName)}">Shuffle</button>
+          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(activeName)}" type="button" title="Delete ${escapeHtmlAttr(activeName)}">Delete</button>
+        </div>
+      </div>
+    ` : '';
+
+    els.myPlaylistList.innerHTML = `${gridMarkup}${trayMarkup}`;
+
+    els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.openCustomPlaylist;
+      setActiveCustomPlaylist(name);
+      applyCustomPlaylistFilter(name);
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-play]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistPlay;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, false, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-shuffle]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistShuffle;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, true, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-delete-custom-playlist]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      onDelete(btn.dataset.deleteCustomPlaylist);
+      saveCustomPlaylists();
+      renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName: normalizeState({ customPlaylists, activeCustomPlaylistName: null }), filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr });
+    }));
   }
 
-  function renderScriptureLinks(refs, options = {}) {
-    const list = Array.isArray(refs)
-      ? refs.map(ref => String(ref).trim()).filter(Boolean)
-      : normalizeStringArray(refs);
-    if (!list.length) return "";
-    const compactClass = options.compact ? " scripture-link--compact" : "";
-    return list.map(ref => {
-      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
-      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
-    }).join("");
-  }
+  function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function escapeHtmlAttr(value) { return escapeHtml(value); }
 
-  window.AineoShared = {
-    escapeHtml,
-    escapeAttr,
-    fetchJson,
-    normalizeStringArray,
-    getTrackCounts,
-    groupTracksByArtist,
-    initSecondaryPageNav,
-    renderScriptureLinks
-  };
+  window.AineoPlaylists = { normalizeState, getCustomPlaylistTracks, ensureWorkspace, openPlaylistModal, closePlaylistModal, saveTrackToPlaylistFromModal, applyCustomPlaylistFilter, setActiveCustomPlaylist, renderWorkspace, renderMyPlaylists };
 })();
