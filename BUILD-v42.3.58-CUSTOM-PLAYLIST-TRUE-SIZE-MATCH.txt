@@ -1,0 +1,9 @@
+Aineo Music build v42.3.58
+
+Base: v42.3.57
+
+Changes:
+- restored custom playlist pills to the same compact 38px height as the regular playlist buttons
+- forced the custom playlist pills to use the same inline-flex single-line layout as the regular playlist buttons
+- kept the custom playlist area in columns with the action tray below the grid
+- preserved prior v42.3.55+ upgrades
