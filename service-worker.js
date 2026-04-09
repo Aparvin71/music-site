@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.3.42-playlist-section-polish-pass";
+const CACHE_VERSION = "v42.3.43-playlist-section-polish-pass";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

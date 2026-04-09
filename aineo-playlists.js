@@ -96,7 +96,6 @@
       return `
         <div class="playlist-card playlist-card--custom ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
           <button class="playlist-card-main playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
-            <span class="playlist-card-pill__eyebrow">Custom Playlist</span>
             <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
             <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
           </button>

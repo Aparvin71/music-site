@@ -1,4 +1,4 @@
-Aineo Music v42.3.42
+Aineo Music v42.3.43
 
 Hard refresh UI fix:
 - Force removed any remaining Selected Collection card markup
@@ -6,4 +6,4 @@ Hard refresh UI fix:
 - Moved Custom Playlists heading into its own standalone header block
 - Put custom playlist buttons on the row below
 - Added ?v=42.3.41 cache-busting query strings to music page CSS/JS includes
-- Updated service worker cache version to v42.3.42
+- Updated service worker cache version to v42.3.43

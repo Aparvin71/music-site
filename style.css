@@ -9463,3 +9463,31 @@ select:focus,
 #featuredCollectionCard{
   display:none !important;
 }
+
+
+/* v42.3.43 custom playlist layout fix */
+.music-page-layout .playlist-subsection-block {
+  margin-top: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.music-page-layout .playlist-subsection-title {
+  margin: 0 0 0.3rem;
+  color: #f4f7fb;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.music-page-layout .playlist-list--custom-standalone {
+  margin-top: 0 !important;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill__title {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.music-page-layout .playlist-list--custom-standalone .playlist-card-pill__eyebrow {
+  display: none !important;
+}
