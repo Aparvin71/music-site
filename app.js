@@ -550,11 +550,15 @@ function renderLyricsInto(container, track, emptyMessage) {
     track,
     emptyMessage,
     requestToken: ++syncedLyricsRequestToken,
-    onRendered: () => updateSyncedLyricsProgress(),
+    onRendered: () => window.requestAnimationFrame(() => updateSyncedLyricsProgress()),
     escapeHtml,
     escapeHtmlAttr,
     nl2br
   });
+}
+
+function prefetchTrackLyrics(track) {
+  return window.AineoLyricsEngine?.preloadSyncedLyrics?.(track) || Promise.resolve([]);
 }
 
 function updateSyncedLyricsProgress() {
@@ -907,6 +911,7 @@ function bindUI() {
     els.audioPlayer.addEventListener("loadedmetadata", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
+      window.requestAnimationFrame(() => updateSyncedLyricsProgress());
       updateMediaSessionPositionState();
     });
     els.audioPlayer.addEventListener("play", () => {
@@ -915,6 +920,11 @@ function bindUI() {
       updateMediaSessionPlaybackState();
       setMiniVisualizerActive(true);
       savePlayerState();
+      updateSyncedLyricsProgress();
+      startLyricsSyncLoop();
+    });
+    els.audioPlayer.addEventListener("playing", () => {
+      updateSyncedLyricsProgress();
       startLyricsSyncLoop();
     });
     els.audioPlayer.addEventListener("pause", () => {
@@ -2032,21 +2042,31 @@ function playTrack(track) {
 
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
 
+  stopLyricsSyncLoop();
   els.audioPlayer.src = track.src;
   pendingResumeSeek = track.src === resumeTrackSrc && resumeTrackTime > 1 ? resumeTrackTime : null;
   const applyResumeSeek = () => {
     if (pendingResumeSeek !== null && Number.isFinite(els.audioPlayer.duration)) {
       els.audioPlayer.currentTime = Math.min(pendingResumeSeek, Math.max(0, els.audioPlayer.duration - 1));
       pendingResumeSeek = null;
+      updateSyncedLyricsProgress();
     }
   };
   els.audioPlayer.addEventListener("loadedmetadata", applyResumeSeek, { once: true });
-  els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
 
   updateNowPlaying(track);
   updateMediaSessionMetadata(track);
   updateLyricsPanel(track);
   updateSyncedLyricsProgress();
+  window.requestAnimationFrame(() => updateSyncedLyricsProgress());
+  prefetchTrackLyrics(track).then(() => {
+    if (getCurrentTrack()?.id === track.id) {
+      updateLyricsPanel(track);
+      updateSyncedLyricsProgress();
+    }
+  });
+
+  els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
   updateScripturePanel(track);
   recordTrackPlay(track);
   addToRecentlyPlayed(track);

@@ -33,11 +33,8 @@
 
   function getPlainLyricsLines(track) {
     return String(track?.lyrics || "")
-      .replace(/
-?/g, "
-")
-      .split("
-")
+      .replace(/\r\n?/g, "\n")
+      .split("\n")
       .map(line => line.trim())
       .filter(Boolean);
   }
@@ -120,11 +117,8 @@
     const parsedLines = [];
 
     String(lrcText || "")
-      .replace(/
-?/g, "
-")
-      .split("
-")
+      .replace(/\r\n?/g, "\n")
+      .split("\n")
       .forEach(rawLine => {
         const line = rawLine.trim();
         if (!line) return;
@@ -269,6 +263,34 @@
     });
   }
 
+  function preloadSyncedLyrics(track) {
+    if (!track || !track.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) {
+      return Promise.resolve(getRenderableLyricsLines(track));
+    }
+
+    track._syncedLyricsLoading = true;
+    const lyricsAssetVersion = window.AineoConfig?.app?.assetVersion || window.AineoConfig?.app?.version || "1";
+    return fetch(`${track.lyrics_file}?v=${encodeURIComponent(lyricsAssetVersion)}`, { cache: "no-store" })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then(text => {
+        track.syncedLyrics = parseLrcText(text, track);
+        track._syncedLyricsLoaded = true;
+        return getRenderableLyricsLines(track);
+      })
+      .catch(error => {
+        console.warn(`Could not load synced lyrics for ${track.title}:`, error);
+        track.syncedLyrics = [];
+        track._syncedLyricsLoaded = true;
+        return getRenderableLyricsLines(track);
+      })
+      .finally(() => {
+        track._syncedLyricsLoading = false;
+      });
+  }
+
   function renderLyricsInto({ container, track, emptyMessage, requestToken, onRendered, escapeHtml, escapeHtmlAttr, nl2br }) {
     if (!container) return;
 
@@ -279,30 +301,13 @@
 
     if (!track?.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) return;
 
-    track._syncedLyricsLoading = true;
-    const lyricsAssetVersion = window.AineoConfig?.app?.assetVersion || window.AineoConfig?.app?.version || "1";
-    fetch(`${track.lyrics_file}?v=${encodeURIComponent(lyricsAssetVersion)}`, { cache: "no-store" })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then(text => {
-        track.syncedLyrics = parseLrcText(text, track);
-        track._syncedLyricsLoaded = true;
-      })
-      .catch(error => {
-        console.warn(`Could not load synced lyrics for ${track.title}:`, error);
-        track.syncedLyrics = [];
-        track._syncedLyricsLoaded = true;
-      })
-      .finally(() => {
-        track._syncedLyricsLoading = false;
-        if (container.dataset.trackId === track.id) {
-          container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
-          bindManualScrollPause(container);
-          onRendered?.(requestToken);
-        }
-      });
+    preloadSyncedLyrics(track).finally(() => {
+      if (container.dataset.trackId === track.id) {
+        container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
+        bindManualScrollPause(container);
+        onRendered?.(requestToken);
+      }
+    });
   }
 
   function updateProgress({ track, currentTime, autoScrollEnabled }) {
@@ -326,7 +331,10 @@
 
       const activeLine = lineEls[activeIndex];
       if (!activeLine) return;
-      if (container.dataset.activeIndex === String(activeIndex)) return;
+      if (container.dataset.activeIndex === String(activeIndex)) {
+        if (autoScrollEnabled) scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled);
+        return;
+      }
 
       container.dataset.activeIndex = String(activeIndex);
       scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled);
@@ -340,6 +348,7 @@
     buildLyricsMarkup,
     renderLyricsInto,
     updateProgress,
-    normalizeParsedLyrics
+    normalizeParsedLyrics,
+    preloadSyncedLyrics
   };
 })();

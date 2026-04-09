@@ -1,0 +1,11 @@
+Aineo Music v42.3.64 — Lyrics Micro-Tuning Pass
+
+Included:
+- tightened synced lyric parsing and duplicate/meta cleanup
+- wired tracks.json lyrics_file mapping for the full library
+- smoother active-line follow behavior and manual scroll hold guard
+- preloading of synced lyrics for faster first-line lock after track changes
+- app version/cache refresh for clean upload behavior
+
+Package note:
+- full package exported without audio, covers, and lyrics folders
