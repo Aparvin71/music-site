@@ -1,6 +1,191 @@
-const AINEO_APP_VERSION = "v42.3.68";
+const AINEO_APP_VERSION = "v42.3.69";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
+
+const APP_FEEL_SETTINGS_KEY = "aineo_app_feel_settings";
+const APP_FEEL_DEFAULTS = {
+  reducedMotionUi: false,
+  showInstallTips: true,
+  downloadHints: true
+};
+
+function loadAppFeelSettings() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(APP_FEEL_SETTINGS_KEY) || "{}");
+    return { ...APP_FEEL_DEFAULTS, ...parsed };
+  } catch (error) {
+    return { ...APP_FEEL_DEFAULTS };
+  }
+}
+
+function saveAppFeelSettings(nextSettings) {
+  try {
+    localStorage.setItem(APP_FEEL_SETTINGS_KEY, JSON.stringify(nextSettings));
+  } catch (error) {}
+}
+
+function applyAppFeelSettings() {
+  const settings = loadAppFeelSettings();
+  document.body.classList.toggle("ui-reduced-motion", Boolean(settings.reducedMotionUi));
+  document.documentElement.classList.toggle("ui-reduced-motion", Boolean(settings.reducedMotionUi));
+}
+
+function ensureSettingsSurface() {
+  let surface = document.getElementById("appFeelSurface");
+  if (surface) return surface;
+  surface = document.createElement("div");
+  surface.id = "appFeelSurface";
+  surface.className = "app-feel-surface hidden";
+  surface.setAttribute("aria-hidden", "true");
+  surface.innerHTML = `
+    <div class="app-feel-surface-backdrop" data-close-app-feel></div>
+    <div class="app-feel-surface-panel" role="dialog" aria-modal="true" aria-labelledby="appFeelSurfaceTitle">
+      <div class="app-feel-surface-header">
+        <div>
+          <p class="eyebrow">Aineo Music</p>
+          <h2 id="appFeelSurfaceTitle">Settings &amp; About</h2>
+        </div>
+        <button type="button" class="control-btn" data-close-app-feel aria-label="Close settings">✕</button>
+      </div>
+      <div class="app-feel-surface-body">
+        <section class="app-feel-group">
+          <h3>App Feel</h3>
+          <label class="app-feel-toggle">
+            <span>Reduce interface motion</span>
+            <input type="checkbox" id="settingReducedMotionUi" />
+          </label>
+          <label class="app-feel-toggle">
+            <span>Show install tips</span>
+            <input type="checkbox" id="settingShowInstallTips" />
+          </label>
+          <label class="app-feel-toggle">
+            <span>Show offline download hints</span>
+            <input type="checkbox" id="settingDownloadHints" />
+          </label>
+        </section>
+        <section class="app-feel-group">
+          <h3>Quick Links</h3>
+          <div class="card-actions">
+            <a class="action-btn secondary-btn" href="./install.html">Install Guide</a>
+            <a class="action-btn secondary-btn" href="./about.html">About</a>
+            <a class="action-btn secondary-btn" href="./changelog.html">What’s New</a>
+          </div>
+        </section>
+        <section class="app-feel-group">
+          <h3>About this build</h3>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.69</span> is tuned for a cleaner iPhone standalone experience.</p>
+        </section>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(surface);
+
+  surface.querySelectorAll("[data-close-app-feel]").forEach(btn => {
+    btn.addEventListener("click", closeSettingsSurface);
+  });
+
+  const bindToggle = (id, key) => {
+    const input = surface.querySelector(id);
+    if (!input) return;
+    const settings = loadAppFeelSettings();
+    input.checked = Boolean(settings[key]);
+    input.addEventListener("change", () => {
+      const next = loadAppFeelSettings();
+      next[key] = Boolean(input.checked);
+      saveAppFeelSettings(next);
+      applyAppFeelSettings();
+      renderInstallUi?.();
+      renderOfflineHintCard?.();
+    });
+  };
+
+  bindToggle("#settingReducedMotionUi", "reducedMotionUi");
+  bindToggle("#settingShowInstallTips", "showInstallTips");
+  bindToggle("#settingDownloadHints", "downloadHints");
+  return surface;
+}
+
+function openSettingsSurface() {
+  const surface = ensureSettingsSurface();
+  surface.classList.remove("hidden");
+  surface.classList.add("show");
+  surface.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function closeSettingsSurface() {
+  const surface = document.getElementById("appFeelSurface");
+  if (!surface) return;
+  surface.classList.remove("show");
+  surface.classList.add("hidden");
+  surface.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+function ensureFloatingSettingsButton() {
+  if (!isStandalone()) return;
+  let btn = document.getElementById("floatingSettingsButton");
+  if (btn) return btn;
+  btn = document.createElement("button");
+  btn.id = "floatingSettingsButton";
+  btn.type = "button";
+  btn.className = "floating-settings-btn";
+  btn.setAttribute("aria-label", "Open settings and about");
+  btn.textContent = "⋯";
+  btn.addEventListener("click", openSettingsSurface);
+  document.body.appendChild(btn);
+  return btn;
+}
+
+function shouldShowInstallUi() {
+  const settings = loadAppFeelSettings();
+  if (!settings.showInstallTips) return false;
+  if (isStandalone()) return false;
+  if (localStorage.getItem(INSTALL_DISMISSED_KEY) === AINEO_APP_VERSION) return false;
+  return Boolean(deferredInstallPrompt || isIosSafari());
+}
+
+function renderOfflineHintCard() {
+  const settings = loadAppFeelSettings();
+  let card = document.getElementById("offlineHintCard");
+  if (!settings.downloadHints) {
+    card?.remove();
+    return;
+  }
+  if (!card) {
+    card = document.createElement("div");
+    card.id = "offlineHintCard";
+    card.className = "offline-hint-card hidden";
+    card.innerHTML = `
+      <div class="offline-hint-card-copy">
+        <strong>Offline listening tip</strong>
+        <p>Save favorite tracks for faster repeat listening and a more app-like experience when your connection is weak.</p>
+      </div>
+      <button type="button" class="control-btn" data-dismiss-offline-hint aria-label="Dismiss offline tip">✕</button>
+    `;
+    document.body.appendChild(card);
+    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => card.classList.add("hidden"));
+  }
+  const standalonePreferred = isStandalone() || isIosSafari();
+  card.classList.toggle("hidden", !standalonePreferred);
+}
+
+function initPageMotionHooks() {
+  const pageShell = document.querySelector("main, #mainContent, .page-shell");
+  if (pageShell) {
+    pageShell.classList.add("page-enter");
+    requestAnimationFrame(() => pageShell.classList.add("page-enter-active"));
+  }
+}
+
+function initAppFeelPolish() {
+  applyAppFeelSettings();
+  ensureFloatingSettingsButton();
+  ensureSettingsSurface();
+  renderOfflineHintCard();
+  initPageMotionHooks();
+}
+
 
 const STANDALONE_WELCOME_DISMISSED_KEY = "aineo_standalone_welcome_dismissed";
 
@@ -341,4 +526,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });

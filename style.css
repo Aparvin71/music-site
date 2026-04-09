@@ -10452,7 +10452,7 @@ button:active{
 }
 
 
-/* ===== v42.3.68 UX + performance polish ===== */
+/* ===== v42.3.69 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10542,7 +10542,7 @@ a:focus-visible {
 
 
 
-/* v42.3.68 iPhone standalone UX pass */
+/* v42.3.69 iPhone standalone UX pass */
 
 body.ios-standalone {
   background:
@@ -10723,5 +10723,245 @@ body.standalone-launch-active {
   body.ios-standalone .player-sheet-header {
     position: relative;
     padding-top: 22px;
+  }
+}
+
+
+
+/* v42.3.69 iPhone app-feel polish */
+
+:root {
+  --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --app-fast: 160ms;
+  --app-med: 240ms;
+  --app-slow: 340ms;
+}
+
+.page-enter {
+  opacity: 0.01;
+  transform: translateY(8px);
+}
+
+.page-enter.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--app-med) var(--app-ease), transform var(--app-med) var(--app-ease);
+}
+
+body.ui-reduced-motion *,
+body.ui-reduced-motion *::before,
+body.ui-reduced-motion *::after {
+  animation: none !important;
+  transition-duration: 1ms !important;
+  scroll-behavior: auto !important;
+}
+
+.install-banner {
+  position: fixed;
+  left: max(12px, calc(12px + var(--safe-left)));
+  right: max(12px, calc(12px + var(--safe-right)));
+  bottom: max(12px, calc(92px + var(--safe-bottom)));
+  z-index: 1400;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 14px calc(14px + var(--safe-bottom));
+  background: rgba(15, 20, 29, 0.92);
+  border: 1px solid rgba(144, 180, 232, 0.14);
+  border-radius: 20px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(18px);
+}
+
+.install-banner.hidden {
+  display: none !important;
+}
+
+.install-banner-copy p {
+  margin: 4px 0 0;
+  color: #c8d3e7;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.install-modal-content {
+  overflow: hidden;
+  transform: translateY(12px) scale(0.985);
+  opacity: 0;
+  transition: transform var(--app-med) var(--app-ease), opacity var(--app-med) var(--app-ease);
+}
+
+.install-modal:not(.hidden) .install-modal-content {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+.offline-hint-card {
+  position: fixed;
+  left: max(12px, calc(12px + var(--safe-left)));
+  right: max(12px, calc(12px + var(--safe-right)));
+  bottom: max(106px, calc(162px + var(--safe-bottom)));
+  z-index: 1350;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 12px 12px calc(12px + var(--safe-bottom));
+  background: rgba(17, 24, 34, 0.9);
+  border: 1px solid rgba(107, 183, 255, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(14px);
+}
+
+.offline-hint-card.hidden {
+  display: none !important;
+}
+
+.offline-hint-card-copy p {
+  margin: 4px 0 0;
+  color: #c8d3e7;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.floating-settings-btn {
+  position: fixed;
+  right: max(14px, calc(14px + var(--safe-right)));
+  top: max(14px, calc(14px + var(--safe-top)));
+  z-index: 1450;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(144, 180, 232, 0.16);
+  border-radius: 999px;
+  background: rgba(17, 24, 34, 0.88);
+  color: #f4f7fb;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.app-feel-surface {
+  position: fixed;
+  inset: 0;
+  z-index: 16000;
+  display: none;
+}
+
+.app-feel-surface.show {
+  display: block;
+}
+
+.app-feel-surface-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 14, 0.68);
+  backdrop-filter: blur(12px);
+}
+
+.app-feel-surface-panel {
+  position: absolute;
+  left: max(12px, calc(12px + var(--safe-left)));
+  right: max(12px, calc(12px + var(--safe-right)));
+  bottom: max(12px, calc(12px + var(--safe-bottom)));
+  background:
+    radial-gradient(circle at top, rgba(86, 136, 220, 0.14), transparent 44%),
+    linear-gradient(180deg, #111822 0%, #0b1118 100%);
+  border: 1px solid rgba(144, 180, 232, 0.16);
+  border-radius: 26px;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.42);
+  padding: 16px 16px calc(16px + var(--safe-bottom));
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform var(--app-med) var(--app-ease), opacity var(--app-med) var(--app-ease);
+}
+
+.app-feel-surface.show .app-feel-surface-panel {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.app-feel-surface-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.app-feel-surface-body {
+  display: grid;
+  gap: 14px;
+}
+
+.app-feel-group {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(144, 180, 232, 0.08);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.app-feel-group h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+
+.app-feel-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 48px;
+}
+
+.app-feel-toggle + .app-feel-toggle {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.compact-lead {
+  margin: 0;
+}
+
+.sticky-player,
+.player-sheet-content,
+.install-banner,
+.offline-hint-card,
+.floating-settings-btn,
+.app-feel-surface-panel {
+  transition:
+    transform var(--app-med) var(--app-ease),
+    opacity var(--app-med) var(--app-ease),
+    box-shadow var(--app-med) var(--app-ease),
+    background-color var(--app-med) var(--app-ease),
+    border-color var(--app-med) var(--app-ease);
+}
+
+body.ios-standalone .sticky-player {
+  bottom: max(8px, calc(8px + var(--safe-bottom)));
+}
+
+body.ios-standalone .offline-hint-card {
+  bottom: max(98px, calc(154px + var(--safe-bottom)));
+}
+
+@media (max-width: 640px) {
+  .install-banner {
+    grid-template-columns: 1fr;
+    bottom: max(92px, calc(98px + var(--safe-bottom)));
+  }
+
+  .install-banner-actions,
+  .card-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .floating-settings-btn {
+    width: 40px;
+    height: 40px;
+    top: max(10px, calc(10px + var(--safe-top)));
+    right: max(10px, calc(10px + var(--safe-right)));
   }
 }

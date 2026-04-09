@@ -58,9 +58,9 @@
       "url": "./albums.html?source=pwa"
     },
     {
-      "name": "Install Guide",
-      "short_name": "Install",
-      "url": "./install.html?source=pwa"
+      "name": "About",
+      "short_name": "About",
+      "url": "./about.html?source=pwa"
     }
   ]
 }
