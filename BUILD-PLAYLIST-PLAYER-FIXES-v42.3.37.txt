@@ -1,4 +1,4 @@
-v42.3.37
+v42.3.44
 - fixed full-player shuffle/repeat handlers
 - compact full-player favorite button
 - removed separate custom playlist workspace card

@@ -1,5 +1,5 @@
-Aineo Music v42.3.43
+Aineo Music v42.3.44
 
 - Changed Custom Playlists to a separate titled section above the custom playlist buttons
 - Removed the duplicate 'Custom Playlist' text from inside each custom playlist card
-- Synced version markers and cache-busting URLs to v42.3.43
+- Synced version markers and cache-busting URLs to v42.3.44
