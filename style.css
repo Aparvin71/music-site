@@ -10452,7 +10452,7 @@ button:active{
 }
 
 
-/* ===== v42.3.69 UX + performance polish ===== */
+/* ===== v42.3.70 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10542,7 +10542,7 @@ a:focus-visible {
 
 
 
-/* v42.3.69 iPhone standalone UX pass */
+/* v42.3.70 iPhone standalone UX pass */
 
 body.ios-standalone {
   background:
@@ -10728,7 +10728,7 @@ body.standalone-launch-active {
 
 
 
-/* v42.3.69 iPhone app-feel polish */
+/* v42.3.70 iPhone app-feel polish */
 
 :root {
   --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -10964,4 +10964,114 @@ body.ios-standalone .offline-hint-card {
     top: max(10px, calc(10px + var(--safe-top)));
     right: max(10px, calc(10px + var(--safe-right)));
   }
+}
+
+
+
+/* v42.3.70 visibility + sticky recovery fixes */
+
+/* Restore sticky player after app-feel passes changed its layout behavior */
+.sticky-player {
+  position: fixed !important;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 1500;
+  display: grid !important;
+  grid-template-columns: minmax(220px, 1.1fr) minmax(260px, 0.9fr) minmax(220px, 1.1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px calc(10px + var(--safe-bottom));
+  background: rgba(23, 26, 33, 0.96);
+  color: #f4f4f4;
+  backdrop-filter: blur(12px);
+  border-top: 1px solid #252a34;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.ios-standalone .sticky-player {
+  left: max(10px, calc(10px + var(--safe-left)));
+  right: max(10px, calc(10px + var(--safe-right)));
+  bottom: max(10px, calc(10px + var(--safe-bottom)));
+  width: auto;
+  border: 1px solid rgba(144, 180, 232, 0.14);
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+}
+
+@media (max-width: 1100px) {
+  .sticky-player {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 12px 14px calc(12px + var(--safe-bottom));
+  }
+}
+
+@media (max-width: 640px) {
+  .sticky-player {
+    gap: 10px;
+    padding: 10px 12px calc(12px + var(--safe-bottom));
+  }
+}
+
+/* Keep the sticky filter clear area visible and readable */
+.albums-toolbar.has-active-filter {
+  position: sticky;
+  top: calc(10px + var(--safe-top));
+  z-index: 1450;
+  background: rgba(23, 26, 33, 0.96);
+  color: #f4f4f4;
+}
+
+.active-filter-label,
+.filter-badge,
+#clearFiltersBtn,
+#clearFiltersBtn.secondary-btn,
+.albums-toolbar.has-active-filter .active-filter-label,
+.albums-toolbar.has-active-filter .filter-badge {
+  color: #f4f4f4 !important;
+}
+
+#clearFiltersBtn {
+  border-color: rgba(144, 180, 232, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* Protect readable text across new app-feel surfaces */
+.install-banner,
+.install-banner *,
+.install-modal-content,
+.install-modal-content *,
+.offline-hint-card,
+.offline-hint-card *,
+.app-feel-surface-panel,
+.app-feel-surface-panel *,
+.standalone-welcome-card,
+.standalone-welcome-card * {
+  color: #f4f4f4;
+}
+
+.install-banner-copy p,
+.offline-hint-card-copy p,
+.app-feel-group .page-lead,
+.compact-lead,
+.standalone-welcome-list,
+.standalone-welcome-list li {
+  color: #d7deea !important;
+}
+
+.app-feel-group h3,
+.install-modal-content h2,
+.standalone-welcome-card h2,
+.install-banner-copy strong,
+.offline-hint-card-copy strong {
+  color: #ffffff !important;
+}
+
+.app-feel-toggle span,
+.app-feel-group label,
+.app-feel-group a,
+.app-feel-surface-header .eyebrow {
+  color: #f4f4f4 !important;
 }

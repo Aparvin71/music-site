@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.3.69-iphone-app-feel-polish";
+const CACHE_VERSION = "v42.3.70-visibility-and-sticky-fixes";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
