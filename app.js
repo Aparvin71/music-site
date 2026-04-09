@@ -1742,12 +1742,12 @@ function renderSearchUi() {
 ========================= */
 
 function isTabletLibraryViewport() {
-  return window.matchMedia("(min-width: 641px) and (max-width: 1100px)").matches;
+  return true;
 }
 
 function getStickyFilterTopOffset() {
   const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-  return Math.round(headerHeight + 12);
+  return Math.round(headerHeight + 10);
 }
 
 function syncTabletStickyFilterBarMetrics(resetAnchor = false) {

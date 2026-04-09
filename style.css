@@ -10452,7 +10452,7 @@ button:active{
 }
 
 
-/* ===== v42.3.71 UX + performance polish ===== */
+/* ===== v42.3.72 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10542,7 +10542,7 @@ a:focus-visible {
 
 
 
-/* v42.3.71 iPhone standalone UX pass */
+/* v42.3.72 iPhone standalone UX pass */
 
 body.ios-standalone {
   background:
@@ -10728,7 +10728,7 @@ body.standalone-launch-active {
 
 
 
-/* v42.3.71 iPhone app-feel polish */
+/* v42.3.72 iPhone app-feel polish */
 
 :root {
   --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -10968,191 +10968,58 @@ body.ios-standalone .offline-hint-card {
 
 
 
-/* v42.3.71 visibility + sticky recovery fixes */
+/* v42.3.72 v69-based sticky clear + readable text fixes */
 
-/* Restore sticky player after app-feel passes changed its layout behavior */
-.sticky-player {
+/* Make the sticky filter/clear bar truly stay fixed once scrolled past on all viewports */
+.sticky-filter-bar {
+  position: relative !important;
+  z-index: 970 !important;
+}
+
+.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px);
+}
+
+.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
   position: fixed !important;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  z-index: 1500;
+  top: var(--tablet-sticky-top, 82px) !important;
+  left: var(--tablet-sticky-left, 0) !important;
+  width: var(--tablet-sticky-width, 100%) !important;
+  z-index: 970 !important;
+}
+
+.sticky-filter-bar-inner {
   display: grid !important;
-  grid-template-columns: minmax(220px, 1.1fr) minmax(260px, 0.9fr) minmax(220px, 1.1fr);
-  gap: 12px;
-  align-items: center;
-  padding: 10px 14px calc(10px + var(--safe-bottom));
-  background: rgba(23, 26, 33, 0.96);
-  color: #f4f4f4;
-  backdrop-filter: blur(12px);
-  border-top: 1px solid #252a34;
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.3);
-}
-
-body.ios-standalone .sticky-player {
-  left: max(10px, calc(10px + var(--safe-left)));
-  right: max(10px, calc(10px + var(--safe-right)));
-  bottom: max(10px, calc(10px + var(--safe-bottom)));
-  width: auto;
-  border: 1px solid rgba(144, 180, 232, 0.14);
-  border-radius: 22px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
-}
-
-@media (max-width: 1100px) {
-  .sticky-player {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 12px 14px calc(12px + var(--safe-bottom));
-  }
-}
-
-@media (max-width: 640px) {
-  .sticky-player {
-    gap: 10px;
-    padding: 10px 12px calc(12px + var(--safe-bottom));
-  }
-}
-
-/* Keep the sticky filter clear area visible and readable */
-.albums-toolbar.has-active-filter {
-  position: sticky;
-  top: calc(10px + var(--safe-top));
-  z-index: 1450;
-  background: rgba(23, 26, 33, 0.96);
-  color: #f4f4f4;
-}
-
-.active-filter-label,
-.filter-badge,
-#clearFiltersBtn,
-#clearFiltersBtn.secondary-btn,
-.albums-toolbar.has-active-filter .active-filter-label,
-.albums-toolbar.has-active-filter .filter-badge {
-  color: #f4f4f4 !important;
-}
-
-#clearFiltersBtn {
-  border-color: rgba(144, 180, 232, 0.22);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-/* Protect readable text across new app-feel surfaces */
-.install-banner,
-.install-banner *,
-.install-modal-content,
-.install-modal-content *,
-.offline-hint-card,
-.offline-hint-card *,
-.app-feel-surface-panel,
-.app-feel-surface-panel *,
-.standalone-welcome-card,
-.standalone-welcome-card * {
-  color: #f4f4f4;
-}
-
-.install-banner-copy p,
-.offline-hint-card-copy p,
-.app-feel-group .page-lead,
-.compact-lead,
-.standalone-welcome-list,
-.standalone-welcome-list li {
-  color: #d7deea !important;
-}
-
-.app-feel-group h3,
-.install-modal-content h2,
-.standalone-welcome-card h2,
-.install-banner-copy strong,
-.offline-hint-card-copy strong {
-  color: #ffffff !important;
-}
-
-.app-feel-toggle span,
-.app-feel-group label,
-.app-feel-group a,
-.app-feel-surface-header .eyebrow {
-  color: #f4f4f4 !important;
-}
-
-
-
-/* v42.3.71 sticky clear + text visibility hardening */
-
-/* Sticky active-filter / clear bar recovery */
-.active-filter-bar,
-.active-filter-row,
-.active-filter-wrap,
-.filter-summary-bar,
-.albums-toolbar.has-active-filter,
-.music-toolbar.has-active-filter,
-.sticky-clear,
-.sticky-clear-bar {
-  position: sticky !important;
-  top: calc(10px + var(--safe-top)) !important;
-  z-index: 1450 !important;
-  display: flex !important;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 10px 12px;
-  margin-bottom: 10px;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
   background: rgba(23, 26, 33, 0.96) !important;
   color: #f4f4f4 !important;
-  border: 1px solid rgba(144, 180, 232, 0.12);
-  border-radius: 16px;
-  backdrop-filter: blur(14px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
 }
 
-.active-filter-label,
-.active-filter-text,
-.filter-summary-bar,
-.filter-summary-bar *,
-.active-filter-bar *,
-.active-filter-row *,
-.active-filter-wrap *,
-.albums-toolbar.has-active-filter *,
-.music-toolbar.has-active-filter *,
-.sticky-clear *,
-.sticky-clear-bar *,
-#activeFilterLabel,
-#activeFilterSummary,
-#clearFiltersBtn,
-#clearFiltersBtn *,
-button#clearFiltersBtn,
-button#clearFiltersBtn * {
+#stickyFilterBar .filter-info,
+#stickyFilterBar .filter-info *,
+#stickyFilterBar .active-filter-label,
+#stickyFilterBar .filter-type-badge,
+#stickyFilterBar #clearFiltersBtn,
+#stickyFilterBar #clearFiltersBtn * {
   color: #f4f4f4 !important;
-  fill: currentColor !important;
   -webkit-text-fill-color: #f4f4f4 !important;
 }
 
-#clearFiltersBtn,
-button#clearFiltersBtn,
-.clear-filters-btn,
-.show-all-music-btn {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  padding: 8px 14px;
-  border: 1px solid rgba(144, 180, 232, 0.22) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  color: #ffffff !important;
-  border-radius: 999px;
+#stickyFilterBar #clearFiltersBtn {
+  background: #273243 !important;
+  border-color: rgba(144, 180, 232, 0.22) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
 }
 
-/* Hard override dark text regressions from app-feel overlays/cards */
+/* Force readable text throughout the iPhone app-feel surfaces from v42.3.69 */
 .install-banner,
 .install-banner *,
 .install-modal,
 .install-modal *,
 .install-modal-content,
 .install-modal-content *,
-.install-modal-body,
-.install-modal-body *,
 .offline-hint-card,
 .offline-hint-card *,
 .app-feel-surface,
@@ -11168,21 +11035,8 @@ button#clearFiltersBtn,
 .standalone-launch-screen,
 .standalone-launch-screen *,
 .floating-settings-btn,
-.floating-settings-btn *,
-.orientation-guard,
-.orientation-guard *,
-.control-btn,
-.control-btn *,
-.action-btn,
-.action-btn.secondary-btn,
-.action-btn.small-action-btn,
-.action-btn *,
-.secondary-btn,
-.secondary-btn *,
-.small-action-btn,
-.small-action-btn * {
+.floating-settings-btn * {
   color: #f4f4f4 !important;
-  fill: currentColor !important;
   -webkit-text-fill-color: #f4f4f4 !important;
 }
 
@@ -11195,12 +11049,10 @@ button#clearFiltersBtn,
 .utility-list,
 .utility-list *,
 .page-lead,
-.page-lead.compact-lead,
 .compact-lead,
 .app-feel-group .page-lead,
 .standalone-welcome-list,
-.standalone-welcome-list li,
-.orientation-guard p {
+.standalone-welcome-list li {
   color: #d7deea !important;
   -webkit-text-fill-color: #d7deea !important;
 }
@@ -11213,37 +11065,24 @@ button#clearFiltersBtn,
 .app-feel-group h3,
 .app-feel-surface-header h2,
 .standalone-welcome-card h2,
-.standalone-launch-title,
-.orientation-guard h2 {
+.standalone-launch-title {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
 
-.app-feel-toggle span,
+.app-feel-toggle,
+.app-feel-toggle *,
 .app-feel-group label,
 .app-feel-group a,
 .app-feel-group button,
-.app-feel-surface-header .eyebrow,
-.install-modal-content a,
-.install-modal-content button,
 .install-banner button,
-.offline-hint-card button {
+.offline-hint-card button,
+.install-modal-content button,
+.install-modal-content a {
   color: #f4f4f4 !important;
   -webkit-text-fill-color: #f4f4f4 !important;
 }
 
-/* Inputs/toggles can inherit browser dark text; force readable */
-.app-feel-surface-panel input,
-.app-feel-surface-panel select,
-.app-feel-surface-panel textarea,
-.install-modal-content input,
-.install-modal-content select,
-.install-modal-content textarea {
-  color: #f4f4f4 !important;
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Make links stay readable in these surfaces */
 .install-banner a,
 .install-modal a,
 .offline-hint-card a,
@@ -11251,4 +11090,14 @@ button#clearFiltersBtn,
 .standalone-welcome a {
   color: #9fd0ff !important;
   -webkit-text-fill-color: #9fd0ff !important;
+}
+
+.app-feel-surface-panel input,
+.app-feel-surface-panel select,
+.app-feel-surface-panel textarea,
+.install-modal-content input,
+.install-modal-content select,
+.install-modal-content textarea {
+  color: #f4f4f4 !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
 }
