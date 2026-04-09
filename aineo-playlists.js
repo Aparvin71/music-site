@@ -95,16 +95,15 @@
       const active = name === activeName ? 'active' : '';
       const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
       return `
-        <button class="filter-chip playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
+        <button class="filter-chip playlist-card-pill playlist-card-pill--custom-compact ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}" aria-label="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}">
           <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
-          <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
         </button>
       `;
     }).join('');
 
     const trayMarkup = activeName ? `
       <div class="custom-playlist-action-tray" data-custom-playlist-tray="${escapeHtmlAttr(activeName)}">
-        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)}</div>
+        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)} · ${escapeHtml(getCustomPlaylistTracks(activeName).length)} song${getCustomPlaylistTracks(activeName).length === 1 ? '' : 's'}</div>
         <div class="playlist-card-actions playlist-card-actions--selected-tray">
           <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(activeName)}" type="button" title="Play ${escapeHtmlAttr(activeName)}">Play</button>
           <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(activeName)}" type="button" title="Shuffle ${escapeHtmlAttr(activeName)}">Shuffle</button>

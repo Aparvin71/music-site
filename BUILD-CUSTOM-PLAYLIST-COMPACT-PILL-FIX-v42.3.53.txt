@@ -1,0 +1,6 @@
+Aineo Music v42.3.53
+
+Custom playlist compact pill fix:
+- Reduced custom playlist pill to a single-line compact chip
+- Moved song count into the selected action tray label
+- Removed older build note text files from the zip, keeping only the latest one
