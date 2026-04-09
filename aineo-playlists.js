@@ -80,40 +80,47 @@
   function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
     if (!els.myPlaylistList) return;
     const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+
     if (!names.length) {
-      els.myPlaylistList.classList.remove('playlist-v2-list', 'playlist-list--custom-chips');
-      els.myPlaylistList.classList.add('playlist-pill-grid', 'playlist-pill-grid--custom');
+      els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
       els.myPlaylistList.innerHTML = `<p class="empty-message playlist-empty-message">No custom playlists yet.</p>`;
       return;
     }
 
-    els.myPlaylistList.classList.remove('playlist-v2-list', 'playlist-list--custom-chips');
-    els.myPlaylistList.classList.add('playlist-pill-grid', 'playlist-pill-grid--custom');
-    els.myPlaylistList.innerHTML = names.map(name => {
+    const activeName = normalizeState({ customPlaylists, activeCustomPlaylistName });
+    els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+
+    const gridMarkup = names.map(name => {
       const list = getCustomPlaylistTracks(name);
-      const active = name === activeCustomPlaylistName ? 'active' : '';
+      const active = name === activeName ? 'active' : '';
       const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
       return `
-        <div class="playlist-card playlist-card--custom ${active}" data-playlist-card="${escapeHtmlAttr(name)}">
-          <button class="filter-chip playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
-            <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
-            <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
-          </button>
-          ${active ? `
-          <div class="playlist-card-actions playlist-card-actions--below playlist-card-actions--selected-tray">
-            <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(name)}" type="button" title="Play ${escapeHtmlAttr(name)}">Play</button>
-            <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(name)}" type="button" title="Shuffle ${escapeHtmlAttr(name)}">Shuffle</button>
-            <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="Delete ${escapeHtmlAttr(name)}">Delete</button>
-          </div>` : ``}
-        </div>
+        <button class="filter-chip playlist-card-pill ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)}">
+          <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
+          <span class="playlist-card-pill__meta">${escapeHtml(countLabel)}</span>
+        </button>
       `;
     }).join('');
+
+    const trayMarkup = activeName ? `
+      <div class="custom-playlist-action-tray" data-custom-playlist-tray="${escapeHtmlAttr(activeName)}">
+        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)}</div>
+        <div class="playlist-card-actions playlist-card-actions--selected-tray">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(activeName)}" type="button" title="Play ${escapeHtmlAttr(activeName)}">Play</button>
+          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(activeName)}" type="button" title="Shuffle ${escapeHtmlAttr(activeName)}">Shuffle</button>
+          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(activeName)}" type="button" title="Delete ${escapeHtmlAttr(activeName)}">Delete</button>
+        </div>
+      </div>
+    ` : '';
+
+    els.myPlaylistList.innerHTML = `${gridMarkup}${trayMarkup}`;
 
     els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => {
       const name = btn.dataset.openCustomPlaylist;
       setActiveCustomPlaylist(name);
       applyCustomPlaylistFilter(name);
     }));
+
     els.myPlaylistList.querySelectorAll('[data-custom-playlist-play]').forEach(btn => btn.addEventListener('click', () => {
       const name = btn.dataset.customPlaylistPlay;
       const list = getCustomPlaylistTracks(name);
@@ -122,6 +129,7 @@
         startPlaybackFromList(list, false, 0);
       }
     }));
+
     els.myPlaylistList.querySelectorAll('[data-custom-playlist-shuffle]').forEach(btn => btn.addEventListener('click', () => {
       const name = btn.dataset.customPlaylistShuffle;
       const list = getCustomPlaylistTracks(name);
@@ -130,6 +138,7 @@
         startPlaybackFromList(list, true, 0);
       }
     }));
+
     els.myPlaylistList.querySelectorAll('[data-delete-custom-playlist]').forEach(btn => btn.addEventListener('click', e => {
       e.stopPropagation();
       onDelete(btn.dataset.deleteCustomPlaylist);

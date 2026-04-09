@@ -1,4 +1,4 @@
-v42.3.50 Mobile Player Refinement
+v42.3.51 Mobile Player Refinement
 
 - Centered shuffle/repeat state badges
 - Reduced mobile full-player cover art

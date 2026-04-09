@@ -1,4 +1,4 @@
-Aineo Music v42.3.50 — True Stability Lock Build
+Aineo Music v42.3.51 — True Stability Lock Build
 
 What was locked:
 - Current modular Aineo music app architecture
@@ -8,7 +8,7 @@ What was locked:
 Stability protections added:
 - Missing icons/images restored so page headers, manifest, and service worker all reference real files
 - Service-worker cache version bumped to force a clean refresh
-- Version strings updated to v42.3.50
+- Version strings updated to v42.3.51
 
 Notes:
 - artist.html / artists.html files remain in the package but are not part of the main navigation flow

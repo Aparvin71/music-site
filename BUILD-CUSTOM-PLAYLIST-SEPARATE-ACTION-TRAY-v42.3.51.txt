@@ -1,0 +1,6 @@
+Aineo Music v42.3.51
+
+Root-cause pass for custom playlist height:
+- Custom playlist pills now render in the same grid shape as built-in playlist buttons
+- Play / Shuffle / Delete moved out of each pill and into a separate tray below the grid
+- This prevents stacked controls from making the custom playlist buttons appear taller

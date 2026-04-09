@@ -1,7 +1,7 @@
-Aineo Music v42.3.50
+Aineo Music v42.3.51
 
 Tweaks:
 - Moved the Custom Playlists heading outside the custom playlist button container
 - Kept custom playlist buttons directly below the heading
 - Added light spacing polish for the custom playlist subsection
-- Updated service worker cache version to v42.3.50
+- Updated service worker cache version to v42.3.51

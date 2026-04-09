@@ -1,4 +1,4 @@
-Aineo Music v42.3.50 UI Tweak Pass
+Aineo Music v42.3.51 UI Tweak Pass
 
 Included updates:
 - Removed Featured quick link from Music Library card
