@@ -1,10 +1,10 @@
-Aineo Music v42.3.54
+Aineo Music v42.3.55
 
 Included in this clean package:
 - Replaced app icons with the newly uploaded favicon, apple-touch icon, and 16/32/64/192/512 PNG icons
 - Replaced bundled branding images with the uploaded aineo-music.png and church-logo.png
 - Updated manifest and HTML head icon references to include 16x16 and 32x32 icons
-- Bumped cache/version references from v42.3.53 to v42.3.54
+- Bumped cache/version references from v42.3.53 to v42.3.55
 - Updated service worker cache version and precache list for the new icon assets
 - Added a safe custom-playlist compact pill height lock override
 - Added small UI polish for active rows and button interactions

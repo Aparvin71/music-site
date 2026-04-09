@@ -112,7 +112,7 @@
       const isFav = isFavorite(track) ? 'favorited' : '';
       const offlineSaved = isDownloaded ? isDownloaded(track) : false;
       return `
-      <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}">
+      <div class="featured-track-row ${isPlaying}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
         <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
         <div class="featured-track-main">
           <div class="featured-track-title-line">
@@ -134,6 +134,7 @@
 
     els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (Date.now && Date.now() < (window.__AINEO_SUPPRESS_PREVIEW_CLICK_UNTIL__ || 0)) return;
         const idx = Number(btn.dataset.featuredIndex);
         const track = collection.tracks[idx];
         if (!track) return;

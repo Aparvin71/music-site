@@ -98,6 +98,8 @@
         const { dx, dy } = miniGesture;
         if (dy < -42 && Math.abs(dy) > Math.abs(dx) * 1.15) {
           openPlayerSheet(stickyPlayer);
+        } else if (Math.abs(dx) > 52 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+          if (dx < 0) playNextTrack(); else playPreviousTrack();
         }
         miniGesture = null;
       };

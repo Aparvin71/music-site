@@ -1,0 +1,11 @@
+Aineo Music v42.3.55
+
+Base:
+- Built directly from v42.3.54 clean package
+
+Included in this pass:
+- Added a mini visualizer behind the full-player cover art
+- Expanded mobile swipe gestures so the mini player can swipe left/right for previous/next and swipe up to open
+- Added hold-to-preview on featured track rows, album modal rows, and mini cards
+- Added smart queue auto-suggestions when the queue is about to end
+- Bumped app, service worker, and cache-busting references to v42.3.55
