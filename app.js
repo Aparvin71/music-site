@@ -3431,6 +3431,7 @@ function renderMyPlaylists() {
     els,
     customPlaylists,
     activeCustomPlaylistName,
+    filters,
     getCustomPlaylistTracks,
     setActiveCustomPlaylist,
     startPlaybackFromList,

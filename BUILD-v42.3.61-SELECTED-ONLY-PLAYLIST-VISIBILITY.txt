@@ -1,0 +1,9 @@
+Aineo Music build v42.3.61
+
+Base: v42.3.60 stable build
+
+Changes:
+- Playlist section now hides non-selected playlist buttons when a playlist filter is active.
+- Custom playlist section now hides non-selected custom playlist buttons when a custom playlist is active.
+- Sticky clear still handles returning to the full playlist/custom playlist lists.
+- Kept the v42.3.60 stable layout and behavior intact.

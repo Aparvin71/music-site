@@ -71,7 +71,7 @@
 
   function renderWorkspace() { return null; }
 
-  function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
+  function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
     if (!els.myPlaylistList) return;
     const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
 
@@ -82,9 +82,14 @@
     }
 
     const activeName = normalizeState({ customPlaylists, activeCustomPlaylistName });
+    const hasSelectionFocus = Boolean(filters?.selectedPlaylist || filters?.selectedSmartPlaylist || filters?.selectedCustomPlaylist);
+    const visibleNames = activeName
+      ? names.filter(name => name === activeName)
+      : (hasSelectionFocus ? [] : names);
+
     els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
 
-    const gridMarkup = names.map(name => {
+    const gridMarkup = visibleNames.map(name => {
       const list = getCustomPlaylistTracks(name);
       const active = name === activeName ? 'active' : '';
       const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
@@ -136,7 +141,7 @@
       e.stopPropagation();
       onDelete(btn.dataset.deleteCustomPlaylist);
       saveCustomPlaylists();
-      renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName: normalizeState({ customPlaylists, activeCustomPlaylistName: null }), getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr });
+      renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName: normalizeState({ customPlaylists, activeCustomPlaylistName: null }), filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr });
     }));
   }
 

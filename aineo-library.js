@@ -172,13 +172,21 @@
       worship: '♪'
     };
 
-    const quickFiltersMarkup = smartPlaylists.map(item => `
+    const hasSelectionFocus = Boolean(filters.selectedPlaylist || filters.selectedSmartPlaylist || filters.selectedCustomPlaylist);
+    const visibleSmartPlaylists = filters.selectedSmartPlaylist
+      ? smartPlaylists.filter(item => item.key === filters.selectedSmartPlaylist)
+      : (hasSelectionFocus ? [] : smartPlaylists);
+    const visiblePlaylists = filters.selectedPlaylist
+      ? playlists.filter(item => item.name === filters.selectedPlaylist)
+      : (hasSelectionFocus ? [] : playlists);
+
+    const quickFiltersMarkup = visibleSmartPlaylists.map(item => `
       <button class="filter-chip quick-filter-icon-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}" aria-label="${escapeHtmlAttr(item.name)}">
         <span class="quick-filter-icon" aria-hidden="true">${quickFilterIcons[item.key] || item.icon || '•'}</span>
       </button>
     `).join('');
 
-    const playlistMarkup = playlists.map(playlist => {
+    const playlistMarkup = visiblePlaylists.map(playlist => {
       const isAllSongs = playlist.name === 'All Songs';
       const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
       const label = isAllSongs ? 'All Songs' : playlist.name;
@@ -190,16 +198,24 @@
       `;
     }).join('');
 
-    container.innerHTML = `
-      <div class="playlist-filter-sections">
+    const quickFiltersSection = quickFiltersMarkup ? `
         <div class="playlist-filter-block">
           <p class="playlist-filter-heading">Quick Filters</p>
           <div class="quick-filter-grid">${quickFiltersMarkup}</div>
         </div>
+    ` : '';
+
+    const playlistsSection = playlistMarkup ? `
         <div class="playlist-filter-block playlist-filter-block--playlists">
           <p class="playlist-filter-heading">Playlists</p>
           <div class="playlist-pill-grid">${playlistMarkup}</div>
         </div>
+    ` : '';
+
+    container.innerHTML = `
+      <div class="playlist-filter-sections">
+        ${quickFiltersSection}
+        ${playlistsSection}
       </div>
     `;
 
