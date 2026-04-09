@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.3.53-playlist-section-polish-pass";
+const CACHE_VERSION = "v42.3.54-branding-cleanup-polish-pass";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -43,10 +43,13 @@ const APP_SHELL = [
   "/aineo-shared.js",
   "/albums-page.js",
   "/favicon.ico",
+  "/icons/icon-16.png",
+  "/icons/icon-32.png",
   "/icons/icon-64.png",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
+  "/apple-touch-icon.png",
   "/images/aineo-music.png",
   "/images/church-logo.png",
 ];

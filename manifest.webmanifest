@@ -10,6 +10,18 @@
   "description": "Original songs, worship music, family songs, and Scripture-inspired tracks.",
   "icons": [
     {
+      "src": "./icons/icon-16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
       "src": "./icons/icon-64.png",
       "sizes": "64x64",
       "type": "image/png",
