@@ -1,7 +1,7 @@
 {
   "name": "Aineo Music",
   "short_name": "Aineo",
-  "start_url": "./index.html",
+  "start_url": "./index.html?source=pwa",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
@@ -38,6 +38,29 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "id": "./index.html",
+  "categories": [
+    "music",
+    "entertainment",
+    "lifestyle"
+  ],
+  "shortcuts": [
+    {
+      "name": "All Songs",
+      "short_name": "Songs",
+      "url": "./music.html"
+    },
+    {
+      "name": "Albums",
+      "short_name": "Albums",
+      "url": "./albums.html"
+    },
+    {
+      "name": "Install Guide",
+      "short_name": "Install",
+      "url": "./install.html"
     }
   ]
 }

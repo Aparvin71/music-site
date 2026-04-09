@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.66";
+const AINEO_APP_VERSION = "v42.3.67";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -192,6 +192,20 @@ function initInstallExperience() {
   document.querySelectorAll("[data-open-install-modal]").forEach(btn => btn.addEventListener("click", openInstallModal));
 }
 
+
+function initIosWebAppPolish() {
+  const ua = navigator.userAgent || "";
+  const isIos = /iPad|iPhone|iPod/.test(ua);
+  const standalone = isStandalone();
+  document.documentElement.classList.toggle("ios-device", isIos);
+  document.documentElement.classList.toggle("ios-standalone", standalone);
+  document.body.classList.toggle("ios-device", isIos);
+  document.body.classList.toggle("ios-standalone", standalone);
+  if (isIos) {
+    document.body.classList.add("touch-optimized");
+  }
+}
+
 function initInteractionPolish() {
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -231,4 +245,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
