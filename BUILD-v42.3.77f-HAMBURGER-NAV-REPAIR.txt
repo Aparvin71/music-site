@@ -1,0 +1,7 @@
+Aineo Music v42.3.77f
+
+Fixes:
+- Repaired corrupted pwa-init.js shared script that was breaking hamburger menu behavior on non-music pages.
+- Restored shared mobile navigation binding for Home, About, Mission, Install, Request/Contact, Feedback, Changelog, and other pages that rely on pwa-init.js.
+- Bumped page references and app version markers to v42.3.77f.
+- Kept v42.3.77e clear filter fixes intact.
