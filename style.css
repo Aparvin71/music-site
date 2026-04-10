@@ -10452,7 +10452,7 @@ button:active{
 }
 
 
-/* ===== v42.3.74 UX + performance polish ===== */
+/* ===== v42.3.75b UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10542,7 +10542,7 @@ a:focus-visible {
 
 
 
-/* v42.3.74 iPhone standalone UX pass */
+/* v42.3.75b iPhone standalone UX pass */
 
 body.ios-standalone {
   background:
@@ -10728,7 +10728,7 @@ body.standalone-launch-active {
 
 
 
-/* v42.3.74 iPhone app-feel polish */
+/* v42.3.75b iPhone app-feel polish */
 
 :root {
   --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -10968,7 +10968,7 @@ body.ios-standalone .offline-hint-card {
 
 
 
-/* v42.3.74 visibility + sticky recovery fixes */
+/* v42.3.75b visibility + sticky recovery fixes */
 
 /* Restore sticky player after app-feel passes changed its layout behavior */
 .sticky-player {
@@ -11078,7 +11078,7 @@ body.ios-standalone .sticky-player {
 
 
 
-/* v42.3.74 sticky clear + text visibility hardening */
+/* v42.3.75b sticky clear + text visibility hardening */
 
 /* Sticky active-filter / clear bar recovery */
 .active-filter-bar,
@@ -11255,7 +11255,7 @@ button#clearFiltersBtn,
 
 
 
-/* v42.3.74 v71-based sticky clear + text visibility fixes */
+/* v42.3.75b v71-based sticky clear + text visibility fixes */
 
 /* Sticky clear bar: anchor container keeps height, inner bar becomes fixed when JS adds .is-fixed */
 .sticky-filter-bar {
@@ -11432,7 +11432,7 @@ button#clearFiltersBtn,
 
 
 
-/* v42.3.74 dark text, sticky clear, and player action fixes */
+/* v42.3.75b dark text, sticky clear, and player action fixes */
 
 /* Exact text selectors that regressed dark */
 .music-library-card,
