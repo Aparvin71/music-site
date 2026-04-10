@@ -1,0 +1,11 @@
+Aineo Music v42.3.80
+
+Maintenance cleanup release built from the latest stable package.
+
+Included:
+- normalized site version markers to v42.3.80
+- refreshed asset query-string references
+- refreshed service worker cache version
+- added v42.3.80 changelog entry
+- updated changelog hero/footer/latest build references
+- removed older BUILD note files from the package
