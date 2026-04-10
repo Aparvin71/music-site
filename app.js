@@ -1814,66 +1814,61 @@ function getStickyFilterTopOffset() {
   return Math.round(headerHeight + 8);
 }
 
-function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
+function syncTabletStickyFilterBarMetrics() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
-  const barRect = els.stickyFilterBar.getBoundingClientRect();
-  const width = Math.round(barRect.width);
-  const left = Math.round(barRect.left);
-  const height = Math.ceil(els.stickyFilterBarInner.offsetHeight);
   const top = getStickyFilterTopOffset();
+  const height = Math.ceil(els.stickyFilterBarInner.offsetHeight || els.stickyFilterBar.offsetHeight || 0);
   const mainContent = document.getElementById("mainContent");
 
-  if (!els.stickyFilterBar.classList.contains("is-fixed") || resetAnchor) {
-    els.stickyFilterBar.dataset.anchorTop = String(Math.round(window.scrollY + barRect.top));
-  }
-
-  els.stickyFilterBar.style.setProperty("--tablet-sticky-left", `${left}px`);
-  els.stickyFilterBar.style.setProperty("--tablet-sticky-width", `${width}px`);
-  els.stickyFilterBar.style.setProperty("--tablet-sticky-height", `${height}px`);
+  els.stickyFilterBar.style.setProperty("--sticky-filter-top", `${top}px`);
   els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${top}px`);
-  els.stickyFilterBar.style.minHeight = `${height}px`;
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-height", `${height}px`);
 
+  if (mainContent) {
+    mainContent.style.setProperty("--active-sticky-filter-space", `${height}px`);
+  }
 }
 
-function updateTabletStickyFilterBar(resetAnchor = false) {
+function updateTabletStickyFilterBar() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
   const active = hasActiveFilter() && !els.stickyFilterBar.classList.contains("hidden");
   const mainContent = document.getElementById("mainContent");
+
   if (!active) {
     els.stickyFilterBar.classList.remove("is-fixed");
-    els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
-    els.stickyFilterBar.style.removeProperty("--tablet-sticky-width");
-    els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
+    els.stickyFilterBar.style.removeProperty("--sticky-filter-top");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
-    els.stickyFilterBar.style.minHeight = "";
-    delete els.stickyFilterBar.dataset.anchorTop;
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
+    if (mainContent) {
+      mainContent.classList.remove("sticky-filter-active");
+      mainContent.style.removeProperty("--active-sticky-filter-space");
+    }
     return;
   }
 
-  syncTabletStickyFilterBarMetrics(resetAnchor);
+  syncTabletStickyFilterBarMetrics();
   els.stickyFilterBar.classList.add("is-fixed");
+  if (mainContent) {
+    mainContent.classList.add("sticky-filter-active");
+  }
 }
 
 function initTabletStickyFilterBar() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
-  let ticking = false;
-  const requestUpdate = (resetAnchor = false) => {
-    if (ticking) return;
-    ticking = true;
+  const requestUpdate = () => {
     window.requestAnimationFrame(() => {
-      updateTabletStickyFilterBar(resetAnchor);
-      ticking = false;
+      updateTabletStickyFilterBar();
     });
   };
 
-  window.addEventListener("scroll", () => requestUpdate(false), { passive: true });
-  window.addEventListener("resize", () => requestUpdate(true));
-  window.addEventListener("orientationchange", () => requestUpdate(true));
+  window.addEventListener("resize", requestUpdate, { passive: true });
+  window.addEventListener("orientationchange", requestUpdate, { passive: true });
+  window.addEventListener("load", requestUpdate, { passive: true });
 
-  requestUpdate(true);
+  requestUpdate();
 }
 
 function renderActiveFilterLabel() {
@@ -1937,7 +1932,7 @@ function renderActiveFilterLabel() {
     els.stickyFilterBar.classList.toggle("hidden", !active);
   }
 
-  updateTabletStickyFilterBar(true);
+  updateTabletStickyFilterBar();
 }
 
 /* =========================

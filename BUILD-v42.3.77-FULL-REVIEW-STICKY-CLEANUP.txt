@@ -1,0 +1,19 @@
+Aineo Music v42.3.77
+
+Full review + sticky filter clear cleanup build.
+
+Included in this pass:
+- Replaced conflicting sticky filter clear JS/CSS paths with one consistent sticky behavior.
+- Bumped package version references to v42.3.77 across the site shell.
+- Updated stale page version references that were still on older sub-builds.
+- Added a new changelog entry for this pass.
+- Forced changelog text back to readable light text.
+- Removed older build-note text files from the package to reduce clutter.
+
+Primary files changed:
+- app.js
+- style.css
+- pwa-init.js
+- service-worker.js
+- changelog.html
+- all page shell version references
