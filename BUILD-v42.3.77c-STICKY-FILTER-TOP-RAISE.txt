@@ -1,0 +1,4 @@
+v42.3.77c
+- Raised sticky clear/filter bar closer to the header
+- Reduced top offset and spacer padding
+- Built from v42.3.77b

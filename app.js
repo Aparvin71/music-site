@@ -1811,7 +1811,7 @@ function isTabletLibraryViewport() {
 
 function getStickyFilterTopOffset() {
   const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-  return Math.round(headerHeight + 8);
+  return Math.max(0, Math.round(headerHeight + 2));
 }
 
 function syncTabletStickyFilterBarMetrics() {
