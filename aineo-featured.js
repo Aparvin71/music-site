@@ -1,4 +1,4 @@
-// v42.3.75d fix note: sticky filter activation and current-track UI refresh support
+/* v42.3.76 featured track state sync fix */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -109,15 +109,11 @@
     els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
     els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
       const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
-      const rowStateClasses = [
-        playState.isCurrentTrack ? 'playing is-current' : '',
-        playState.isPlaying ? 'is-playing' : '',
-        playState.isCurrentTrack && !playState.isPlaying ? 'is-paused' : ''
-      ].filter(Boolean).join(' ');
+      const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';
       const isFav = isFavorite(track) ? 'favorited' : '';
       const offlineSaved = isDownloaded ? isDownloaded(track) : false;
       return `
-      <div class="featured-track-row ${rowStateClasses}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
+      <div class="featured-track-row ${rowStateClass}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
         <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
         <div class="featured-track-main">
           <div class="featured-track-title-line">

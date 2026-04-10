@@ -1,4 +1,4 @@
-// v42.3.75d fix note: restored play-state row/button highlighting and current-track syncing
+/* v42.3.76 real fix pass: play next, sticky filter, track-state highlights */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -809,24 +809,13 @@ function addTrackToQueue(track, options = {}) {
 }
 
 function queueCurrentTrackNext() {
-  const track = getCurrentTrack();
-  if (!track || !currentQueue.length) return;
-
-  const currentIndex = currentQueue.findIndex(item => item.id === track.id);
-  const nextTrack = currentIndex >= 0 && currentIndex < currentQueue.length - 1
-    ? currentQueue[currentIndex + 1]
-    : null;
-
-  if (nextTrack) {
-    playTrack(nextTrack);
-    showToast?.(`Playing next: ${nextTrack.title}`);
-    return;
+  if (!currentQueue.length) {
+    const collectionTracks = getCurrentCollectionTracks();
+    if (!collectionTracks.length) return;
+    setQueue(collectionTracks, shuffleModeEnabled);
   }
-
-  if (repeatMode === "all" && currentQueue.length > 1) {
-    playTrack(currentQueue[0]);
-    showToast?.(`Playing next: ${currentQueue[0].title}`);
-  }
+  if (!currentQueue.length) return;
+  playNextTrack();
 }
 
 
@@ -907,12 +896,14 @@ function bindUI() {
   on(els.nextBtn, "click", playNextTrack);
   on(els.shuffleModeBtn, "click", toggleShuffleMode);
   on(els.repeatModeBtn, "click", toggleRepeatMode);
-  on(els.playNextBtn, "click", e => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handlePlayNextAction = e => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
     queueCurrentTrackNext();
     closeMobilePlayerDrawer();
-  });
+  };
+  on(els.playNextBtn, "click", handlePlayNextAction);
+  on(els.playerSheetPlayNextBtn, "click", handlePlayNextAction);
 
   on(els.seekBar, "input", () => {
     if (!els.audioPlayer || !isFinite(els.audioPlayer.duration)) return;
@@ -1853,20 +1844,16 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
     els.stickyFilterBar.style.minHeight = "";
+    delete els.stickyFilterBar.dataset.anchorTop;
     return;
   }
 
   syncTabletStickyFilterBarMetrics(resetAnchor);
-
   const anchorTop = Number(els.stickyFilterBar.dataset.anchorTop || 0);
   const threshold = Math.max(anchorTop - getStickyFilterTopOffset(), 0);
-  const shouldFix = window.scrollY >= threshold || window.scrollY > 12;
-
+  const shouldFix = window.scrollY >= threshold;
   els.stickyFilterBar.classList.toggle("is-fixed", shouldFix);
-
-  if (shouldFix) {
-    syncTabletStickyFilterBarMetrics(false);
-  }
+  if (shouldFix) syncTabletStickyFilterBarMetrics(false);
 }
 
 function initTabletStickyFilterBar() {
@@ -2274,16 +2261,8 @@ function updateNowPlaying(track) {
 
 
 function syncCurrentPlaybackHighlights() {
-  syncFeaturedTrackPlayButtons();
-  syncQueuePlaybackUI();
-  try { renderFeaturedTrackList(); } catch (error) {}
-}
-
-function syncFeaturedTrackPlayButtons() {
   if (!els.featuredTrackList) return;
-
   const currentTrack = getCurrentTrack();
-
   const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
 
   els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
@@ -2292,6 +2271,31 @@ function syncFeaturedTrackPlayButtons() {
     row.classList.toggle("is-current", isCurrentTrack);
     row.classList.toggle("is-playing", isCurrentTrack && isPlaying);
     row.classList.toggle("is-paused", isCurrentTrack && !isPlaying);
+  });
+
+  els.featuredTrackList.querySelectorAll(".featured-track-play[data-track-id]").forEach(btn => {
+    const trackId = btn.dataset.trackId;
+    const row = btn.closest('.featured-track-row');
+    const trackTitle = row?.querySelector('.featured-track-title')?.textContent?.trim() || btn.dataset.trackTitle || "track";
+    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
+    const buttonShowsPause = isCurrentTrack && isPlaying;
+
+    btn.textContent = buttonShowsPause ? "❚❚" : "▶";
+    btn.classList.toggle("is-playing", buttonShowsPause);
+    btn.classList.toggle("is-current", isCurrentTrack);
+    btn.setAttribute("aria-pressed", buttonShowsPause ? "true" : "false");
+    btn.setAttribute("aria-label", `${buttonShowsPause ? "Pause" : "Play"} ${trackTitle}`);
+  });
+}
+
+function syncFeaturedTrackPlayButtons() {
+  if (!els.featuredTrackList) return;
+
+  const currentTrack = getCurrentTrack();
+
+  els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
+    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    row.classList.toggle("playing", isCurrentTrack);
   });
 
   els.featuredTrackList.querySelectorAll(".featured-track-play[data-track-id]").forEach(btn => {

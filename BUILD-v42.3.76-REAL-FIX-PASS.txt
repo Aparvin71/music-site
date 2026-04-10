@@ -1,0 +1,16 @@
+Aineo Music v42.3.76
+
+This build fixes the actual base package code paths for:
+- Full-screen / sticky player Play Next action
+- Sticky active filter bar staying fixed while scrolling
+- Featured/tracks current row + hue highlight + play-state button sync
+- Changelog dark text regression
+
+Updated files:
+- app.js
+- aineo-featured.js
+- style.css
+- pwa-init.js
+- service-worker.js
+- changelog.html
+- page asset query-string bumps
