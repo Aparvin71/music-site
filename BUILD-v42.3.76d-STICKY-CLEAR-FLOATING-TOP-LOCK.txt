@@ -1,0 +1,6 @@
+v42.3.76d
+
+Focused fix from v42.3.76c
+- sticky clear/filter bar now locks as a floating fixed element at the top while a filter is active
+- main content gets temporary top spacing while active so the bar remains visible instead of just repositioning
+- retained hidden state when no filter is active

@@ -1,4 +1,4 @@
-/* v42.3.76c sticky clear bar fixed-mode repair */
+/* v42.3.76d sticky clear bar floating top lock */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1821,6 +1821,8 @@ function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
   const width = Math.round(barRect.width);
   const left = Math.round(barRect.left);
   const height = Math.ceil(els.stickyFilterBarInner.offsetHeight);
+  const top = getStickyFilterTopOffset();
+  const mainContent = document.getElementById("mainContent");
 
   if (!els.stickyFilterBar.classList.contains("is-fixed") || resetAnchor) {
     els.stickyFilterBar.dataset.anchorTop = String(Math.round(window.scrollY + barRect.top));
@@ -1829,14 +1831,19 @@ function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
   els.stickyFilterBar.style.setProperty("--tablet-sticky-left", `${left}px`);
   els.stickyFilterBar.style.setProperty("--tablet-sticky-width", `${width}px`);
   els.stickyFilterBar.style.setProperty("--tablet-sticky-height", `${height}px`);
-  els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${getStickyFilterTopOffset()}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${top}px`);
   els.stickyFilterBar.style.minHeight = `${height}px`;
+
+  if (mainContent) {
+    mainContent.style.setProperty("--active-sticky-filter-space", `${height + 10}px`);
+  }
 }
 
 function updateTabletStickyFilterBar(resetAnchor = false) {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
   const active = hasActiveFilter() && !els.stickyFilterBar.classList.contains("hidden");
+  const mainContent = document.getElementById("mainContent");
   if (!active) {
     els.stickyFilterBar.classList.remove("is-fixed");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
@@ -1845,11 +1852,18 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
     els.stickyFilterBar.style.minHeight = "";
     delete els.stickyFilterBar.dataset.anchorTop;
+    if (mainContent) {
+      mainContent.classList.remove("sticky-filter-active");
+      mainContent.style.removeProperty("--active-sticky-filter-space");
+    }
     return;
   }
 
   syncTabletStickyFilterBarMetrics(resetAnchor);
   els.stickyFilterBar.classList.add("is-fixed");
+  if (mainContent) {
+    mainContent.classList.add("sticky-filter-active");
+  }
 }
 
 function initTabletStickyFilterBar() {
