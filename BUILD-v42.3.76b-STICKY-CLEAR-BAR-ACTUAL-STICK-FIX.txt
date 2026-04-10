@@ -1,0 +1,8 @@
+v42.3.76b
+Focused fix from v42.3.76a.
+
+Changes:
+- Replaced the conflicting JS fixed-state path with a simpler always-sticky active filter bar.
+- Sticky filter bar now uses CSS position: sticky under the site header.
+- Hidden sticky bar now fully display:none to avoid phantom space and state conflicts.
+- Bumped page asset query strings, pwa-init, and service worker markers to v42.3.76b.

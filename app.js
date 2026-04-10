@@ -1,4 +1,4 @@
-/* v42.3.76a sticky clear bar fix pass */
+/* v42.3.76b sticky clear bar actual stick fix */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1849,14 +1849,7 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
   }
 
   syncTabletStickyFilterBarMetrics(resetAnchor);
-  const anchorTop = Number(els.stickyFilterBar.dataset.anchorTop || 0);
-  const threshold = Math.max(anchorTop - getStickyFilterTopOffset(), 0);
-  const shouldFix = window.scrollY >= threshold;
-  els.stickyFilterBar.classList.toggle("is-fixed", shouldFix);
-
-  if (shouldFix) {
-    syncTabletStickyFilterBarMetrics(false);
-  }
+  els.stickyFilterBar.classList.remove("is-fixed");
 }
 
 function initTabletStickyFilterBar() {

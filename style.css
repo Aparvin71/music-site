@@ -11858,3 +11858,32 @@ main .album-card p {
 .utility-card .eyebrow {
   color: #ffffff !important;
 }
+
+
+/* v42.3.76b sticky clear bar actual stick fix */
+#stickyFilterBar.sticky-filter-bar {
+  position: sticky !important;
+  top: var(--tablet-sticky-top, 72px) !important;
+  z-index: 1180 !important;
+  margin-bottom: 14px !important;
+  min-height: 0 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  position: sticky !important;
+  top: var(--tablet-sticky-top, 72px) !important;
+  min-height: 0 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner,
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  z-index: 1181 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.hidden {
+  display: none !important;
+}
