@@ -1,0 +1,14 @@
+Aineo Music v42.3.78 — iPhone standalone prep pass
+
+Included in this pass:
+- consistent v42.3.78 asset/version bumps across page shells
+- pwa-init.js version and standalone copy refresh
+- service-worker cache bump
+- manifest display_override housekeeping
+- root-level apple-touch-icon.png added for iOS Home Screen discovery
+- safe-area and standalone spacing polish in style.css
+- changelog entry added
+
+Intent:
+- prep the current stable build for a cleaner iPhone Home Screen / standalone web app experience
+- no intentional music-player workflow changes

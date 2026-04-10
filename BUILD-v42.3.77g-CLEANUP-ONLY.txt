@@ -1,0 +1,13 @@
+Aineo Music v42.3.77g
+Cleanup-Only Maintenance Pass
+
+Scope:
+- No intentional UI, layout, playback, navigation, or workflow changes.
+- Prepared the package for continued standalone iOS app work.
+
+Safe cleanup completed:
+- Removed older BUILD-*.txt notes from prior patch passes.
+- Removed transient Python cache folder (__pycache__).
+- Refreshed internal version markers to v42.3.77g.
+- Updated service worker cache key for a clean maintenance release.
+- Added a changelog note documenting this cleanup-only package.

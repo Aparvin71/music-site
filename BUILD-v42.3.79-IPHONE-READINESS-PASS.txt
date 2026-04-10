@@ -1,0 +1,7 @@
+Aineo Music v42.3.79
+
+Focused next iPhone readiness pass from v42.3.78.
+- stronger standalone viewport metric tracking
+- safer iPhone safe-area spacing for overlays and player sheet
+- improved install guidance for Home Screen launch
+- unified cache/version markers

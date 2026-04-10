@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.77f";
+const AINEO_APP_VERSION = "v42.3.79";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.77f</span></p>
-          <p class="mission-statement mission-statement--summary">This build includes the shared page navigation repair and hamburger button recovery across the site.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.78</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on the next iPhone readiness pass with stronger standalone safe-area behavior, Home Screen install consistency, and viewport polish for smaller iPhones.</p>
         </section>
       </div>
     </div>
@@ -203,7 +203,7 @@ function ensureStandaloneLaunchScreen() {
         <img src="./icons/apple-touch-icon.png" alt="Aineo Music icon" class="standalone-launch-logo" />
       </div>
       <p class="standalone-launch-kicker">Aineo Music</p>
-      <h1 class="standalone-launch-title">Opening your music library</h1>
+      <h1 class="standalone-launch-title">Opening Aineo Music</h1>
     </div>
   `;
   document.body.appendChild(splash);
@@ -240,12 +240,12 @@ function ensureStandaloneWelcomeCard() {
     <div class="standalone-welcome-backdrop" data-close-standalone-welcome></div>
     <div class="standalone-welcome-card" role="dialog" aria-modal="true" aria-labelledby="standaloneWelcomeTitle">
       <div class="standalone-welcome-grabber" aria-hidden="true"></div>
-      <p class="eyebrow">iPhone app mode</p>
-      <h2 id="standaloneWelcomeTitle">A cleaner standalone experience</h2>
+      <p class="eyebrow">Home Screen app mode</p>
+      <h2 id="standaloneWelcomeTitle">A cleaner iPhone Home Screen experience</h2>
       <ul class="utility-list standalone-welcome-list">
+        <li>Launch Aineo Music from your Home Screen for the cleanest app-style view.</li>
         <li>Swipe <strong>up</strong> on the mini player to open the full player.</li>
-        <li>Swipe <strong>down</strong> on the full player header to close it.</li>
-        <li>The player now sits higher above the iPhone home bar.</li>
+        <li>The player and overlays are tuned to sit more comfortably around the iPhone safe areas.</li>
       </ul>
       <div class="card-actions">
         <button type="button" class="action-btn" data-dismiss-standalone-welcome>Continue</button>
@@ -475,6 +475,20 @@ function initInstallExperience() {
 }
 
 
+function updateAppChromeMetrics() {
+  const header = document.querySelector(".site-header");
+  const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 72;
+  document.documentElement.style.setProperty("--app-header-height", `${headerHeight}px`);
+
+  const vv = window.visualViewport;
+  const visibleHeight = vv ? Math.round(vv.height) : window.innerHeight;
+  const topInset = vv ? Math.max(0, Math.round(vv.offsetTop)) : 0;
+  const bottomInset = vv ? Math.max(0, Math.round(window.innerHeight - (vv.height + vv.offsetTop))) : 0;
+  document.documentElement.style.setProperty("--app-visible-height", `${visibleHeight}px`);
+  document.documentElement.style.setProperty("--app-safe-top-visual", `${topInset}px`);
+  document.documentElement.style.setProperty("--app-safe-bottom-visual", `${bottomInset}px`);
+}
+
 function initIosWebAppPolish() {
   const ua = navigator.userAgent || "";
   const isIos = /iPad|iPhone|iPod/.test(ua);
@@ -485,6 +499,14 @@ function initIosWebAppPolish() {
   document.body.classList.toggle("ios-standalone", standalone);
   if (isIos) {
     document.body.classList.add("touch-optimized");
+  }
+  updateAppChromeMetrics();
+  window.addEventListener("resize", updateAppChromeMetrics, { passive: true });
+  window.addEventListener("orientationchange", updateAppChromeMetrics, { passive: true });
+  window.addEventListener("pageshow", updateAppChromeMetrics, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", updateAppChromeMetrics, { passive: true });
+    window.visualViewport.addEventListener("scroll", updateAppChromeMetrics, { passive: true });
   }
 }
 
