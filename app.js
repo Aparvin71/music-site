@@ -920,6 +920,7 @@ function bindUI() {
       updateSyncedLyricsProgress();
       window.requestAnimationFrame(() => updateSyncedLyricsProgress());
       updateMediaSessionPositionState();
+      syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("play", () => {
       stopPreviewAudio();
@@ -929,6 +930,7 @@ function bindUI() {
       savePlayerState();
       updateSyncedLyricsProgress();
       startLyricsSyncLoop();
+      syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("playing", () => {
       updateSyncedLyricsProgress();
@@ -940,6 +942,7 @@ function bindUI() {
       setMiniVisualizerActive(false);
       savePlayerState();
       stopLyricsSyncLoop();
+      syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("seeking", updateSyncedLyricsProgress);
     els.audioPlayer.addEventListener("seeked", () => {
@@ -949,6 +952,7 @@ function bindUI() {
     els.audioPlayer.addEventListener("ended", () => {
       stopLyricsSyncLoop();
       handleTrackEnded();
+      syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("error", () => {
       if (navigator.onLine === false) renderOfflineStatus({ forceVisible: true });
@@ -2252,6 +2256,13 @@ function updateNowPlaying(track) {
   updatePlayerSheet();
 }
 
+
+function syncCurrentPlaybackHighlights() {
+  syncFeaturedTrackPlayButtons();
+  syncQueuePlaybackUI();
+  try { renderFeaturedTrackList(); } catch (error) {}
+}
+
 function syncFeaturedTrackPlayButtons() {
   if (!els.featuredTrackList) return;
 
@@ -2307,8 +2318,7 @@ function updatePlayButton() {
   const label = els.audioPlayer.paused ? "▶" : "❚❚";
   if (els.playBtn) els.playBtn.textContent = label;
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
-  syncFeaturedTrackPlayButtons();
-  syncQueuePlaybackUI();
+  syncCurrentPlaybackHighlights();
 }
 
 function setRangeProgress(el, value) {

@@ -46,7 +46,16 @@ function initMobileNav() {
   const toggle = albumPageEls.mobileNavToggle;
   const nav = albumPageEls.siteNavLinks;
   if (!toggle || !nav) return;
-  toggle.addEventListener("click", () => {
+  if (toggle.dataset.navBound === "true") return;
+  toggle.dataset.navBound = "true";
+  ["pointerdown", "touchstart"].forEach(eventName => {
+    toggle.addEventListener(eventName, event => {
+      event.stopPropagation();
+    }, { passive: true });
+  });
+  toggle.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
     const open = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     toggle.textContent = open ? "✕" : "☰";

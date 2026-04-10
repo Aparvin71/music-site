@@ -11585,3 +11585,207 @@ button#clearFiltersBtn,
   border-color: rgba(168, 146, 255, 0.95) !important;
   box-shadow: 0 8px 18px rgba(77, 55, 145, 0.34) !important;
 }
+
+
+
+/* v42.3.75 sticky bar, page heading dark text, album nav, and resumed-play highlight fixes */
+
+/* Page hero / page heading readability */
+.page-card.page-hero-card h1,
+.page-card.page-hero-card h2,
+.page-card.page-hero-card h3,
+.page-card.page-hero-card .eyebrow,
+.page-card.page-hero-card .page-lead,
+.home-hero-copy h1,
+.home-hero-copy .eyebrow,
+.home-hero-copy .page-lead,
+.home-hero-copy .home-hero-support,
+.mission-page-title,
+.mission-page .eyebrow,
+.install-card h2,
+.install-card .eyebrow,
+.albums-page-hero h1,
+.albums-page-hero .eyebrow,
+.page h1,
+.page .page-card > h1,
+.page .page-card > h2,
+.page .page-card > h3 {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.page-card.page-hero-card p,
+.page-card.page-hero-card li,
+.mission-page-lead,
+.helper-text,
+.utility-list,
+.utility-list li {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+/* Albums page headings and card titles */
+.album-card h3,
+.album-card-meta h3,
+.album-card-title,
+.albums-grid .album-card h3,
+.albums-grid .album-card p,
+.albums-page-grid .album-card h3,
+.albums-page-grid .album-card p,
+main .album-card h3,
+main .album-card p {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.album-card p,
+.album-card-meta p {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+/* Full player heading/title and timing */
+.player-sheet-heading h2,
+#playerSheetTitle,
+.player-sheet-heading .eyebrow,
+.player-sheet-meta h3,
+.player-sheet-meta p,
+#playerSheetTrackTitle,
+#playerSheetTrackArtist,
+#playerSheetTrackAlbum,
+#playerSheetCurrentTime,
+#playerSheetDuration,
+.player-sheet-progress span {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.player-sheet-meta p,
+.player-sheet-progress span {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+/* Sticky player timing/title */
+#nowTitle,
+.now-meta h3,
+#currentTime,
+#duration,
+.progress-wrap span {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.now-meta p,
+.progress-wrap span {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+/* Album page hero text and track meta */
+.album-page-title,
+.album-page-subtitle,
+.album-page-breadcrumbs,
+.album-page-breadcrumbs span,
+.album-page-breadcrumbs a,
+.album-page-description--hero,
+.album-page-story-lead,
+.album-stat-pill,
+.album-page-shell h1,
+.album-page-shell h2,
+.album-page-shell h3,
+.album-page-shell .eyebrow {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.album-page-subtitle,
+.album-page-description--hero,
+.album-page-story-lead,
+.album-page-breadcrumbs {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+/* Sticky filter bar: fixed state must override all previous sticky rules */
+#stickyFilterBar.sticky-filter-bar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 980 !important;
+  margin-bottom: 14px !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--tablet-sticky-top, 74px) !important;
+  left: var(--tablet-sticky-left, 12px) !important;
+  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
+  z-index: 980 !important;
+}
+
+#stickyFilterBar .sticky-filter-bar-inner {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  background: rgba(23, 26, 33, 0.97) !important;
+  border: 1px solid #252a34 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+#stickyFilterBar .filter-info,
+#stickyFilterBar .filter-info *,
+#stickyFilterBar .active-filter-label,
+#stickyFilterBar .filter-type-badge,
+#stickyFilterBar #clearFiltersBtn,
+#stickyFilterBar #clearFiltersBtn * {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+@media (max-width: 640px) {
+  #stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+    left: 12px !important;
+    width: calc(100% - 24px) !important;
+  }
+  #stickyFilterBar .sticky-filter-bar-inner {
+    grid-template-columns: 1fr !important;
+  }
+  #stickyFilterBar #clearFiltersBtn {
+    width: 100% !important;
+  }
+}
+
+/* currently playing row should stay visually selected after pause/resume */
+.featured-track-row.playing,
+.featured-track-row.is-current,
+.featured-track-row.is-playing {
+  border-color: rgba(147, 177, 255, 0.95) !important;
+  background: linear-gradient(180deg, rgba(48, 66, 110, 0.96), rgba(44, 28, 72, 0.98)) !important;
+  box-shadow: 0 12px 28px rgba(22, 16, 38, 0.36), 0 0 0 1px rgba(161, 132, 255, 0.18) inset !important;
+}
+
+.featured-track-row.playing .featured-track-title,
+.featured-track-row.is-current .featured-track-title,
+.featured-track-row.is-playing .featured-track-title,
+.featured-track-row.playing .featured-track-title-line strong,
+.featured-track-row.is-current .featured-track-title-line strong,
+.featured-track-row.is-playing .featured-track-title-line strong {
+  color: #ffffff !important;
+}
+
+.featured-track-row.playing .featured-track-meta-line,
+.featured-track-row.playing .featured-track-duration,
+.featured-track-row.is-current .featured-track-meta-line,
+.featured-track-row.is-current .featured-track-duration,
+.featured-track-row.is-playing .featured-track-meta-line,
+.featured-track-row.is-playing .featured-track-duration {
+  color: #d9e6ff !important;
+}

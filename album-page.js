@@ -10,7 +10,14 @@ function ensureAlbumPageMobileNavFallback() {
   if (!toggle || !nav) return;
   if (toggle.dataset.navBound === "true") return;
   toggle.dataset.navBound = "true";
-  toggle.addEventListener("click", () => {
+  ["pointerdown", "touchstart"].forEach(eventName => {
+    toggle.addEventListener(eventName, event => {
+      event.stopPropagation();
+    }, { passive: true });
+  });
+  toggle.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
     const open = nav.classList.toggle("nav-open");
     toggle.setAttribute("aria-expanded", open ? "true" : "false");
     toggle.textContent = open ? "✕" : "☰";
