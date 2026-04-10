@@ -1,0 +1,12 @@
+Aineo Music build v42.3.75c
+
+Fixes from v42.3.75b base build:
+1. Full Screen / sticky player Play Next button now advances to the next queued track correctly.
+2. Sticky filter bar now stays stuck at the top while scrolling when a filter is active.
+3. Featured tracks card now restores current-song highlight state and play button visual state.
+4. Hue/current-track classes restored for current and actively playing track rows.
+
+Patched files:
+- app.js
+- aineo-featured.js
+- style.css

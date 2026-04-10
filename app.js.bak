@@ -809,23 +809,8 @@ function addTrackToQueue(track, options = {}) {
 
 function queueCurrentTrackNext() {
   const track = getCurrentTrack();
-  if (!track || !currentQueue.length) return;
-
-  const currentIndex = currentQueue.findIndex(item => item.id === track.id);
-  const nextTrack = currentIndex >= 0 && currentIndex < currentQueue.length - 1
-    ? currentQueue[currentIndex + 1]
-    : null;
-
-  if (nextTrack) {
-    playTrack(nextTrack);
-    showToast?.(`Playing next: ${nextTrack.title}`);
-    return;
-  }
-
-  if (repeatMode === "all" && currentQueue.length > 1) {
-    playTrack(currentQueue[0]);
-    showToast?.(`Playing next: ${currentQueue[0].title}`);
-  }
+  if (!track) return;
+  addTrackToQueue(track, { playNext: true });
 }
 
 
@@ -2283,14 +2268,9 @@ function syncFeaturedTrackPlayButtons() {
 
   const currentTrack = getCurrentTrack();
 
-  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
-
   els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
     const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
     row.classList.toggle("playing", isCurrentTrack);
-    row.classList.toggle("is-current", isCurrentTrack);
-    row.classList.toggle("is-playing", isCurrentTrack && isPlaying);
-    row.classList.toggle("is-paused", isCurrentTrack && !isPlaying);
   });
 
   els.featuredTrackList.querySelectorAll(".featured-track-play[data-track-id]").forEach(btn => {
