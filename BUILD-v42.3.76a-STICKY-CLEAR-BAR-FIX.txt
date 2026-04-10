@@ -1,0 +1,12 @@
+Aineo Music
+Build: v42.3.76a
+
+Base: v42.3.76
+Focused fix: sticky clear/filter bar now pins consistently at the top while scrolling when active.
+
+Files changed:
+- app.js
+- style.css
+- pwa-init.js
+- service-worker.js
+- changelog.html

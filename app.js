@@ -1,4 +1,4 @@
-/* v42.3.76 real fix pass: play next, sticky filter, track-state highlights */
+/* v42.3.76a sticky clear bar fix pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1837,7 +1837,7 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
   const active = hasActiveFilter() && !els.stickyFilterBar.classList.contains("hidden");
-  if (!active || !isTabletLibraryViewport()) {
+  if (!active) {
     els.stickyFilterBar.classList.remove("is-fixed");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-width");
@@ -1853,7 +1853,10 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
   const threshold = Math.max(anchorTop - getStickyFilterTopOffset(), 0);
   const shouldFix = window.scrollY >= threshold;
   els.stickyFilterBar.classList.toggle("is-fixed", shouldFix);
-  if (shouldFix) syncTabletStickyFilterBarMetrics(false);
+
+  if (shouldFix) {
+    syncTabletStickyFilterBarMetrics(false);
+  }
 }
 
 function initTabletStickyFilterBar() {
