@@ -1,4 +1,4 @@
-/* v42.3.76e sticky clear bar visibility recovery */
+/* v42.3.77d sticky filter full top pin */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1810,8 +1810,7 @@ function isTabletLibraryViewport() {
 }
 
 function getStickyFilterTopOffset() {
-  const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-  return Math.max(0, Math.round(headerHeight + 2));
+  return 0;
 }
 
 function syncTabletStickyFilterBarMetrics() {

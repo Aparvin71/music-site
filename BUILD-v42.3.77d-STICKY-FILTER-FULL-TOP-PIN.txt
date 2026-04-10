@@ -1,0 +1,2 @@
+v42.3.77d
+Raised sticky clear/filter bar fully to the top of the screen when active.

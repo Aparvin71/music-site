@@ -11861,7 +11861,7 @@ main .album-card p {
 
 /* v42.3.77b sticky clear filter final cleanup */
 #mainContent.sticky-filter-active {
-  padding-top: 8px !important;
+  padding-top: 0 !important;
 }
 
 .music-page-layout .music-app-shell,
@@ -11904,7 +11904,7 @@ main .album-card p {
 
 #stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
   position: fixed !important;
-  top: var(--sticky-filter-top, 64px) !important;
+  top: var(--sticky-filter-top, 0px) !important;
   left: var(--tablet-sticky-left, 12px) !important;
   right: auto !important;
   width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
