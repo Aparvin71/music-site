@@ -34,6 +34,7 @@
   function clearFilters({ filters, searchInput, onAfterChange }) {
     resetNamedFilters(filters);
     clearSearch(searchInput, filters);
+    filters.searchScope = 'all';
     onAfterChange?.();
   }
 

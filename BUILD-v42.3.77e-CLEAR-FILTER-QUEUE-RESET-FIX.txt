@@ -1,0 +1,7 @@
+Aineo Music v42.3.77e
+
+Fixes included:
+- Clear Filter now force-resets queue and collection state
+- Next button no longer behaves like a previous filter is still active
+- Search scope resets to All when clearing filters
+- Version markers and cache version bumped

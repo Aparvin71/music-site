@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.77d";
+const AINEO_APP_VERSION = "v42.3.77e";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,7 +73,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.77d"[data-close-app-feel]").forEach(btn => {
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.77e"[data-close-app-feel]").forEach(btn => {
     btn.addEventListener("click", closeSettingsSurface);
   });
 

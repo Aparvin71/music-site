@@ -1,4 +1,4 @@
-/* v42.3.77d sticky filter full top pin */
+/* v42.3.77e clear filter queue reset fix */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1524,7 +1524,13 @@ function clearAllFilters() {
     filters,
     searchInput: els.searchInput,
     onAfterChange: () => {
+      activeCustomPlaylistName = null;
+      smartQueueSuggestionId = '';
+      currentCollectionKey = '';
       updateLibraryView();
+      syncQueueToCurrentCollection(true);
+      syncQueuePlaybackUI();
+      syncCurrentPlaybackHighlights();
       scrollToTrackList();
     }
   });
