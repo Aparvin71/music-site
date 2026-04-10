@@ -1,0 +1,6 @@
+Aineo Music v42.3.76c
+
+Focused fix from v42.3.76b:
+- Re-enabled real fixed-mode behavior for the sticky clear/filter bar when a filter is active
+- Preserved placeholder height on the anchor container to prevent layout jump
+- Bumped HTML asset query strings, app version, changelog, and service worker cache version

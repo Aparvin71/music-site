@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.3.76b-real-fixes-playnext-sticky-trackstate-changelog";
+const CACHE_VERSION = "v42.3.76c-sticky-clear-fixed-mode-repair";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

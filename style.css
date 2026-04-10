@@ -11887,3 +11887,36 @@ main .album-card p {
 #stickyFilterBar.sticky-filter-bar.hidden {
   display: none !important;
 }
+
+
+/* v42.3.76c sticky clear bar fixed-mode repair */
+#stickyFilterBar.sticky-filter-bar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 1180 !important;
+  margin-bottom: 14px !important;
+  min-height: 0 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--tablet-sticky-top, 72px) !important;
+  left: var(--tablet-sticky-left, 12px) !important;
+  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
+  z-index: 1181 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar:not(.is-fixed) .sticky-filter-bar-inner {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.hidden {
+  display: none !important;
+}

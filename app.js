@@ -1,4 +1,4 @@
-/* v42.3.76b sticky clear bar actual stick fix */
+/* v42.3.76c sticky clear bar fixed-mode repair */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1849,7 +1849,7 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
   }
 
   syncTabletStickyFilterBarMetrics(resetAnchor);
-  els.stickyFilterBar.classList.remove("is-fixed");
+  els.stickyFilterBar.classList.add("is-fixed");
 }
 
 function initTabletStickyFilterBar() {
