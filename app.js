@@ -1,4 +1,4 @@
-/* v42.3.76d sticky clear bar floating top lock */
+/* v42.3.76e sticky clear bar visibility recovery */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1834,9 +1834,6 @@ function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
   els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${top}px`);
   els.stickyFilterBar.style.minHeight = `${height}px`;
 
-  if (mainContent) {
-    mainContent.style.setProperty("--active-sticky-filter-space", `${height + 10}px`);
-  }
 }
 
 function updateTabletStickyFilterBar(resetAnchor = false) {
@@ -1852,18 +1849,11 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
     els.stickyFilterBar.style.minHeight = "";
     delete els.stickyFilterBar.dataset.anchorTop;
-    if (mainContent) {
-      mainContent.classList.remove("sticky-filter-active");
-      mainContent.style.removeProperty("--active-sticky-filter-space");
-    }
     return;
   }
 
   syncTabletStickyFilterBarMetrics(resetAnchor);
   els.stickyFilterBar.classList.add("is-fixed");
-  if (mainContent) {
-    mainContent.classList.add("sticky-filter-active");
-  }
 }
 
 function initTabletStickyFilterBar() {

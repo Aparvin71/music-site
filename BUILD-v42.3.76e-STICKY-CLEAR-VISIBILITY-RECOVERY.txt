@@ -1,0 +1,10 @@
+Aineo Music build v42.3.76e
+
+Focused fix:
+- sticky clear/filter bar visibility recovery
+
+What changed:
+- kept #stickyFilterBar as the in-flow anchor/spacer
+- moved only .sticky-filter-bar-inner to fixed mode while active
+- removed extra main-content sticky padding logic from the v42.3.76d pass
+- bumped service worker, page asset query strings, and visible version markers to v42.3.76e

@@ -11956,3 +11956,42 @@ main .album-card p {
 #stickyFilterBar.sticky-filter-bar.hidden {
   display: none !important;
 }
+
+
+/* v42.3.76e sticky clear bar visibility recovery */
+#mainContent.sticky-filter-active {
+  padding-top: 16px !important;
+}
+
+#stickyFilterBar.sticky-filter-bar {
+  position: relative !important;
+  display: block !important;
+  min-height: 0 !important;
+  margin: 0 0 12px !important;
+  z-index: 1400 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.hidden {
+  display: none !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  position: relative !important;
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--tablet-sticky-top, 72px) !important;
+  left: var(--tablet-sticky-left, 12px) !important;
+  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
+  z-index: 1401 !important;
+}
