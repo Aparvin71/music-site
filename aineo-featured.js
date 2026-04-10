@@ -1,3 +1,4 @@
+// v42.3.75d fix note: sticky filter activation and current-track UI refresh support
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();

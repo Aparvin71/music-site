@@ -1,3 +1,4 @@
+// v42.3.75d fix note: restored play-state row/button highlighting and current-track syncing
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];

@@ -1,0 +1,17 @@
+Aineo Music Build v42.3.75d
+
+Included fixes:
+- Full-screen player Play Next now advances correctly
+- Sticky filter bar now stays pinned while scrolling
+- Current playing song row/button hue highlights restored
+- App version, cache version, and page asset query strings bumped to v42.3.75d
+- Changelog updated for this build
+
+Core patched files:
+- app.js
+- aineo-featured.js
+- style.css
+- service-worker.js
+- pwa-init.js
+- changelog.html
+- page asset references bumped across html files
