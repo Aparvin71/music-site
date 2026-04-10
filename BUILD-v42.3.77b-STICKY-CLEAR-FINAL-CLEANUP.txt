@@ -1,0 +1,6 @@
+v42.3.77b
+- cleaned duplicate sticky clear filter CSS experiments
+- kept one final fixed-inner implementation
+- added scroll-aware sticky metric refresh
+- fixed custom playlist path to use real active filter state
+- removed old BUILD note clutter

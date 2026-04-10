@@ -11859,179 +11859,56 @@ main .album-card p {
   color: #ffffff !important;
 }
 
-
-/* v42.3.76b sticky clear bar actual stick fix */
-#stickyFilterBar.sticky-filter-bar {
-  position: sticky !important;
-  top: var(--tablet-sticky-top, 72px) !important;
-  z-index: 1180 !important;
-  margin-bottom: 14px !important;
-  min-height: 0 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed {
-  position: sticky !important;
-  top: var(--tablet-sticky-top, 72px) !important;
-  min-height: 0 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner,
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  width: 100% !important;
-  z-index: 1181 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.hidden {
-  display: none !important;
-}
-
-
-/* v42.3.76c sticky clear bar fixed-mode repair */
-#stickyFilterBar.sticky-filter-bar {
-  position: relative !important;
-  top: auto !important;
-  z-index: 1180 !important;
-  margin-bottom: 14px !important;
-  min-height: 0 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed {
-  min-height: var(--tablet-sticky-height, 72px) !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
-  position: fixed !important;
-  top: var(--tablet-sticky-top, 72px) !important;
-  left: var(--tablet-sticky-left, 12px) !important;
-  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
-  z-index: 1181 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar:not(.is-fixed) .sticky-filter-bar-inner {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  width: 100% !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.hidden {
-  display: none !important;
-}
-
-
-/* v42.3.76d sticky clear bar floating top lock */
-#mainContent.sticky-filter-active {
-  padding-top: calc(16px + var(--active-sticky-filter-space, 82px)) !important;
-}
-
-#stickyFilterBar.sticky-filter-bar {
-  position: relative !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  z-index: 1400 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed {
-  position: fixed !important;
-  top: var(--tablet-sticky-top, 72px) !important;
-  left: var(--tablet-sticky-left, 12px) !important;
-  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
-  min-height: auto !important;
-  z-index: 1401 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner,
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner,
-#stickyFilterBar.sticky-filter-bar:not(.is-fixed) .sticky-filter-bar-inner {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  width: 100% !important;
-  margin: 0 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.hidden {
-  display: none !important;
-}
-
-
-/* v42.3.76e sticky clear bar visibility recovery */
-#mainContent.sticky-filter-active {
-  padding-top: 16px !important;
-}
-
-#stickyFilterBar.sticky-filter-bar {
-  position: relative !important;
-  display: block !important;
-  min-height: 0 !important;
-  margin: 0 0 12px !important;
-  z-index: 1400 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.hidden {
-  display: none !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed {
-  position: relative !important;
-  min-height: var(--tablet-sticky-height, 72px) !important;
-}
-
-#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  width: 100% !important;
-  margin: 0 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
-  position: fixed !important;
-  top: var(--tablet-sticky-top, 72px) !important;
-  left: var(--tablet-sticky-left, 12px) !important;
-  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
-  z-index: 1401 !important;
-}
-
-/* v42.3.77 full review cleanup: definitive sticky filter bar path */
+/* v42.3.77b sticky clear filter final cleanup */
 #mainContent.sticky-filter-active {
   padding-top: 16px !important;
 }
 
 .music-page-layout .music-app-shell,
 .music-page-layout .main-content--music-order,
-.music-page-layout .music-layout-shell {
+.music-page-layout .music-layout-shell,
+.music-page-layout .music-center-column {
   overflow: visible !important;
 }
 
-#stickyFilterBar.sticky-filter-bar,
-#stickyFilterBar.sticky-filter-bar.is-fixed {
+#stickyFilterBar.sticky-filter-bar {
   display: block !important;
-  position: sticky !important;
-  top: var(--sticky-filter-top, 72px) !important;
+  position: relative !important;
+  top: auto !important;
   left: auto !important;
-  width: auto !important;
+  width: 100% !important;
   min-height: 0 !important;
   margin: 0 0 12px !important;
-  z-index: 1105 !important;
+  z-index: 1400 !important;
 }
 
 #stickyFilterBar.sticky-filter-bar.hidden {
   display: none !important;
 }
 
-#stickyFilterBar.sticky-filter-bar .sticky-filter-bar-inner,
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner,
-#stickyFilterBar.sticky-filter-bar:not(.is-fixed) .sticky-filter-bar-inner {
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+#stickyFilterBar .sticky-filter-bar-inner {
   position: relative !important;
   top: auto !important;
   left: auto !important;
+  right: auto !important;
   width: 100% !important;
+  max-width: none !important;
   margin: 0 !important;
-  z-index: 1106 !important;
+  box-sizing: border-box !important;
+  z-index: 1401 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--sticky-filter-top, 72px) !important;
+  left: var(--tablet-sticky-left, 12px) !important;
+  right: auto !important;
+  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
+  max-width: none !important;
 }
 
 #stickyFilterBar .active-filter-label,
@@ -12042,7 +11919,6 @@ main .album-card p {
   color: #f4f4f4 !important;
 }
 
-/* v42.3.77 changelog readability cleanup */
 .changelog-entry,
 .changelog-entry h2,
 .changelog-entry p,

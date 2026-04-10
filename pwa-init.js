@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.77";
+const AINEO_APP_VERSION = "v42.3.77b";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,14 +73,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.77</span> is tuned for a cleaner iPhone standalone experience.</p>
-        </section>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(surface);
-
-  surface.querySelectorAll("[data-close-app-feel]").forEach(btn => {
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.77b"[data-close-app-feel]").forEach(btn => {
     btn.addEventListener("click", closeSettingsSurface);
   });
 

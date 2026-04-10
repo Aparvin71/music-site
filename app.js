@@ -1818,12 +1818,19 @@ function syncTabletStickyFilterBarMetrics() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
   const top = getStickyFilterTopOffset();
-  const height = Math.ceil(els.stickyFilterBarInner.offsetHeight || els.stickyFilterBar.offsetHeight || 0);
+  const barRect = els.stickyFilterBar.getBoundingClientRect();
+  const innerRect = els.stickyFilterBarInner.getBoundingClientRect();
+  const height = Math.ceil(innerRect.height || els.stickyFilterBarInner.offsetHeight || els.stickyFilterBar.offsetHeight || 0);
+  const width = Math.max(0, Math.round(barRect.width || innerRect.width || els.stickyFilterBar.offsetWidth || 0));
+  const left = Math.round(barRect.left);
   const mainContent = document.getElementById("mainContent");
 
   els.stickyFilterBar.style.setProperty("--sticky-filter-top", `${top}px`);
   els.stickyFilterBar.style.setProperty("--tablet-sticky-top", `${top}px`);
   els.stickyFilterBar.style.setProperty("--tablet-sticky-height", `${height}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-width", `${width}px`);
+  els.stickyFilterBar.style.setProperty("--tablet-sticky-left", `${left}px`);
+  els.stickyFilterBar.style.minHeight = `${height}px`;
 
   if (mainContent) {
     mainContent.style.setProperty("--active-sticky-filter-space", `${height}px`);
@@ -1841,6 +1848,12 @@ function updateTabletStickyFilterBar() {
     els.stickyFilterBar.style.removeProperty("--sticky-filter-top");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-width");
+    els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
+    els.stickyFilterBar.style.removeProperty("min-height");
+    els.stickyFilterBarInner.style.removeProperty("left");
+    els.stickyFilterBarInner.style.removeProperty("top");
+    els.stickyFilterBarInner.style.removeProperty("width");
     if (mainContent) {
       mainContent.classList.remove("sticky-filter-active");
       mainContent.style.removeProperty("--active-sticky-filter-space");
@@ -1850,6 +1863,9 @@ function updateTabletStickyFilterBar() {
 
   syncTabletStickyFilterBarMetrics();
   els.stickyFilterBar.classList.add("is-fixed");
+  els.stickyFilterBarInner.style.left = `var(--tablet-sticky-left)`;
+  els.stickyFilterBarInner.style.top = `var(--tablet-sticky-top)`;
+  els.stickyFilterBarInner.style.width = `var(--tablet-sticky-width)`;
   if (mainContent) {
     mainContent.classList.add("sticky-filter-active");
   }
@@ -1858,14 +1874,18 @@ function updateTabletStickyFilterBar() {
 function initTabletStickyFilterBar() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
+  let stickyUpdateFrame = null;
   const requestUpdate = () => {
-    window.requestAnimationFrame(() => {
+    if (stickyUpdateFrame) return;
+    stickyUpdateFrame = window.requestAnimationFrame(() => {
+      stickyUpdateFrame = null;
       updateTabletStickyFilterBar();
     });
   };
 
   window.addEventListener("resize", requestUpdate, { passive: true });
   window.addEventListener("orientationchange", requestUpdate, { passive: true });
+  window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("load", requestUpdate, { passive: true });
 
   requestUpdate();
@@ -2769,15 +2789,10 @@ function renderMyPlaylistsLegacyV1() {
       filters.selectedPlaylist = null;
       filters.selectedTag = null;
       filters.selectedSmartPlaylist = null;
+      filters.selectedCustomPlaylist = btn.dataset.customPlaylist;
       filters.searchTerm = "";
       if (els.searchInput) els.searchInput.value = "";
-      if (els.activeFilterLabel) els.activeFilterLabel.textContent = `My Playlist: ${btn.dataset.customPlaylist}`;
-      if (els.stickyFilterBar) els.stickyFilterBar.classList.remove("hidden");
-      if (els.filterTypeBadge) {
-        els.filterTypeBadge.textContent = "My Playlist";
-        els.filterTypeBadge.className = "filter-type-badge playlist";
-        els.filterTypeBadge.style.display = "inline-flex";
-      }
+      renderActiveFilterLabel();
       renderAlbums(filteredTracks);
       renderFeaturedAlbum();
       renderFeaturedTrackList();
