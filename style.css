@@ -10452,7 +10452,7 @@ button:active{
 }
 
 
-/* ===== v42.3.73 UX + performance polish ===== */
+/* ===== v42.3.74 UX + performance polish ===== */
 :root {
   --aineo-soft-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
   --aineo-soft-outline: 0 0 0 1px rgba(142, 197, 255, 0.16);
@@ -10542,7 +10542,7 @@ a:focus-visible {
 
 
 
-/* v42.3.73 iPhone standalone UX pass */
+/* v42.3.74 iPhone standalone UX pass */
 
 body.ios-standalone {
   background:
@@ -10728,7 +10728,7 @@ body.standalone-launch-active {
 
 
 
-/* v42.3.73 iPhone app-feel polish */
+/* v42.3.74 iPhone app-feel polish */
 
 :root {
   --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -10968,7 +10968,7 @@ body.ios-standalone .offline-hint-card {
 
 
 
-/* v42.3.73 visibility + sticky recovery fixes */
+/* v42.3.74 visibility + sticky recovery fixes */
 
 /* Restore sticky player after app-feel passes changed its layout behavior */
 .sticky-player {
@@ -11078,7 +11078,7 @@ body.ios-standalone .sticky-player {
 
 
 
-/* v42.3.73 sticky clear + text visibility hardening */
+/* v42.3.74 sticky clear + text visibility hardening */
 
 /* Sticky active-filter / clear bar recovery */
 .active-filter-bar,
@@ -11255,7 +11255,7 @@ button#clearFiltersBtn,
 
 
 
-/* v42.3.73 v71-based sticky clear + text visibility fixes */
+/* v42.3.74 v71-based sticky clear + text visibility fixes */
 
 /* Sticky clear bar: anchor container keeps height, inner bar becomes fixed when JS adds .is-fixed */
 .sticky-filter-bar {
@@ -11428,4 +11428,160 @@ button#clearFiltersBtn,
 .install-modal-content textarea {
   color: #f4f4f4 !important;
   background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+
+
+/* v42.3.74 dark text, sticky clear, and player action fixes */
+
+/* Exact text selectors that regressed dark */
+.music-library-card,
+.music-library-card *,
+.about-panel,
+.about-panel *,
+.continue-listening-card,
+.continue-listening-card *,
+.featured-tracklist-panel .section-header h2,
+#downloadedHeading,
+#playlistsHeading,
+#nowTitle,
+#currentTime,
+#duration,
+#playerSheetTrackTitle,
+#playerSheetCurrentTime,
+#playerSheetDuration,
+.player-sheet-progress span,
+.now-meta h3,
+.now-meta p,
+.progress-wrap span,
+.playlist-subsection-title,
+.library-panel .section-header h2,
+.page-card h2,
+.page-card h3,
+.page-card p.eyebrow,
+.page-card .eyebrow,
+.library-quick-link,
+.section-toggle,
+.section-toggle span,
+.section-header h2,
+.continue-listening-copy h2,
+.continue-listening-copy .eyebrow,
+.continue-listening-meta {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.music-library-card .hero-text,
+.about-panel p,
+.continue-listening-meta,
+.now-meta p,
+.progress-wrap span,
+.player-sheet-meta p,
+.player-sheet-progress span,
+.library-panel .empty-message,
+.featured-track-meta-line,
+.featured-track-duration,
+.playlist-subsection-copy {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+.scripture-line,
+#nowScripture,
+#playerSheetTrackScripture {
+  color: #9fd0ff !important;
+  -webkit-text-fill-color: #9fd0ff !important;
+}
+
+/* Sticky filter bar: make fixed state real and visually stable */
+.sticky-filter-bar {
+  position: relative !important;
+  top: auto !important;
+  z-index: 970 !important;
+  margin-bottom: 14px;
+}
+
+.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--tablet-sticky-top, 76px) !important;
+  left: var(--tablet-sticky-left, 12px) !important;
+  width: var(--tablet-sticky-width, calc(100% - 24px)) !important;
+  z-index: 970 !important;
+}
+
+.sticky-filter-bar-inner,
+#stickyFilterBar .sticky-filter-bar-inner {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 10px 12px !important;
+  background: rgba(23, 26, 33, 0.97) !important;
+  border: 1px solid #252a34 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+#stickyFilterBar .filter-info,
+#stickyFilterBar .filter-info *,
+#stickyFilterBar .active-filter-label,
+#stickyFilterBar .active-filter-label *,
+#stickyFilterBar .filter-type-badge,
+#stickyFilterBar .filter-type-badge *,
+#stickyFilterBar #clearFiltersBtn,
+#stickyFilterBar #clearFiltersBtn * {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+#stickyFilterBar #clearFiltersBtn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(144, 180, 232, 0.22) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18) !important;
+}
+
+@media (max-width: 640px) {
+  .sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+    left: 12px !important;
+    width: calc(100% - 24px) !important;
+  }
+
+  .sticky-filter-bar-inner {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sticky-filter-bar #clearFiltersBtn {
+    width: 100% !important;
+  }
+}
+
+/* Stronger currently-playing row with blue + purple hue */
+.featured-track-row.playing {
+  border-color: rgba(147, 177, 255, 0.95) !important;
+  background: linear-gradient(180deg, rgba(48, 66, 110, 0.96), rgba(44, 28, 72, 0.98)) !important;
+  box-shadow: 0 12px 28px rgba(22, 16, 38, 0.36), 0 0 0 1px rgba(161, 132, 255, 0.18) inset !important;
+}
+
+.featured-track-row.playing .featured-track-title,
+.featured-track-row.playing .featured-track-title-line strong {
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(171, 139, 255, 0.18);
+}
+
+.featured-track-row.playing .featured-track-meta-line,
+.featured-track-row.playing .featured-track-duration {
+  color: #d9e6ff !important;
+}
+
+.featured-track-play.is-playing,
+.featured-track-row.playing .featured-track-play {
+  background: linear-gradient(180deg, #9cc3ff, #8f7bff) !important;
+  color: #0f1115 !important;
+  border-color: rgba(168, 146, 255, 0.95) !important;
+  box-shadow: 0 8px 18px rgba(77, 55, 145, 0.34) !important;
 }

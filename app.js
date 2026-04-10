@@ -229,6 +229,8 @@ async function init() {
   bindMediaSessionHandlers();
   initOfflineStatus();
   initCollapsibles();
+  initActionButtonIsolation();
+  initSmoothHashJumps();
   initMobilePlayerDrawer();
   initMiniVisualizer();
   initHoldToPreview();
@@ -889,7 +891,12 @@ function bindUI() {
   on(els.nextBtn, "click", playNextTrack);
   on(els.shuffleModeBtn, "click", toggleShuffleMode);
   on(els.repeatModeBtn, "click", toggleRepeatMode);
-  on(els.playNextBtn, "click", queueCurrentTrackNext);
+  on(els.playNextBtn, "click", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    queueCurrentTrackNext();
+    closeMobilePlayerDrawer();
+  });
 
   on(els.seekBar, "input", () => {
     if (!els.audioPlayer || !isFinite(els.audioPlayer.duration)) return;
@@ -1174,6 +1181,52 @@ function on(element, eventName, handler) {
   if (element) {
     element.addEventListener(eventName, handler);
   }
+}
+
+
+function initActionButtonIsolation() {
+  [
+    els.favoriteSongBtn,
+    els.addToPlaylistBtn,
+    els.saveOfflineBtn,
+    els.playNextBtn,
+    els.openPlayerSheetBtn,
+    els.moreActionsBtn,
+    els.copyLyricsBtn,
+    els.shareSongBtn,
+    els.downloadSongBtn,
+    els.shuffleQueueBtn
+  ].forEach(btn => {
+    if (!btn || btn.dataset.actionIsolationBound === "true") return;
+    btn.dataset.actionIsolationBound = "true";
+    ["pointerdown", "touchstart", "click"].forEach(eventName => {
+      btn.addEventListener(eventName, event => {
+        event.stopPropagation();
+      }, { passive: eventName !== "click" });
+    });
+  });
+}
+
+function initSmoothHashJumps() {
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    if (link.dataset.hashJumpBound === "true") return;
+    link.dataset.hashJumpBound = "true";
+    link.addEventListener("click", event => {
+      const href = link.getAttribute("href") || "";
+      if (!href.startsWith("#")) return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      event.preventDefault();
+
+      const collapsible = target.closest('.collapsible-section');
+      if (collapsible && !collapsible.classList.contains('open')) {
+        collapsible.classList.add('open');
+        collapsible.querySelector(".section-toggle")?.setAttribute("aria-expanded", "true");
+      }
+
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 }
 
 
@@ -1747,7 +1800,7 @@ function isTabletLibraryViewport() {
 
 function getStickyFilterTopOffset() {
   const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
-  return Math.round(headerHeight + 10);
+  return Math.round(headerHeight + 8);
 }
 
 function syncTabletStickyFilterBarMetrics(resetAnchor = false) {
@@ -1787,7 +1840,7 @@ function updateTabletStickyFilterBar(resetAnchor = false) {
 
   const anchorTop = Number(els.stickyFilterBar.dataset.anchorTop || 0);
   const threshold = Math.max(anchorTop - getStickyFilterTopOffset(), 0);
-  const shouldFix = window.scrollY >= threshold;
+  const shouldFix = window.scrollY >= threshold || window.scrollY > 12;
 
   els.stickyFilterBar.classList.toggle("is-fixed", shouldFix);
 
@@ -3236,7 +3289,14 @@ function initCollapsibles() {
 function initMobilePlayerDrawer() {
   if (!els.moreActionsBtn || !els.mobileActionsDrawer) return;
 
+  ["pointerdown", "touchstart"].forEach(eventName => {
+    els.moreActionsBtn.addEventListener(eventName, e => {
+      e.stopPropagation();
+    }, { passive: true });
+  });
+
   els.moreActionsBtn.addEventListener("click", e => {
+    e.preventDefault();
     e.stopPropagation();
     const isHidden = els.mobileActionsDrawer.classList.contains("hidden");
     if (isHidden) {
