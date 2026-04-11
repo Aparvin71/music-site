@@ -1,0 +1,14 @@
+Aineo Music
+Build: v42.3.99 — Neon Flare Halo Pass
+
+Included in this package:
+- full-screen visualizer nudged slightly right and up for cleaner centering behind album art
+- brighter true neon blue and purple flare treatment across halo bloom, rings, and side accents
+- stronger canvas glow, contrast, and waveform ring push for a more premium visual read
+- synced app/page/cache version markers to v42.3.99
+- cleaned the package text files so only the current build note is included
+
+Notes:
+- playback path unchanged
+- prerendered per-track waveform pipeline unchanged
+- incremental make_tracks.py behavior unchanged
