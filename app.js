@@ -32,6 +32,8 @@ let previewHoldTimer = null;
 let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
+let visualizerLeftBars = [];
+let visualizerRightBars = [];
 let visualizerTick = 0;
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -1258,6 +1260,7 @@ function initSmoothHashJumps() {
 function initMiniVisualizer() {
   const wrap = els.playerSheetCoverWrap;
   if (!wrap || wrap.querySelector('.player-cover-visualizer')) return;
+
   const visualizer = document.createElement('div');
   visualizer.className = 'player-cover-visualizer';
   visualizer.setAttribute('aria-hidden', 'true');
@@ -1265,37 +1268,39 @@ function initMiniVisualizer() {
   const glow = document.createElement('div');
   glow.className = 'player-cover-visualizer-glow';
 
-  const canvas = document.createElement('canvas');
-  canvas.className = 'player-cover-visualizer-canvas';
-  visualizerCanvas = canvas;
-  visualizerCtx = canvas.getContext('2d', { alpha: true });
-
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
-  for (let i = 0; i < 96; i += 1) {
-    const bar = document.createElement('span');
-    bar.className = 'player-cover-visualizer-bar';
-    bars.appendChild(bar);
+
+  const leftLane = document.createElement('div');
+  leftLane.className = 'player-cover-visualizer-lane is-left';
+  const rightLane = document.createElement('div');
+  rightLane.className = 'player-cover-visualizer-lane is-right';
+
+  for (let i = 0; i < 36; i += 1) {
+    const leftBar = document.createElement('span');
+    leftBar.className = 'player-cover-visualizer-bar';
+    leftBar.dataset.side = 'left';
+    leftBar.dataset.index = String(i);
+    leftLane.appendChild(leftBar);
+
+    const rightBar = document.createElement('span');
+    rightBar.className = 'player-cover-visualizer-bar';
+    rightBar.dataset.side = 'right';
+    rightBar.dataset.index = String(i);
+    rightLane.appendChild(rightBar);
   }
 
-  visualizer.append(glow, canvas, bars);
+  bars.append(leftLane, rightLane);
+  visualizer.append(glow, bars);
   wrap.prepend(visualizer);
-  visualizerBars = [...bars.children];
-  resizeMiniVisualizerCanvas();
-  window.addEventListener('resize', resizeMiniVisualizerCanvas, { passive: true });
+
+  visualizerLeftBars = [...leftLane.children];
+  visualizerRightBars = [...rightLane.children];
+  visualizerBars = [...visualizerLeftBars, ...visualizerRightBars];
 }
 
 function resizeMiniVisualizerCanvas() {
-  if (!visualizerCanvas || !els.playerSheetCoverWrap) return;
-  const rect = els.playerSheetCoverWrap.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const width = Math.max(220, Math.round(rect.width));
-  const height = Math.max(220, Math.round(rect.height));
-  visualizerCanvas.width = Math.round(width * dpr);
-  visualizerCanvas.height = Math.round(height * dpr);
-  visualizerCanvas.style.width = `${width}px`;
-  visualizerCanvas.style.height = `${height}px`;
-  if (visualizerCtx) visualizerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return;
 }
 
 function ensureVisualizerAudioSetup() {
@@ -1366,37 +1371,21 @@ function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
 
 
 function drawVisualizerFrame() {
-  if (!visualizerCtx || !visualizerCanvas) return;
-  resizeMiniVisualizerCanvas();
-
-  const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
-  const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
-  const ctx = visualizerCtx;
   const currentTrack = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
   const durationSeconds = currentTrack?.durationSeconds || currentTrack?.duration || els.audioPlayer?.duration || 0;
 
-  ctx.clearRect(0, 0, width, height);
-
-  if (!currentTrack || !visualizerBars.length) return;
+  if (!currentTrack || !visualizerLeftBars.length || !visualizerRightBars.length) return;
 
   const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
   const progress = prerenderedState
     ? prerenderedState.timelinePosition
     : (durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0);
 
-  const coverRect = els.playerSheetCover?.getBoundingClientRect();
-  const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
-  const coverCenterY = coverRect && wrapRect
-    ? ((coverRect.top - wrapRect.top) + (coverRect.height / 2))
-    : ((height / 2) - (height * 0.04));
-
-  const barCount = visualizerBars.length;
-  const visibleSpan = 0.11;
-  const smoothing = 0.18;
-  const minHeight = Math.max(6, height * 0.035);
-  const maxHeight = height * 0.34;
-  const baseOpacity = 0.42;
+  const laneCount = Math.min(visualizerLeftBars.length, visualizerRightBars.length);
+  const visibleSpan = 0.075;
+  const minHeight = 12;
+  const maxHeight = 92;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
@@ -1404,51 +1393,46 @@ function drawVisualizerFrame() {
     return Math.max(0, Math.min(1, sampleTrackWaveformAt(currentTrack, clampedPos) || 0));
   };
 
-  const rawSamples = [];
-  for (let i = 0; i < barCount; i += 1) {
-    const normalizedX = i / Math.max(1, barCount - 1);
-    const timelinePos = progress + ((normalizedX - 0.5) * visibleSpan);
-    rawSamples.push(sampleEnvelopeAt(timelinePos));
+  const smoothValue = (arr, i) => {
+    const center = arr[i] ?? 0;
+    const left = arr[Math.max(0, i - 1)] ?? center;
+    const right = arr[Math.min(arr.length - 1, i + 1)] ?? center;
+    return (left * 0.22) + (center * 0.56) + (right * 0.22);
+  };
+
+  const leftSamples = [];
+  const rightSamples = [];
+  for (let i = 0; i < laneCount; i += 1) {
+    const outward = (i + 0.5) / laneCount;
+    const offset = outward * visibleSpan;
+    leftSamples.push(sampleEnvelopeAt(progress - offset));
+    rightSamples.push(sampleEnvelopeAt(progress + offset));
   }
 
-  const smoothedSamples = rawSamples.map((value, i) => {
-    const left = rawSamples[Math.max(0, i - 1)] ?? value;
-    const right = rawSamples[Math.min(barCount - 1, i + 1)] ?? value;
-    return Math.max(0, Math.min(1, (left * smoothing) + (value * (1 - smoothing * 2)) + (right * smoothing)));
-  });
+  const renderLane = (bars, samples, side) => {
+    for (let i = 0; i < bars.length; i += 1) {
+      const bar = bars[i];
+      const sample = Math.max(0, Math.min(1, smoothValue(samples, i)));
+      const boosted = Math.pow(sample, 0.92);
+      const barHeight = minHeight + ((maxHeight - minHeight) * boosted);
+      const alpha = 0.40 + (boosted * 0.56);
+      const cool = side === 'left';
+      const color = cool
+        ? `linear-gradient(180deg, rgba(202,226,255,${alpha * 0.96}) 0%, rgba(100,158,255,${alpha}) 55%, rgba(63,107,221,${alpha * 0.92}) 100%)`
+        : `linear-gradient(180deg, rgba(229,209,255,${alpha * 0.96}) 0%, rgba(162,108,255,${alpha}) 55%, rgba(103,78,219,${alpha * 0.92}) 100%)`;
+      const glow = cool
+        ? `0 0 14px rgba(90,145,255,${0.16 + boosted * 0.30})`
+        : `0 0 14px rgba(158,104,255,${0.16 + boosted * 0.30})`;
 
-  for (let i = 0; i < barCount; i += 1) {
-    const bar = visualizerBars[i];
-    const sample = smoothedSamples[i] ?? 0;
-    const boosted = Math.pow(sample, 0.85);
-    const barHeight = minHeight + (maxHeight - minHeight) * boosted;
-    const normalizedX = i / Math.max(1, barCount - 1);
-    const alpha = Math.min(0.96, baseOpacity + boosted * 0.4);
-    const color = normalizedX < 0.52
-      ? `linear-gradient(180deg, rgba(160,200,255,${alpha * 0.92}) 0%, rgba(92,140,255,${alpha}) 52%, rgba(70,102,230,${alpha * 0.9}) 100%)`
-      : `linear-gradient(180deg, rgba(214,188,255,${alpha * 0.92}) 0%, rgba(146,98,255,${alpha}) 52%, rgba(96,74,218,${alpha * 0.9}) 100%)`;
-    const glow = normalizedX < 0.52
-      ? `0 0 12px rgba(92,140,255,${0.12 + boosted * 0.26})`
-      : `0 0 12px rgba(146,98,255,${0.12 + boosted * 0.26})`;
+      bar.style.height = `${barHeight}px`;
+      bar.style.opacity = `${alpha}`;
+      bar.style.background = color;
+      bar.style.boxShadow = glow;
+    }
+  };
 
-    bar.style.height = `${barHeight}px`;
-    bar.style.opacity = `${alpha}`;
-    bar.style.transform = `translateY(${-barHeight / 2}px)`;
-    bar.style.background = color;
-    bar.style.boxShadow = glow;
-  }
-
-  ctx.save();
-  const glowGradient = ctx.createLinearGradient(0, 0, width, 0);
-  glowGradient.addColorStop(0, 'rgba(92,140,255,0)');
-  glowGradient.addColorStop(0.22, 'rgba(92,140,255,0.10)');
-  glowGradient.addColorStop(0.50, 'rgba(255,255,255,0.03)');
-  glowGradient.addColorStop(0.78, 'rgba(146,98,255,0.10)');
-  glowGradient.addColorStop(1, 'rgba(146,98,255,0)');
-  ctx.fillStyle = glowGradient;
-  ctx.globalCompositeOperation = 'screen';
-  ctx.fillRect(0, Math.max(0, coverCenterY - height * 0.16), width, height * 0.32);
-  ctx.restore();
+  renderLane(visualizerLeftBars, leftSamples, 'left');
+  renderLane(visualizerRightBars, rightSamples, 'right');
 }
 
 function startVisualizerAnimation() {
@@ -1471,12 +1455,6 @@ function stopVisualizerAnimation() {
   if (visualizerFrame) {
     window.cancelAnimationFrame(visualizerFrame);
     visualizerFrame = 0;
-  }
-
-  if (visualizerCtx && visualizerCanvas) {
-    const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
-    const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
-    visualizerCtx.clearRect(0, 0, width, height);
   }
 
   visualizerBars.forEach((bar) => {

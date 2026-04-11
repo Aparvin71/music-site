@@ -1,0 +1,11 @@
+Aineo Music
+Build: v42.6.0
+Title: Full Bump Cleanup & Split Wave Bars
+
+Included in this package:
+- Rebuilt player visualizer into split left/right waveform bars
+- Bars read from each track's waveform_envelope in tracks.json
+- Visualizer nudged right
+- Artwork nudged slightly left
+- Removed stacked legacy build-note txt files from the zip
+- Updated cache/runtime/app versions for a clean rollout
