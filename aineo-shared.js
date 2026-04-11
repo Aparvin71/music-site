@@ -1,307 +1,113 @@
-window.AineoOffline = (() => {
-  const DIRECT_AUDIO_CACHE = 'aineo-user-offline-audio';
-  const DIRECT_ASSET_CACHE = 'aineo-user-offline-assets';
-
-  function uniq(values) {
-    return [...new Set((values || []).filter(Boolean))];
+(function () {
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 
-  function isDownloaded({ track, downloadedTracks }) {
-    return Boolean(track && Array.isArray(downloadedTracks) && downloadedTracks.includes(track.id));
+  function escapeAttr(value) {
+    return escapeHtml(value);
   }
 
-  function isCollectionDownloaded({ tracks, downloadedTracks }) {
-    const list = Array.isArray(tracks) ? tracks.filter(Boolean) : [];
-    if (!list.length) return false;
-    return list.every(track => downloadedTracks.includes(track.id));
+  function getJsonCacheKey(url) {
+    return `aineo_json_cache:${String(url).replace(/[^a-z0-9._-]+/gi, "_")}`;
   }
 
-  function getTrackOfflineUiState({ track, downloadedTracks }) {
-    const downloaded = isDownloaded({ track, downloadedTracks });
-    const offline = navigator.onLine === false;
-    return {
-      downloaded,
-      offline,
-      canSaveNow: !offline,
-      canPlayNow: !offline || downloaded,
-      buttonLabel: downloaded
-        ? 'Saved Offline ✓'
-        : (offline ? 'Needs Internet' : 'Save Offline ⬇'),
-      actionLabel: downloaded ? 'Remove Offline' : (offline ? 'Needs Internet' : 'Save Offline'),
-      disabled: !downloaded && offline
-    };
-  }
-
-  function applyOfflineButtonState(button, state) {
-    if (!button) return;
-    button.textContent = state.buttonLabel;
-    button.disabled = Boolean(state.disabled);
-    button.dataset.offlineState = state.downloaded ? 'saved' : (state.offline ? 'offline-unavailable' : 'ready');
-    button.classList.toggle('is-saved-offline', state.downloaded);
-    button.classList.toggle('is-offline-disabled', state.disabled);
-    button.title = state.downloaded
-      ? 'This song is saved and can play offline.'
-      : (state.disabled ? 'Reconnect to save this song for offline playback.' : 'Save this song for offline playback.');
-    button.setAttribute('aria-disabled', state.disabled ? 'true' : 'false');
-  }
-
-  function updateButtons({ track, downloadedTracks, els }) {
-    const state = getTrackOfflineUiState({ track, downloadedTracks });
-    applyOfflineButtonState(els.saveOfflineBtn, state);
-    applyOfflineButtonState(els.playerSheetSaveOfflineBtn, state);
-  }
-
-  function postServiceWorkerMessage(message) {
-    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
-    navigator.serviceWorker.controller.postMessage(message);
-  }
-
-  function buildCacheRequest(url, preferNoCors = false) {
-    return new Request(url, {
-      method: 'GET',
-      mode: preferNoCors ? 'no-cors' : 'cors',
-      credentials: 'omit',
-      cache: 'no-cache'
-    });
-  }
-
-  function responseCanBeCached(response) {
-    return Boolean(response && (response.ok || response.type === 'opaque'));
-  }
-
-  async function cacheUrlsDirect(cacheName, urls) {
-    if (!('caches' in window)) return { cached: [], failed: urls || [] };
-    const cache = await caches.open(cacheName);
-    const cached = [];
-    const failed = [];
-    for (const url of uniq(urls)) {
+  async function fetchJson(url, fallback) {
+    const version = window.AineoConfig?.assetVersion || window.AineoConfig?.version || "1";
+    const requestUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
+    const cacheKey = getJsonCacheKey(url);
+    try {
+      const response = await fetch(requestUrl, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+      return data;
+    } catch (error) {
       try {
-        const existing = await cache.match(url, { ignoreSearch: true });
-        if (existing) {
-          cached.push(url);
-          continue;
-        }
-
-        let response = null;
-        try {
-          response = await fetch(buildCacheRequest(url, false));
-        } catch (error) {
-          response = null;
-        }
-
-        if (!responseCanBeCached(response)) {
-          response = await fetch(buildCacheRequest(url, true));
-        }
-
-        if (!responseCanBeCached(response)) {
-          throw new Error(`HTTP ${response?.status || 'fetch-failed'}`);
-        }
-
-        await cache.put(url, response.clone());
-        cached.push(url);
-      } catch (error) {
-        failed.push(url);
-      }
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+      console.warn(`Could not load ${url}:`, error);
+      return fallback;
     }
-    return { cached, failed };
   }
 
-  async function removeUrlsDirect(cacheName, urls) {
-    if (!('caches' in window)) return;
-    const cache = await caches.open(cacheName);
-    await Promise.all(uniq(urls).map(url => cache.delete(url, { ignoreSearch: true })));
+  function normalizeStringArray(value) {
+    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
+    return [];
   }
 
-  function getTrackAssetUrls(track) {
-    return {
-      audio: [track?.src].filter(Boolean),
-      assets: [track?.cover, track?.lyrics_file].filter(Boolean)
-    };
+  function getTrackCounts(tracks) {
+    return tracks.reduce((map, track) => {
+      const album = String(track.album || "").trim().toLowerCase();
+      if (!album) return map;
+      map[album] = (map[album] || 0) + 1;
+      return map;
+    }, {});
   }
 
-  async function cacheTrackAssets(track) {
-    const { audio, assets } = getTrackAssetUrls(track);
-    const audioResult = await cacheUrlsDirect(DIRECT_AUDIO_CACHE, audio);
-    const assetResult = await cacheUrlsDirect(DIRECT_ASSET_CACHE, assets);
-    postServiceWorkerMessage({ type: 'CACHE_AUDIO_URLS', urls: audio });
-    postServiceWorkerMessage({ type: 'CACHE_URLS', urls: assets });
-    return {
-      ok: audio.length ? audioResult.cached.length === audio.length : true,
-      audio: audioResult,
-      assets: assetResult
-    };
+  function groupTracksByArtist(tracks) {
+    const map = new Map();
+    tracks.forEach(track => {
+      const artist = String(track.artist || "").trim();
+      if (!artist) return;
+      if (!map.has(artist)) map.set(artist, []);
+      map.get(artist).push(track);
+    });
+    return [...map.entries()].map(([artist, artistTracks]) => ({ artist, tracks: artistTracks }));
   }
 
-  async function saveTrackOffline({
-    track,
-    downloadedTracks,
-    setDownloadedTracks,
-    saveDownloadedTracks,
-    els,
-    renderDownloadedSongs,
-    renderFeaturedTrackList,
-    updateButtons,
-    flashButtonText
-  }) {
-    if (!track?.src) return false;
-
-    const cacheResult = await cacheTrackAssets(track);
-    if (!cacheResult.ok) {
-      if (flashButtonText && els?.saveOfflineBtn && !document.hidden) flashButtonText(els.saveOfflineBtn, 'Offline Failed');
-      return false;
-    }
-
-    if (!downloadedTracks.includes(track.id)) {
-      setDownloadedTracks([track.id, ...downloadedTracks]);
-      saveDownloadedTracks();
-    }
-
-    updateButtons(track);
-    renderDownloadedSongs();
-    renderFeaturedTrackList();
-    if (flashButtonText && els?.saveOfflineBtn && !document.hidden) {
-      flashButtonText(els.saveOfflineBtn, 'Saved');
-    }
-    return true;
-  }
-
-  async function removeTrackOffline({
-    track,
-    downloadedTracks,
-    setDownloadedTracks,
-    saveDownloadedTracks,
-    renderDownloadedSongs,
-    renderFeaturedTrackList,
-    updateButtons,
-    els,
-    flashButtonText
-  }) {
-    if (!track) return false;
-
-    setDownloadedTracks(downloadedTracks.filter(id => id !== track.id));
-    saveDownloadedTracks();
-    const { audio, assets } = getTrackAssetUrls(track);
-    postServiceWorkerMessage({ type: 'REMOVE_AUDIO_URLS', urls: audio });
-    postServiceWorkerMessage({ type: 'REMOVE_URLS', urls: assets });
-    await removeUrlsDirect(DIRECT_AUDIO_CACHE, audio);
-    await removeUrlsDirect(DIRECT_ASSET_CACHE, assets);
-
-    updateButtons(track);
-    renderDownloadedSongs();
-    renderFeaturedTrackList();
-    if (flashButtonText && els?.saveOfflineBtn && !document.hidden) {
-      flashButtonText(els.saveOfflineBtn, 'Removed');
-    }
-    return true;
-  }
-
-  async function toggleTrackOffline(args) {
-    const downloaded = isDownloaded({ track: args.track, downloadedTracks: args.downloadedTracks });
-    if (downloaded) return removeTrackOffline(args);
-    return saveTrackOffline(args);
-  }
-
-  async function saveCollectionOffline(args) {
-    const tracks = (args.tracks || []).filter(track => track?.src);
-    let successCount = 0;
-    for (const track of tracks) {
-      const ok = await saveTrackOffline({ ...args, track });
-      if (ok) successCount += 1;
-      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
-    }
-    return successCount;
-  }
-
-  async function removeCollectionOffline(args) {
-    const tracks = (args.tracks || []).filter(Boolean);
-    let removedCount = 0;
-    for (const track of tracks) {
-      const ok = await removeTrackOffline({ ...args, track });
-      if (ok) removedCount += 1;
-      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
-    }
-    return removedCount;
-  }
-
-  async function toggleCollectionOffline(args) {
-    const allSaved = isCollectionDownloaded({ tracks: args.tracks || [], downloadedTracks: args.downloadedTracks || [] });
-    if (allSaved) return removeCollectionOffline(args);
-    return saveCollectionOffline(args);
-  }
-
-  function renderDownloadedSongs({
-    els,
-    downloadedTracks,
-    tracks,
-    escapeHtml,
-    escapeHtmlAttr,
-    startPlaybackFromList,
-    removeTrackOffline,
-    getCurrentTrack
-  }) {
-    if (!els.downloadedList) return;
-
-    const savedTracks = downloadedTracks
-      .map(id => tracks.find(track => track.id === id))
-      .filter(Boolean)
-      .slice(0, 12);
-
-    if (!savedTracks.length) {
-      els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
+  function initSecondaryPageNav() {
+    if (typeof window.initBasicMobileNav === "function") {
+      window.initBasicMobileNav();
       return;
     }
-
-    const currentTrack = getCurrentTrack?.();
-
-    els.downloadedList.innerHTML = savedTracks.map((track, index) => `
-      <article class="offline-card${currentTrack?.id === track.id ? ' is-current' : ''}" data-offline-index="${index}">
-        <button class="offline-card-main" data-offline-play="${index}" type="button">
-          ${track.cover
-            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="offline-card-cover" loading="lazy" decoding="async" fetchpriority="low" />`
-            : `<div class="offline-card-cover offline-card-placeholder">No Cover</div>`}
-          <div class="offline-card-meta">
-            <strong>${escapeHtml(track.title)}</strong>
-            <span>${escapeHtml(track.album)}</span>
-            <small class="offline-card-status">Saved offline ✓</small>
-          </div>
-        </button>
-        <div class="offline-card-actions">
-          <button class="mini-action-btn" data-offline-remove="${index}" type="button">Remove</button>
-        </div>
-      </article>
-    `).join('');
-
-    els.downloadedList.querySelectorAll('[data-offline-play]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const index = Number(btn.dataset.offlinePlay);
-        const track = savedTracks[index];
-        if (!track) return;
-        startPlaybackFromList([track], false, 0);
-      });
+    const toggle = document.getElementById("mobileNavToggle");
+    const nav = document.getElementById("siteNavLinks");
+    if (!toggle || !nav || toggle.dataset.navBound === "true") return;
+    const close = () => {
+      nav.classList.remove("nav-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = "☰";
+    };
+    toggle.dataset.navBound = "true";
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("nav-open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      toggle.textContent = isOpen ? "✕" : "☰";
     });
-
-    els.downloadedList.querySelectorAll('[data-offline-remove]').forEach(btn => {
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const index = Number(btn.dataset.offlineRemove);
-        const track = savedTracks[index];
-        if (!track) return;
-        removeTrackOffline(track);
-      });
+    nav.querySelectorAll("a").forEach(link => {
+      if (link.dataset.navCloseBound === "true") return;
+      link.dataset.navCloseBound = "true";
+      link.addEventListener("click", close);
     });
   }
 
-  return {
-    isDownloaded,
-    isCollectionDownloaded,
-    getTrackOfflineUiState,
-    updateButtons,
-    saveTrackOffline,
-    removeTrackOffline,
-    toggleTrackOffline,
-    saveCollectionOffline,
-    removeCollectionOffline,
-    toggleCollectionOffline,
-    renderDownloadedSongs
+  function renderScriptureLinks(refs, options = {}) {
+    const list = Array.isArray(refs)
+      ? refs.map(ref => String(ref).trim()).filter(Boolean)
+      : normalizeStringArray(refs);
+    if (!list.length) return "";
+    const compactClass = options.compact ? " scripture-link--compact" : "";
+    return list.map(ref => {
+      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
+      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
+    }).join("");
+  }
+
+  window.AineoShared = {
+    escapeHtml,
+    escapeAttr,
+    fetchJson,
+    normalizeStringArray,
+    getTrackCounts,
+    groupTracksByArtist,
+    initSecondaryPageNav,
+    renderScriptureLinks
   };
 })();

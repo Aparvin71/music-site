@@ -10140,7 +10140,7 @@ button:active{
 }
 
 
-/* ===== v42.3.55 next-level player upgrade ===== */
+/* ===== v42.3.88 mirrored waveform halo visualizer ===== */
 .player-sheet-cover-wrap {
   position: relative;
   overflow: visible;
@@ -10149,13 +10149,13 @@ button:active{
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -24px;
+  inset: -22px;
   display: grid;
   place-items: center;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
-  transform: scale(0.96);
+  transform: scale(0.97);
   transition: opacity 180ms ease, transform 220ms ease;
 }
 
@@ -10166,48 +10166,39 @@ button:active{
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 12% 4%;
+  inset: 14% 8%;
   border-radius: 999px;
-  background: radial-gradient(circle at center, rgba(118, 214, 255, 0.18), rgba(96, 123, 255, 0.12) 42%, rgba(12, 16, 32, 0) 74%);
-  filter: blur(22px);
+  background: radial-gradient(circle at center, rgba(88, 179, 255, 0.22), rgba(108, 76, 255, 0.12) 44%, rgba(12, 16, 32, 0) 74%);
+  filter: blur(18px);
 }
 
 .player-cover-visualizer-canvas {
   position: absolute;
-  inset: 50%;
-  transform: translate(-50%, -50%);
-  width: calc(100% + 72px);
-  height: calc(100% + 72px);
-  opacity: 0.94;
+  inset: 0;
+  width: calc(100% + 48px);
+  height: calc(100% + 48px);
+  max-width: none;
+  max-height: none;
+  display: block;
 }
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 10px -4px;
+  inset: 18px -12px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(44%, 52%) repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   align-items: center;
-  justify-items: center;
-  column-gap: 6px;
-  mix-blend-mode: screen;
+  pointer-events: none;
 }
 
 .player-cover-visualizer-bar {
   width: 4px;
+  justify-self: center;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(248, 252, 255, 0.72), rgba(96, 198, 255, 0.74) 52%, rgba(104, 83, 255, 0.44));
-  box-shadow: 0 0 14px rgba(73, 181, 255, 0.14);
+  background: linear-gradient(180deg, rgba(245, 249, 255, 0.82), rgba(76, 191, 255, 0.80) 52%, rgba(94, 77, 255, 0.44));
+  box-shadow: 0 0 12px rgba(73, 181, 255, 0.16);
   align-self: center;
-  transform-origin: center bottom;
-  transition: height 90ms linear, opacity 110ms linear, transform 110ms linear;
-}
-
-.player-cover-visualizer-bar[data-side='left'] {
-  grid-row: 1;
-}
-
-.player-cover-visualizer-bar[data-side='right'] {
-  grid-row: 1;
+  transition: height 120ms linear, opacity 120ms linear, transform 120ms linear;
 }
 
 .player-sheet-cover,
@@ -10241,8 +10232,8 @@ button:active{
 
 @media (max-width: 640px) {
   .player-cover-visualizer { inset: -14px; }
-  .player-cover-visualizer-canvas { width: calc(100% + 52px); height: calc(100% + 52px); }
-  .player-cover-visualizer-bars { inset: 12px -2px; column-gap: 4px; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(38%, 46%) repeat(4, minmax(0, 1fr)); }
+  .player-cover-visualizer-canvas { width: calc(100% + 32px); height: calc(100% + 32px); }
+  .player-cover-visualizer-bars { inset: 16px -6px; }
   .player-cover-visualizer-bar { width: 3px; }
 }
 

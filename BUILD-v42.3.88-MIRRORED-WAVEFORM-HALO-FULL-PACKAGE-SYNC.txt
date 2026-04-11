@@ -1,0 +1,13 @@
+Aineo Music Build v42.3.88 — Mirrored Waveform Halo + Full Package Sync
+
+Built from the stable v42.3.85 package.
+
+Included:
+- Full package version sync to v42.3.88 across pages, assets, config, PWA init, and service worker cache keys
+- Mirrored waveform halo visualizer behind full-player album art
+- Fewer visible side accent bars for a cleaner premium look
+- Real audio-reactive Web Audio path with graceful fallback animation
+- Updated changelog entry and build/about messaging for the new release
+
+Purpose:
+- Fix the prior partial-package issue where only app.js changed and the rest of the site stayed on older version markers/cached assets.

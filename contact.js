@@ -1,12 +1,34 @@
-Aineo Music Build v42.3.86
+document.addEventListener("DOMContentLoaded", function () {
+  const contactForm = document.getElementById("contactForm");
+  const formMessage = document.getElementById("formMessage");
 
-What changed
-- Upgraded the full-screen player visualizer from a synthetic bar loop to a real audio-reactive visualizer when Web Audio analysis is available.
-- Added a premium circular waveform/ring effect behind the album art for a more polished full-player feel.
-- Kept the original bar layer as a supporting accent so the player still feels alive and rich.
-- Added a safe fallback animation if browser or CORS restrictions prevent direct audio analysis.
-- Set the main audio element to anonymous cross-origin mode to improve analyzer compatibility with hosted audio.
+  if (!contactForm || !formMessage) return;
 
-Notes
-- Best result: audio host returns CORS headers that allow Web Audio analysis.
-- Fallback remains active automatically if real waveform analysis is blocked, so playback should not regress.
+  contactForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    formMessage.textContent = "Sending request...";
+    formMessage.className = "form-message";
+
+    const formData = new FormData(contactForm);
+
+    try {
+      const response = await fetch("https://api.staticforms.xyz/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        formMessage.textContent = "Your song request has been sent!";
+        formMessage.className = "form-message success";
+        contactForm.reset();
+      } else {
+        formMessage.textContent = "There was a problem sending your request.";
+        formMessage.className = "form-message error";
+      }
+    } catch (error) {
+      formMessage.textContent = "Network error. Please try again.";
+      formMessage.className = "form-message error";
+    }
+  });
+});

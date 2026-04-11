@@ -1,114 +1,180 @@
 (function () {
-  let handlersBound = false;
-
-  function isSupported() {
-    return "mediaSession" in navigator;
+  function getDisplayTracks({ currentQueue, filteredTracks, tracks }) {
+    if (Array.isArray(currentQueue) && currentQueue.length) return currentQueue;
+    if (Array.isArray(filteredTracks) && filteredTracks.length) return filteredTracks;
+    return Array.isArray(tracks) ? tracks : [];
   }
 
-  function buildArtwork(track) {
-    if (!track?.cover) return [];
-    return [96, 128, 192, 256, 384, 512].map(size => ({
-      src: track.cover,
-      sizes: `${size}x${size}`,
-      type: "image/jpeg"
-    }));
+  function buildQueueHtml({ displayTracks, currentQueue, currentQueueIndex, currentTrack, audioPlayer, escapeHtml, escapeHtmlAttr }) {
+    const currentTrackId = currentTrack?.id || "";
+    const currentTrackPlaying = Boolean(currentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
+
+    return displayTracks.map((track, index) => {
+      const activeIndex = currentQueue.length ? currentQueueIndex : displayTracks.findIndex(t => t.id === currentTrackId);
+      const isCurrentTrack = Boolean(currentTrackId && track.id === currentTrackId);
+      const isPlayingTrack = isCurrentTrack && currentTrackPlaying;
+      const active = index === activeIndex || isCurrentTrack ? "active is-current" : "";
+      const stateClass = isPlayingTrack ? "is-playing" : isCurrentTrack ? "is-paused" : "";
+      const playLabel = isPlayingTrack ? "Pause" : "Play";
+      const playIcon = isPlayingTrack ? "❚❚" : "▶";
+      const queueBadge = isCurrentTrack ? `<span class="queue-position-pill queue-position-pill--current">Now Playing</span>` : (currentQueue.length && index === activeIndex + 1) ? `<span class="queue-position-pill">Up Next</span>` : "";
+
+      return `
+        <div class="queue-row ${active} ${stateClass}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
+          <button class="queue-play-btn ${stateClass} ${isCurrentTrack ? "is-current" : ""}" data-queue-play="${index}" type="button" aria-label="${playLabel} ${escapeHtmlAttr(track.title)}" aria-pressed="${isPlayingTrack ? "true" : "false"}">${playIcon}</button>
+          ${track.cover ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />` : `<div class="queue-cover"></div>`}
+          <div class="queue-main">
+            <div class="queue-title-row">
+              <h3>${escapeHtml(track.title)}</h3>
+              <span class="queue-duration">${escapeHtml(track.duration || "")}</span>
+            </div>
+            <p class="queue-artist">${escapeHtml(track.artist)}</p>
+            <div class="queue-meta-row">
+              <span>${escapeHtml(track.album)}</span>
+              ${track.year ? `<span>${escapeHtml(String(track.year))}</span>` : ""}
+            </div>
+            ${queueBadge}${track.tags.length ? `<div class="queue-tags">${escapeHtml(track.tags.join(" • "))}</div>` : ""}
+          </div>
+          <div class="queue-actions">
+            <button class="mini-action-btn" data-queue-play-next="${index}" type="button">Play Next</button>
+            <button class="mini-action-btn" data-queue-more="${index}" type="button">•••</button>
+            <button class="mini-action-btn" data-queue-remove="${index}" type="button">Remove</button>
+          </div>
+        </div>
+      `;
+    }).join("");
   }
 
-  function bindHandlers({ togglePlayPause, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
-    if (handlersBound || !isSupported()) return;
+  function renderQueue({ currentQueue, currentQueueIndex, filteredTracks, tracks, queueListEl, queueCountEl, playerSheetQueuePanelEl, audioPlayer, getCurrentTrack, escapeHtml, escapeHtmlAttr, bindInteractions }) {
+    const displayTracks = getDisplayTracks({ currentQueue, filteredTracks, tracks });
+    if (queueCountEl) queueCountEl.textContent = `${displayTracks.length} song${displayTracks.length === 1 ? "" : "s"}`;
+    if (!queueListEl) return;
 
-    const safeAudio = () => getAudio?.() || null;
+    if (!displayTracks.length) {
+      queueListEl.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
+      if (playerSheetQueuePanelEl) playerSheetQueuePanelEl.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
+      return;
+    }
 
-    const handlers = {
-      play: () => togglePlayPause?.(),
-      pause: () => togglePlayPause?.(),
-      previoustrack: () => playPreviousTrack?.(),
-      nexttrack: () => playNextTrack?.(),
-      stop: () => {
-        const audio = safeAudio();
-        if (!audio) return;
-        audio.pause();
-        audio.currentTime = 0;
-        onStateChange?.();
-      },
-      seekbackward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        audio.currentTime = Math.max(0, (audio.currentTime || 0) - seekOffset);
-        onStateChange?.();
-      },
-      seekforward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        const duration = Number.isFinite(audio.duration) ? audio.duration : (audio.currentTime || 0) + seekOffset;
-        audio.currentTime = Math.min(duration, (audio.currentTime || 0) + seekOffset);
-        onStateChange?.();
-      },
-      seekto: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio || !Number.isFinite(details.seekTime)) return;
-        audio.currentTime = details.seekTime;
-        onStateChange?.();
-      }
-    };
-
-    Object.entries(handlers).forEach(([action, handler]) => {
-      try {
-        navigator.mediaSession.setActionHandler(action, handler);
-      } catch (error) {
-        console.warn(`Media Session action not supported: ${action}`, error);
-      }
+    const queueHtml = buildQueueHtml({
+      displayTracks,
+      currentQueue,
+      currentQueueIndex,
+      currentTrack: getCurrentTrack?.(),
+      audioPlayer,
+      escapeHtml,
+      escapeHtmlAttr
     });
 
-    handlersBound = true;
+    queueListEl.innerHTML = queueHtml;
+    if (playerSheetQueuePanelEl) playerSheetQueuePanelEl.innerHTML = `<div class="player-sheet-queue-list">${queueHtml}</div>`;
+    bindInteractions?.(queueListEl, displayTracks);
+    if (playerSheetQueuePanelEl) bindInteractions?.(playerSheetQueuePanelEl, displayTracks);
   }
 
-  function updatePlaybackState(audio) {
-    if (!isSupported()) return;
-    navigator.mediaSession.playbackState = audio && !audio.paused ? "playing" : "paused";
-  }
+  function bindInteractions({ container, displayTracks, currentQueue, setCurrentQueue, getCurrentQueueIndex, setCurrentQueueIndex, getCurrentTrack, togglePlayPause, setQueue, playFromQueueIndex, saveQueueState, renderQueue, syncQueuePlaybackUI, openAndScrollQueueToCurrentTrack, setQueueDragIndex, getQueueDragIndex }) {
+    container.querySelectorAll("[data-queue-play]").forEach(btn => {
+      btn.addEventListener("click", event => {
+        event.stopPropagation();
+        const index = Number(btn.dataset.queuePlay);
+        const baseQueue = currentQueue.length ? currentQueue : displayTracks;
+        const targetTrack = baseQueue[index];
+        const currentTrack = getCurrentTrack?.();
+        if (!targetTrack) return;
+        if (!currentQueue.length) setQueue?.(displayTracks, false);
 
-  function updateMetadata(track, audio) {
-    if (!isSupported() || !track) return;
+        if (currentTrack && currentTrack.id === targetTrack.id) {
+          togglePlayPause?.();
+          syncQueuePlaybackUI?.();
+        } else {
+          playFromQueueIndex?.(index);
+        }
 
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title || "Untitled",
-        artist: track.artist || "Allen Parvin",
-        album: track.album || "Singles",
-        artwork: buildArtwork(track)
+        if (openAndScrollQueueToCurrentTrack && container.id === "queueList") openAndScrollQueueToCurrentTrack();
       });
-    } catch (error) {
-      console.warn("Media Session metadata could not be updated:", error);
-    }
+    });
 
-    updatePlaybackState(audio);
-  }
-
-  function updatePositionState(audio) {
-    if (!isSupported() || !audio || typeof navigator.mediaSession.setPositionState !== "function") return;
-
-    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
-    const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
-    if (!duration || duration <= 0) return;
-
-    try {
-      navigator.mediaSession.setPositionState({
-        duration,
-        playbackRate: audio.playbackRate || 1,
-        position: Math.min(position, duration)
+    container.querySelectorAll("[data-queue-remove]").forEach(btn => {
+      btn.addEventListener("click", event => {
+        event.stopPropagation();
+        const index = Number(btn.dataset.queueRemove);
+        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+        if (index < 0 || index >= baseQueue.length) return;
+        const [removed] = baseQueue.splice(index, 1);
+        setCurrentQueue(baseQueue);
+        if (!baseQueue.length) setCurrentQueueIndex(-1);
+        else if (removed?.id === getCurrentTrack?.()?.id) setCurrentQueueIndex(Math.min(index, baseQueue.length - 1));
+        else setCurrentQueueIndex(baseQueue.findIndex(track => track.id === getCurrentTrack?.()?.id));
+        saveQueueState?.();
+        renderQueue?.();
       });
-    } catch (error) {
-      console.warn("Media Session position state could not be updated:", error);
-    }
+    });
+
+    container.querySelectorAll("[data-queue-play-next]").forEach(btn => {
+      btn.addEventListener("click", event => {
+        event.stopPropagation();
+        const index = Number(btn.dataset.queuePlayNext);
+        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+        if (index < 0 || index >= baseQueue.length) return;
+        const current = getCurrentTrack?.();
+        if (!current) {
+          setQueue?.(baseQueue, false);
+          playFromQueueIndex?.(index);
+          return;
+        }
+        const currentIndex = baseQueue.findIndex(track => track.id === current.id);
+        const [moved] = baseQueue.splice(index, 1);
+        baseQueue.splice(Math.max(currentIndex + 1, 0), 0, moved);
+        setCurrentQueue(baseQueue);
+        setCurrentQueueIndex(baseQueue.findIndex(track => track.id === current.id));
+        saveQueueState?.();
+        renderQueue?.();
+      });
+    });
+
+    container.querySelectorAll(".queue-row").forEach(row => {
+      row.addEventListener("click", () => {
+        const index = Number(row.dataset.queueIndex);
+        if (!currentQueue.length) setQueue?.(displayTracks, false);
+        playFromQueueIndex?.(index);
+        openAndScrollQueueToCurrentTrack?.();
+      });
+
+      row.addEventListener("dragstart", () => {
+        setQueueDragIndex?.(Number(row.dataset.queueIndex));
+        row.classList.add("dragging");
+      });
+
+      row.addEventListener("dragend", () => {
+        row.classList.remove("dragging");
+      });
+
+      row.addEventListener("dragover", event => {
+        event.preventDefault();
+      });
+
+      row.addEventListener("drop", event => {
+        event.preventDefault();
+        const dropIndex = Number(row.dataset.queueIndex);
+        const dragIndex = getQueueDragIndex?.();
+        if (dragIndex === null || dragIndex === dropIndex) return;
+
+        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
+        const moved = baseQueue.splice(dragIndex, 1)[0];
+        baseQueue.splice(dropIndex, 0, moved);
+        const current = getCurrentTrack?.();
+        setCurrentQueue(baseQueue);
+        setCurrentQueueIndex(current ? baseQueue.findIndex(track => track.id === current.id) : 0);
+        saveQueueState?.();
+        renderQueue?.();
+        setQueueDragIndex?.(null);
+      });
+    });
   }
 
-  window.AineoMediaSession = {
-    bindHandlers,
-    updatePlaybackState,
-    updateMetadata,
-    updatePositionState
+  window.AineoQueue = {
+    getDisplayTracks,
+    renderQueue,
+    bindInteractions
   };
 })();

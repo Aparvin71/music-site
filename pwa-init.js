@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.83";
+const AINEO_APP_VERSION = "v42.3.88";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.83</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on the next iPhone readiness pass with stronger standalone safe-area behavior, Home Screen install consistency, and viewport polish for smaller iPhones.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.88</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a cleaner mirrored waveform halo visualizer with synced versioning and full-package cache refresh so the Music, Albums, Changelog, and Request a Song pages all stay aligned.</p>
         </section>
       </div>
     </div>
