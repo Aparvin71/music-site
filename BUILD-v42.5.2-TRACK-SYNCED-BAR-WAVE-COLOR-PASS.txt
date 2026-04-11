@@ -1,0 +1,10 @@
+Aineo Music Build: v42.5.2 — Track-Synced Bar Wave Color Pass
+
+This pass retunes the full-player waveform visualizer to follow each track's saved waveform_envelope data directly instead of generating a generic moving wave. The bar field is now one continuous lane behind the artwork, with taller amplitude, smoother envelope sampling, and a blue-to-purple color treatment.
+
+Included in this build:
+- True per-track waveform bar rendering from tracks.json waveform_envelope
+- Taller bar amplitude for a fuller waveform silhouette
+- Blue and purple bar/glow palette update
+- Continued quiet install/offline notices behavior
+- Safe web refresh loop protections preserved

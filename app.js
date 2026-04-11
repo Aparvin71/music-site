@@ -1272,16 +1272,9 @@ function initMiniVisualizer() {
 
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
-  for (let i = 0; i < 10; i += 1) {
+  for (let i = 0; i < 2; i += 1) {
     const bar = document.createElement('span');
     bar.className = 'player-cover-visualizer-bar';
-    const side = i < 5 ? 'left' : 'right';
-    const mirrorIndex = i < 5 ? (4 - i) : (i - 5);
-    bar.dataset.side = side;
-    bar.dataset.mirrorIndex = String(mirrorIndex);
-    bar.style.setProperty('--mirror-index', String(mirrorIndex));
-    bar.style.gridColumn = side === 'left' ? String(5 - mirrorIndex) : String(6 + mirrorIndex);
-    bar.style.height = `${20 + mirrorIndex * 8}px`;
     bars.appendChild(bar);
   }
 
@@ -1348,27 +1341,24 @@ function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
 
   const timelinePosition = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
   const localEnergy = sampleTrackWaveformAt(track, timelinePosition) || 0;
-  const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy;
-  const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy;
+  const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.01)) || localEnergy;
+  const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.01)) || localEnergy;
   const transient = Math.max(0, nextEnergy - previousEnergy);
-  const phraseLift = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy;
 
-  const bass = Math.min(1, 0.06 + localEnergy * 0.92 + transient * 0.50);
-  const mids = Math.min(1, 0.05 + localEnergy * 0.62 + phraseLift * 0.20 + transient * 0.22);
-  const treble = Math.min(1, 0.04 + localEnergy * 0.22 + transient * 0.65);
-  const ringWindow = 0.06 + bass * 0.08;
+  const bass = Math.min(1, 0.08 + localEnergy * 0.95 + transient * 0.45);
+  const mids = Math.min(1, 0.08 + localEnergy * 0.72 + transient * 0.24);
+  const treble = Math.min(1, 0.06 + localEnergy * 0.44 + transient * 0.14);
+  const energy = Math.min(1, 0.10 + localEnergy * 0.86 + transient * 0.30);
 
   return {
     bass,
     mids,
     treble,
+    energy,
+    timelinePosition,
+    transient,
     sample(progress) {
-      const mirrored = progress <= 0.5 ? (progress * 2) : ((1 - progress) * 2);
-      const offset = (mirrored - 0.5) * ringWindow;
-      const scan = Math.max(0, Math.min(0.999999, timelinePosition + offset));
-      const value = sampleTrackWaveformAt(track, scan) || 0;
-      const edgeTaper = 0.80 + Math.sin(mirrored * Math.PI) * 0.20;
-      return Math.max(0.02, Math.min(1, value * edgeTaper + transient * 0.22));
+      return Math.max(0.02, Math.min(1, sampleTrackWaveformAt(track, progress) || 0));
     }
   };
 }
@@ -1397,12 +1387,14 @@ function drawVisualizerFrame() {
   let mids = 0.22;
   let treble = 0.18;
   let energy = 0.24;
+  let progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
 
   if (prerenderedState) {
     bass = prerenderedState.bass;
     mids = prerenderedState.mids;
     treble = prerenderedState.treble;
     energy = prerenderedState.energy;
+    progress = prerenderedState.timelinePosition;
   } else if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
     visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
     visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
@@ -1423,43 +1415,44 @@ function drawVisualizerFrame() {
 
   const coverRect = els.playerSheetCover?.getBoundingClientRect();
   const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
-  const coverWidth = coverRect && wrapRect ? Math.min(width * 0.56, coverRect.width) : Math.min(width * 0.56, 190);
-  const coverHeight = coverRect && wrapRect ? Math.min(height * 0.56, coverRect.height) : Math.min(height * 0.56, 190);
+  const coverWidth = coverRect && wrapRect ? Math.min(width * 0.58, coverRect.width) : Math.min(width * 0.58, 196);
+  const coverHeight = coverRect && wrapRect ? Math.min(height * 0.58, coverRect.height) : Math.min(height * 0.58, 196);
   const coverLeft = (width - coverWidth) / 2;
   const coverRight = coverLeft + coverWidth;
   const centerY = height / 2;
 
-  const barCount = Math.max(44, Math.floor(width / 8));
+  const barCount = Math.max(52, Math.floor(width / 6.5));
   const slot = width / barCount;
-  const barWidth = Math.max(2.2, Math.min(5.2, slot * 0.62));
-  const baseHeight = Math.max(8, height * 0.055);
-  const maxHeight = height * 0.30;
-  const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
+  const barWidth = Math.max(2.8, Math.min(6.4, slot * 0.74));
+  const baseHeight = Math.max(14, height * 0.09);
+  const maxHeight = height * 0.43;
+  const visibleSpan = prerenderedState ? 0.28 : 0.16;
 
-  const sampleEnvelopeAt = (offset) => {
-    const pos = (progress + offset + 1) % 1;
-    const value = sampleTrackWaveformAt(currentTrack, pos);
-    if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0.02, Math.min(1, value));
+  const sampleEnvelopeAt = (timelinePos) => {
+    const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
+    if (prerenderedState) {
+      return Math.max(0.02, Math.min(1, prerenderedState.sample(clampedPos)));
+    }
     if (waveformSource) {
-      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(pos * (waveformSource.length - 1)));
+      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(clampedPos * (waveformSource.length - 1)));
       return Math.max(0.02, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
     }
-    return 0.10 + Math.abs(Math.sin((visualizerTick / 13.5) + pos * Math.PI * 4 + currentTime * 1.2)) * (0.16 + mids * 0.12);
+    return 0.08 + Math.abs(Math.sin(clampedPos * Math.PI * 3.5 + currentTime * 0.8)) * 0.18;
   };
 
-  const fade = ctx.createLinearGradient(0, 0, width, 0);
-  fade.addColorStop(0, 'rgba(82, 228, 255, 0)');
-  fade.addColorStop(0.12, `rgba(82, 228, 255, ${0.14 + energy * 0.10})`);
-  fade.addColorStop(0.50, `rgba(255, 255, 255, ${0.12 + energy * 0.06})`);
-  fade.addColorStop(0.88, `rgba(190, 110, 255, ${0.14 + energy * 0.10})`);
-  fade.addColorStop(1, 'rgba(190, 110, 255, 0)');
+  const edgeFade = ctx.createLinearGradient(0, 0, width, 0);
+  edgeFade.addColorStop(0, 'rgba(76, 136, 255, 0)');
+  edgeFade.addColorStop(0.10, 'rgba(76, 136, 255, 0.20)');
+  edgeFade.addColorStop(0.50, 'rgba(168, 122, 255, 0.26)');
+  edgeFade.addColorStop(0.90, 'rgba(107, 92, 255, 0.20)');
+  edgeFade.addColorStop(1, 'rgba(107, 92, 255, 0)');
 
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
-  ctx.strokeStyle = fade;
-  ctx.lineWidth = 1.1;
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = `rgba(120, 225, 255, ${0.14 + energy * 0.08})`;
+  ctx.strokeStyle = edgeFade;
+  ctx.lineWidth = 1.4;
+  ctx.shadowBlur = 16;
+  ctx.shadowColor = `rgba(116, 134, 255, ${0.18 + energy * 0.10})`;
   ctx.beginPath();
   ctx.moveTo(0, centerY);
   ctx.lineTo(width, centerY);
@@ -1468,13 +1461,13 @@ function drawVisualizerFrame() {
 
   const drawRoundedBar = (x, y, w, h, fill, opacity, glowColor) => {
     if (h <= 0) return;
-    const radius = Math.min(w / 2, 2.2);
+    const radius = Math.min(w / 2, 2.6);
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
     ctx.globalAlpha = opacity;
     ctx.fillStyle = fill;
     if (glowColor) {
-      ctx.shadowBlur = 12;
+      ctx.shadowBlur = 14;
       ctx.shadowColor = glowColor;
     }
     ctx.beginPath();
@@ -1496,38 +1489,40 @@ function drawVisualizerFrame() {
     const xCenter = (i + 0.5) * slot;
     const x = xCenter - (barWidth / 2);
     const normalizedX = xCenter / Math.max(1, width);
-    const sweep = ((normalizedX - 0.5) * 0.34) + (Math.sin((visualizerTick / 90) + normalizedX * Math.PI * 2.2) * 0.006);
-    const sampleA = sampleEnvelopeAt(sweep);
-    const sampleB = sampleEnvelopeAt(sweep + 0.014);
-    const sampleC = sampleEnvelopeAt(sweep - 0.010);
-    const localWave = Math.max(0.02, Math.min(1, sampleA * 0.56 + sampleB * 0.26 + sampleC * 0.18));
-    const focus = 0.70 + Math.pow(Math.sin(normalizedX * Math.PI), 1.25) * 0.32;
-    const travel = 0.92 + Math.sin((visualizerTick / 28) - normalizedX * Math.PI * 2.4) * 0.045;
-    const amplitude = (baseHeight + (maxHeight * localWave * (0.48 + bass * 0.18 + mids * 0.14))) * focus * travel;
-    const opacity = 0.18 + localWave * 0.62;
-    const tintMix = normalizedX;
-    const cyan = Math.round(120 + (1 - tintMix) * 90);
-    const magenta = Math.round(104 + tintMix * 120);
-    const fill = `rgba(${Math.round(60 + tintMix * 80)}, ${cyan}, ${magenta}, ${0.22 + localWave * 0.46})`;
-    const glowColor = tintMix < 0.5
-      ? `rgba(82, 232, 255, ${0.14 + localWave * 0.26})`
-      : `rgba(192, 110, 255, ${0.14 + localWave * 0.24})`;
+    const timelineOffset = (normalizedX - 0.5) * visibleSpan;
+    const timelineSample = progress + timelineOffset;
+    const leftSample = sampleEnvelopeAt(timelineSample - (visibleSpan / barCount) * 1.1);
+    const centerSample = sampleEnvelopeAt(timelineSample);
+    const rightSample = sampleEnvelopeAt(timelineSample + (visibleSpan / barCount) * 1.1);
+    const smoothed = Math.max(0.02, Math.min(1, (leftSample * 0.22) + (centerSample * 0.56) + (rightSample * 0.22)));
+    const centerWeight = 0.88 + Math.pow(Math.sin(normalizedX * Math.PI), 1.4) * 0.24;
+    const amplitude = Math.min(maxHeight, (baseHeight + maxHeight * (smoothed ** 1.08) * (0.82 + bass * 0.22 + mids * 0.18)) * centerWeight);
+    const opacity = Math.min(1, 0.34 + smoothed * 0.58 + energy * 0.08);
+
+    const gradientMix = normalizedX;
+    const red = Math.round(82 + gradientMix * 34);
+    const green = Math.round(112 + (1 - Math.abs(gradientMix - 0.5) * 2) * 30);
+    const blue = Math.round(255 - gradientMix * 18);
+    const fill = `rgba(${red}, ${green}, ${blue}, ${0.28 + smoothed * 0.42})`;
+    const glowColor = gradientMix < 0.55
+      ? `rgba(108, 146, 255, ${0.16 + smoothed * 0.28})`
+      : `rgba(144, 96, 255, ${0.16 + smoothed * 0.28})`;
 
     drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
-    drawRoundedBar(x + 0.7, centerY - amplitude * 0.44, Math.max(1.2, barWidth - 1.4), amplitude * 0.88, `rgba(255,255,255,${0.05 + localWave * 0.08})`, opacity * 0.55);
+    drawRoundedBar(x + 0.9, centerY - amplitude * 0.48, Math.max(1.4, barWidth - 1.8), amplitude * 0.96, `rgba(214, 224, 255, ${0.06 + smoothed * 0.10})`, opacity * 0.50);
   }
 
   ctx.save();
   const coverGradient = ctx.createLinearGradient(0, 0, width, 0);
   coverGradient.addColorStop(0, 'rgba(5,10,18,0)');
   coverGradient.addColorStop(Math.max(0, coverLeft / width), 'rgba(5,10,18,0)');
-  coverGradient.addColorStop(Math.max(0, (coverLeft + 10) / width), 'rgba(5,10,18,0.08)');
-  coverGradient.addColorStop(Math.min(1, (coverRight - 10) / width), 'rgba(5,10,18,0.08)');
+  coverGradient.addColorStop(Math.max(0, (coverLeft + 12) / width), 'rgba(5,10,18,0.10)');
+  coverGradient.addColorStop(Math.min(1, (coverRight - 12) / width), 'rgba(5,10,18,0.10)');
   coverGradient.addColorStop(Math.min(1, coverRight / width), 'rgba(5,10,18,0)');
   coverGradient.addColorStop(1, 'rgba(5,10,18,0)');
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = coverGradient;
-  ctx.fillRect(0, Math.max(0, centerY - coverHeight * 0.62), width, Math.min(height, coverHeight * 1.24));
+  ctx.fillRect(0, Math.max(0, centerY - coverHeight * 0.7), width, Math.min(height, coverHeight * 1.4));
   ctx.restore();
 }
 

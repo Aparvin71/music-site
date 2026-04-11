@@ -1,8 +1,8 @@
-Aineo Music Build: v42.5.1 — Unified Waveflow Polish Pass
+Aineo Music Build: v42.5.2 — Track-Synced Bar Wave Color Pass
 
 Included in this pass:
 - Install banner and offline hint are now quiet by default and remain tucked into Settings & About unless auto-show is re-enabled.
-- Player visualizer changed from split mirrored fields to one continuous flowing bar wave behind the artwork.
+- Player visualizer changed from split mirrored fields to a taller blue-purple bar wave that follows each track's saved waveform profile behind the artwork.
 - Added softer edge fade and gentler motion so the wave reads as one connected layer.
 - Bumped runtime and service-worker cache versions for a clean rollout.
 

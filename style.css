@@ -10162,20 +10162,20 @@ button:active{
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -30px;
-  transform: translate3d(13px, -12px, 0) scale(0.994);
+  inset: -34px;
+  transform: translate3d(0, 0, 0) scale(0.996);
   display: grid;
   place-items: center;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
   transition: opacity 180ms ease, transform 220ms ease, filter 220ms ease;
-  filter: saturate(1.45) contrast(1.18) brightness(1.12);
+  filter: saturate(1.22) contrast(1.12) brightness(1.10);
 }
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(13px, -12px, 0) scale(1.025);
+  transform: translate3d(0, 0, 0) scale(1.02);
 }
 
 .player-cover-visualizer::before,
@@ -10187,24 +10187,24 @@ button:active{
 }
 
 .player-cover-visualizer::before {
-  background: linear-gradient(90deg, rgba(0, 234, 255, 0), rgba(0, 234, 255, 0.10) 18%, rgba(255, 255, 255, 0.04) 50%, rgba(182, 86, 255, 0.10) 82%, rgba(182, 86, 255, 0));
-  filter: blur(24px);
-  opacity: 0.52;
+  background: linear-gradient(90deg, rgba(86, 128, 255, 0), rgba(86, 128, 255, 0.11) 18%, rgba(196, 206, 255, 0.04) 50%, rgba(150, 94, 255, 0.11) 82%, rgba(150, 94, 255, 0));
+  filter: blur(22px);
+  opacity: 0.48;
   mix-blend-mode: screen;
 }
 
 .player-cover-visualizer::after {
   inset: 28% 8%;
-  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(160, 244, 255, 0.06) 26%, rgba(255,255,255,0.04) 50%, rgba(212, 110, 255, 0.06) 74%, rgba(255,255,255,0));
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(126, 160, 255, 0.06) 26%, rgba(255,255,255,0.04) 50%, rgba(172, 108, 255, 0.07) 74%, rgba(255,255,255,0));
   filter: blur(16px);
-  opacity: 0.40;
+  opacity: 0.34;
 }
 
 .player-cover-visualizer-glow {
   position: absolute;
   inset: 12% 4%;
-  background: linear-gradient(90deg, rgba(120, 242, 255, 0.06), rgba(255,255,255,0.02) 50%, rgba(188, 98, 255, 0.06));
-  filter: blur(22px) saturate(1.2);
+  background: linear-gradient(90deg, rgba(98, 132, 255, 0.06), rgba(255,255,255,0.02) 50%, rgba(150, 94, 255, 0.06));
+  filter: blur(20px) saturate(1.1);
 }
 
 .player-cover-visualizer-canvas {
@@ -10261,8 +10261,8 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -18px; transform: translate3d(9px, -9px, 0) scale(0.992); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(9px, -9px, 0) scale(1.018); }
+  .player-cover-visualizer { inset: -20px; transform: translate3d(0, 0, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(0, 0, 0) scale(1.016); }
   .player-cover-visualizer::before { inset: 20% 0; }
   .player-cover-visualizer::after { inset: 30% 8%; }
 }
