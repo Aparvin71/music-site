@@ -1417,19 +1417,19 @@ function drawVisualizerFrame() {
   const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
   const coverWidth = coverRect && wrapRect ? Math.min(width * 0.58, coverRect.width) : Math.min(width * 0.58, 196);
   const coverHeight = coverRect && wrapRect ? Math.min(height * 0.58, coverRect.height) : Math.min(height * 0.58, 196);
-  const coverCenterX = (width / 2) + (width * 0.028);
+  const coverCenterX = (width / 2) + (width * 0.042);
   const coverCenterY = (height / 2) - (height * 0.038);
   const coverLeft = coverCenterX - (coverWidth / 2);
   const coverRight = coverCenterX + (coverWidth / 2);
   const centerY = coverCenterY;
 
-  const barCount = Math.max(60, Math.floor(width / 5.5));
+  const barCount = Math.max(72, Math.floor(width / 5.2));
   const slot = width / barCount;
-  const barWidth = Math.max(3.2, Math.min(7.8, slot * 0.82));
-  const baseHeight = Math.max(16, height * 0.11);
-  const maxHeight = height * 0.52;
-  const visibleSpan = prerenderedState ? 0.64 : 0.24;
-  const playheadBias = prerenderedState ? 0.03 : 0;
+  const barWidth = Math.max(3.4, Math.min(8.6, slot * 0.84));
+  const baseHeight = Math.max(20, height * 0.14);
+  const maxHeight = height * 0.68;
+  const visibleSpan = prerenderedState ? 0.16 : 0.12;
+  const playheadBias = prerenderedState ? 0.05 : 0.02;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
@@ -1442,6 +1442,21 @@ function drawVisualizerFrame() {
     }
     return 0.06;
   };
+
+  const windowSamples = [];
+  for (let i = 0; i < barCount; i += 1) {
+    const normalizedX = (i + 0.5) / Math.max(1, barCount);
+    const timelineOffset = (normalizedX - 0.5 + playheadBias) * visibleSpan;
+    const timelineSample = progress + timelineOffset;
+    windowSamples.push(sampleEnvelopeAt(timelineSample));
+  }
+  let windowMin = 1;
+  let windowMax = 0;
+  for (const sample of windowSamples) {
+    if (sample < windowMin) windowMin = sample;
+    if (sample > windowMax) windowMax = sample;
+  }
+  const windowRange = Math.max(0.08, windowMax - windowMin);
 
   const edgeFade = ctx.createLinearGradient(0, 0, width, 0);
   edgeFade.addColorStop(0, 'rgba(76, 136, 255, 0)');
@@ -1492,14 +1507,13 @@ function drawVisualizerFrame() {
     const xCenter = (i + 0.5) * slot;
     const x = xCenter - (barWidth / 2);
     const normalizedX = xCenter / Math.max(1, width);
-    const timelineOffset = (normalizedX - 0.5 + playheadBias) * visibleSpan;
-    const timelineSample = progress + timelineOffset;
-    const kernelStep = visibleSpan / Math.max(1, barCount) * 1.45;
-    const farLeftSample = sampleEnvelopeAt(timelineSample - kernelStep * 2.0);
-    const leftSample = sampleEnvelopeAt(timelineSample - kernelStep);
-    const centerSample = sampleEnvelopeAt(timelineSample);
-    const rightSample = sampleEnvelopeAt(timelineSample + kernelStep);
-    const farRightSample = sampleEnvelopeAt(timelineSample + kernelStep * 2.0);
+    const leftIndex = Math.max(0, i - 2);
+    const rightIndex = Math.min(barCount - 1, i + 2);
+    const farLeftSample = windowSamples[leftIndex] ?? windowSamples[i] ?? 0.05;
+    const leftSample = windowSamples[Math.max(0, i - 1)] ?? farLeftSample;
+    const centerSample = windowSamples[i] ?? leftSample;
+    const rightSample = windowSamples[Math.min(barCount - 1, i + 1)] ?? centerSample;
+    const farRightSample = windowSamples[rightIndex] ?? rightSample;
     const smoothed = Math.max(0.01, Math.min(1,
       (farLeftSample * 0.10) +
       (leftSample * 0.22) +
@@ -1507,21 +1521,22 @@ function drawVisualizerFrame() {
       (rightSample * 0.22) +
       (farRightSample * 0.10)
     ));
-    const focusWeight = 0.96 + Math.max(0, 1 - Math.abs(normalizedX - 0.53) / 0.58) * 0.10;
-    const amplitude = Math.min(maxHeight, (baseHeight + maxHeight * (smoothed ** 1.22) * (0.96 + bass * 0.16 + mids * 0.10)) * focusWeight);
-    const opacity = Math.min(1, 0.38 + smoothed * 0.56 + energy * 0.06);
+    const normalizedSample = Math.max(0, Math.min(1, (smoothed - windowMin) / windowRange));
+    const amplitudeFactor = 0.24 + (normalizedSample ** 0.82) * 0.76;
+    const amplitude = Math.min(maxHeight, baseHeight + maxHeight * amplitudeFactor * (0.94 + bass * 0.18 + mids * 0.12 + energy * 0.08));
+    const opacity = Math.min(1, 0.42 + normalizedSample * 0.48 + energy * 0.08);
 
-    const gradientMix = normalizedX;
-    const red = Math.round(82 + gradientMix * 34);
-    const green = Math.round(112 + (1 - Math.abs(gradientMix - 0.5) * 2) * 30);
-    const blue = Math.round(255 - gradientMix * 18);
-    const fill = `rgba(${red}, ${green}, ${blue}, ${0.28 + smoothed * 0.42})`;
-    const glowColor = gradientMix < 0.55
-      ? `rgba(108, 146, 255, ${0.16 + smoothed * 0.28})`
-      : `rgba(144, 96, 255, ${0.16 + smoothed * 0.28})`;
+    const blue = Math.round(214 + normalizedX * 24);
+    const purple = Math.round(232 + (1 - normalizedX) * 18);
+    const fill = normalizedX < 0.52
+      ? `rgba(82, 138, ${blue}, ${0.34 + normalizedSample * 0.40})`
+      : `rgba(${112 + Math.round(normalizedX * 16)}, 92, ${purple}, ${0.34 + normalizedSample * 0.40})`;
+    const glowColor = normalizedX < 0.52
+      ? `rgba(92, 152, 255, ${0.18 + normalizedSample * 0.34})`
+      : `rgba(154, 108, 255, ${0.18 + normalizedSample * 0.34})`;
 
     drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
-    drawRoundedBar(x + 0.9, centerY - amplitude * 0.48, Math.max(1.4, barWidth - 1.8), amplitude * 0.96, `rgba(214, 224, 255, ${0.06 + smoothed * 0.10})`, opacity * 0.50);
+    drawRoundedBar(x + 0.9, centerY - amplitude * 0.48, Math.max(1.4, barWidth - 1.8), amplitude * 0.96, `rgba(232, 238, 255, ${0.07 + normalizedSample * 0.10})`, opacity * 0.48);
   }
 
   ctx.save();

@@ -1,0 +1,9 @@
+Aineo Music
+Build: v42.5.4 — JSON Waveform Motion + Nudge Pass
+
+Changes:
+- tightened visible waveform window so bars move with each song
+- normalized each live JSON window locally for clearer bar motion
+- expanded bar heights and kept blue/purple colorway
+- nudged visualizer/artwork slightly further right
+- bumped cache/runtime version
