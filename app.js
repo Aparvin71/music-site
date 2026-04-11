@@ -1,4 +1,4 @@
-/* v42.3.88 mirrored waveform halo visualizer + full package sync */
+/* v42.3.89 playback restore + centered mirrored halo visualizer */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1292,8 +1292,8 @@ function resizeMiniVisualizerCanvas() {
   if (!visualizerCanvas || !els.playerSheetCoverWrap) return;
   const rect = els.playerSheetCoverWrap.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const width = Math.max(220, Math.round(rect.width + 84));
-  const height = Math.max(220, Math.round(rect.height + 84));
+  const width = Math.max(220, Math.round(rect.width));
+  const height = Math.max(220, Math.round(rect.height));
   visualizerCanvas.width = Math.round(width * dpr);
   visualizerCanvas.height = Math.round(height * dpr);
   visualizerCanvas.style.width = `${width}px`;
@@ -1308,7 +1308,6 @@ function ensureVisualizerAudioSetup() {
     const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextCtor) throw new Error('AudioContext unavailable');
     visualizerAudioContext = new AudioContextCtor();
-    els.audioPlayer.crossOrigin = 'anonymous';
     visualizerAnalyser = visualizerAudioContext.createAnalyser();
     visualizerAnalyser.fftSize = 1024;
     visualizerAnalyser.smoothingTimeConstant = 0.86;
@@ -1452,9 +1451,8 @@ function drawVisualizerFrame() {
     const height = 10 + Math.round(level * 20) + mirrorIndex * 4;
     bar.style.height = `${height}px`;
     bar.style.opacity = `${0.08 + level * 0.24}`;
-    const xOffset = mirrorIndex * 2;
     const yOffset = Math.round((1 - level) * 4);
-    bar.style.transform = `translate3d(${bar.dataset.side === 'left' ? -xOffset : xOffset}px, ${yOffset}px, 0) scaleY(${(0.96 + level * 0.1).toFixed(3)})`;
+    bar.style.transform = `translate3d(0, ${yOffset}px, 0) scaleY(${(0.96 + level * 0.1).toFixed(3)})`;
   });
 }
 
