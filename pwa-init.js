@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.4.2";
+const AINEO_APP_VERSION = "v42.4.3";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -304,7 +304,7 @@ async function registerStandaloneServiceWorker() {
 
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
-const APP_RUNTIME_VERSION = "v42.4.2";
+const APP_RUNTIME_VERSION = "v42.4.3";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

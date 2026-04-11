@@ -1,75 +1,113 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Browse album pages in the Aineo Music library." />
-  <meta name="theme-color" content="#0f1115" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
-  <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
-  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
-  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
-  <title>Albums - Aineo Music</title>
-  <link rel="stylesheet" href="./style.css?v=42.3.99" />
-  <script src="./pwa-init.js?v=42.3.99" defer></script>
-  <script src="./aineo-shared.js?v=42.3.99" defer></script>
-  <script src="./albums-page.js?v=42.3.99" defer></script>
-</head>
-<body>
-  <header class="site-header">
-    <nav class="navbar" aria-label="Main navigation">
-      <div class="nav-top-row">
-        <div class="logo">Aineo Music</div>
-        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
-      </div>
-      <ul id="siteNavLinks" class="nav-links">
-  <li><a href="./home.html">Home</a></li>
-  <li><a href="./index.html">Music</a></li>
-  <li><a href="./albums.html" class="active" aria-current="page">Albums</a></li>
-  <li><a href="./about.html">About</a></li>
-  <li><a href="./mission.html">Mission</a></li>
-  <li><a href="./install.html">Install</a></li>
-  <li><a href="./contact.html">Request a Song</a></li>
-</ul>
-    </nav>
-  </header>
+(function () {
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
 
-  <main class="page">
-    <section class="page-card page-hero-card">
-      <p class="eyebrow">Albums</p>
-      <h1>Browse by Album</h1>
-      <p class="page-lead">Open any album page for its story, theme, full track list, scripture references, and queue.</p>
-    </section>
+  function escapeAttr(value) {
+    return escapeHtml(value);
+  }
 
-    <section id="albumsGrid" class="catalog-grid" aria-live="polite">
-      <article class="page-card">
-        <p class="eyebrow">Loading</p>
-        <h2>Building your album shelf…</h2>
-        <p>Your albums will appear here in a moment.</p>
-      </article>
-    </section>
-  </main>
+  function getJsonCacheKey(url) {
+    return `aineo_json_cache:${String(url).replace(/[^a-z0-9._-]+/gi, "_")}`;
+  }
 
-  <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.4.2</span></p>
-    <p class="footer-links footer-links--admin">
-      <a href="./changelog.html">Changelog</a>
-      <a href="./feedback.html">Feedback</a>
-      <a href="./lyrics-editor.html">Lyrics Editor</a>
-      <a href="./admin-upload.html">Admin Upload</a>
-    </p>
-  </footer>
+  async function fetchJson(url, fallback) {
+    const version = window.AineoConfig?.assetVersion || window.AineoConfig?.version || "1";
+    const requestUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
+    const cacheKey = getJsonCacheKey(url);
+    try {
+      const response = await fetch(requestUrl, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
+      return data;
+    } catch (error) {
+      try {
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+      console.warn(`Could not load ${url}:`, error);
+      return fallback;
+    }
+  }
 
-</body>
-</html>
+  function normalizeStringArray(value) {
+    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
+    return [];
+  }
+
+  function getTrackCounts(tracks) {
+    return tracks.reduce((map, track) => {
+      const album = String(track.album || "").trim().toLowerCase();
+      if (!album) return map;
+      map[album] = (map[album] || 0) + 1;
+      return map;
+    }, {});
+  }
+
+  function groupTracksByArtist(tracks) {
+    const map = new Map();
+    tracks.forEach(track => {
+      const artist = String(track.artist || "").trim();
+      if (!artist) return;
+      if (!map.has(artist)) map.set(artist, []);
+      map.get(artist).push(track);
+    });
+    return [...map.entries()].map(([artist, artistTracks]) => ({ artist, tracks: artistTracks }));
+  }
+
+  function initSecondaryPageNav() {
+    if (typeof window.initBasicMobileNav === "function") {
+      window.initBasicMobileNav();
+      return;
+    }
+    const toggle = document.getElementById("mobileNavToggle");
+    const nav = document.getElementById("siteNavLinks");
+    if (!toggle || !nav || toggle.dataset.navBound === "true") return;
+    const close = () => {
+      nav.classList.remove("nav-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = "☰";
+    };
+    toggle.dataset.navBound = "true";
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("nav-open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      toggle.textContent = isOpen ? "✕" : "☰";
+    });
+    nav.querySelectorAll("a").forEach(link => {
+      if (link.dataset.navCloseBound === "true") return;
+      link.dataset.navCloseBound = "true";
+      link.addEventListener("click", close);
+    });
+  }
+
+  function renderScriptureLinks(refs, options = {}) {
+    const list = Array.isArray(refs)
+      ? refs.map(ref => String(ref).trim()).filter(Boolean)
+      : normalizeStringArray(refs);
+    if (!list.length) return "";
+    const compactClass = options.compact ? " scripture-link--compact" : "";
+    return list.map(ref => {
+      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
+      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
+    }).join("");
+  }
+
+  window.AineoShared = {
+    escapeHtml,
+    escapeAttr,
+    fetchJson,
+    normalizeStringArray,
+    getTrackCounts,
+    groupTracksByArtist,
+    initSecondaryPageNav,
+    renderScriptureLinks
+  };
+})();
