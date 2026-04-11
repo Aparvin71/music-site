@@ -1,0 +1,6 @@
+Aineo Music Build v42.3.84
+
+Fixes:
+- Fixed malformed audio URL encoding for "Chop it like it’s hot!" in tracks.json
+- Corrected src/audio path from #U2019 sequence to proper UTF-8 apostrophe encoding
+- No layout or player UI changes in this build

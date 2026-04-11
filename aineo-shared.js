@@ -1,113 +1,114 @@
 (function () {
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+  let handlersBound = false;
+
+  function isSupported() {
+    return "mediaSession" in navigator;
   }
 
-  function escapeAttr(value) {
-    return escapeHtml(value);
+  function buildArtwork(track) {
+    if (!track?.cover) return [];
+    return [96, 128, 192, 256, 384, 512].map(size => ({
+      src: track.cover,
+      sizes: `${size}x${size}`,
+      type: "image/jpeg"
+    }));
   }
 
-  function getJsonCacheKey(url) {
-    return `aineo_json_cache:${String(url).replace(/[^a-z0-9._-]+/gi, "_")}`;
-  }
+  function bindHandlers({ togglePlayPause, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
+    if (handlersBound || !isSupported()) return;
 
-  async function fetchJson(url, fallback) {
-    const version = window.AineoConfig?.assetVersion || window.AineoConfig?.version || "1";
-    const requestUrl = `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(version)}`;
-    const cacheKey = getJsonCacheKey(url);
-    try {
-      const response = await fetch(requestUrl, { cache: "no-cache" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      try { localStorage.setItem(cacheKey, JSON.stringify(data)); } catch (_) {}
-      return data;
-    } catch (error) {
-      try {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-      console.warn(`Could not load ${url}:`, error);
-      return fallback;
-    }
-  }
+    const safeAudio = () => getAudio?.() || null;
 
-  function normalizeStringArray(value) {
-    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
-    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
-    return [];
-  }
-
-  function getTrackCounts(tracks) {
-    return tracks.reduce((map, track) => {
-      const album = String(track.album || "").trim().toLowerCase();
-      if (!album) return map;
-      map[album] = (map[album] || 0) + 1;
-      return map;
-    }, {});
-  }
-
-  function groupTracksByArtist(tracks) {
-    const map = new Map();
-    tracks.forEach(track => {
-      const artist = String(track.artist || "").trim();
-      if (!artist) return;
-      if (!map.has(artist)) map.set(artist, []);
-      map.get(artist).push(track);
-    });
-    return [...map.entries()].map(([artist, artistTracks]) => ({ artist, tracks: artistTracks }));
-  }
-
-  function initSecondaryPageNav() {
-    if (typeof window.initBasicMobileNav === "function") {
-      window.initBasicMobileNav();
-      return;
-    }
-    const toggle = document.getElementById("mobileNavToggle");
-    const nav = document.getElementById("siteNavLinks");
-    if (!toggle || !nav || toggle.dataset.navBound === "true") return;
-    const close = () => {
-      nav.classList.remove("nav-open");
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.textContent = "☰";
+    const handlers = {
+      play: () => togglePlayPause?.(),
+      pause: () => togglePlayPause?.(),
+      previoustrack: () => playPreviousTrack?.(),
+      nexttrack: () => playNextTrack?.(),
+      stop: () => {
+        const audio = safeAudio();
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+        onStateChange?.();
+      },
+      seekbackward: (details = {}) => {
+        const audio = safeAudio();
+        if (!audio) return;
+        const seekOffset = Number(details.seekOffset || 10);
+        audio.currentTime = Math.max(0, (audio.currentTime || 0) - seekOffset);
+        onStateChange?.();
+      },
+      seekforward: (details = {}) => {
+        const audio = safeAudio();
+        if (!audio) return;
+        const seekOffset = Number(details.seekOffset || 10);
+        const duration = Number.isFinite(audio.duration) ? audio.duration : (audio.currentTime || 0) + seekOffset;
+        audio.currentTime = Math.min(duration, (audio.currentTime || 0) + seekOffset);
+        onStateChange?.();
+      },
+      seekto: (details = {}) => {
+        const audio = safeAudio();
+        if (!audio || !Number.isFinite(details.seekTime)) return;
+        audio.currentTime = details.seekTime;
+        onStateChange?.();
+      }
     };
-    toggle.dataset.navBound = "true";
-    toggle.addEventListener("click", () => {
-      const isOpen = nav.classList.toggle("nav-open");
-      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-      toggle.textContent = isOpen ? "✕" : "☰";
+
+    Object.entries(handlers).forEach(([action, handler]) => {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch (error) {
+        console.warn(`Media Session action not supported: ${action}`, error);
+      }
     });
-    nav.querySelectorAll("a").forEach(link => {
-      if (link.dataset.navCloseBound === "true") return;
-      link.dataset.navCloseBound = "true";
-      link.addEventListener("click", close);
-    });
+
+    handlersBound = true;
   }
 
-  function renderScriptureLinks(refs, options = {}) {
-    const list = Array.isArray(refs)
-      ? refs.map(ref => String(ref).trim()).filter(Boolean)
-      : normalizeStringArray(refs);
-    if (!list.length) return "";
-    const compactClass = options.compact ? " scripture-link--compact" : "";
-    return list.map(ref => {
-      const url = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(ref)}`;
-      return `<a class="scripture-link${compactClass}" href="${url}" target="_blank" rel="noopener noreferrer">${escapeHtml(ref)}</a>`;
-    }).join("");
+  function updatePlaybackState(audio) {
+    if (!isSupported()) return;
+    navigator.mediaSession.playbackState = audio && !audio.paused ? "playing" : "paused";
   }
 
-  window.AineoShared = {
-    escapeHtml,
-    escapeAttr,
-    fetchJson,
-    normalizeStringArray,
-    getTrackCounts,
-    groupTracksByArtist,
-    initSecondaryPageNav,
-    renderScriptureLinks
+  function updateMetadata(track, audio) {
+    if (!isSupported() || !track) return;
+
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title || "Untitled",
+        artist: track.artist || "Allen Parvin",
+        album: track.album || "Singles",
+        artwork: buildArtwork(track)
+      });
+    } catch (error) {
+      console.warn("Media Session metadata could not be updated:", error);
+    }
+
+    updatePlaybackState(audio);
+  }
+
+  function updatePositionState(audio) {
+    if (!isSupported() || !audio || typeof navigator.mediaSession.setPositionState !== "function") return;
+
+    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+    const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+    if (!duration || duration <= 0) return;
+
+    try {
+      navigator.mediaSession.setPositionState({
+        duration,
+        playbackRate: audio.playbackRate || 1,
+        position: Math.min(position, duration)
+      });
+    } catch (error) {
+      console.warn("Media Session position state could not be updated:", error);
+    }
+  }
+
+  window.AineoMediaSession = {
+    bindHandlers,
+    updatePlaybackState,
+    updateMetadata,
+    updatePositionState
   };
 })();

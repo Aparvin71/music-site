@@ -1,184 +1,180 @@
-/* v42.3.76 featured track state sync fix */
-(function(){
-  function getVisibleAlbums(trackList) {
-    const map = new Map();
-    (trackList || []).forEach(track => {
-      const albumName = track.album || "Singles";
-      if (!map.has(albumName)) {
-        map.set(albumName, {
-          name: albumName,
-          cover: track.cover || "",
-          artist: track.artist || "Allen Parvin",
-          year: track.year || "",
-          tracks: [],
-          album_zip: track.album_zip || ""
-        });
-      }
-      const album = map.get(albumName);
-      album.tracks.push(track);
-      if (!album.cover && track.cover) album.cover = track.cover;
-      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-    });
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>About - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.92" />
+  <script src="./pwa-init.js?v=42.3.92" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button
+          id="mobileNavToggle"
+          class="mobile-nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="siteNavLinks"
+          aria-label="Toggle navigation"
+        >
+          ☰
+        </button>
+      </div>
 
-  function renderAlbums({ els, trackList, filters, getVisibleAlbums, escapeHtml, escapeHtmlAttr, setAlbumFilter }) {
-    if (!els.albumGrid) return;
-    const albums = getVisibleAlbums(trackList);
-    if (!albums.length) {
-      els.albumGrid.innerHTML = `<p class="empty-message">No albums found.</p>`;
-      return;
-    }
-    els.albumGrid.innerHTML = albums.map(album => {
-      const isActive = filters.selectedAlbum === album.name;
-      if (window.AineoUI?.renderAlbumCard) {
-        return window.AineoUI.renderAlbumCard({ album, isActive, escapeHtml, escapeAttr: escapeHtmlAttr });
-      }
-      return `
-        <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
-          <div class="album-card-cover-wrap">
-            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
-          </div>
-          <div class="album-card-meta">
-            <h3>${escapeHtml(album.name)}</h3>
-            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
-          </div>
-        </button>`;
-    }).join("");
-    els.albumGrid.querySelectorAll('[data-album]').forEach(btn => {
-      btn.addEventListener('click', () => setAlbumFilter(btn.dataset.album));
-    });
-  }
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html">Albums</a></li>
+  <li><a href="./about.html" class="active" aria-current="page">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
 
-  function renderFeaturedAlbum({ els, getFeaturedCollection }) {
-    const collection = getFeaturedCollection();
-    const formatDuration = (tracks) => {
-      const secs = (tracks || []).reduce((sum, track) => sum + (Number(track.duration_seconds) || 0), 0);
-      if (!secs) return "";
-      const hours = Math.floor(secs / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      return hours ? `${hours} hr ${mins} min` : `${mins} min`;
-    };
-    if (!collection) {
-      if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
-      if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
-      if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
-      if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-      if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
-      if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
-      return;
-    }
-    if (els.featuredAlbumCover) {
-      els.featuredAlbumCover.src = collection.cover || "";
-      els.featuredAlbumCover.alt = `${collection.name} cover`;
-    }
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name || 'All Songs';
-    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || 'Entire music library';
-    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? '' : 's'}`;
-    if (els.featuredCollectionStats) {
-      const duration = formatDuration(collection.tracks);
-      const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
-      const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
-      els.featuredCollectionStats.innerHTML = `${type}${durationPill}`;
-    }
-    if (els.featuredCollectionLead) {
-      els.featuredCollectionLead.textContent = collection.name === 'All Songs'
-        ? 'Start here with the full music library. Play or shuffle the whole library, or filter down to a smaller collection.'
-        : `Start here with Play or Shuffle for ${collection.name}.`;
-    }
-    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
-    if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
-    if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
-  }
+  <main class="page">
+    <section class="page-card">
+      <p class="eyebrow">About</p>
+      <h2>About Aineo Music</h2>
 
-  function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
-    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
-    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
-    return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
-  }
+      <p>
+        Every song on this site begins with words I have written. Many of these lyrics
+        come from personal reflection, time spent in scripture, conversations with
+        friends and family, or moments that simply sparked an idea worth exploring.
+        Writing the words is always the starting point.
+      </p>
 
-  function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
-    if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
-    const collection = getFeaturedCollection();
-    if (!collection) {
-      els.featuredTrackListTitle.textContent = 'All Songs';
-      els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
-      return;
-    }
-    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
-    els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
-      const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
-      const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';
-      const isFav = isFavorite(track) ? 'favorited' : '';
-      const offlineSaved = isDownloaded ? isDownloaded(track) : false;
-      return `
-      <div class="featured-track-row ${rowStateClass}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
-        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
-        <div class="featured-track-main">
-          <div class="featured-track-title-line">
-            <strong class="featured-track-title" title="${escapeHtmlAttr(track.title)}">${escapeHtml(track.title)}</strong>
-            ${track.duration ? `<span class="featured-track-duration" title="${escapeHtmlAttr(track.duration)}">${escapeHtml(track.duration)}</span>` : ''}
+      <p>
+        From there, I use AI as a creative tool to help shape the music itself.
+        It allows me to experiment with sound, arrangement, instrumentation,
+        and vocal styles so the lyrics can grow into fully realized songs.
+        AI helps bring the music to life, but the heart and message behind each
+        song begins with the words and ideas that inspired it.
+      </p>
+
+      <p>
+        Much of the music shared here is inspired by themes found in Scripture
+        and the Christian faith. Worship, praise, repentance, compassion,
+        grace, and the daily walk with God often find their way into these songs.
+        Some tracks draw directly from scripture, while others reflect on the
+        lessons and truths found within it.
+      </p>
+
+      <p>
+        Not every song is serious or reflective though. Some songs are meant to
+        celebrate joy, capture moments of everyday life, reflect people, or simply be fun.
+        Music has a unique way of connecting people, and sometimes a simple,
+        lighthearted song can bring just as much meaning as a deeply reflective one.
+      </p>
+
+      <p>
+        My hope is that this site becomes a place where people can listen,
+        discover something new, reflect on truth, and enjoy music that
+        encourages the heart. Whether a song inspires worship, sparks
+        thought, brings a smile, or simply provides a moment of peace,
+        I’m grateful you took the time to listen.
+      </p>
+
+
+      <section class="mission-grid about-mission-grid" aria-labelledby="aboutMissionHeading">
+        <article class="mission-card page-card mission-card--nested">
+          <p class="eyebrow">Mission</p>
+          <h3 id="aboutMissionHeading">The Great Commission</h3>
+          <p class="mission-statement">
+            The mission behind Aineo Music is to use songs, stories, and creative work to point people toward Christ,
+            encourage faith, and support the calling Jesus gave His people to go, make disciples, teach truth,
+            and proclaim the gospel.
+          </p>
+          <p>
+            I want the music here to serve as more than entertainment. I want it to strengthen worship,
+            invite reflection, and keep attention fixed on the One who saves, leads, and transforms.
+          </p>
+          <div class="scripture-pill-row" aria-label="Mission scriptures">
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Matthew%2028%3A19-20" target="_blank" rel="noopener noreferrer">Matthew 28:19–20</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Mark%2016%3A15" target="_blank" rel="noopener noreferrer">Mark 16:15</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=2%20Timothy%204%3A2" target="_blank" rel="noopener noreferrer">2 Timothy 4:2</a>
           </div>
-          <div class="featured-track-meta-line">
-            <span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span>
+          <a class="mission-section-link" href="./mission.html">Read the mission page →</a>
+        </article>
+
+        <article class="mind-card page-card mission-card--nested" aria-labelledby="aboutMindHeading">
+          <p class="eyebrow">Mind &amp; Heart</p>
+          <h3 id="aboutMindHeading">Fill the Mind With What Is Good</h3>
+          <p>
+            There is a simple principle behind much of what we consume: trash in, trash out.
+            What we regularly allow into the mind and heart does not stay there quietly. It shapes how we think,
+            what we desire, how we speak, and what eventually comes out in our lives.
+          </p>
+          <p>
+            Because of that, I want this site to encourage people to take in what is true, honorable, pure,
+            lovely, praiseworthy, and rooted in God’s word. Music can help train the mind toward worship,
+            gratitude, conviction, compassion, and hope.
+          </p>
+          <ul class="mind-list">
+            <li><strong>Watch the input.</strong> What we dwell on will influence what grows in us.</li>
+            <li><strong>Choose better treasure.</strong> Fill the heart with truth so truth can come back out.</li>
+            <li><strong>Practice renewal.</strong> Let worship, scripture, and godly thoughts reshape the inner life.</li>
+          </ul>
+          <div class="scripture-pill-row" aria-label="Mind scriptures">
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Philippians%204%3A8" target="_blank" rel="noopener noreferrer">Philippians 4:8</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Luke%206%3A45" target="_blank" rel="noopener noreferrer">Luke 6:45</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Proverbs%204%3A23" target="_blank" rel="noopener noreferrer">Proverbs 4:23</a>
+            <a class="scripture-link" href="https://www.biblegateway.com/passage/?search=Romans%2012%3A2" target="_blank" rel="noopener noreferrer">Romans 12:2</a>
           </div>
+        </article>
+      </section>
+
+      <div class="church-card">
+        <p class="church-eyebrow">Faith Community</p>
+        <h3 class="church-title">Our Church Home</h3>
+
+        <div class="church-logo">
+          <img src="images/church-logo.png" alt="Church Logo" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="church-logo-fallback">Church Home</div>
         </div>
-        <div class="featured-track-actions">
-          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
-          <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
-        </div>
-      </div>`;
-    }).join('');
 
-    els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (Date.now && Date.now() < (window.__AINEO_SUPPRESS_PREVIEW_CLICK_UNTIL__ || 0)) return;
-        const idx = Number(btn.dataset.featuredIndex);
-        const track = collection.tracks[idx];
-        if (!track) return;
-        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) {
-          togglePlayPause();
-          return;
-        }
-        syncQueueToCurrentCollection(true);
-        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
-        playFromQueueIndex(idx);
-      });
-    });
+        <p class="church-description">
+          I'm grateful for the church family that encourages my faith and
+          continues to point people toward Christ through worship, scripture,
+          and community.
+        </p>
 
-    els.featuredTrackList.querySelectorAll('[data-favorite-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
-      if (!track) return;
-      toggleFavorite(track);
-      renderFeaturedTrackList(ctx);
-    }));
+        <a href="https://www.fbcmayflower.com" class="church-button" target="_blank" rel="noopener">
+          <span class="church-icon">⛪</span>
+          Visit Our Church
+        </a>
+      </div>
+    </section>
+  </main>
 
-    els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
-      if (track) openLyricsModalForTrack(track, e.currentTarget);
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-offline-track]').forEach(btn => btn.addEventListener('click', async e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.offlineTrack);
-      if (!track) return;
-      e.currentTarget.disabled = true;
-      try {
-        const currentlySaved = isDownloaded ? isDownloaded(track) : false;
-        if (currentlySaved && removeTrackOffline) await removeTrackOffline(track);
-        else if (saveTrackOffline) await saveTrackOffline(track);
-      } finally {
-        renderFeaturedTrackList(ctx);
-      }
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
-      if (track) openTrackActionSheet?.(track, e.currentTarget);
-    }));
-  }
-
-  window.AineoFeatured = { getVisibleAlbums, renderAlbums, renderFeaturedAlbum, getFeaturedTrackPlayState, renderFeaturedTrackList };
-})();
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.92</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body>
+</html>

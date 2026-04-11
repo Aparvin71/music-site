@@ -1,267 +1,83 @@
-
-(function () {
-  function resetNamedFilters(filters) {
-    filters.selectedAlbum = null;
-    filters.selectedPlaylist = null;
-    filters.selectedTag = null;
-    filters.selectedSmartPlaylist = null;
-    filters.selectedCustomPlaylist = null;
-  }
-
-  function clearSearch(searchInput, filters) {
-    filters.searchTerm = "";
-    if (searchInput) searchInput.value = "";
-  }
-
-  function applyNamedFilter({ filters, searchInput, type, value, onAfterChange }) {
-    resetNamedFilters(filters);
-
-    if (type === "search") {
-      filters.searchTerm = String(value || "").trim();
-      if (searchInput) searchInput.value = filters.searchTerm;
-    } else {
-      clearSearch(searchInput, filters);
-      if (type === "album") filters.selectedAlbum = value;
-      if (type === "playlist") filters.selectedPlaylist = value;
-      if (type === "tag") filters.selectedTag = value;
-      if (type === "smart-playlist") filters.selectedSmartPlaylist = value;
-      if (type === "custom-playlist") filters.selectedCustomPlaylist = value;
-    }
-
-    onAfterChange?.();
-  }
-
-  function clearFilters({ filters, searchInput, onAfterChange }) {
-    resetNamedFilters(filters);
-    clearSearch(searchInput, filters);
-    filters.searchScope = 'all';
-    onAfterChange?.();
-  }
-
-  function buildSearchHaystack(track, scope = "all") {
-    const fields = {
-      titles: [track.title, track.artist],
-      albums: [track.album, track.album_description, track.album_theme, track.album_story],
-      lyrics: [track.lyrics],
-      scripture: [...(track.scripture_references || [])],
-      tags: [...(track.tags || []), ...(track.search_keywords || [])],
-      playlists: [...(track.playlists || []), track.collection]
-    };
-
-    const allParts = [
-      ...fields.titles,
-      ...fields.albums,
-      ...fields.lyrics,
-      ...fields.scripture,
-      ...fields.tags,
-      ...fields.playlists,
-      track.genre,
-      track.description
-    ];
-
-    const list = scope === "all" ? allParts : (fields[scope] || allParts);
-    return list.join(" ").toLowerCase();
-  }
-
-  function getTrackDateValue(track) {
-    const raw = String(track?.date_added || track?.last_played || "").trim();
-    if (!raw) return 0;
-    const time = Date.parse(raw);
-    if (Number.isFinite(time)) return time;
-    const year = Number(raw);
-    return Number.isFinite(year) ? Date.parse(`${year}-01-01`) : 0;
-  }
-
-  function getSmartPlaylistDefinitions({ tracks, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {} }) {
-    const byId = new Map((tracks || []).map(track => [track.id, track]));
-    const mapIds = ids => ids.map(id => byId.get(id)).filter(Boolean);
-    const uniqueTracks = list => {
-      const seen = new Set();
-      return list.filter(track => track && !seen.has(track.id) && seen.add(track.id));
-    };
-
-    const favoriteTracks = uniqueTracks(mapIds(favorites));
-    const recentTracks = uniqueTracks(mapIds(recentlyPlayed));
-    const downloaded = uniqueTracks(mapIds(downloadedTracks));
-    const mostPlayed = uniqueTracks(
-      [...(tracks || [])]
-        .map(track => ({ track, score: Number(playStats?.[track.id]?.count || track.play_count || 0) }))
-        .filter(item => item.score > 0)
-        .sort((a, b) => b.score - a.score || a.track.title.localeCompare(b.track.title))
-        .slice(0, 24)
-        .map(item => item.track)
-    );
-    const recentlyAdded = uniqueTracks(
-      [...(tracks || [])]
-        .filter(track => getTrackDateValue(track) > 0)
-        .sort((a, b) => getTrackDateValue(b) - getTrackDateValue(a))
-        .slice(0, 24)
-    );
-    const scriptureSongs = uniqueTracks((tracks || []).filter(track => (track.scripture_references || []).length));
-    const worshipSongs = uniqueTracks((tracks || []).filter(track => {
-      const haystack = [...(track.tags || []), ...(track.playlists || []), track.genre || "", track.collection || ""].join(' ').toLowerCase();
-      return haystack.includes('worship') || haystack.includes('gospel') || haystack.includes('scripture');
-    }));
-
-    return [
-      { key: 'favorites', name: 'Favorites', icon: '★', tracks: favoriteTracks },
-      { key: 'recent', name: 'Recent', icon: '🕘', tracks: recentTracks },
-      { key: 'downloaded', name: 'Offline', icon: '⬇', tracks: downloaded },
-      { key: 'most-played', name: 'Most Played', icon: '🔥', tracks: mostPlayed },
-      { key: 'recently-added', name: 'New', icon: '✨', tracks: recentlyAdded },
-      { key: 'scripture', name: 'Scripture', icon: '✝', tracks: scriptureSongs },
-      { key: 'worship', name: 'Worship', icon: '♪', tracks: worshipSongs }
-    ].filter(item => item.tracks.length);
-  }
-
-  function getFilteredTracks({ tracks, filters, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {}, customPlaylists = {} }) {
-    let result = Array.isArray(tracks) ? [...tracks] : [];
-
-    if (filters.selectedAlbum) result = result.filter(track => track.album === filters.selectedAlbum);
-    if (filters.selectedPlaylist) result = result.filter(track => (track.playlists || []).includes(filters.selectedPlaylist));
-    if (filters.selectedCustomPlaylist) {
-      const playlistIds = new Set(customPlaylists?.[filters.selectedCustomPlaylist] || []);
-      result = result.filter(track => playlistIds.has(track.id));
-    }
-    if (filters.selectedTag) result = result.filter(track => (track.tags || []).includes(filters.selectedTag));
-    if (filters.selectedSmartPlaylist) {
-      const smart = getSmartPlaylistDefinitions({ tracks: result, favorites, recentlyPlayed, downloadedTracks, playStats })
-        .find(item => item.key === filters.selectedSmartPlaylist);
-      result = smart ? [...smart.tracks] : [];
-    }
-    if (filters.searchTerm) {
-      const q = String(filters.searchTerm).toLowerCase();
-      const scope = filters.searchScope || 'all';
-      result = result.filter(track => buildSearchHaystack(track, scope).includes(q));
-    }
-
-    return result;
-  }
-
-  function renderPlaylists({ container, trackList, allTracks, filters, hasActiveFilter, onClearAll, onSetPlaylistFilter, onSetSmartPlaylistFilter, favorites, recentlyPlayed, downloadedTracks, playStats, escapeHtml, escapeHtmlAttr }) {
-    if (!container) return;
-
-    const map = new Map();
-    (trackList || []).forEach(track => {
-      (track.playlists || []).forEach(playlist => {
-        map.set(playlist, (map.get(playlist) || 0) + 1);
-      });
-    });
-
-    const smartNameMap = {
-      favorites: 'Favorites',
-      recent: 'Recent',
-      downloaded: 'Offline',
-      'most-played': 'Most Played',
-      'recently-added': 'New',
-      scripture: 'Scripture',
-      worship: 'Worship'
-    };
-
-    const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats })
-      .map(item => ({ ...item, shortName: smartNameMap[item.key] || item.name }));
-    const playlists = [{ name: 'All Songs', count: Array.isArray(allTracks) ? allTracks.length : 0 }]
-      .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
-
-    const quickFilterIcons = {
-      favorites: '★',
-      recent: '🕘',
-      downloaded: '⬇',
-      'most-played': '🔥',
-      'recently-added': '✨',
-      scripture: '✝',
-      worship: '♪'
-    };
-
-    const hasSelectionFocus = Boolean(filters.selectedPlaylist || filters.selectedSmartPlaylist || filters.selectedCustomPlaylist);
-    const visibleSmartPlaylists = filters.selectedSmartPlaylist
-      ? smartPlaylists.filter(item => item.key === filters.selectedSmartPlaylist)
-      : (hasSelectionFocus ? [] : smartPlaylists);
-    const visiblePlaylists = filters.selectedPlaylist
-      ? playlists.filter(item => item.name === filters.selectedPlaylist)
-      : (hasSelectionFocus ? [] : playlists);
-
-    const quickFiltersMarkup = visibleSmartPlaylists.map(item => `
-      <button class="filter-chip quick-filter-icon-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}" aria-label="${escapeHtmlAttr(item.name)}">
-        <span class="quick-filter-icon" aria-hidden="true">${quickFilterIcons[item.key] || item.icon || '•'}</span>
-      </button>
-    `).join('');
-
-    const playlistMarkup = visiblePlaylists.map(playlist => {
-      const isAllSongs = playlist.name === 'All Songs';
-      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
-      const label = isAllSongs ? 'All Songs' : playlist.name;
-      return `
-        <button class="filter-chip playlist-card-pill ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
-          <span class="playlist-card-pill__title">${escapeHtml(label)}</span>
-          <span class="playlist-card-pill__meta">${playlist.count} song${playlist.count === 1 ? '' : 's'}</span>
-        </button>
-      `;
-    }).join('');
-
-    const quickFiltersSection = quickFiltersMarkup ? `
-        <div class="playlist-filter-block">
-          <p class="playlist-filter-heading">Quick Filters</p>
-          <div class="quick-filter-grid">${quickFiltersMarkup}</div>
-        </div>
-    ` : '';
-
-    const playlistsSection = playlistMarkup ? `
-        <div class="playlist-filter-block playlist-filter-block--playlists">
-          <p class="playlist-filter-heading">Playlists</p>
-          <div class="playlist-pill-grid">${playlistMarkup}</div>
-        </div>
-    ` : '';
-
-    container.innerHTML = `
-      <div class="playlist-filter-sections">
-        ${quickFiltersSection}
-        ${playlistsSection}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Prepare metadata for new songs, covers, lyrics, and tracks.json entries." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <title>Admin Upload - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.92" />
+  <script src="./pwa-init.js?v=42.3.92" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
       </div>
-    `;
-
-    container.querySelectorAll('[data-playlist]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.playlist === 'All Songs') onClearAll?.();
-        else onSetPlaylistFilter?.(btn.dataset.playlist);
-      });
-    });
-    container.querySelectorAll('[data-smart-playlist]').forEach(btn => {
-      btn.addEventListener('click', () => onSetSmartPlaylistFilter?.(btn.dataset.smartPlaylist));
-    });
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="page-card page-hero-card"><p class="eyebrow">Admin Helper</p><h1>Upload Workflow Helper</h1><p class="page-lead">This page helps you prepare metadata for new songs before uploading files to your site.</p></section>
+    <section class="utility-grid utility-grid--two">
+      <article class="page-card utility-card">
+        <h2>Track Metadata Builder</h2>
+        <div class="form-group"><label for="trackTitle">Song Title</label><input id="trackTitle" type="text" placeholder="Song title"></div>
+        <div class="form-group"><label for="trackArtist">Artist</label><input id="trackArtist" type="text" value="Allen Parvin"></div>
+        <div class="form-group"><label for="trackAlbum">Album</label><input id="trackAlbum" type="text" placeholder="Album name"></div>
+        <div class="form-group"><label for="trackTags">Tags</label><input id="trackTags" type="text" placeholder="worship, scripture, hope"></div>
+        <div class="form-group"><label for="trackRefs">Scripture References</label><input id="trackRefs" type="text" placeholder="Matthew 28:19-20; Mark 16:15"></div>
+        <div class="form-group"><label for="trackLyricsFile">Lyrics file</label><input id="trackLyricsFile" type="text" placeholder="lyrics/song-title.lrc"></div>
+        <div class="card-actions"><button id="buildTrackJsonBtn" class="action-btn" type="button">Build JSON Snippet</button><button id="copyTrackJsonBtn" class="action-btn secondary-btn" type="button">Copy Snippet</button></div>
+      </article>
+      <article class="page-card utility-card"><h2>Generated Snippet</h2><pre id="trackJsonOutput" class="code-output">Fill out the form and generate a tracks.json snippet.</pre><p class="helper-text">This helper runs entirely in your browser and does not upload files automatically.</p></article>
+    </section>
+    <section class="page-card utility-card"><h2>Suggested Upload Checklist</h2><ol class="utility-list"><li>Upload the MP3 to your audio folder or R2 bucket.</li><li>Upload the cover image to your covers folder.</li><li>Upload the matching <code>.lrc</code> file into the <code>lyrics/</code> folder.</li><li>Append the generated JSON snippet to <code>tracks.json</code>.</li><li>Refresh the site and verify the song appears with lyrics and scripture links.</li></ol></section>
+  </main>
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.92</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+  <script>
+  const out = document.getElementById("trackJsonOutput");
+  function slugify(text) { return String(text || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function buildSnippet() {
+    const title = document.getElementById("trackTitle").value.trim();
+    const artist = document.getElementById("trackArtist").value.trim() || "Allen Parvin";
+    const album = document.getElementById("trackAlbum").value.trim() || "Singles";
+    const tags = document.getElementById("trackTags").value.split(",").map(v => v.trim()).filter(Boolean);
+    const refs = document.getElementById("trackRefs").value.split(/[;,]+/).map(v => v.trim()).filter(Boolean);
+    const lyricsFile = document.getElementById("trackLyricsFile").value.trim() || `lyrics/${slugify(title)}.lrc`;
+    out.textContent = JSON.stringify({ title, slug: slugify(title), artist, album, tags, scripture_references: refs, lyrics_file: lyricsFile }, null, 2);
   }
-
-  function renderTags({ container, trackList, filters, windowWidth, onSetTagFilter, escapeHtml, escapeHtmlAttr, getVisibleTags }) {
-    if (!container) return;
-
-    let tags = getVisibleTags(trackList || []);
-    if (windowWidth <= 640) tags = tags.sort((a, b) => b.count - a.count).slice(0, 12);
-
-    if (!tags.length) {
-      container.innerHTML = `<p class="empty-message">No tags found.</p>`;
-      return;
-    }
-
-    container.innerHTML = tags.map(tag => {
-      const active = filters.selectedTag === tag.name ? "active" : "";
-      return `
-        <button class="filter-chip ${active}" data-tag="${escapeHtmlAttr(tag.name)}" type="button">
-          #${escapeHtml(tag.name)} <span class="chip-count">(${tag.count})</span>
-        </button>
-      `;
-    }).join("");
-
-    container.querySelectorAll("[data-tag]").forEach(btn => {
-      btn.addEventListener("click", () => onSetTagFilter?.(btn.dataset.tag));
-    });
-  }
-
-  window.AineoLibrary = {
-    applyNamedFilter,
-    clearFilters,
-    getFilteredTracks,
-    renderPlaylists,
-    renderTags,
-    getSmartPlaylistDefinitions
-  };
-})();
+  document.getElementById("buildTrackJsonBtn").addEventListener("click", buildSnippet);
+  document.getElementById("copyTrackJsonBtn").addEventListener("click", async () => { try { await navigator.clipboard.writeText(out.textContent); document.getElementById("copyTrackJsonBtn").textContent = "Copied!"; setTimeout(() => document.getElementById("copyTrackJsonBtn").textContent = "Copy Snippet", 1200); } catch {} });
+  </script>
+</body></html>
