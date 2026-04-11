@@ -1427,13 +1427,13 @@ function drawVisualizerFrame() {
   const coverRight = coverCenterX + (coverWidth / 2);
   const centerY = coverCenterY;
 
-  const barCount = Math.max(90, Math.floor(width / 5.4));
+  const barCount = Math.max(72, Math.floor(width / 7.2));
   const slot = width / barCount;
-  const barWidth = Math.max(2.4, Math.min(5.2, slot * 0.62));
-  const minHeight = Math.max(3, height * 0.016);
-  const maxHeight = height * 0.50;
-  const visibleSpan = prerenderedState ? 0.045 : 0.030;
-  const playheadBias = prerenderedState ? 0.008 : 0.004;
+  const barWidth = Math.max(3.2, Math.min(6.6, slot * 0.78));
+  const minHeight = Math.max(5, height * 0.022);
+  const maxHeight = height * 0.54;
+  const visibleSpan = prerenderedState ? 0.016 : 0.020;
+  const playheadBias = prerenderedState ? 0.003 : 0.002;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
@@ -1455,24 +1455,6 @@ function drawVisualizerFrame() {
     windowSamples.push(sampleEnvelopeAt(timelineSample));
   }
 
-  const edgeFade = ctx.createLinearGradient(0, 0, width, 0);
-  edgeFade.addColorStop(0, 'rgba(76, 136, 255, 0)');
-  edgeFade.addColorStop(0.10, 'rgba(76, 136, 255, 0.20)');
-  edgeFade.addColorStop(0.50, 'rgba(168, 122, 255, 0.26)');
-  edgeFade.addColorStop(0.90, 'rgba(107, 92, 255, 0.20)');
-  edgeFade.addColorStop(1, 'rgba(107, 92, 255, 0)');
-
-  ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  ctx.strokeStyle = edgeFade;
-  ctx.lineWidth = 1.4;
-  ctx.shadowBlur = 16;
-  ctx.shadowColor = `rgba(116, 134, 255, ${0.18 + energy * 0.10})`;
-  ctx.beginPath();
-  ctx.moveTo(0, centerY);
-  ctx.lineTo(width, centerY);
-  ctx.stroke();
-  ctx.restore();
 
   const drawRoundedBar = (x, y, w, h, fill, opacity, glowColor) => {
     if (h <= 0) return;
@@ -1508,25 +1490,26 @@ function drawVisualizerFrame() {
     const centerSample = windowSamples[i] ?? leftSample;
     const rightSample = windowSamples[Math.min(barCount - 1, i + 1)] ?? centerSample;
     const smoothed = Math.max(0, Math.min(1,
-      (leftSample * 0.16) +
-      (centerSample * 0.68) +
-      (rightSample * 0.16)
+      (leftSample * 0.20) +
+      (centerSample * 0.60) +
+      (rightSample * 0.20)
     ));
-    const shapedSample = Math.max(0, Math.min(1, Math.pow(smoothed, 1.35)));
-    const amplitude = Math.min(maxHeight, minHeight + ((maxHeight - minHeight) * shapedSample * (0.92 + bass * 0.04 + mids * 0.04 + energy * 0.03)));
-    const opacity = Math.min(1, 0.14 + shapedSample * 0.78 + energy * 0.04);
+    const shapedSample = Math.max(0, Math.min(1, Math.pow(smoothed, 0.92)));
+    const amplitudeBoost = 0.92 + (bass * 0.08) + (mids * 0.05) + (energy * 0.05);
+    const amplitude = Math.min(maxHeight, minHeight + ((maxHeight - minHeight) * shapedSample * amplitudeBoost));
+    const opacity = Math.min(1, 0.38 + shapedSample * 0.48 + energy * 0.08);
 
-    const blue = Math.round(214 + normalizedX * 24);
-    const purple = Math.round(232 + (1 - normalizedX) * 18);
+    const blue = Math.round(222 + normalizedX * 18);
+    const purple = Math.round(238 + (1 - normalizedX) * 14);
     const fill = normalizedX < 0.52
-      ? `rgba(82, 138, ${blue}, ${0.22 + shapedSample * 0.56})`
-      : `rgba(${112 + Math.round(normalizedX * 16)}, 92, ${purple}, ${0.22 + shapedSample * 0.56})`;
+      ? `rgba(78, 142, ${blue}, ${0.42 + shapedSample * 0.34})`
+      : `rgba(${118 + Math.round(normalizedX * 10)}, 92, ${purple}, ${0.42 + shapedSample * 0.34})`;
     const glowColor = normalizedX < 0.52
-      ? `rgba(92, 152, 255, ${0.10 + shapedSample * 0.26})`
-      : `rgba(154, 108, 255, ${0.10 + shapedSample * 0.26})`;
+      ? `rgba(92, 160, 255, ${0.18 + shapedSample * 0.22})`
+      : `rgba(158, 112, 255, ${0.18 + shapedSample * 0.22})`;
 
     drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
-    drawRoundedBar(x + 0.6, centerY - amplitude * 0.32, Math.max(1.1, barWidth - 1.2), amplitude * 0.64, `rgba(232, 238, 255, ${0.03 + shapedSample * 0.06})`, opacity * 0.34);
+    drawRoundedBar(x + 0.7, centerY - amplitude * 0.22, Math.max(1.4, barWidth - 1.4), amplitude * 0.44, `rgba(236, 242, 255, ${0.06 + shapedSample * 0.08})`, opacity * 0.30);
   }
 
   ctx.save();

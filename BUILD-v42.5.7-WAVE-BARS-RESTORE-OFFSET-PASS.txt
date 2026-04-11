@@ -1,0 +1,9 @@
+Aineo Music — Build v42.5.7 — Wave Bars Restore + Offset Pass
+
+What changed
+- Restored visible bar rendering in the cover visualizer
+- Tightened the waveform window so bars animate from each track's JSON envelope instead of flattening out
+- Increased bar visibility and blue/purple intensity
+- Nudged the visualizer farther right
+- Nudged the artwork slightly left
+- Bumped runtime/service worker cache version
