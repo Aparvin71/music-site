@@ -1,4 +1,4 @@
-/* v42.3.80b sticky filter root-cause fix */
+/* v42.3.82 full regression audit + UI polish cleanup */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];

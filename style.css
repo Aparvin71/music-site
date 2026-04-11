@@ -10694,8 +10694,8 @@ body.standalone-launch-active {
 
   body.ios-standalone .player-sheet-content {
     width: calc(100% - var(--safe-left) - var(--safe-right));
-    max-height: calc(100svh - var(--safe-top));
-    margin: var(--safe-top) 0 0 0;
+    max-height: calc(100svh - var(--safe-top) - 10px);
+    margin: calc(var(--safe-top) + 10px) 0 0 0;
     border-radius: 28px 28px 0 0;
     border-left: 0;
     border-right: 0;
@@ -10722,7 +10722,7 @@ body.standalone-launch-active {
 
   body.ios-standalone .player-sheet-header {
     position: relative;
-    padding-top: 22px;
+    padding-top: 28px;
   }
 }
 

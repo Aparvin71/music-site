@@ -1,0 +1,19 @@
+Aineo Music — Build v42.3.82
+
+Scope
+- Full regression audit pass from v42.3.82 base
+- UI polish and cleanup package
+- iOS standalone full-screen player safe-zone improvements retained
+- Version string and cache-busting sync across app shell files
+- Package cleanup to keep only the current build note
+
+Key cleanup work
+- Updated HTML asset query strings to v42.3.82
+- Updated visible footer/version labels to v42.3.82
+- Updated PWA init internal version labels to v42.3.82
+- Updated service worker cache version to v42.3.82
+- Kept iOS standalone player top inset refinements from v42.3.82
+
+Notes
+- This is intended as a stable clean checkpoint before additional feature work.
+- Recommended next step after validation: targeted player-state and lyrics timing polish from this base.
