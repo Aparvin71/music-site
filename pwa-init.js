@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.89";
+const AINEO_APP_VERSION = "v42.3.90";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,7 +73,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.89</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.90</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner mirrored waveform halo visualizer with synced versioning and full-package cache refresh so the Music, Albums, Changelog, and Request a Song pages all stay aligned.</p>
         </section>
       </div>

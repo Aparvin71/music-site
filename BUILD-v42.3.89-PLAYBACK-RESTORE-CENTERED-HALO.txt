@@ -1,4 +1,4 @@
-Aineo Music Build v42.3.89
+Aineo Music Build v42.3.90
 
 - Restored song playback by removing crossOrigin forcing from the main audio player.
 - Kept mirrored halo visualizer styling with safer fallback behavior.

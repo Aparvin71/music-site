@@ -10140,20 +10140,23 @@ button:active{
 }
 
 
-/* ===== v42.3.89 playback restore + centered mirrored halo visualizer ===== */
+/* ===== v42.3.90 playback restore + centered mirrored halo visualizer ===== */
 .player-sheet-cover-wrap {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
   overflow: visible;
   isolation: isolate;
 }
 
 .player-cover-visualizer {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: calc(100% + 52px);
-  height: calc(100% + 52px);
-  transform: translate(-50%, -50%) scale(0.97);
+  inset: -26px;
+  transform: scale(0.97);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10164,7 +10167,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  transform: scale(1);
 }
 
 .player-cover-visualizer-glow {
@@ -10234,7 +10237,7 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { width: calc(100% + 32px); height: calc(100% + 32px); }
+  .player-cover-visualizer { inset: -16px; }
   .player-cover-visualizer-bars { inset: 14px -4px; }
   .player-cover-visualizer-bar { width: 2px; }
 }

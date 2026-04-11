@@ -1,4 +1,4 @@
-/* v42.3.89 playback restore + centered mirrored halo visualizer */
+/* v42.3.90 sound restore + cover-anchored mirrored halo */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1302,30 +1302,14 @@ function resizeMiniVisualizerCanvas() {
 }
 
 function ensureVisualizerAudioSetup() {
-  if (visualizerAudioSetupAttempted || !els.audioPlayer) return;
+  if (visualizerAudioSetupAttempted) return;
   visualizerAudioSetupAttempted = true;
-  try {
-    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextCtor) throw new Error('AudioContext unavailable');
-    visualizerAudioContext = new AudioContextCtor();
-    visualizerAnalyser = visualizerAudioContext.createAnalyser();
-    visualizerAnalyser.fftSize = 1024;
-    visualizerAnalyser.smoothingTimeConstant = 0.86;
-    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(els.audioPlayer);
-    visualizerSourceNode.connect(visualizerAnalyser);
-    visualizerAnalyser.connect(visualizerAudioContext.destination);
-    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
-    visualizerWaveData = new Uint8Array(visualizerAnalyser.fftSize);
-    visualizerUseFallback = false;
-  } catch (err) {
-    console.warn('Visualizer audio analysis unavailable, using fallback animation.', err);
-    visualizerUseFallback = true;
-    visualizerAudioContext = null;
-    visualizerAnalyser = null;
-    visualizerSourceNode = null;
-    visualizerFreqData = null;
-    visualizerWaveData = null;
-  }
+  visualizerUseFallback = true;
+  visualizerAudioContext = null;
+  visualizerAnalyser = null;
+  visualizerSourceNode = null;
+  visualizerFreqData = null;
+  visualizerWaveData = null;
 }
 
 function setMiniVisualizerActive(active) {

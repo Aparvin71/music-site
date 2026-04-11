@@ -1,0 +1,8 @@
+Aineo Music Build v42.3.90
+
+Changes:
+- Restored live song audio by removing the visualizer audio-graph takeover from the main player.
+- Visualizer now runs in premium safe mode so it cannot mute playback on restrictive browsers/hosts.
+- Re-anchored the mirrored halo to the actual album art container instead of the full row width.
+- Tightened halo positioning with inset-based sizing for more reliable centering behind the cover art.
+- Bumped package references from v42.3.89 to v42.3.90.
