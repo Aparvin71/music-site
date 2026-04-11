@@ -1,0 +1,8 @@
+Aineo Music Build: v42.5.3 — True JSON Waveform Alignment Pass
+
+Included in this package:
+- Tightened the player visualizer so the bars read more directly from each track's waveform_envelope window instead of drifting into a generic decorative wave.
+- Expanded waveform bar height for a fuller silhouette.
+- Shifted the artwork/visualizer balance slightly up and right.
+- Preserved the quieter install/offline behavior and safe web refresh handling.
+- Bumped runtime and service-worker cache versions for a clean rollout.

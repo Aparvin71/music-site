@@ -1417,27 +1417,30 @@ function drawVisualizerFrame() {
   const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
   const coverWidth = coverRect && wrapRect ? Math.min(width * 0.58, coverRect.width) : Math.min(width * 0.58, 196);
   const coverHeight = coverRect && wrapRect ? Math.min(height * 0.58, coverRect.height) : Math.min(height * 0.58, 196);
-  const coverLeft = (width - coverWidth) / 2;
-  const coverRight = coverLeft + coverWidth;
-  const centerY = height / 2;
+  const coverCenterX = (width / 2) + (width * 0.028);
+  const coverCenterY = (height / 2) - (height * 0.038);
+  const coverLeft = coverCenterX - (coverWidth / 2);
+  const coverRight = coverCenterX + (coverWidth / 2);
+  const centerY = coverCenterY;
 
-  const barCount = Math.max(52, Math.floor(width / 6.5));
+  const barCount = Math.max(60, Math.floor(width / 5.5));
   const slot = width / barCount;
-  const barWidth = Math.max(2.8, Math.min(6.4, slot * 0.74));
-  const baseHeight = Math.max(14, height * 0.09);
-  const maxHeight = height * 0.43;
-  const visibleSpan = prerenderedState ? 0.28 : 0.16;
+  const barWidth = Math.max(3.2, Math.min(7.8, slot * 0.82));
+  const baseHeight = Math.max(16, height * 0.11);
+  const maxHeight = height * 0.52;
+  const visibleSpan = prerenderedState ? 0.64 : 0.24;
+  const playheadBias = prerenderedState ? 0.03 : 0;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
     if (prerenderedState) {
-      return Math.max(0.02, Math.min(1, prerenderedState.sample(clampedPos)));
+      return Math.max(0.01, Math.min(1, prerenderedState.sample(clampedPos)));
     }
     if (waveformSource) {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(clampedPos * (waveformSource.length - 1)));
-      return Math.max(0.02, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
+      return Math.max(0.01, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
     }
-    return 0.08 + Math.abs(Math.sin(clampedPos * Math.PI * 3.5 + currentTime * 0.8)) * 0.18;
+    return 0.06;
   };
 
   const edgeFade = ctx.createLinearGradient(0, 0, width, 0);
@@ -1489,15 +1492,24 @@ function drawVisualizerFrame() {
     const xCenter = (i + 0.5) * slot;
     const x = xCenter - (barWidth / 2);
     const normalizedX = xCenter / Math.max(1, width);
-    const timelineOffset = (normalizedX - 0.5) * visibleSpan;
+    const timelineOffset = (normalizedX - 0.5 + playheadBias) * visibleSpan;
     const timelineSample = progress + timelineOffset;
-    const leftSample = sampleEnvelopeAt(timelineSample - (visibleSpan / barCount) * 1.1);
+    const kernelStep = visibleSpan / Math.max(1, barCount) * 1.45;
+    const farLeftSample = sampleEnvelopeAt(timelineSample - kernelStep * 2.0);
+    const leftSample = sampleEnvelopeAt(timelineSample - kernelStep);
     const centerSample = sampleEnvelopeAt(timelineSample);
-    const rightSample = sampleEnvelopeAt(timelineSample + (visibleSpan / barCount) * 1.1);
-    const smoothed = Math.max(0.02, Math.min(1, (leftSample * 0.22) + (centerSample * 0.56) + (rightSample * 0.22)));
-    const centerWeight = 0.88 + Math.pow(Math.sin(normalizedX * Math.PI), 1.4) * 0.24;
-    const amplitude = Math.min(maxHeight, (baseHeight + maxHeight * (smoothed ** 1.08) * (0.82 + bass * 0.22 + mids * 0.18)) * centerWeight);
-    const opacity = Math.min(1, 0.34 + smoothed * 0.58 + energy * 0.08);
+    const rightSample = sampleEnvelopeAt(timelineSample + kernelStep);
+    const farRightSample = sampleEnvelopeAt(timelineSample + kernelStep * 2.0);
+    const smoothed = Math.max(0.01, Math.min(1,
+      (farLeftSample * 0.10) +
+      (leftSample * 0.22) +
+      (centerSample * 0.36) +
+      (rightSample * 0.22) +
+      (farRightSample * 0.10)
+    ));
+    const focusWeight = 0.96 + Math.max(0, 1 - Math.abs(normalizedX - 0.53) / 0.58) * 0.10;
+    const amplitude = Math.min(maxHeight, (baseHeight + maxHeight * (smoothed ** 1.22) * (0.96 + bass * 0.16 + mids * 0.10)) * focusWeight);
+    const opacity = Math.min(1, 0.38 + smoothed * 0.56 + energy * 0.06);
 
     const gradientMix = normalizedX;
     const red = Math.round(82 + gradientMix * 34);
