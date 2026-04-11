@@ -1,15 +1,59 @@
-Aineo Music — Build v42.3.83
-
-Release: iOS final safe-zone polish
-
-Summary
-- Final small bump down for the full-screen player in iOS app mode
-- Slightly increased the standalone iOS player top gap
-- Slightly increased player header top padding and top control breathing room
-- Kept the change isolated to iOS standalone player sheet layout
-- Synced visible version labels, asset query strings, and app version markers to v42.3.83
-
-Notes
-- Built from v42.3.82 stable package
-- Intended as a final micro-adjustment for iPhone safe-zone comfort
-- No broad layout or sticky filter changes included
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Artist page for the Aineo Music library." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>Artist - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.83" />
+  <script src="./pwa-init.js?v=42.3.83" defer></script>
+  <script src="./aineo-shared.js?v=42.3.83" defer></script>
+  <script src="./artist-page.js?v=42.3.83" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section id="artistPageRoot" class="artist-page-root"><section class="page-card page-hero-card"><p class="eyebrow">Artist</p><h1>Loading artist...</h1></section></section>
+  </main>
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.83</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body>
+</html>

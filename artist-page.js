@@ -1,53 +1,100 @@
-document.addEventListener("DOMContentLoaded", initArtistPage);
+document.addEventListener("DOMContentLoaded", initAlbumsPage);
 
-async function initArtistPage() {
+async function initAlbumsPage() {
   window.AineoShared?.initSecondaryPageNav?.();
-  window.initBasicMobileNav?.();
-  const root = document.getElementById("artistPageRoot");
-  if (!root) return;
+  const grid = document.getElementById("albumsGrid");
+  if (!grid) return;
 
-  const artistParam = new URLSearchParams(window.location.search).get("artist") || "";
-  const tracksData = await window.AineoShared.fetchJson("./tracks.json", []);
-  const tracks = Array.isArray(tracksData) ? tracksData : [];
-  const artistTracks = tracks.filter(track => String(track.artist || "").toLowerCase() === artistParam.toLowerCase());
+  const escapeHtml = window.AineoShared?.escapeHtml || (value => String(value || ""));
+  const escapeAttr = window.AineoShared?.escapeAttr || escapeHtml;
+  const fetchJson = window.AineoShared?.fetchJson || (async (url, fallback = []) => {
+    try {
+      const response = await fetch(url, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    } catch (error) {
+      return fallback;
+    }
+  });
 
-  if (!artistTracks.length) {
-    root.innerHTML = `<section class="page-card page-hero-card"><p class="eyebrow">Artist</p><h1>Artist not found</h1><p class="page-lead">Head back to the library and choose another artist.</p></section>`;
+  let albums = await fetchJson("./albums.json", []);
+  if (!Array.isArray(albums) || !albums.length) {
+    const tracks = await fetchJson("./tracks.json", []);
+    const byAlbum = new Map();
+    (Array.isArray(tracks) ? tracks : []).forEach(track => {
+      const name = String(track.album || "Singles").trim() || "Singles";
+      if (!byAlbum.has(name)) {
+        byAlbum.set(name, {
+          title: name,
+          slug: String(track.album_slug || "").trim(),
+          year: track.year || "",
+          artist: track.artist || "Allen Parvin",
+          cover: track.cover || "",
+          description: track.album_description || "",
+          theme: track.album_theme || "",
+          story: track.album_story || "",
+          badges: Array.isArray(track.album_badges) ? track.album_badges : [],
+          track_count: 0,
+          album_zip: track.album_zip || ""
+        });
+      }
+      const album = byAlbum.get(name);
+      album.track_count += 1;
+      if (!album.cover && track.cover) album.cover = track.cover;
+      if (!album.year && track.year) album.year = track.year;
+      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
+    });
+    albums = [...byAlbum.values()];
+  }
+
+  const normalizedAlbums = (Array.isArray(albums) ? albums : [])
+    .map(album => ({
+      title: String(album.title || album.name || "Untitled Album").trim(),
+      slug: String(album.slug || "").trim(),
+      artist: String(album.artist || "Allen Parvin").trim(),
+      cover: String(album.cover || "").trim(),
+      year: album.year || "",
+      description: String(album.description || album.album_description || "").trim(),
+      theme: String(album.theme || album.album_theme || "").trim(),
+      story: String(album.story || album.album_story || "").trim(),
+      badges: Array.isArray(album.badges) ? album.badges : [],
+      track_count: Number(album.track_count || album.song_count || 0) || 0,
+      album_zip: String(album.album_zip || "").trim()
+    }))
+    .filter(album => album.title)
+    .sort((a, b) => a.title.localeCompare(b.title));
+
+  if (!normalizedAlbums.length) {
+    grid.innerHTML = `
+      <article class="page-card">
+        <p class="eyebrow">No albums yet</p>
+        <h2>Your album shelf is empty.</h2>
+        <p>Add tracks with album metadata to populate this page.</p>
+      </article>
+    `;
     return;
   }
 
-  const artist = artistTracks[0].artist || "Artist";
-  const albums = [...new Set(artistTracks.map(track => track.album).filter(Boolean))];
-  const tags = [...new Set(artistTracks.flatMap(track => window.AineoShared.normalizeStringArray(track.tags)).filter(Boolean))].slice(0, 10);
-  const cover = artistTracks.find(track => track.cover)?.cover || "";
-  const scriptureRefs = [...new Set(artistTracks.flatMap(track => window.AineoShared.normalizeStringArray(track.scripture_references || track.scripture)))].slice(0, 8);
-
-  root.innerHTML = `
-    <section class="page-card page-hero-card artist-hero-card">
-      <div class="artist-hero-layout">
-        <div class="catalog-card-cover catalog-card-cover--hero">${cover ? `<img src="${window.AineoShared.escapeAttr(cover)}" alt="${window.AineoShared.escapeAttr(artist)} artwork" />` : `<div class="catalog-card-cover-fill"></div>`}</div>
-        <div>
-          <p class="eyebrow">Artist</p>
-          <h1>${window.AineoShared.escapeHtml(artist)}</h1>
-          <p class="page-lead">${artistTracks.length} songs across ${albums.length} album${albums.length === 1 ? "" : "s"}.</p>
-          <div class="quick-link-pills">${albums.map(album => `<a class="quick-link-pill" href="./album.html?album=${encodeURIComponent(album)}">${window.AineoShared.escapeHtml(album)}</a>`).join("")}</div>
-          ${tags.length ? `<div class="quick-link-pills">${tags.map(tag => `<span class="quick-link-pill quick-link-pill--static">#${window.AineoShared.escapeHtml(tag)}</span>`).join("")}</div>` : ""}
-          ${scriptureRefs.length ? `<div class="scripture-pill-row" aria-label="Artist scripture references">${window.AineoShared.renderScriptureLinks(scriptureRefs, { compact: true })}</div>` : ""}
+  grid.innerHTML = normalizedAlbums.map(album => {
+    const subtitle = [album.track_count ? `${album.track_count} song${album.track_count === 1 ? "" : "s"}` : "", album.year ? String(album.year) : ""]
+      .filter(Boolean)
+      .join(" • ");
+    const meta = [album.artist, subtitle].filter(Boolean).join(" • ");
+    const badges = album.badges.length
+      ? `<div class="quick-link-pills">${album.badges.slice(0, 4).map(badge => `<span class="quick-link-pill quick-link-pill--static">${escapeHtml(badge)}</span>`).join("")}</div>`
+      : "";
+    const blurb = album.description || album.theme || album.story || "Open the album page for the full track list and story.";
+    return `
+      <a class="catalog-card" href="./album.html?album=${encodeURIComponent(album.title)}" aria-label="Open ${escapeAttr(album.title)} album page">
+        <div class="catalog-card-cover">${album.cover ? `<img src="${escapeAttr(album.cover)}" alt="${escapeAttr(album.title)} cover" loading="lazy" decoding="async" />` : `<div class="catalog-card-cover-fallback">♪</div>`}</div>
+        <div class="catalog-card-copy">
+          <p class="eyebrow">Album</p>
+          <h2>${escapeHtml(album.title)}</h2>
+          ${meta ? `<p>${escapeHtml(meta)}</p>` : ""}
+          <p>${escapeHtml(blurb)}</p>
+          ${badges}
         </div>
-      </div>
-    </section>
-    <section class="page-card utility-card">
-      <div class="catalog-list">${artistTracks.map(track => `
-        <div class="catalog-list-row">
-          <div>
-            <h2>${window.AineoShared.escapeHtml(track.title || "Untitled")}</h2>
-            <p>${window.AineoShared.escapeHtml(track.album || "Singles")}${track.duration ? ` • ${window.AineoShared.escapeHtml(track.duration)}` : ""}</p>
-            ${window.AineoShared.normalizeStringArray(track.scripture_references || track.scripture).length ? `<div class="scripture-pill-row">${window.AineoShared.renderScriptureLinks(track.scripture_references || track.scripture, { compact: true })}</div>` : ""}
-          </div>
-          <div class="card-actions"><a class="action-btn secondary-btn" href="./index.html?song=${encodeURIComponent(track.title || "")}">Open in Player</a><a class="action-btn secondary-btn" href="./album.html?album=${encodeURIComponent(track.album || "")}">Album Page</a></div>
-        </div>
-      `).join("")}</div>
-    </section>`;
-
-  document.title = `${artist} - Aineo Music`;
+      </a>
+    `;
+  }).join("");
 }

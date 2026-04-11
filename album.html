@@ -1,122 +1,152 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f1115" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
-  <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" href="./favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
-  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
-  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
-  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
-  <title>Album - Aineo Music</title>
-  <link rel="stylesheet" href="./style.css?v=42.3.83" />
-  <script src="./pwa-init.js?v=42.3.83" defer></script>
-  <script src="./aineo-shared.js?v=42.3.83" defer></script>
-  <script src="./aineo-album-page.js?v=42.3.83" defer></script>
-  <script src="./album-page.js?v=42.3.83" defer></script>
-</head>
-<body>
-  <header class="site-header">
-    <nav class="navbar" aria-label="Main navigation">
-      <div class="nav-top-row">
-        <div class="logo">Aineo Music</div>
-        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
-      </div>
-      <ul id="siteNavLinks" class="nav-links">
-  <li><a href="./home.html">Home</a></li>
-  <li><a href="./index.html">Music</a></li>
-  <li><a href="./albums.html" class="active" aria-current="page">Albums</a></li>
-  <li><a href="./about.html">About</a></li>
-  <li><a href="./mission.html">Mission</a></li>
-  <li><a href="./install.html">Install</a></li>
-  <li><a href="./contact.html">Request a Song</a></li>
-</ul>
-    </nav>
-  </header>
 
-  <main class="album-page-shell">
-    <div class="album-page-back-links" aria-label="Album page navigation">
-      <a href="./index.html" class="action-btn secondary-btn album-page-back-link">← Back to Music</a>
-      <a href="./albums.html" class="action-btn secondary-btn album-page-back-link">← Back to Albums</a>
-      <a href="./home.html" class="action-btn secondary-btn album-page-back-link">← Back Home</a>
-    </div>
-    <section class="page-card album-page-nav-card">
-      <p class="eyebrow">Explore</p>
-      <div class="quick-link-pills album-quick-links">
-        <a class="quick-link-pill" href="./index.html">Open Music</a>
-        <a class="quick-link-pill" href="./albums.html">Browse Albums</a>
-        <a class="quick-link-pill" href="./about.html">About</a>
-        <a class="quick-link-pill" href="./home.html">Home</a>
-        <a class="quick-link-pill" href="./contact.html">Request a Song</a>
-      </div>
-    </section>
-    <div id="albumPageRoot" class="album-page-root">
-      <section class="page-card album-page-empty">
-        <p class="eyebrow">Album Page</p>
-        <h2>Loading album…</h2>
-      </section>
-    </div>
-  </main>
+(function(){
+  function normalizeState({ customPlaylists, activeCustomPlaylistName }) {
+    const names = Object.keys(customPlaylists || {}).sort((a,b) => a.localeCompare(b));
+    if (!names.length) return null;
+    if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return null;
+    return activeCustomPlaylistName;
+  }
 
-  <div id="lyricsModal" class="lyrics-modal hidden" aria-hidden="true">
-    <div id="lyricsModalBackdrop" class="lyrics-modal-backdrop"></div>
-    <div class="lyrics-modal-content" role="dialog" aria-modal="true" aria-labelledby="lyricsModalTitle">
-      <div class="lyrics-modal-header">
-        <h2 id="lyricsModalTitle">Lyrics</h2>
-        <button id="closeLyricsBtn" class="control-btn" type="button" aria-label="Close lyrics">✕</button>
-      </div>
-      <div id="lyricsModalBody" class="lyrics-modal-body"></div>
-    </div>
-  </div>
+  function getCustomPlaylistTracks({ name, customPlaylists, tracks }) {
+    const ids = customPlaylists?.[name] || [];
+    return ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
+  }
 
-  <div class="sticky-player" aria-label="Audio player">
-    <div class="sticky-player-left">
-      <img id="nowCover" src="" alt="Album cover" class="now-cover" />
-      <div class="now-meta">
-        <p class="label">Now Playing</p>
-        <h3 id="nowTitle">Select a song</h3>
-        <p id="nowArtist">—</p>
-        <p id="nowAlbum">—</p>
-        <p id="nowScripture" class="scripture-line">—</p>
-      </div>
-    </div>
-    <div class="sticky-player-center">
-      <div class="transport">
-        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
-        <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
-        <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
-      </div>
-      <div class="progress-wrap">
-        <span id="currentTime">0:00</span>
-        <label class="visually-hidden" for="seekBar">Seek through track</label>
-        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
-        <span id="duration">0:00</span>
-      </div>
-    </div>
-    <div class="sticky-player-right">
-      <audio id="audioPlayer" preload="metadata"></audio>
-    </div>
-  </div>
+  function ensureWorkspace() { return null; }
 
-    <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.83</span></p>
-    <p class="footer-links footer-links--admin">
-      <a href="./changelog.html">Changelog</a>
-      <a href="./feedback.html">Feedback</a>
-      <a href="./lyrics-editor.html">Lyrics Editor</a>
-      <a href="./admin-upload.html">Admin Upload</a>
-    </p>
-  </footer>
-</body>
-</html>
+  function openPlaylistModal({ els, customPlaylists, track, triggerEl, setLastFocusedElement, setPlaylistPickerTrackId, lockBodyScroll }) {
+    if (!els.playlistModal) return;
+    setLastFocusedElement(triggerEl || document.activeElement || null);
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+    if (els.playlistSelect) {
+      els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>` + names.map(name => `<option value="${escapeHtmlAttr(name)}">${escapeHtml(name)}</option>`).join('');
+    }
+    if (els.newPlaylistName) els.newPlaylistName.value = '';
+    setPlaylistPickerTrackId(track?.id || null);
+    els.playlistModal.classList.remove('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll(true);
+  }
+
+  function closePlaylistModal({ els, isAnyModalOpen, lockBodyScroll, restoreFocus, onClosed }) {
+    if (!els.playlistModal) return;
+    els.playlistModal.classList.add('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'true');
+    onClosed?.();
+    if (!isAnyModalOpen()) {
+      lockBodyScroll(false);
+      restoreFocus();
+    }
+  }
+
+  function saveTrackToPlaylistFromModal({ els, customPlaylists, playlistPickerTrackId }) {
+    const typedName = els.newPlaylistName?.value?.trim();
+    const selectedName = els.playlistSelect?.value?.trim();
+    const playlistName = typedName || selectedName;
+    if (!playlistName) return { saved: false };
+    if (!customPlaylists[playlistName]) customPlaylists[playlistName] = [];
+    if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
+      customPlaylists[playlistName].push(playlistPickerTrackId);
+    }
+    return { saved: true, playlistName };
+  }
+
+  function applyCustomPlaylistFilter({ name, customPlaylists, filters, searchInput, onAfterChange }) {
+    if (!name || !customPlaylists?.[name]) return { applied: false };
+    filters.selectedAlbum = null;
+    filters.selectedPlaylist = null;
+    filters.selectedTag = null;
+    filters.selectedSmartPlaylist = null;
+    filters.selectedCustomPlaylist = name;
+    filters.searchTerm = '';
+    if (searchInput) searchInput.value = '';
+    onAfterChange?.();
+    return { applied: true, name };
+  }
+
+  function setActiveCustomPlaylist({ name, customPlaylists, currentActiveName }) {
+    if (!name || !customPlaylists[name]) return { activeName: currentActiveName, changed: false };
+    return { activeName: name, changed: name !== currentActiveName };
+  }
+
+  function renderWorkspace() { return null; }
+
+  function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
+    if (!els.myPlaylistList) return;
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+
+    if (!names.length) {
+      els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+      els.myPlaylistList.innerHTML = `<p class="empty-message playlist-empty-message">No custom playlists yet.</p>`;
+      return;
+    }
+
+    const activeName = normalizeState({ customPlaylists, activeCustomPlaylistName });
+    const hasSelectionFocus = Boolean(filters?.selectedPlaylist || filters?.selectedSmartPlaylist || filters?.selectedCustomPlaylist);
+    const visibleNames = activeName
+      ? names.filter(name => name === activeName)
+      : (hasSelectionFocus ? [] : names);
+
+    els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+
+    const gridMarkup = visibleNames.map(name => {
+      const list = getCustomPlaylistTracks(name);
+      const active = name === activeName ? 'active' : '';
+      const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
+      return `
+        <button class="filter-chip playlist-card-pill playlist-card-pill--custom-compact ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}" aria-label="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}">
+          <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
+        </button>
+      `;
+    }).join('');
+
+    const trayMarkup = activeName ? `
+      <div class="custom-playlist-action-tray" data-custom-playlist-tray="${escapeHtmlAttr(activeName)}">
+        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)} · ${escapeHtml(getCustomPlaylistTracks(activeName).length)} song${getCustomPlaylistTracks(activeName).length === 1 ? '' : 's'}</div>
+        <div class="playlist-card-actions playlist-card-actions--selected-tray">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(activeName)}" type="button" title="Play ${escapeHtmlAttr(activeName)}">Play</button>
+          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(activeName)}" type="button" title="Shuffle ${escapeHtmlAttr(activeName)}">Shuffle</button>
+          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(activeName)}" type="button" title="Delete ${escapeHtmlAttr(activeName)}">Delete</button>
+        </div>
+      </div>
+    ` : '';
+
+    els.myPlaylistList.innerHTML = `${gridMarkup}${trayMarkup}`;
+
+    els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.openCustomPlaylist;
+      setActiveCustomPlaylist(name);
+      applyCustomPlaylistFilter(name);
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-play]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistPlay;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, false, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-shuffle]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistShuffle;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, true, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-delete-custom-playlist]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      onDelete(btn.dataset.deleteCustomPlaylist);
+      saveCustomPlaylists();
+      renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName: normalizeState({ customPlaylists, activeCustomPlaylistName: null }), filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr });
+    }));
+  }
+
+  function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function escapeHtmlAttr(value) { return escapeHtml(value); }
+
+  window.AineoPlaylists = { normalizeState, getCustomPlaylistTracks, ensureWorkspace, openPlaylistModal, closePlaylistModal, saveTrackToPlaylistFromModal, applyCustomPlaylistFilter, setActiveCustomPlaylist, renderWorkspace, renderMyPlaylists };
+})();

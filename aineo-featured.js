@@ -1,184 +1,83 @@
-/* v42.3.76 featured track state sync fix */
-(function(){
-  function getVisibleAlbums(trackList) {
-    const map = new Map();
-    (trackList || []).forEach(track => {
-      const albumName = track.album || "Singles";
-      if (!map.has(albumName)) {
-        map.set(albumName, {
-          name: albumName,
-          cover: track.cover || "",
-          artist: track.artist || "Allen Parvin",
-          year: track.year || "",
-          tracks: [],
-          album_zip: track.album_zip || ""
-        });
-      }
-      const album = map.get(albumName);
-      album.tracks.push(track);
-      if (!album.cover && track.cover) album.cover = track.cover;
-      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-    });
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Prepare metadata for new songs, covers, lyrics, and tracks.json entries." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <title>Admin Upload - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.83" />
+  <script src="./pwa-init.js?v=42.3.83" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="page-card page-hero-card"><p class="eyebrow">Admin Helper</p><h1>Upload Workflow Helper</h1><p class="page-lead">This page helps you prepare metadata for new songs before uploading files to your site.</p></section>
+    <section class="utility-grid utility-grid--two">
+      <article class="page-card utility-card">
+        <h2>Track Metadata Builder</h2>
+        <div class="form-group"><label for="trackTitle">Song Title</label><input id="trackTitle" type="text" placeholder="Song title"></div>
+        <div class="form-group"><label for="trackArtist">Artist</label><input id="trackArtist" type="text" value="Allen Parvin"></div>
+        <div class="form-group"><label for="trackAlbum">Album</label><input id="trackAlbum" type="text" placeholder="Album name"></div>
+        <div class="form-group"><label for="trackTags">Tags</label><input id="trackTags" type="text" placeholder="worship, scripture, hope"></div>
+        <div class="form-group"><label for="trackRefs">Scripture References</label><input id="trackRefs" type="text" placeholder="Matthew 28:19-20; Mark 16:15"></div>
+        <div class="form-group"><label for="trackLyricsFile">Lyrics file</label><input id="trackLyricsFile" type="text" placeholder="lyrics/song-title.lrc"></div>
+        <div class="card-actions"><button id="buildTrackJsonBtn" class="action-btn" type="button">Build JSON Snippet</button><button id="copyTrackJsonBtn" class="action-btn secondary-btn" type="button">Copy Snippet</button></div>
+      </article>
+      <article class="page-card utility-card"><h2>Generated Snippet</h2><pre id="trackJsonOutput" class="code-output">Fill out the form and generate a tracks.json snippet.</pre><p class="helper-text">This helper runs entirely in your browser and does not upload files automatically.</p></article>
+    </section>
+    <section class="page-card utility-card"><h2>Suggested Upload Checklist</h2><ol class="utility-list"><li>Upload the MP3 to your audio folder or R2 bucket.</li><li>Upload the cover image to your covers folder.</li><li>Upload the matching <code>.lrc</code> file into the <code>lyrics/</code> folder.</li><li>Append the generated JSON snippet to <code>tracks.json</code>.</li><li>Refresh the site and verify the song appears with lyrics and scripture links.</li></ol></section>
+  </main>
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.83</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+  <script>
+  const out = document.getElementById("trackJsonOutput");
+  function slugify(text) { return String(text || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function buildSnippet() {
+    const title = document.getElementById("trackTitle").value.trim();
+    const artist = document.getElementById("trackArtist").value.trim() || "Allen Parvin";
+    const album = document.getElementById("trackAlbum").value.trim() || "Singles";
+    const tags = document.getElementById("trackTags").value.split(",").map(v => v.trim()).filter(Boolean);
+    const refs = document.getElementById("trackRefs").value.split(/[;,]+/).map(v => v.trim()).filter(Boolean);
+    const lyricsFile = document.getElementById("trackLyricsFile").value.trim() || `lyrics/${slugify(title)}.lrc`;
+    out.textContent = JSON.stringify({ title, slug: slugify(title), artist, album, tags, scripture_references: refs, lyrics_file: lyricsFile }, null, 2);
   }
-
-  function renderAlbums({ els, trackList, filters, getVisibleAlbums, escapeHtml, escapeHtmlAttr, setAlbumFilter }) {
-    if (!els.albumGrid) return;
-    const albums = getVisibleAlbums(trackList);
-    if (!albums.length) {
-      els.albumGrid.innerHTML = `<p class="empty-message">No albums found.</p>`;
-      return;
-    }
-    els.albumGrid.innerHTML = albums.map(album => {
-      const isActive = filters.selectedAlbum === album.name;
-      if (window.AineoUI?.renderAlbumCard) {
-        return window.AineoUI.renderAlbumCard({ album, isActive, escapeHtml, escapeAttr: escapeHtmlAttr });
-      }
-      return `
-        <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
-          <div class="album-card-cover-wrap">
-            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
-          </div>
-          <div class="album-card-meta">
-            <h3>${escapeHtml(album.name)}</h3>
-            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
-          </div>
-        </button>`;
-    }).join("");
-    els.albumGrid.querySelectorAll('[data-album]').forEach(btn => {
-      btn.addEventListener('click', () => setAlbumFilter(btn.dataset.album));
-    });
-  }
-
-  function renderFeaturedAlbum({ els, getFeaturedCollection }) {
-    const collection = getFeaturedCollection();
-    const formatDuration = (tracks) => {
-      const secs = (tracks || []).reduce((sum, track) => sum + (Number(track.duration_seconds) || 0), 0);
-      if (!secs) return "";
-      const hours = Math.floor(secs / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      return hours ? `${hours} hr ${mins} min` : `${mins} min`;
-    };
-    if (!collection) {
-      if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
-      if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
-      if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
-      if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-      if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
-      if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
-      return;
-    }
-    if (els.featuredAlbumCover) {
-      els.featuredAlbumCover.src = collection.cover || "";
-      els.featuredAlbumCover.alt = `${collection.name} cover`;
-    }
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name || 'All Songs';
-    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || 'Entire music library';
-    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? '' : 's'}`;
-    if (els.featuredCollectionStats) {
-      const duration = formatDuration(collection.tracks);
-      const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
-      const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
-      els.featuredCollectionStats.innerHTML = `${type}${durationPill}`;
-    }
-    if (els.featuredCollectionLead) {
-      els.featuredCollectionLead.textContent = collection.name === 'All Songs'
-        ? 'Start here with the full music library. Play or shuffle the whole library, or filter down to a smaller collection.'
-        : `Start here with Play or Shuffle for ${collection.name}.`;
-    }
-    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
-    if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
-    if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
-  }
-
-  function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
-    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
-    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
-    return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
-  }
-
-  function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
-    if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
-    const collection = getFeaturedCollection();
-    if (!collection) {
-      els.featuredTrackListTitle.textContent = 'All Songs';
-      els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
-      return;
-    }
-    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
-    els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
-      const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
-      const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';
-      const isFav = isFavorite(track) ? 'favorited' : '';
-      const offlineSaved = isDownloaded ? isDownloaded(track) : false;
-      return `
-      <div class="featured-track-row ${rowStateClass}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
-        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
-        <div class="featured-track-main">
-          <div class="featured-track-title-line">
-            <strong class="featured-track-title" title="${escapeHtmlAttr(track.title)}">${escapeHtml(track.title)}</strong>
-            ${track.duration ? `<span class="featured-track-duration" title="${escapeHtmlAttr(track.duration)}">${escapeHtml(track.duration)}</span>` : ''}
-          </div>
-          <div class="featured-track-meta-line">
-            <span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span>
-          </div>
-        </div>
-        <div class="featured-track-actions">
-          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
-          <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
-        </div>
-      </div>`;
-    }).join('');
-
-    els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (Date.now && Date.now() < (window.__AINEO_SUPPRESS_PREVIEW_CLICK_UNTIL__ || 0)) return;
-        const idx = Number(btn.dataset.featuredIndex);
-        const track = collection.tracks[idx];
-        if (!track) return;
-        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) {
-          togglePlayPause();
-          return;
-        }
-        syncQueueToCurrentCollection(true);
-        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
-        playFromQueueIndex(idx);
-      });
-    });
-
-    els.featuredTrackList.querySelectorAll('[data-favorite-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
-      if (!track) return;
-      toggleFavorite(track);
-      renderFeaturedTrackList(ctx);
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
-      if (track) openLyricsModalForTrack(track, e.currentTarget);
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-offline-track]').forEach(btn => btn.addEventListener('click', async e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.offlineTrack);
-      if (!track) return;
-      e.currentTarget.disabled = true;
-      try {
-        const currentlySaved = isDownloaded ? isDownloaded(track) : false;
-        if (currentlySaved && removeTrackOffline) await removeTrackOffline(track);
-        else if (saveTrackOffline) await saveTrackOffline(track);
-      } finally {
-        renderFeaturedTrackList(ctx);
-      }
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
-      if (track) openTrackActionSheet?.(track, e.currentTarget);
-    }));
-  }
-
-  window.AineoFeatured = { getVisibleAlbums, renderAlbums, renderFeaturedAlbum, getFeaturedTrackPlayState, renderFeaturedTrackList };
-})();
+  document.getElementById("buildTrackJsonBtn").addEventListener("click", buildSnippet);
+  document.getElementById("copyTrackJsonBtn").addEventListener("click", async () => { try { await navigator.clipboard.writeText(out.textContent); document.getElementById("copyTrackJsonBtn").textContent = "Copied!"; setTimeout(() => document.getElementById("copyTrackJsonBtn").textContent = "Copy Snippet", 1200); } catch {} });
+  </script>
+</body></html>

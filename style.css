@@ -10166,10 +10166,10 @@ button:active{
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 14% 6%;
+  inset: 12% 4%;
   border-radius: 999px;
-  background: radial-gradient(circle at center, rgba(118, 214, 255, 0.28), rgba(96, 123, 255, 0.16) 44%, rgba(12, 16, 32, 0) 74%);
-  filter: blur(18px);
+  background: radial-gradient(circle at center, rgba(118, 214, 255, 0.18), rgba(96, 123, 255, 0.12) 42%, rgba(12, 16, 32, 0) 74%);
+  filter: blur(22px);
 }
 
 .player-cover-visualizer-canvas {
@@ -10178,27 +10178,36 @@ button:active{
   transform: translate(-50%, -50%);
   width: calc(100% + 72px);
   height: calc(100% + 72px);
-  opacity: 0.98;
+  opacity: 0.94;
 }
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 8px -8px;
-  display: flex;
+  inset: 10px -4px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(44%, 52%) repeat(4, minmax(0, 1fr));
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  justify-items: center;
+  column-gap: 6px;
   mix-blend-mode: screen;
 }
 
 .player-cover-visualizer-bar {
-  width: 8px;
+  width: 4px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(250, 252, 255, 0.94), rgba(87, 203, 255, 0.98) 52%, rgba(104, 83, 255, 0.72));
-  box-shadow: 0 0 18px rgba(73, 181, 255, 0.24);
+  background: linear-gradient(180deg, rgba(248, 252, 255, 0.72), rgba(96, 198, 255, 0.74) 52%, rgba(104, 83, 255, 0.44));
+  box-shadow: 0 0 14px rgba(73, 181, 255, 0.14);
   align-self: center;
   transform-origin: center bottom;
-  transition: height 80ms linear, opacity 90ms linear, transform 90ms linear;
+  transition: height 90ms linear, opacity 110ms linear, transform 110ms linear;
+}
+
+.player-cover-visualizer-bar[data-side='left'] {
+  grid-row: 1;
+}
+
+.player-cover-visualizer-bar[data-side='right'] {
+  grid-row: 1;
 }
 
 .player-sheet-cover,
@@ -10233,8 +10242,8 @@ button:active{
 @media (max-width: 640px) {
   .player-cover-visualizer { inset: -14px; }
   .player-cover-visualizer-canvas { width: calc(100% + 52px); height: calc(100% + 52px); }
-  .player-cover-visualizer-bars { gap: 6px; inset: 12px -4px; }
-  .player-cover-visualizer-bar { width: 6px; }
+  .player-cover-visualizer-bars { inset: 12px -2px; column-gap: 4px; grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(38%, 46%) repeat(4, minmax(0, 1fr)); }
+  .player-cover-visualizer-bar { width: 3px; }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */

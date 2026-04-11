@@ -1,100 +1,122 @@
-document.addEventListener("DOMContentLoaded", initAlbumsPage);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>Album - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.83" />
+  <script src="./pwa-init.js?v=42.3.83" defer></script>
+  <script src="./aineo-shared.js?v=42.3.83" defer></script>
+  <script src="./aineo-album-page.js?v=42.3.83" defer></script>
+  <script src="./album-page.js?v=42.3.83" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html" class="active" aria-current="page">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
 
-async function initAlbumsPage() {
-  window.AineoShared?.initSecondaryPageNav?.();
-  const grid = document.getElementById("albumsGrid");
-  if (!grid) return;
+  <main class="album-page-shell">
+    <div class="album-page-back-links" aria-label="Album page navigation">
+      <a href="./index.html" class="action-btn secondary-btn album-page-back-link">← Back to Music</a>
+      <a href="./albums.html" class="action-btn secondary-btn album-page-back-link">← Back to Albums</a>
+      <a href="./home.html" class="action-btn secondary-btn album-page-back-link">← Back Home</a>
+    </div>
+    <section class="page-card album-page-nav-card">
+      <p class="eyebrow">Explore</p>
+      <div class="quick-link-pills album-quick-links">
+        <a class="quick-link-pill" href="./index.html">Open Music</a>
+        <a class="quick-link-pill" href="./albums.html">Browse Albums</a>
+        <a class="quick-link-pill" href="./about.html">About</a>
+        <a class="quick-link-pill" href="./home.html">Home</a>
+        <a class="quick-link-pill" href="./contact.html">Request a Song</a>
+      </div>
+    </section>
+    <div id="albumPageRoot" class="album-page-root">
+      <section class="page-card album-page-empty">
+        <p class="eyebrow">Album Page</p>
+        <h2>Loading album…</h2>
+      </section>
+    </div>
+  </main>
 
-  const escapeHtml = window.AineoShared?.escapeHtml || (value => String(value || ""));
-  const escapeAttr = window.AineoShared?.escapeAttr || escapeHtml;
-  const fetchJson = window.AineoShared?.fetchJson || (async (url, fallback = []) => {
-    try {
-      const response = await fetch(url, { cache: "no-cache" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
-    } catch (error) {
-      return fallback;
-    }
-  });
+  <div id="lyricsModal" class="lyrics-modal hidden" aria-hidden="true">
+    <div id="lyricsModalBackdrop" class="lyrics-modal-backdrop"></div>
+    <div class="lyrics-modal-content" role="dialog" aria-modal="true" aria-labelledby="lyricsModalTitle">
+      <div class="lyrics-modal-header">
+        <h2 id="lyricsModalTitle">Lyrics</h2>
+        <button id="closeLyricsBtn" class="control-btn" type="button" aria-label="Close lyrics">✕</button>
+      </div>
+      <div id="lyricsModalBody" class="lyrics-modal-body"></div>
+    </div>
+  </div>
 
-  let albums = await fetchJson("./albums.json", []);
-  if (!Array.isArray(albums) || !albums.length) {
-    const tracks = await fetchJson("./tracks.json", []);
-    const byAlbum = new Map();
-    (Array.isArray(tracks) ? tracks : []).forEach(track => {
-      const name = String(track.album || "Singles").trim() || "Singles";
-      if (!byAlbum.has(name)) {
-        byAlbum.set(name, {
-          title: name,
-          slug: String(track.album_slug || "").trim(),
-          year: track.year || "",
-          artist: track.artist || "Allen Parvin",
-          cover: track.cover || "",
-          description: track.album_description || "",
-          theme: track.album_theme || "",
-          story: track.album_story || "",
-          badges: Array.isArray(track.album_badges) ? track.album_badges : [],
-          track_count: 0,
-          album_zip: track.album_zip || ""
-        });
-      }
-      const album = byAlbum.get(name);
-      album.track_count += 1;
-      if (!album.cover && track.cover) album.cover = track.cover;
-      if (!album.year && track.year) album.year = track.year;
-      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-    });
-    albums = [...byAlbum.values()];
-  }
+  <div class="sticky-player" aria-label="Audio player">
+    <div class="sticky-player-left">
+      <img id="nowCover" src="" alt="Album cover" class="now-cover" />
+      <div class="now-meta">
+        <p class="label">Now Playing</p>
+        <h3 id="nowTitle">Select a song</h3>
+        <p id="nowArtist">—</p>
+        <p id="nowAlbum">—</p>
+        <p id="nowScripture" class="scripture-line">—</p>
+      </div>
+    </div>
+    <div class="sticky-player-center">
+      <div class="transport">
+        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
+        <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
+        <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+      </div>
+      <div class="progress-wrap">
+        <span id="currentTime">0:00</span>
+        <label class="visually-hidden" for="seekBar">Seek through track</label>
+        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+    <div class="sticky-player-right">
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </div>
+  </div>
 
-  const normalizedAlbums = (Array.isArray(albums) ? albums : [])
-    .map(album => ({
-      title: String(album.title || album.name || "Untitled Album").trim(),
-      slug: String(album.slug || "").trim(),
-      artist: String(album.artist || "Allen Parvin").trim(),
-      cover: String(album.cover || "").trim(),
-      year: album.year || "",
-      description: String(album.description || album.album_description || "").trim(),
-      theme: String(album.theme || album.album_theme || "").trim(),
-      story: String(album.story || album.album_story || "").trim(),
-      badges: Array.isArray(album.badges) ? album.badges : [],
-      track_count: Number(album.track_count || album.song_count || 0) || 0,
-      album_zip: String(album.album_zip || "").trim()
-    }))
-    .filter(album => album.title)
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  if (!normalizedAlbums.length) {
-    grid.innerHTML = `
-      <article class="page-card">
-        <p class="eyebrow">No albums yet</p>
-        <h2>Your album shelf is empty.</h2>
-        <p>Add tracks with album metadata to populate this page.</p>
-      </article>
-    `;
-    return;
-  }
-
-  grid.innerHTML = normalizedAlbums.map(album => {
-    const subtitle = [album.track_count ? `${album.track_count} song${album.track_count === 1 ? "" : "s"}` : "", album.year ? String(album.year) : ""]
-      .filter(Boolean)
-      .join(" • ");
-    const meta = [album.artist, subtitle].filter(Boolean).join(" • ");
-    const badges = album.badges.length
-      ? `<div class="quick-link-pills">${album.badges.slice(0, 4).map(badge => `<span class="quick-link-pill quick-link-pill--static">${escapeHtml(badge)}</span>`).join("")}</div>`
-      : "";
-    const blurb = album.description || album.theme || album.story || "Open the album page for the full track list and story.";
-    return `
-      <a class="catalog-card" href="./album.html?album=${encodeURIComponent(album.title)}" aria-label="Open ${escapeAttr(album.title)} album page">
-        <div class="catalog-card-cover">${album.cover ? `<img src="${escapeAttr(album.cover)}" alt="${escapeAttr(album.title)} cover" loading="lazy" decoding="async" />` : `<div class="catalog-card-cover-fallback">♪</div>`}</div>
-        <div class="catalog-card-copy">
-          <p class="eyebrow">Album</p>
-          <h2>${escapeHtml(album.title)}</h2>
-          ${meta ? `<p>${escapeHtml(meta)}</p>` : ""}
-          <p>${escapeHtml(blurb)}</p>
-          ${badges}
-        </div>
-      </a>
-    `;
-  }).join("");
-}
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.83</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+</body>
+</html>

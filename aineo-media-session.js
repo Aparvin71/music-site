@@ -1,114 +1,62 @@
 (function () {
-  let handlersBound = false;
+  const config = window.AineoConfig || {};
 
-  function isSupported() {
-    return "mediaSession" in navigator;
+  function normalizeStringArray(value) {
+    if (Array.isArray(value)) return value.map(v => String(v).trim()).filter(Boolean);
+    if (typeof value === "string") return value.split(",").map(v => v.trim()).filter(Boolean);
+    return [];
   }
 
-  function buildArtwork(track) {
-    if (!track?.cover) return [];
-    return [96, 128, 192, 256, 384, 512].map(size => ({
-      src: track.cover,
-      sizes: `${size}x${size}`,
-      type: "image/jpeg"
-    }));
+  function makeTrackId(track, index) {
+    return `${track.title || "track"}__${track.album || "album"}__${index}`;
   }
 
-  function bindHandlers({ togglePlayPause, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
-    if (handlersBound || !isSupported()) return;
+  function normalizeTrack(track, index) {
+    const tags = normalizeStringArray(track.tags);
+    const playlists = normalizeStringArray(track.playlists || track.playlist);
+    const scriptureRefs = normalizeStringArray(track.scripture_references || track.scriptureReferences || track.scripture);
+    const defaults = config.trackDefaults || {};
 
-    const safeAudio = () => getAudio?.() || null;
-
-    const handlers = {
-      play: () => togglePlayPause?.(),
-      pause: () => togglePlayPause?.(),
-      previoustrack: () => playPreviousTrack?.(),
-      nexttrack: () => playNextTrack?.(),
-      stop: () => {
-        const audio = safeAudio();
-        if (!audio) return;
-        audio.pause();
-        audio.currentTime = 0;
-        onStateChange?.();
-      },
-      seekbackward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        audio.currentTime = Math.max(0, (audio.currentTime || 0) - seekOffset);
-        onStateChange?.();
-      },
-      seekforward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        const duration = Number.isFinite(audio.duration) ? audio.duration : (audio.currentTime || 0) + seekOffset;
-        audio.currentTime = Math.min(duration, (audio.currentTime || 0) + seekOffset);
-        onStateChange?.();
-      },
-      seekto: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio || !Number.isFinite(details.seekTime)) return;
-        audio.currentTime = details.seekTime;
-        onStateChange?.();
-      }
+    return {
+      id: track.id || makeTrackId(track, index),
+      title: track.title || "Untitled",
+      slug: track.slug || "",
+      artist: track.artist || config.defaultArtist || "Allen Parvin",
+      artist_slug: track.artist_slug || "",
+      album: track.album || config.defaultAlbum || "Singles",
+      album_slug: track.album_slug || "",
+      year: track.year || "",
+      genre: track.genre || "",
+      duration: track.duration || "",
+      duration_seconds: Number(track.duration_seconds || 0) || 0,
+      src: track.src || track.url || track.audio || "",
+      audio: track.audio || track.src || track.url || "",
+      cover: track.cover || track.artwork || track.image || "",
+      lyrics: track.lyrics || "",
+      lyrics_file: track.lyrics_file || track.lyricsFile || "",
+      lyrics_offset: Number(track.lyrics_offset ?? track.lyricsOffset ?? 0) || 0,
+      syncedLyrics: [],
+      tags,
+      playlists,
+      scripture_references: scriptureRefs,
+      trackNumber: track.trackNumber || track.track || "",
+      description: track.description || "",
+      album_zip: track.album_zip || "",
+      album_description: track.album_description || "",
+      album_theme: track.album_theme || "",
+      album_story: track.album_story || "",
+      album_badges: normalizeStringArray(track.album_badges),
+      collection: track.collection || defaults.collection || "All Songs",
+      featured: Boolean(track.featured ?? track.album_featured ?? defaults.featured),
+      favorite: Boolean(track.favorite ?? defaults.favorite),
+      play_count: Number(track.play_count || defaults.play_count || 0) || 0,
+      last_played: track.last_played || defaults.last_played || "",
+      date_added: track.date_added || track.added_at || "",
+      search_keywords: normalizeStringArray(track.search_keywords || track.searchKeywords),
+      has_lyrics: Boolean(track.has_lyrics || track.lyrics || track.lyrics_file),
+      has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length)
     };
-
-    Object.entries(handlers).forEach(([action, handler]) => {
-      try {
-        navigator.mediaSession.setActionHandler(action, handler);
-      } catch (error) {
-        console.warn(`Media Session action not supported: ${action}`, error);
-      }
-    });
-
-    handlersBound = true;
   }
 
-  function updatePlaybackState(audio) {
-    if (!isSupported()) return;
-    navigator.mediaSession.playbackState = audio && !audio.paused ? "playing" : "paused";
-  }
-
-  function updateMetadata(track, audio) {
-    if (!isSupported() || !track) return;
-
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title || "Untitled",
-        artist: track.artist || "Allen Parvin",
-        album: track.album || "Singles",
-        artwork: buildArtwork(track)
-      });
-    } catch (error) {
-      console.warn("Media Session metadata could not be updated:", error);
-    }
-
-    updatePlaybackState(audio);
-  }
-
-  function updatePositionState(audio) {
-    if (!isSupported() || !audio || typeof navigator.mediaSession.setPositionState !== "function") return;
-
-    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
-    const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
-    if (!duration || duration <= 0) return;
-
-    try {
-      navigator.mediaSession.setPositionState({
-        duration,
-        playbackRate: audio.playbackRate || 1,
-        position: Math.min(position, duration)
-      });
-    } catch (error) {
-      console.warn("Media Session position state could not be updated:", error);
-    }
-  }
-
-  window.AineoMediaSession = {
-    bindHandlers,
-    updatePlaybackState,
-    updateMetadata,
-    updatePositionState
-  };
+  window.AineoData = { normalizeStringArray, makeTrackId, normalizeTrack };
 })();
