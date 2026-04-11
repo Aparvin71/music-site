@@ -1,0 +1,7 @@
+Aineo Music Build v42.7.1
+
+- Visualizer changed from mirrored-feel split bars to true split waveform lanes
+- Left lane now shows envelope history before the playhead
+- Right lane now shows envelope ahead of the playhead
+- Artwork shifted slightly right for cleaner centering
+- Bar heights tuned for truer waveform response

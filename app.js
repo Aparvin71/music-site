@@ -1348,20 +1348,29 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
 }
 
 function buildVisualizerLaneSamples(track, progress, barCount, side) {
+  const envelope = getTrackWaveformEnvelope(track);
+  if (!envelope || !envelope.length || !barCount) return [];
+
+  const maxIndex = envelope.length - 1;
+  const centerIndex = Math.max(0, Math.min(maxIndex, Math.round(progress * maxIndex)));
+  const laneWindow = Math.max(barCount, Math.round(envelope.length * 0.06));
+  const step = Math.max(1, Math.floor(laneWindow / Math.max(1, barCount)));
   const samples = [];
-  const visibleSpan = 0.028;
-  const centerGuard = 0.0015;
+
   for (let i = 0; i < barCount; i += 1) {
-    const ratio = (i + 0.5) / Math.max(1, barCount);
-    const offset = centerGuard + (ratio * visibleSpan);
-    const lanePos = side === 'left' ? progress - offset : progress + offset;
-    const raw = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos) || 0));
-    const prev = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos - 0.0015) || raw));
-    const next = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos + 0.0015) || raw));
-    const smoothed = (prev * 0.18) + (raw * 0.64) + (next * 0.18);
-    samples.push(Math.max(0, Math.min(1, smoothed)));
+    const offsetFromCenter = (barCount - i) * step;
+    const sampleIndex = side === 'left'
+      ? Math.max(0, centerIndex - offsetFromCenter)
+      : Math.min(maxIndex, centerIndex + ((i + 1) * step));
+
+    const raw = Math.max(0, Math.min(1, (envelope[sampleIndex] || 0) / 255));
+    const prev = Math.max(0, Math.min(1, ((envelope[Math.max(0, sampleIndex - 1)] || envelope[sampleIndex] || 0) / 255)));
+    const next = Math.max(0, Math.min(1, ((envelope[Math.min(maxIndex, sampleIndex + 1)] || envelope[sampleIndex] || 0) / 255)));
+    const shaped = (prev * 0.2) + (raw * 0.6) + (next * 0.2);
+    samples.push(Math.max(0.04, Math.min(1, shaped)));
   }
-  return side === 'left' ? samples.reverse() : samples;
+
+  return samples;
 }
 
 function drawVisualizerFrame() {
@@ -1384,9 +1393,9 @@ function drawVisualizerFrame() {
       const bar = bars[i];
       const sample = samples[i] ?? (0.18 + (0.16 * Math.sin((fallbackBeat * Math.PI * 2) + (i * 0.35))));
       const energy = Math.max(0, Math.min(1, sample));
-      const eased = Math.pow(energy, 0.9);
-      const barHeight = 10 + (eased * 118);
-      const alpha = 0.32 + (eased * 0.62);
+      const eased = Math.pow(energy, 1.05);
+      const barHeight = 8 + (eased * 126);
+      const alpha = 0.28 + (eased * 0.68);
       bar.style.height = `${barHeight}px`;
       bar.style.opacity = `${alpha}`;
       bar.style.transform = `scaleY(1)`;
