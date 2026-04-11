@@ -1,0 +1,11 @@
+Aineo Music
+Build: v42.4.2 — True Update Only Refresh Note
+
+Included in this build:
+- Fixed app refresh note appearing on every page open
+- App update toast now appears only when there is a true new app version
+- Added announced-version guard so the same app version is not re-announced every launch
+- Dismissing the refresh note now clears the pending notice for the current session
+- Tracks.json update detection remains active for real library changes
+- Standalone/app mode remains safe: detect updates without reload loops
+- Synced visible version markers and cache version labels

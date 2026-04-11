@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.4.1";
+const AINEO_APP_VERSION = "v42.4.2";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -303,6 +303,8 @@ async function registerStandaloneServiceWorker() {
 }
 
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
+const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
+const APP_RUNTIME_VERSION = "v42.4.2";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;
@@ -360,6 +362,7 @@ function ensureAppUpdateToast() {
   });
 
   mount.querySelector("[data-app-update-dismiss]")?.addEventListener("click", () => {
+    appRefreshPending = false;
     mount.classList.add("hidden");
   });
 
@@ -437,6 +440,24 @@ function rememberManualRefresh() {
   } catch (error) {}
 }
 
+function getLastAnnouncedAppVersion() {
+  try {
+    return localStorage.getItem(APP_UPDATE_ANNOUNCED_VERSION_KEY) || "";
+  } catch (error) {
+    return "";
+  }
+}
+
+function rememberAnnouncedAppVersion(version = APP_RUNTIME_VERSION) {
+  try {
+    localStorage.setItem(APP_UPDATE_ANNOUNCED_VERSION_KEY, String(version || APP_RUNTIME_VERSION));
+  } catch (error) {}
+}
+
+function shouldAnnounceAppUpdate() {
+  return getLastAnnouncedAppVersion() !== APP_RUNTIME_VERSION;
+}
+
 function markBackgroundUpdateAvailable(reason = "music library updates") {
   appRefreshPending = true;
   appRefreshReason = reason;
@@ -462,6 +483,8 @@ function markBackgroundUpdateAvailable(reason = "music library updates") {
 function performAppRefresh({ immediate = false, source = "manual" } = {}) {
   if (!immediate && !canAutoRefreshNow()) return;
   if (source === "manual") rememberManualRefresh();
+  rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
+  appRefreshPending = false;
   hideAppUpdateToast();
   window.location.reload();
 }
@@ -535,26 +558,39 @@ function initBackgroundUpdateDetection() {
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!shouldAnnounceAppUpdate()) return;
       if (isStandalone()) {
         appRefreshPending = true;
         appRefreshReason = "app updates";
         notePendingRefreshSession("app updates");
+        rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
         showAppUpdateToast({
           title: "App update is ready",
           body: "Aineo updated in the background. Tap Refresh now when you want to apply the newest app version."
         });
         return;
       }
+      rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
       markBackgroundUpdateAvailable("app updates");
     });
     navigator.serviceWorker.getRegistration().then((registration) => {
       if (!registration) return;
-      if (registration.waiting) markBackgroundUpdateAvailable("app updates");
+      if (registration.waiting && shouldAnnounceAppUpdate()) {
+        appRefreshPending = true;
+        appRefreshReason = "app updates";
+        notePendingRefreshSession("app updates");
+        rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
+        showAppUpdateToast({
+          title: "App update is ready",
+          body: "Aineo updated in the background. Tap Refresh now when you want to apply the newest app version."
+        });
+      }
       registration.addEventListener("updatefound", () => {
         const worker = registration.installing;
         if (!worker) return;
         worker.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+          if (worker.state === "installed" && navigator.serviceWorker.controller && shouldAnnounceAppUpdate()) {
+            rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
             markBackgroundUpdateAvailable("app updates");
           }
         });
