@@ -158,6 +158,7 @@ const els = {
 
   stickyFilterBar: document.getElementById("stickyFilterBar"),
   stickyFilterBarInner: document.querySelector("#stickyFilterBar .sticky-filter-bar-inner"),
+  stickyFilterOverlayMount: document.getElementById("stickyFilterOverlayMount"),
   filterTypeBadge: document.getElementById("filterTypeBadge"),
 
   queueSectionBody: document.getElementById("queueSectionBody"),
@@ -1819,14 +1820,25 @@ function getStickyFilterTopOffset() {
   return 0;
 }
 
+function ensureStickyFilterOverlayMount() {
+  if (els.stickyFilterOverlayMount && document.body.contains(els.stickyFilterOverlayMount)) return els.stickyFilterOverlayMount;
+  const mount = document.createElement("div");
+  mount.id = "stickyFilterOverlayMount";
+  mount.className = "sticky-filter-overlay-mount";
+  mount.setAttribute("aria-hidden", "true");
+  document.body.appendChild(mount);
+  els.stickyFilterOverlayMount = mount;
+  return mount;
+}
+
 function syncTabletStickyFilterBarMetrics() {
   if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
 
   const top = getStickyFilterTopOffset();
+  const mount = ensureStickyFilterOverlayMount();
   const barRect = els.stickyFilterBar.getBoundingClientRect();
-  const innerRect = els.stickyFilterBarInner.getBoundingClientRect();
-  const height = Math.ceil(innerRect.height || els.stickyFilterBarInner.offsetHeight || els.stickyFilterBar.offsetHeight || 0);
-  const width = Math.max(0, Math.round(barRect.width || innerRect.width || els.stickyFilterBar.offsetWidth || 0));
+  const height = Math.ceil(els.stickyFilterBarInner.offsetHeight || els.stickyFilterBar.offsetHeight || 0);
+  const width = Math.max(0, Math.round(barRect.width || els.stickyFilterBar.offsetWidth || 0));
   const left = Math.round(barRect.left);
   const mainContent = document.getElementById("mainContent");
 
@@ -1837,8 +1849,28 @@ function syncTabletStickyFilterBarMetrics() {
   els.stickyFilterBar.style.setProperty("--tablet-sticky-left", `${left}px`);
   els.stickyFilterBar.style.minHeight = `${height}px`;
 
+  mount.style.setProperty("--sticky-filter-top", `${top}px`);
+  mount.style.setProperty("--sticky-filter-height", `${height}px`);
+  mount.style.setProperty("--sticky-filter-width", `${width}px`);
+  mount.style.setProperty("--sticky-filter-left", `${left}px`);
+
   if (mainContent) {
     mainContent.style.setProperty("--active-sticky-filter-space", `${height}px`);
+  }
+}
+
+function moveStickyFilterBarToOverlay() {
+  const mount = ensureStickyFilterOverlayMount();
+  if (!els.stickyFilterBarInner || !mount) return;
+  if (els.stickyFilterBarInner.parentElement !== mount) {
+    mount.appendChild(els.stickyFilterBarInner);
+  }
+}
+
+function restoreStickyFilterBarToPlaceholder() {
+  if (!els.stickyFilterBar || !els.stickyFilterBarInner) return;
+  if (els.stickyFilterBarInner.parentElement !== els.stickyFilterBar) {
+    els.stickyFilterBar.appendChild(els.stickyFilterBarInner);
   }
 }
 
@@ -1847,15 +1879,22 @@ function updateTabletStickyFilterBar() {
 
   const active = hasActiveFilter() && !els.stickyFilterBar.classList.contains("hidden");
   const mainContent = document.getElementById("mainContent");
+  const mount = ensureStickyFilterOverlayMount();
 
   if (!active) {
     els.stickyFilterBar.classList.remove("is-fixed");
+    mount.classList.remove("active");
+    restoreStickyFilterBarToPlaceholder();
     els.stickyFilterBar.style.removeProperty("--sticky-filter-top");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-top");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-height");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-width");
     els.stickyFilterBar.style.removeProperty("--tablet-sticky-left");
     els.stickyFilterBar.style.removeProperty("min-height");
+    mount.style.removeProperty("--sticky-filter-top");
+    mount.style.removeProperty("--sticky-filter-height");
+    mount.style.removeProperty("--sticky-filter-width");
+    mount.style.removeProperty("--sticky-filter-left");
     els.stickyFilterBarInner.style.removeProperty("left");
     els.stickyFilterBarInner.style.removeProperty("top");
     els.stickyFilterBarInner.style.removeProperty("width");
@@ -1868,9 +1907,11 @@ function updateTabletStickyFilterBar() {
 
   syncTabletStickyFilterBarMetrics();
   els.stickyFilterBar.classList.add("is-fixed");
-  els.stickyFilterBarInner.style.left = `var(--tablet-sticky-left)`;
-  els.stickyFilterBarInner.style.top = `var(--tablet-sticky-top)`;
-  els.stickyFilterBarInner.style.width = `var(--tablet-sticky-width)`;
+  mount.classList.add("active");
+  moveStickyFilterBarToOverlay();
+  els.stickyFilterBarInner.style.left = `var(--sticky-filter-left, 12px)`;
+  els.stickyFilterBarInner.style.top = `var(--sticky-filter-top, 0px)`;
+  els.stickyFilterBarInner.style.width = `var(--sticky-filter-width, calc(100% - 24px))`;
   if (mainContent) {
     mainContent.classList.add("sticky-filter-active");
   }

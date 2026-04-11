@@ -12016,3 +12016,42 @@ body.ios-standalone .player-sheet-content {
     max-height: calc(var(--app-visible-height) - 10px - max(var(--safe-top), var(--app-safe-top-visual)));
   }
 }
+
+
+/* v42.3.80c deep sticky clear bar fix: top-level overlay mount */
+#stickyFilterOverlayMount.sticky-filter-overlay-mount {
+  position: fixed !important;
+  top: var(--sticky-filter-top, 0px) !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 0 !important;
+  z-index: 5000 !important;
+  pointer-events: none !important;
+  display: none !important;
+}
+
+#stickyFilterOverlayMount.sticky-filter-overlay-mount.active {
+  display: block !important;
+}
+
+#stickyFilterOverlayMount .sticky-filter-bar-inner {
+  position: fixed !important;
+  top: var(--sticky-filter-top, 0px) !important;
+  left: var(--sticky-filter-left, 12px) !important;
+  width: var(--sticky-filter-width, calc(100% - 24px)) !important;
+  max-width: none !important;
+  margin: 0 !important;
+  z-index: 5001 !important;
+  pointer-events: auto !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed {
+  min-height: var(--tablet-sticky-height, 72px) !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+}

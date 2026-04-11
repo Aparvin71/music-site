@@ -1,0 +1,4 @@
+v42.3.80c deep sticky clear bar fix
+- moved active sticky bar into a top-level overlay mount
+- left placeholder section in page flow
+- avoids layout/scroll-container conflicts
