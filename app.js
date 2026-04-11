@@ -1,4 +1,4 @@
-/* v42.4.0 background update detection */
+/* v42.4.1 background update detection */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];

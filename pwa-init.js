@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.4.0";
+const AINEO_APP_VERSION = "v42.4.1";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -407,16 +407,47 @@ async function computeTracksSignature(url = "./tracks.json") {
   }
 }
 
+
+function shouldAllowAutomaticRefresh() {
+  return !isStandalone();
+}
+
+function notePendingRefreshSession(reason = "") {
+  try {
+    sessionStorage.setItem("aineo_pending_refresh_reason", String(reason || "updates"));
+    sessionStorage.setItem("aineo_pending_refresh_at", String(Date.now()));
+  } catch (error) {}
+}
+
+function hasRecentManualRefresh() {
+  try {
+    const raw = sessionStorage.getItem("aineo_manual_refresh_at");
+    if (!raw) return false;
+    const at = Number(raw);
+    if (!Number.isFinite(at)) return false;
+    return (Date.now() - at) < 15000;
+  } catch (error) {
+    return false;
+  }
+}
+
+function rememberManualRefresh() {
+  try {
+    sessionStorage.setItem("aineo_manual_refresh_at", String(Date.now()));
+  } catch (error) {}
+}
+
 function markBackgroundUpdateAvailable(reason = "music library updates") {
   appRefreshPending = true;
   appRefreshReason = reason;
+  notePendingRefreshSession(reason);
 
-  if (canAutoRefreshNow()) {
+  if (shouldAllowAutomaticRefresh() && canAutoRefreshNow() && !hasRecentManualRefresh()) {
     showAppUpdateToast({
       title: "Refreshing for new music",
       body: `Aineo detected ${reason} in the background and is pulling them in now.`
     });
-    window.setTimeout(() => performAppRefresh({ immediate: true }), 900);
+    window.setTimeout(() => performAppRefresh({ immediate: true, source: "auto-background-detection" }), 900);
     return;
   }
 
@@ -428,20 +459,29 @@ function markBackgroundUpdateAvailable(reason = "music library updates") {
   });
 }
 
-function performAppRefresh({ immediate = false } = {}) {
+function performAppRefresh({ immediate = false, source = "manual" } = {}) {
   if (!immediate && !canAutoRefreshNow()) return;
+  if (source === "manual") rememberManualRefresh();
   hideAppUpdateToast();
   window.location.reload();
 }
 
 async function maybeAutoRefreshPendingUpdate() {
   if (!appRefreshPending) return;
+  if (!shouldAllowAutomaticRefresh()) {
+    showAppUpdateToast({
+      title: "New songs or updates are ready",
+      body: "Aineo found fresh music in the background. Tap Refresh now when you want to load the latest library."
+    });
+    return;
+  }
   if (!canAutoRefreshNow()) return;
+  if (hasRecentManualRefresh()) return;
   showAppUpdateToast({
     title: "Refreshing for the newest music",
     body: `Aineo is loading the latest ${appRefreshReason || "updates"} now.`
   });
-  window.setTimeout(() => performAppRefresh({ immediate: true }), 700);
+  window.setTimeout(() => performAppRefresh({ immediate: true, source: "auto-pending" }), 700);
 }
 
 async function checkForTracksJsonUpdate({ force = false } = {}) {
@@ -495,6 +535,16 @@ function initBackgroundUpdateDetection() {
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (isStandalone()) {
+        appRefreshPending = true;
+        appRefreshReason = "app updates";
+        notePendingRefreshSession("app updates");
+        showAppUpdateToast({
+          title: "App update is ready",
+          body: "Aineo updated in the background. Tap Refresh now when you want to apply the newest app version."
+        });
+        return;
+      }
       markBackgroundUpdateAvailable("app updates");
     });
     navigator.serviceWorker.getRegistration().then((registration) => {

@@ -1,0 +1,11 @@
+Aineo Music
+Build: v42.4.1 — Safe Background Update Detection Loop Fix
+
+Included in this build:
+- Fixed standalone/app-mode open-load-open-load refresh loop
+- Kept background update detection for tracks.json and service worker updates
+- Disabled automatic reload in standalone app mode
+- App mode now shows a manual Refresh now / Later prompt instead of forcing reload
+- Added short session guard to prevent repeated refresh churn after a manual reload
+- Left playback, visualizer, and waveform pipeline untouched
+- Synced visible version markers and cache version labels
