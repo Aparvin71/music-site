@@ -1382,25 +1382,27 @@ function drawVisualizerFrame() {
   const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
   const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
   const ctx = visualizerCtx;
-  ctx.clearRect(0, 0, width, height);
-
-  const centerX = (width / 2) + 11;
-  const centerY = (height / 2) - 10;
-  const coverRadius = Math.min(width, height) * 0.262;
   const currentTrack = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
-  const durationSeconds = currentTrack?.duration_seconds || els.audioPlayer?.duration || 0;
+  const durationSeconds = currentTrack?.durationSeconds || currentTrack?.duration || els.audioPlayer?.duration || 0;
+
+  ctx.clearRect(0, 0, width, height);
+
+  if (!currentTrack) return;
+
   const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
   const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
 
-  let bass = 0.18;
-  let mids = 0.14;
-  let treble = 0.12;
+  let bass = 0.24;
+  let mids = 0.22;
+  let treble = 0.18;
+  let energy = 0.24;
 
   if (prerenderedState) {
     bass = prerenderedState.bass;
     mids = prerenderedState.mids;
     treble = prerenderedState.treble;
+    energy = prerenderedState.energy;
   } else if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
     visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
     visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
@@ -1408,85 +1410,81 @@ function drawVisualizerFrame() {
     const lowEnd = Math.max(1, Math.floor(visualizerFreqData.length * 0.08));
     const midEnd = Math.max(lowEnd + 1, Math.floor(visualizerFreqData.length * 0.28));
     const highEnd = Math.max(midEnd + 1, Math.floor(visualizerFreqData.length * 0.65));
-
-    const avg = (startBand, endBand) => {
+    const avgBand = (startBand, endBand) => {
       let total = 0;
       for (let i = startBand; i < endBand; i += 1) total += visualizerFreqData[i] || 0;
       return total / Math.max(1, endBand - startBand) / 255;
     };
-
-    bass = avg(0, lowEnd);
-    mids = avg(lowEnd, midEnd);
-    treble = avg(midEnd, highEnd);
-  } else {
-    const current = els.audioPlayer?.currentTime || 0;
-    const bpm = 92;
-    const beatLength = 60 / bpm;
-    const beatPosition = (current / beatLength) % 16;
-    const beatIndex = Math.floor(beatPosition) % 16;
-    const beatFraction = beatPosition - Math.floor(beatPosition);
-    const accentPattern = [1.0, 0.34, 0.56, 0.30, 0.84, 0.36, 0.52, 0.28, 0.96, 0.32, 0.60, 0.30, 0.88, 0.40, 0.58, 0.34];
-    const attack = Math.max(0, 1 - (beatFraction / 0.16));
-    const decay = Math.max(0, 1 - ((beatFraction - 0.16) / 0.48));
-    const beatEnvelope = beatFraction < 0.16 ? attack : decay * 0.78;
-    const phrasePhase = (current / (beatLength * 8)) % 1;
-    const phraseLift = 0.18 + Math.sin(phrasePhase * Math.PI) * 0.32;
-    const shimmer = 0.08 + Math.abs(Math.sin(current * 5.8 + beatIndex * 0.9)) * 0.18;
-    const beatStrength = accentPattern[beatIndex] * beatEnvelope;
-    bass = 0.10 + phraseLift * 0.22 + beatStrength * 0.88;
-    mids = 0.08 + phraseLift * 0.18 + beatStrength * 0.56 + shimmer * 0.18;
-    treble = 0.06 + phraseLift * 0.10 + beatStrength * 0.24 + shimmer * 0.42;
+    bass = avgBand(0, lowEnd);
+    mids = avgBand(lowEnd, midEnd);
+    treble = avgBand(midEnd, highEnd);
+    energy = Math.max(0.08, Math.min(1, (bass * 0.42) + (mids * 0.36) + (treble * 0.22)));
   }
 
-  const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const sideGap = coverRadius + 22;
-  const barFieldReach = Math.max(72, (width / 2) - sideGap - 12);
-  const barCountPerSide = Math.max(18, Math.min(30, Math.floor(barFieldReach / 8.5)));
-  const barGap = Math.max(2.5, Math.min(5, barFieldReach / (barCountPerSide * 3.6)));
-  const barWidth = Math.max(3.5, Math.min(8, (barFieldReach - (barGap * (barCountPerSide - 1))) / barCountPerSide));
-  const topBarBase = Math.max(14, Math.min(height * 0.072, 24));
-  const maxBarHeight = Math.max(34, Math.min(height * 0.20, 70));
-  const barRadius = Math.max(2.2, Math.min(barWidth * 0.48, 4.4));
+  const coverRect = els.playerSheetCover?.getBoundingClientRect();
+  const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
+  const coverWidth = coverRect && wrapRect ? Math.min(width * 0.56, coverRect.width) : Math.min(width * 0.56, 190);
+  const coverHeight = coverRect && wrapRect ? Math.min(height * 0.56, coverRect.height) : Math.min(height * 0.56, 190);
+  const coverLeft = (width - coverWidth) / 2;
+  const coverRight = coverLeft + coverWidth;
+  const centerY = height / 2;
 
-  const backgroundGlow = ctx.createLinearGradient(centerX - sideGap - barFieldReach, centerY, centerX + sideGap + barFieldReach, centerY);
-  backgroundGlow.addColorStop(0, 'rgba(0, 234, 255, 0)');
-  backgroundGlow.addColorStop(0.18, `rgba(0, 234, 255, ${0.08 + bass * 0.11})`);
-  backgroundGlow.addColorStop(0.50, `rgba(255, 255, 255, ${0.03 + energy * 0.06})`);
-  backgroundGlow.addColorStop(0.82, `rgba(182, 86, 255, ${0.08 + treble * 0.11})`);
-  backgroundGlow.addColorStop(1, 'rgba(182, 86, 255, 0)');
-  ctx.fillStyle = backgroundGlow;
-  ctx.fillRect(centerX - sideGap - barFieldReach - 12, centerY - maxBarHeight - 26, (sideGap + barFieldReach + 12) * 2, (maxBarHeight + 26) * 2);
+  const barCount = Math.max(44, Math.floor(width / 8));
+  const slot = width / barCount;
+  const barWidth = Math.max(2.2, Math.min(5.2, slot * 0.62));
+  const baseHeight = Math.max(8, height * 0.055);
+  const maxHeight = height * 0.30;
+  const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
 
-  const trackCenter = Math.max(0, Math.min(0.999999, durationSeconds ? currentTime / Math.max(durationSeconds, 0.001) : 0));
   const sampleEnvelopeAt = (offset) => {
-    const pos = Math.max(0, Math.min(0.999999, trackCenter + offset));
+    const pos = (progress + offset + 1) % 1;
     const value = sampleTrackWaveformAt(currentTrack, pos);
-    if (value != null) return Math.max(0.02, Math.min(1, value));
+    if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0.02, Math.min(1, value));
     if (waveformSource) {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(pos * (waveformSource.length - 1)));
       return Math.max(0.02, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
     }
-    return 0.08 + Math.abs(Math.sin((visualizerTick / 11.5) + pos * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
+    return 0.10 + Math.abs(Math.sin((visualizerTick / 13.5) + pos * Math.PI * 4 + currentTime * 1.2)) * (0.16 + mids * 0.12);
   };
 
-  const drawRoundedBar = (x, y, w, h, fillStyle, alpha = 1, glow = null) => {
-    const clampedHeight = Math.max(1, h);
-    const radius = Math.min(barRadius, clampedHeight / 2, w / 2);
+  const fade = ctx.createLinearGradient(0, 0, width, 0);
+  fade.addColorStop(0, 'rgba(82, 228, 255, 0)');
+  fade.addColorStop(0.12, `rgba(82, 228, 255, ${0.14 + energy * 0.10})`);
+  fade.addColorStop(0.50, `rgba(255, 255, 255, ${0.12 + energy * 0.06})`);
+  fade.addColorStop(0.88, `rgba(190, 110, 255, ${0.14 + energy * 0.10})`);
+  fade.addColorStop(1, 'rgba(190, 110, 255, 0)');
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.strokeStyle = fade;
+  ctx.lineWidth = 1.1;
+  ctx.shadowBlur = 12;
+  ctx.shadowColor = `rgba(120, 225, 255, ${0.14 + energy * 0.08})`;
+  ctx.beginPath();
+  ctx.moveTo(0, centerY);
+  ctx.lineTo(width, centerY);
+  ctx.stroke();
+  ctx.restore();
+
+  const drawRoundedBar = (x, y, w, h, fill, opacity, glowColor) => {
+    if (h <= 0) return;
+    const radius = Math.min(w / 2, 2.2);
     ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = fillStyle;
-    if (glow) {
-      ctx.shadowBlur = glow.blur;
-      ctx.shadowColor = glow.color;
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = opacity;
+    ctx.fillStyle = fill;
+    if (glowColor) {
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = glowColor;
     }
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
     ctx.lineTo(x + w - radius, y);
     ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-    ctx.lineTo(x + w, y + clampedHeight - radius);
-    ctx.quadraticCurveTo(x + w, y + clampedHeight, x + w - radius, y + clampedHeight);
-    ctx.lineTo(x + radius, y + clampedHeight);
-    ctx.quadraticCurveTo(x, y + clampedHeight, x, y + clampedHeight - radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
     ctx.lineTo(x, y + radius);
     ctx.quadraticCurveTo(x, y, x + radius, y);
     ctx.closePath();
@@ -1494,67 +1492,43 @@ function drawVisualizerFrame() {
     ctx.restore();
   };
 
-  const centerLineGradient = ctx.createLinearGradient(centerX - sideGap - barFieldReach, centerY, centerX + sideGap + barFieldReach, centerY);
-  centerLineGradient.addColorStop(0, 'rgba(0,236,255,0)');
-  centerLineGradient.addColorStop(0.18, `rgba(114,244,255,${0.18 + energy * 0.12})`);
-  centerLineGradient.addColorStop(0.50, `rgba(255,255,255,${0.16 + treble * 0.10})`);
-  centerLineGradient.addColorStop(0.82, `rgba(184,96,255,${0.16 + mids * 0.10})`);
-  centerLineGradient.addColorStop(1, 'rgba(168,88,255,0)');
+  for (let i = 0; i < barCount; i += 1) {
+    const xCenter = (i + 0.5) * slot;
+    const x = xCenter - (barWidth / 2);
+    const normalizedX = xCenter / Math.max(1, width);
+    const sweep = ((normalizedX - 0.5) * 0.34) + (Math.sin((visualizerTick / 90) + normalizedX * Math.PI * 2.2) * 0.006);
+    const sampleA = sampleEnvelopeAt(sweep);
+    const sampleB = sampleEnvelopeAt(sweep + 0.014);
+    const sampleC = sampleEnvelopeAt(sweep - 0.010);
+    const localWave = Math.max(0.02, Math.min(1, sampleA * 0.56 + sampleB * 0.26 + sampleC * 0.18));
+    const focus = 0.70 + Math.pow(Math.sin(normalizedX * Math.PI), 1.25) * 0.32;
+    const travel = 0.92 + Math.sin((visualizerTick / 28) - normalizedX * Math.PI * 2.4) * 0.045;
+    const amplitude = (baseHeight + (maxHeight * localWave * (0.48 + bass * 0.18 + mids * 0.14))) * focus * travel;
+    const opacity = 0.18 + localWave * 0.62;
+    const tintMix = normalizedX;
+    const cyan = Math.round(120 + (1 - tintMix) * 90);
+    const magenta = Math.round(104 + tintMix * 120);
+    const fill = `rgba(${Math.round(60 + tintMix * 80)}, ${cyan}, ${magenta}, ${0.22 + localWave * 0.46})`;
+    const glowColor = tintMix < 0.5
+      ? `rgba(82, 232, 255, ${0.14 + localWave * 0.26})`
+      : `rgba(192, 110, 255, ${0.14 + localWave * 0.24})`;
+
+    drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
+    drawRoundedBar(x + 0.7, centerY - amplitude * 0.44, Math.max(1.2, barWidth - 1.4), amplitude * 0.88, `rgba(255,255,255,${0.05 + localWave * 0.08})`, opacity * 0.55);
+  }
+
   ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  ctx.strokeStyle = centerLineGradient;
-  ctx.lineWidth = 1.15;
-  ctx.shadowBlur = 8;
-  ctx.shadowColor = 'rgba(120, 226, 255, 0.22)';
-  ctx.beginPath();
-  ctx.moveTo(centerX - sideGap - barFieldReach - 2, centerY);
-  ctx.lineTo(centerX - sideGap + 2, centerY);
-  ctx.moveTo(centerX + sideGap - 2, centerY);
-  ctx.lineTo(centerX + sideGap + barFieldReach + 2, centerY);
-  ctx.stroke();
+  const coverGradient = ctx.createLinearGradient(0, 0, width, 0);
+  coverGradient.addColorStop(0, 'rgba(5,10,18,0)');
+  coverGradient.addColorStop(Math.max(0, coverLeft / width), 'rgba(5,10,18,0)');
+  coverGradient.addColorStop(Math.max(0, (coverLeft + 10) / width), 'rgba(5,10,18,0.08)');
+  coverGradient.addColorStop(Math.min(1, (coverRight - 10) / width), 'rgba(5,10,18,0.08)');
+  coverGradient.addColorStop(Math.min(1, coverRight / width), 'rgba(5,10,18,0)');
+  coverGradient.addColorStop(1, 'rgba(5,10,18,0)');
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = coverGradient;
+  ctx.fillRect(0, Math.max(0, centerY - coverHeight * 0.62), width, Math.min(height, coverHeight * 1.24));
   ctx.restore();
-
-  const drawBarField = (side) => {
-    const dir = side === 'left' ? -1 : 1;
-    for (let i = 0; i < barCountPerSide; i += 1) {
-      const edgeDistance = i / Math.max(1, barCountPerSide - 1);
-      const fromCover = i * (barWidth + barGap);
-      const x = centerX + (dir * (sideGap + fromCover + barWidth));
-      const barX = dir < 0 ? x : x - barWidth;
-
-      const envelopeOffset = dir * (0.010 + edgeDistance * 0.21);
-      const primary = sampleEnvelopeAt(envelopeOffset);
-      const secondary = sampleEnvelopeAt(envelopeOffset + (0.008 * dir));
-      const tertiary = sampleEnvelopeAt(envelopeOffset - (0.006 * dir));
-      const localWave = Math.max(0.02, Math.min(1, primary * 0.58 + secondary * 0.24 + tertiary * 0.18));
-      const arch = Math.pow(Math.sin(edgeDistance * Math.PI), 1.06);
-      const tailTaper = 0.46 + ((1 - edgeDistance) * 0.36);
-      const dynamicLift = 0.34 + bass * 0.26 + mids * 0.18;
-      const amplitude = topBarBase + (arch * maxBarHeight * (0.24 + localWave * (0.54 + dynamicLift))) * tailTaper;
-      const mirrorScale = 0.84 + (Math.sin((visualizerTick / 20) + edgeDistance * Math.PI * 2.2) * 0.06);
-      const finalHeight = amplitude * mirrorScale;
-      const opacity = 0.34 + localWave * 0.64;
-      const glowBlur = 8 + (localWave * 10);
-
-      const fill = side === 'left'
-        ? `rgba(118, 246, 255, ${0.26 + localWave * 0.56})`
-        : `rgba(192, 110, 255, ${0.24 + localWave * 0.56})`;
-      const fillInner = side === 'left'
-        ? `rgba(255,255,255,${0.08 + localWave * 0.12})`
-        : `rgba(255,255,255,${0.06 + localWave * 0.10})`;
-      const glowColor = side === 'left'
-        ? `rgba(0,236,255,${0.16 + localWave * 0.34})`
-        : `rgba(176,84,255,${0.14 + localWave * 0.34})`;
-
-      drawRoundedBar(barX, centerY - finalHeight, barWidth, finalHeight, fill, opacity, { blur: glowBlur, color: glowColor });
-      drawRoundedBar(barX, centerY, barWidth, finalHeight, fill, opacity * 0.94, { blur: glowBlur, color: glowColor });
-      drawRoundedBar(barX + 0.7, centerY - finalHeight + 1.2, Math.max(1.5, barWidth - 1.4), Math.max(1, finalHeight * 0.44), fillInner, opacity * 0.72);
-      drawRoundedBar(barX + 0.7, centerY + 1.2, Math.max(1.5, barWidth - 1.4), Math.max(1, finalHeight * 0.36), fillInner, opacity * 0.58);
-    }
-  };
-
-  drawBarField('left');
-  drawBarField('right');
 }
 
 function startVisualizerAnimation() {
@@ -1586,8 +1560,7 @@ function stopVisualizerAnimation() {
   }
 
   visualizerBars.forEach((bar) => {
-    const mirrorIndex = Number(bar.dataset.mirrorIndex || 0);
-    bar.style.height = `${18 + mirrorIndex * 8}px`;
+    bar.style.height = '';
     bar.style.opacity = '';
     bar.style.transform = '';
   });

@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.4.9";
+const AINEO_APP_VERSION = "v42.5.1";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const INSTALL_SESSION_SEEN_KEY = "aineo_install_seen_session";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
@@ -8,8 +8,8 @@ let deferredInstallPrompt = null;
 const APP_FEEL_SETTINGS_KEY = "aineo_app_feel_settings";
 const APP_FEEL_DEFAULTS = {
   reducedMotionUi: false,
-  showInstallTips: true,
-  downloadHints: true
+  showInstallTips: false,
+  downloadHints: false
 };
 
 function loadAppFeelSettings() {
@@ -58,11 +58,11 @@ function ensureSettingsSurface() {
             <input type="checkbox" id="settingReducedMotionUi" />
           </label>
           <label class="app-feel-toggle">
-            <span>Show install tips</span>
+            <span>Auto-show install tips</span>
             <input type="checkbox" id="settingShowInstallTips" />
           </label>
           <label class="app-feel-toggle">
-            <span>Show offline download hints</span>
+            <span>Auto-show offline download hints</span>
             <input type="checkbox" id="settingDownloadHints" />
           </label>
         </section>
@@ -76,8 +76,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.4.9</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on calmer install and offline messaging so banners do not keep reappearing as you move around the site, while preserving the latest bar-wave visualizer and safe update behavior.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.5.1</span></p>
+          <p class="mission-statement mission-statement--summary">This build keeps install and offline help tucked inside Settings &amp; About by default, and upgrades the player visualizer into one continuous flowing bar wave behind the artwork.</p>
         </section>
       </div>
     </div>
@@ -179,7 +179,7 @@ function renderOfflineHintCard() {
   const standalonePreferred = isStandalone() || isIosSafari();
   const wasDismissed = localStorage.getItem(OFFLINE_HINT_DISMISSED_KEY) === AINEO_APP_VERSION;
   const seenThisSession = hasSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
-  const shouldShow = standalonePreferred && isPrimaryLandingPage() && !wasDismissed && !seenThisSession;
+  const shouldShow = settings.downloadHints && standalonePreferred && isPrimaryLandingPage() && !wasDismissed && !seenThisSession;
   card.classList.toggle("hidden", !shouldShow);
   if (shouldShow) markSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
 }
@@ -318,7 +318,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v42.4.8";
+const APP_RUNTIME_VERSION = "v42.5.1";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

@@ -1,0 +1,12 @@
+Aineo Music Build: v42.5.1 — Unified Waveflow Polish Pass
+
+Included in this pass:
+- Install banner and offline hint are now quiet by default and remain tucked into Settings & About unless auto-show is re-enabled.
+- Player visualizer changed from split mirrored fields to one continuous flowing bar wave behind the artwork.
+- Added softer edge fade and gentler motion so the wave reads as one connected layer.
+- Bumped runtime and service-worker cache versions for a clean rollout.
+
+Preserves:
+- v42.4.8 wave bar visualizer foundation
+- v42.4.7 safe web refresh loop fix
+- v42.4.9 calmer install/offline messaging behavior
