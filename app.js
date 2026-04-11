@@ -1,4 +1,4 @@
-/* v42.3.96 four-ring halo color pass */
+/* v42.3.97 four-ring halo color pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1436,14 +1436,25 @@ function drawVisualizerFrame() {
     treble = 0.06 + phraseLift * 0.10 + beatStrength * 0.24 + shimmer * 0.42;
   }
 
-  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.55, centerX, centerY, baseRadius + 82);
-  outerGlow.addColorStop(0, `rgba(110, 210, 255, ${0.06 + bass * 0.07})`);
-  outerGlow.addColorStop(0.48, `rgba(108, 128, 255, ${0.06 + mids * 0.09})`);
-  outerGlow.addColorStop(0.82, `rgba(28, 42, 78, ${0.09 + treble * 0.05})`);
+  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.48, centerX, centerY, baseRadius + 94);
+  outerGlow.addColorStop(0, `rgba(154, 240, 255, ${0.09 + bass * 0.10})`);
+  outerGlow.addColorStop(0.24, `rgba(82, 224, 255, ${0.10 + mids * 0.16})`);
+  outerGlow.addColorStop(0.52, `rgba(108, 112, 255, ${0.10 + bass * 0.10 + mids * 0.08})`);
+  outerGlow.addColorStop(0.78, `rgba(168, 82, 255, ${0.09 + treble * 0.12})`);
   outerGlow.addColorStop(1, 'rgba(10, 16, 30, 0)');
   ctx.fillStyle = outerGlow;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, baseRadius + 78, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, baseRadius + 90, 0, Math.PI * 2);
+  ctx.fill();
+
+  const innerAura = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.82, centerX, centerY, baseRadius + 34);
+  innerAura.addColorStop(0, 'rgba(255,255,255,0)');
+  innerAura.addColorStop(0.46, `rgba(138, 232, 255, ${0.06 + bass * 0.08})`);
+  innerAura.addColorStop(0.68, `rgba(132, 102, 255, ${0.06 + mids * 0.10})`);
+  innerAura.addColorStop(1, 'rgba(16, 22, 40, 0)');
+  ctx.fillStyle = innerAura;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, baseRadius + 42, 0, Math.PI * 2);
   ctx.fill();
 
   const haloSteps = 112;
@@ -1472,11 +1483,14 @@ function drawVisualizerFrame() {
 
   const drawHalo = (radiusBase, lineWidth, strokeStyle, shadowBlur, shadowColor, sampleScale) => {
     ctx.save();
+    ctx.globalCompositeOperation = 'screen';
     ctx.beginPath();
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = strokeStyle;
     ctx.shadowBlur = shadowBlur;
     ctx.shadowColor = shadowColor;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
     for (let i = 0; i <= haloSteps; i += 1) {
       const progress = i / haloSteps;
       const angle = (Math.PI * 2 * progress) - (Math.PI / 2);
@@ -1497,36 +1511,36 @@ function drawVisualizerFrame() {
 
   const ringPalette = [
     {
-      radius: baseRadius - 3,
-      lineWidth: 3.4,
-      strokeStyle: `rgba(214, 238, 255, ${0.20 + treble * 0.24 + bass * 0.12})`,
-      shadowBlur: 24,
-      shadowColor: 'rgba(120, 208, 255, 0.30)',
-      sampleScale: 1.22
+      radius: baseRadius - 5,
+      lineWidth: 4.0,
+      strokeStyle: `rgba(232, 247, 255, ${0.28 + treble * 0.26 + bass * 0.14})`,
+      shadowBlur: 32,
+      shadowColor: 'rgba(92, 228, 255, 0.46)',
+      sampleScale: 1.28
     },
     {
-      radius: baseRadius + 7,
+      radius: baseRadius + 5,
+      lineWidth: 2.9,
+      strokeStyle: `rgba(118, 230, 255, ${0.22 + bass * 0.22 + mids * 0.10})`,
+      shadowBlur: 26,
+      shadowColor: 'rgba(74, 206, 255, 0.40)',
+      sampleScale: 1.10
+    },
+    {
+      radius: baseRadius + 15,
       lineWidth: 2.2,
-      strokeStyle: `rgba(154, 118, 255, ${0.14 + mids * 0.20 + treble * 0.10})`,
+      strokeStyle: `rgba(174, 118, 255, ${0.18 + mids * 0.22 + treble * 0.12})`,
+      shadowBlur: 22,
+      shadowColor: 'rgba(164, 88, 255, 0.34)',
+      sampleScale: 0.94
+    },
+    {
+      radius: baseRadius + 26,
+      lineWidth: 1.6,
+      strokeStyle: `rgba(96, 164, 255, ${0.14 + bass * 0.18 + mids * 0.10})`,
       shadowBlur: 18,
-      shadowColor: 'rgba(124, 88, 255, 0.22)',
-      sampleScale: 1.02
-    },
-    {
-      radius: baseRadius + 16,
-      lineWidth: 1.8,
-      strokeStyle: `rgba(92, 194, 255, ${0.12 + bass * 0.18 + mids * 0.10})`,
-      shadowBlur: 14,
-      shadowColor: 'rgba(84, 168, 255, 0.20)',
-      sampleScale: 0.88
-    },
-    {
-      radius: baseRadius + 25,
-      lineWidth: 1.35,
-      strokeStyle: `rgba(170, 108, 255, ${0.10 + mids * 0.16 + treble * 0.08})`,
-      shadowBlur: 12,
-      shadowColor: 'rgba(140, 88, 255, 0.18)',
-      sampleScale: 0.74
+      shadowColor: 'rgba(90, 146, 255, 0.28)',
+      sampleScale: 0.82
     }
   ];
 
@@ -1535,9 +1549,30 @@ function drawVisualizerFrame() {
   });
 
   ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.lineCap = 'round';
+  const orbitBase = (currentTime * 0.72) + (bass * 0.6);
+  const accentArcs = [
+    { radius: baseRadius + 3, span: 0.36 + bass * 0.18, width: 2.8, color: `rgba(164, 244, 255, ${0.22 + bass * 0.24})`, blur: 18, offset: -0.55 },
+    { radius: baseRadius + 13, span: 0.28 + mids * 0.16, width: 2.0, color: `rgba(188, 118, 255, ${0.18 + mids * 0.22})`, blur: 16, offset: 1.12 },
+    { radius: baseRadius + 24, span: 0.22 + treble * 0.14, width: 1.4, color: `rgba(108, 176, 255, ${0.16 + treble * 0.18})`, blur: 12, offset: 2.34 }
+  ];
+  accentArcs.forEach((arc) => {
+    ctx.beginPath();
+    ctx.lineWidth = arc.width;
+    ctx.strokeStyle = arc.color;
+    ctx.shadowBlur = arc.blur;
+    ctx.shadowColor = arc.color.replace(/,\s*([0-9.]+)\)$/, ', 0.32)');
+    const start = orbitBase + arc.offset;
+    ctx.arc(centerX, centerY, arc.radius, start, start + arc.span);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  ctx.save();
   ctx.beginPath();
-  ctx.lineWidth = 1;
-  ctx.strokeStyle = `rgba(184, 220, 255, ${0.05 + treble * 0.08})`;
+  ctx.lineWidth = 1.15;
+  ctx.strokeStyle = `rgba(214, 236, 255, ${0.08 + treble * 0.10 + bass * 0.05})`;
   ctx.arc(centerX, centerY, baseRadius + 12, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
@@ -1554,7 +1589,7 @@ function drawVisualizerFrame() {
         : Math.min(1, Math.max(0.08, bass * (0.52 + mirrorIndex * 0.06) + mids * 0.22 + Math.abs(Math.sin((visualizerTick / 8.5) + mirrorIndex * 1.15)) * 0.06));
     const height = 14 + Math.round(level * 28) + mirrorIndex * 5;
     bar.style.height = `${height}px`;
-    bar.style.opacity = `${0.10 + level * 0.30}`;
+    bar.style.opacity = `${0.20 + level * 0.48}`;
     const yOffset = Math.round((1 - level) * 3);
     bar.style.transform = `translate3d(0, ${yOffset}px, 0) scaleY(${(0.96 + level * 0.1).toFixed(3)})`;
   });
