@@ -1439,21 +1439,23 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const sideGap = coverRadius + 18;
-  const waveformReach = Math.max(64, (width / 2) - sideGap - 16);
-  const laneHeight = Math.max(24, Math.min(height * 0.22, 62));
-  const detailSteps = 96;
+  const sideGap = coverRadius + 22;
+  const barFieldReach = Math.max(72, (width / 2) - sideGap - 12);
+  const barCountPerSide = Math.max(18, Math.min(30, Math.floor(barFieldReach / 8.5)));
+  const barGap = Math.max(2.5, Math.min(5, barFieldReach / (barCountPerSide * 3.6)));
+  const barWidth = Math.max(3.5, Math.min(8, (barFieldReach - (barGap * (barCountPerSide - 1))) / barCountPerSide));
+  const topBarBase = Math.max(14, Math.min(height * 0.072, 24));
+  const maxBarHeight = Math.max(34, Math.min(height * 0.20, 70));
+  const barRadius = Math.max(2.2, Math.min(barWidth * 0.48, 4.4));
 
-  const backgroundGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.68, centerX, centerY, sideGap + 110);
-  backgroundGlow.addColorStop(0, "rgba(255,255,255,0)");
-  backgroundGlow.addColorStop(0.22, `rgba(144, 242, 255, ${0.06 + bass * 0.12})`);
-  backgroundGlow.addColorStop(0.48, `rgba(0, 234, 255, ${0.08 + mids * 0.14})`);
-  backgroundGlow.addColorStop(0.72, `rgba(144, 72, 255, ${0.08 + treble * 0.14})`);
-  backgroundGlow.addColorStop(1, "rgba(10,16,28,0)");
+  const backgroundGlow = ctx.createLinearGradient(centerX - sideGap - barFieldReach, centerY, centerX + sideGap + barFieldReach, centerY);
+  backgroundGlow.addColorStop(0, 'rgba(0, 234, 255, 0)');
+  backgroundGlow.addColorStop(0.18, `rgba(0, 234, 255, ${0.08 + bass * 0.11})`);
+  backgroundGlow.addColorStop(0.50, `rgba(255, 255, 255, ${0.03 + energy * 0.06})`);
+  backgroundGlow.addColorStop(0.82, `rgba(182, 86, 255, ${0.08 + treble * 0.11})`);
+  backgroundGlow.addColorStop(1, 'rgba(182, 86, 255, 0)');
   ctx.fillStyle = backgroundGlow;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, sideGap + 100, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(centerX - sideGap - barFieldReach - 12, centerY - maxBarHeight - 26, (sideGap + barFieldReach + 12) * 2, (maxBarHeight + 26) * 2);
 
   const trackCenter = Math.max(0, Math.min(0.999999, durationSeconds ? currentTime / Math.max(durationSeconds, 0.001) : 0));
   const sampleEnvelopeAt = (offset) => {
@@ -1464,138 +1466,95 @@ function drawVisualizerFrame() {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(pos * (waveformSource.length - 1)));
       return Math.max(0.02, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
     }
-    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + pos * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
+    return 0.08 + Math.abs(Math.sin((visualizerTick / 11.5) + pos * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
   };
 
-  const buildWaveLane = (side) => {
-    const dir = side === 'left' ? -1 : 1;
-    const points = [];
-    for (let i = 0; i <= detailSteps; i += 1) {
-      const t = i / detailSteps;
-      const distance = t * waveformReach;
-      const x = centerX + (dir * (sideGap + distance));
-      const envelopeOffset = dir * ((detailSteps - i) / detailSteps) * 0.24;
-      const primary = sampleEnvelopeAt(envelopeOffset);
-      const secondary = sampleEnvelopeAt(envelopeOffset + (0.008 * dir));
-      const blend = Math.max(0.02, Math.min(1, primary * 0.72 + secondary * 0.28));
-      const taper = Math.pow(Math.sin(t * Math.PI), 0.72);
-      const introLift = 0.42 + (1 - t) * 0.58;
-      const amplitude = (8 + blend * laneHeight * (0.70 + bass * 0.24 + mids * 0.12)) * taper * introLift;
-      points.push({ x, amplitude, alpha: 0.24 + blend * 0.74 });
+  const drawRoundedBar = (x, y, w, h, fillStyle, alpha = 1, glow = null) => {
+    const clampedHeight = Math.max(1, h);
+    const radius = Math.min(barRadius, clampedHeight / 2, w / 2);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = fillStyle;
+    if (glow) {
+      ctx.shadowBlur = glow.blur;
+      ctx.shadowColor = glow.color;
     }
-    return points;
-  };
-
-  const drawWaveLane = ({ points, colorA, colorB, colorGlow, widthScale = 1, verticalShift = 0, alpha = 1 }) => {
-    if (!points.length) return;
-    const gradient = ctx.createLinearGradient(points[0].x, centerY, points[points.length - 1].x, centerY);
-    gradient.addColorStop(0, colorA);
-    gradient.addColorStop(0.52, colorB);
-    gradient.addColorStop(1, colorA);
-
-    const trace = (sign = -1) => {
-      ctx.beginPath();
-      points.forEach((point, index) => {
-        const y = centerY + verticalShift + (sign * point.amplitude * widthScale);
-        if (index === 0) ctx.moveTo(point.x, y);
-        else ctx.lineTo(point.x, y);
-      });
-    };
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-
-    ctx.strokeStyle = gradient;
-    ctx.shadowBlur = 24;
-    ctx.shadowColor = colorGlow;
-    ctx.globalAlpha = 0.24 * alpha;
-    ctx.lineWidth = 8;
-    trace(-1);
-    ctx.stroke();
-    trace(1);
-    ctx.stroke();
-
-    ctx.strokeStyle = gradient;
-    ctx.shadowBlur = 14;
-    ctx.shadowColor = colorGlow;
-    ctx.globalAlpha = 0.92 * alpha;
-    ctx.lineWidth = 2.8;
-    trace(-1);
-    ctx.stroke();
-    trace(1);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 0.72 * alpha;
-    ctx.lineWidth = 1.0;
-    trace(-1);
-    ctx.stroke();
-    trace(1);
-    ctx.stroke();
-    ctx.restore();
-  };
-
-  const drawCenterRail = () => {
-    const leftX = centerX - sideGap;
-    const rightX = centerX + sideGap;
-    const railGradient = ctx.createLinearGradient(leftX - waveformReach, centerY, rightX + waveformReach, centerY);
-    railGradient.addColorStop(0, 'rgba(0,236,255,0)');
-    railGradient.addColorStop(0.18, `rgba(114,244,255,${0.18 + energy * 0.14})`);
-    railGradient.addColorStop(0.50, `rgba(255,255,255,${0.22 + treble * 0.16})`);
-    railGradient.addColorStop(0.82, `rgba(184,96,255,${0.16 + mids * 0.12})`);
-    railGradient.addColorStop(1, 'rgba(168,88,255,0)');
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.strokeStyle = railGradient;
-    ctx.lineWidth = 1.3;
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = 'rgba(120, 226, 255, 0.35)';
     ctx.beginPath();
-    ctx.moveTo(centerX - waveformReach - 6, centerY);
-    ctx.lineTo(leftX, centerY);
-    ctx.moveTo(rightX, centerY);
-    ctx.lineTo(centerX + waveformReach + 6, centerY);
-    ctx.stroke();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + clampedHeight - radius);
+    ctx.quadraticCurveTo(x + w, y + clampedHeight, x + w - radius, y + clampedHeight);
+    ctx.lineTo(x + radius, y + clampedHeight);
+    ctx.quadraticCurveTo(x, y + clampedHeight, x, y + clampedHeight - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
   };
 
-  const leftPoints = buildWaveLane('left');
-  const rightPoints = buildWaveLane('right');
-  drawCenterRail();
-
-  drawWaveLane({
-    points: leftPoints,
-    colorA: 'rgba(236,250,255,0.92)',
-    colorB: 'rgba(0,236,255,0.98)',
-    colorGlow: 'rgba(0,236,255,0.88)',
-    widthScale: 1.0,
-    verticalShift: -1.5,
-    alpha: 1.0
-  });
-  drawWaveLane({
-    points: rightPoints,
-    colorA: 'rgba(255,248,255,0.92)',
-    colorB: 'rgba(172,82,255,0.96)',
-    colorGlow: 'rgba(176,84,255,0.84)',
-    widthScale: 1.0,
-    verticalShift: 1.5,
-    alpha: 0.98
-  });
-
-  const pulseRadius = coverRadius + 16;
+  const centerLineGradient = ctx.createLinearGradient(centerX - sideGap - barFieldReach, centerY, centerX + sideGap + barFieldReach, centerY);
+  centerLineGradient.addColorStop(0, 'rgba(0,236,255,0)');
+  centerLineGradient.addColorStop(0.18, `rgba(114,244,255,${0.18 + energy * 0.12})`);
+  centerLineGradient.addColorStop(0.50, `rgba(255,255,255,${0.16 + treble * 0.10})`);
+  centerLineGradient.addColorStop(0.82, `rgba(184,96,255,${0.16 + mids * 0.10})`);
+  centerLineGradient.addColorStop(1, 'rgba(168,88,255,0)');
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
+  ctx.strokeStyle = centerLineGradient;
+  ctx.lineWidth = 1.15;
+  ctx.shadowBlur = 8;
+  ctx.shadowColor = 'rgba(120, 226, 255, 0.22)';
   ctx.beginPath();
-  ctx.lineWidth = 1.4;
-  ctx.strokeStyle = `rgba(138, 244, 255, ${0.08 + energy * 0.16})`;
-  ctx.shadowBlur = 12;
-  ctx.shadowColor = 'rgba(138, 244, 255, 0.38)';
-  ctx.arc(centerX, centerY, pulseRadius + Math.sin(currentTime * 1.1) * 1.2, 0, Math.PI * 2);
+  ctx.moveTo(centerX - sideGap - barFieldReach - 2, centerY);
+  ctx.lineTo(centerX - sideGap + 2, centerY);
+  ctx.moveTo(centerX + sideGap - 2, centerY);
+  ctx.lineTo(centerX + sideGap + barFieldReach + 2, centerY);
   ctx.stroke();
   ctx.restore();
+
+  const drawBarField = (side) => {
+    const dir = side === 'left' ? -1 : 1;
+    for (let i = 0; i < barCountPerSide; i += 1) {
+      const edgeDistance = i / Math.max(1, barCountPerSide - 1);
+      const fromCover = i * (barWidth + barGap);
+      const x = centerX + (dir * (sideGap + fromCover + barWidth));
+      const barX = dir < 0 ? x : x - barWidth;
+
+      const envelopeOffset = dir * (0.010 + edgeDistance * 0.21);
+      const primary = sampleEnvelopeAt(envelopeOffset);
+      const secondary = sampleEnvelopeAt(envelopeOffset + (0.008 * dir));
+      const tertiary = sampleEnvelopeAt(envelopeOffset - (0.006 * dir));
+      const localWave = Math.max(0.02, Math.min(1, primary * 0.58 + secondary * 0.24 + tertiary * 0.18));
+      const arch = Math.pow(Math.sin(edgeDistance * Math.PI), 1.06);
+      const tailTaper = 0.46 + ((1 - edgeDistance) * 0.36);
+      const dynamicLift = 0.34 + bass * 0.26 + mids * 0.18;
+      const amplitude = topBarBase + (arch * maxBarHeight * (0.24 + localWave * (0.54 + dynamicLift))) * tailTaper;
+      const mirrorScale = 0.84 + (Math.sin((visualizerTick / 20) + edgeDistance * Math.PI * 2.2) * 0.06);
+      const finalHeight = amplitude * mirrorScale;
+      const opacity = 0.34 + localWave * 0.64;
+      const glowBlur = 8 + (localWave * 10);
+
+      const fill = side === 'left'
+        ? `rgba(118, 246, 255, ${0.26 + localWave * 0.56})`
+        : `rgba(192, 110, 255, ${0.24 + localWave * 0.56})`;
+      const fillInner = side === 'left'
+        ? `rgba(255,255,255,${0.08 + localWave * 0.12})`
+        : `rgba(255,255,255,${0.06 + localWave * 0.10})`;
+      const glowColor = side === 'left'
+        ? `rgba(0,236,255,${0.16 + localWave * 0.34})`
+        : `rgba(176,84,255,${0.14 + localWave * 0.34})`;
+
+      drawRoundedBar(barX, centerY - finalHeight, barWidth, finalHeight, fill, opacity, { blur: glowBlur, color: glowColor });
+      drawRoundedBar(barX, centerY, barWidth, finalHeight, fill, opacity * 0.94, { blur: glowBlur, color: glowColor });
+      drawRoundedBar(barX + 0.7, centerY - finalHeight + 1.2, Math.max(1.5, barWidth - 1.4), Math.max(1, finalHeight * 0.44), fillInner, opacity * 0.72);
+      drawRoundedBar(barX + 0.7, centerY + 1.2, Math.max(1.5, barWidth - 1.4), Math.max(1, finalHeight * 0.36), fillInner, opacity * 0.58);
+    }
+  };
+
+  drawBarField('left');
+  drawBarField('right');
 }
 
 function startVisualizerAnimation() {

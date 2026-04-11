@@ -1,0 +1,11 @@
+Aineo Music Build: v42.4.8 — Wave Bar Visualizer Pass
+
+Summary
+- Replaced the line/ring-style visualizer feel with a true mirrored bar-wave visualizer.
+- Bars now rise and fall in a waveform silhouette based on each track's waveform_envelope profile.
+- Reduced the older circular halo treatment so the effect reads as bars first, not rings or traced lines.
+- Bumped runtime and service-worker cache versions for a clean rollout.
+
+Notes
+- Keeps the existing safe web refresh loop fix from v42.4.7.
+- Keeps the waveform-profile-driven motion path from the recent visualizer work.

@@ -1,0 +1,11 @@
+Aineo Music Build: v42.4.7 — Safe Web Refresh Loop Fix
+
+What changed
+- Switched web update handling to notify-only so the site no longer auto-reloads itself on load.
+- Kept tracks.json background detection so true library changes can still be surfaced.
+- Bumped runtime and service-worker cache version for a clean rollout.
+- Preserved the true waveform visualizer driven by waveform_envelope profiles.
+
+Why this fix
+- The previous build could trigger an immediate refresh path during startup on the web.
+- This pass keeps update detection but removes automatic web refresh behavior to stop reload loops.

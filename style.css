@@ -10162,7 +10162,7 @@ button:active{
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -34px;
+  inset: -30px;
   transform: translate3d(13px, -12px, 0) scale(0.994);
   display: grid;
   place-items: center;
@@ -10170,7 +10170,7 @@ button:active{
   z-index: 0;
   opacity: 0;
   transition: opacity 180ms ease, transform 220ms ease, filter 220ms ease;
-  filter: saturate(1.9) contrast(1.28) brightness(1.24);
+  filter: saturate(1.45) contrast(1.18) brightness(1.12);
 }
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
@@ -10182,53 +10182,29 @@ button:active{
 .player-cover-visualizer::after {
   content: "";
   position: absolute;
-  inset: 7%;
-  border-radius: 999px;
+  inset: 16% 2%;
   pointer-events: none;
 }
 
 .player-cover-visualizer::before {
-  inset: 18% 6%;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 18% 50%, rgba(0, 234, 255, 0.26), rgba(0, 234, 255, 0) 24%),
-    radial-gradient(circle at 82% 50%, rgba(182, 86, 255, 0.24), rgba(182, 86, 255, 0) 24%),
-    linear-gradient(90deg,
-      rgba(0, 234, 255, 0) 0%,
-      rgba(0, 234, 255, 0.22) 18%,
-      rgba(255, 255, 255, 0.12) 50%,
-      rgba(182, 86, 255, 0.22) 82%,
-      rgba(182, 86, 255, 0) 100%);
-  filter: blur(28px) saturate(1.5);
-  opacity: 0.92;
+  background: linear-gradient(90deg, rgba(0, 234, 255, 0), rgba(0, 234, 255, 0.10) 18%, rgba(255, 255, 255, 0.04) 50%, rgba(182, 86, 255, 0.10) 82%, rgba(182, 86, 255, 0));
+  filter: blur(24px);
+  opacity: 0.52;
   mix-blend-mode: screen;
-  animation: aineoAuroraDrift 14s linear infinite;
 }
 
 .player-cover-visualizer::after {
-  inset: 22% 10%;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 18% 50%, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0) 14%),
-    radial-gradient(circle at 82% 50%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 14%),
-    linear-gradient(90deg,
-      rgba(255,255,255,0) 0%,
-      rgba(160, 244, 255, 0.10) 24%,
-      rgba(255,255,255,0.10) 50%,
-      rgba(212, 110, 255, 0.10) 76%,
-      rgba(255,255,255,0) 100%);
-  filter: blur(18px);
-  opacity: 0.82;
+  inset: 28% 8%;
+  background: linear-gradient(90deg, rgba(255,255,255,0), rgba(160, 244, 255, 0.06) 26%, rgba(255,255,255,0.04) 50%, rgba(212, 110, 255, 0.06) 74%, rgba(255,255,255,0));
+  filter: blur(16px);
+  opacity: 0.40;
 }
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 8.5%;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.06) 10%, rgba(170, 248, 255, 0.16) 20%, rgba(0, 234, 255, 0.12) 28%, rgba(126, 56, 255, 0.12) 40%, rgba(214, 98, 255, 0.08) 52%, rgba(16, 22, 40, 0) 74%),
-    linear-gradient(90deg, rgba(120, 242, 255, 0.10), rgba(255,255,255,0.04) 50%, rgba(188, 98, 255, 0.10));
-  filter: blur(28px) saturate(1.45);
+  inset: 12% 4%;
+  background: linear-gradient(90deg, rgba(120, 242, 255, 0.06), rgba(255,255,255,0.02) 50%, rgba(188, 98, 255, 0.06));
+  filter: blur(22px) saturate(1.2);
 }
 
 .player-cover-visualizer-canvas {
@@ -10285,10 +10261,10 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -22px; transform: translate3d(9px, -9px, 0) scale(0.992); }
+  .player-cover-visualizer { inset: -18px; transform: translate3d(9px, -9px, 0) scale(0.992); }
   .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(9px, -9px, 0) scale(1.018); }
-  .player-cover-visualizer::before { inset: 20% 2%; }
-  .player-cover-visualizer::after { inset: 24% 8%; }
+  .player-cover-visualizer::before { inset: 20% 0; }
+  .player-cover-visualizer::after { inset: 30% 8%; }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */
