@@ -12053,3 +12053,21 @@ body.ios-standalone .player-sheet-content {
     max-height: calc(var(--app-visible-height) - 10px - max(var(--safe-top), var(--app-safe-top-visual)));
   }
 }
+
+
+/* v42.3.80a sticky filter root-cause fix */
+body.music-page-layout.ios-standalone .site-header {
+  position: relative !important;
+  top: auto !important;
+}
+
+#stickyFilterBar.sticky-filter-bar {
+  z-index: 1600 !important;
+}
+
+#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
+  top: 0 !important;
+  z-index: 1601 !important;
+  transform: translateZ(0) !important;
+  will-change: top, left, width !important;
+}

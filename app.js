@@ -1,4 +1,4 @@
-/* v42.3.77e clear filter queue reset fix */
+/* v42.3.80a sticky filter root-cause fix */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1892,6 +1892,12 @@ function initTabletStickyFilterBar() {
   window.addEventListener("orientationchange", requestUpdate, { passive: true });
   window.addEventListener("scroll", requestUpdate, { passive: true });
   window.addEventListener("load", requestUpdate, { passive: true });
+  window.addEventListener("pageshow", requestUpdate, { passive: true });
+  document.addEventListener("visibilitychange", requestUpdate, { passive: true });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", requestUpdate, { passive: true });
+    window.visualViewport.addEventListener("scroll", requestUpdate, { passive: true });
+  }
 
   requestUpdate();
 }

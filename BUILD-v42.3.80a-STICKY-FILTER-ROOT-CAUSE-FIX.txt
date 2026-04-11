@@ -1,0 +1,6 @@
+v42.3.80a
+
+Focused root-cause fix for sticky clear/filter bar on v42.3.80.
+- added standalone-safe music header override
+- reinforced sticky filter fixed overlay positioning
+- added viewport/pageshow listeners for sticky metric refresh
