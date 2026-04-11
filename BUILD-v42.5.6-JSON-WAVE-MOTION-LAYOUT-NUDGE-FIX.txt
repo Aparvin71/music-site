@@ -1,0 +1,4 @@
+Aineo Music
+Build: v42.5.6 — JSON Wave Motion + Layout Nudge Fix
+
+This pass tightens the visible per-song waveform window so the bars move with the saved JSON envelope instead of staying blown open, reduces the heavy reshaping that flattened motion, shifts the visualizer slightly farther right, and nudges the artwork slightly left for better layering balance.

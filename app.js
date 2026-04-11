@@ -1358,7 +1358,7 @@ function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
     timelinePosition,
     transient,
     sample(progress) {
-      return Math.max(0.02, Math.min(1, sampleTrackWaveformAt(track, progress) || 0));
+      return Math.max(0, Math.min(1, sampleTrackWaveformAt(track, progress) || 0));
     }
   };
 }
@@ -1417,19 +1417,23 @@ function drawVisualizerFrame() {
   const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
   const coverWidth = coverRect && wrapRect ? Math.min(width * 0.58, coverRect.width) : Math.min(width * 0.58, 196);
   const coverHeight = coverRect && wrapRect ? Math.min(height * 0.58, coverRect.height) : Math.min(height * 0.58, 196);
-  const coverCenterX = (width / 2) + (width * 0.056);
-  const coverCenterY = (height / 2) - (height * 0.038);
+  const coverCenterX = coverRect && wrapRect
+    ? ((coverRect.left - wrapRect.left) + (coverRect.width / 2))
+    : ((width / 2) + (width * 0.028));
+  const coverCenterY = coverRect && wrapRect
+    ? ((coverRect.top - wrapRect.top) + (coverRect.height / 2))
+    : ((height / 2) - (height * 0.038));
   const coverLeft = coverCenterX - (coverWidth / 2);
   const coverRight = coverCenterX + (coverWidth / 2);
   const centerY = coverCenterY;
 
-  const barCount = Math.max(84, Math.floor(width / 5.8));
+  const barCount = Math.max(90, Math.floor(width / 5.4));
   const slot = width / barCount;
-  const barWidth = Math.max(2.8, Math.min(6.2, slot * 0.72));
-  const minHeight = Math.max(4, height * 0.022);
-  const maxHeight = height * 0.64;
-  const visibleSpan = prerenderedState ? 0.22 : 0.16;
-  const playheadBias = prerenderedState ? 0.03 : 0.01;
+  const barWidth = Math.max(2.4, Math.min(5.2, slot * 0.62));
+  const minHeight = Math.max(3, height * 0.016);
+  const maxHeight = height * 0.50;
+  const visibleSpan = prerenderedState ? 0.045 : 0.030;
+  const playheadBias = prerenderedState ? 0.008 : 0.004;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
@@ -1504,13 +1508,13 @@ function drawVisualizerFrame() {
     const centerSample = windowSamples[i] ?? leftSample;
     const rightSample = windowSamples[Math.min(barCount - 1, i + 1)] ?? centerSample;
     const smoothed = Math.max(0, Math.min(1,
-      (leftSample * 0.22) +
-      (centerSample * 0.56) +
-      (rightSample * 0.22)
+      (leftSample * 0.16) +
+      (centerSample * 0.68) +
+      (rightSample * 0.16)
     ));
-    const shapedSample = Math.max(0, Math.min(1, (smoothed ** 1.18) * 1.32));
-    const amplitude = Math.min(maxHeight, minHeight + maxHeight * shapedSample * (0.86 + bass * 0.10 + mids * 0.08 + energy * 0.06));
-    const opacity = Math.min(1, 0.18 + shapedSample * 0.72 + energy * 0.06);
+    const shapedSample = Math.max(0, Math.min(1, Math.pow(smoothed, 1.35)));
+    const amplitude = Math.min(maxHeight, minHeight + ((maxHeight - minHeight) * shapedSample * (0.92 + bass * 0.04 + mids * 0.04 + energy * 0.03)));
+    const opacity = Math.min(1, 0.14 + shapedSample * 0.78 + energy * 0.04);
 
     const blue = Math.round(214 + normalizedX * 24);
     const purple = Math.round(232 + (1 - normalizedX) * 18);
@@ -1522,7 +1526,7 @@ function drawVisualizerFrame() {
       : `rgba(154, 108, 255, ${0.10 + shapedSample * 0.26})`;
 
     drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
-    drawRoundedBar(x + 0.7, centerY - amplitude * 0.45, Math.max(1.2, barWidth - 1.4), amplitude * 0.90, `rgba(232, 238, 255, ${0.04 + shapedSample * 0.08})`, opacity * 0.42);
+    drawRoundedBar(x + 0.6, centerY - amplitude * 0.32, Math.max(1.1, barWidth - 1.2), amplitude * 0.64, `rgba(232, 238, 255, ${0.03 + shapedSample * 0.06})`, opacity * 0.34);
   }
 
   ctx.save();

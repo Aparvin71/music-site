@@ -10156,7 +10156,7 @@ button:active{
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
-  transform: translate3d(12px, -6px, 0);
+  transform: translate3d(14px, -6px, 0);
   overflow: visible;
   isolation: isolate;
 }
@@ -10164,7 +10164,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -34px;
-  transform: translate3d(9px, -8px, 0) scale(0.996);
+  transform: translate3d(16px, -8px, 0) scale(0.996);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10176,7 +10176,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(9px, -8px, 0) scale(1.02);
+  transform: translate3d(16px, -8px, 0) scale(1.02);
 }
 
 .player-cover-visualizer::before,
@@ -10230,6 +10230,7 @@ button:active{
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
+  transform: translateX(-5px);
 }
 
 @keyframes aineoAuroraDrift {
@@ -10262,9 +10263,9 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-sheet-cover-wrap { transform: translate3d(9px, -4px, 0); }
-  .player-cover-visualizer { inset: -20px; transform: translate3d(10px, -6px, 0) scale(0.994); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(10px, -6px, 0) scale(1.016); }
+  .player-sheet-cover-wrap { transform: translate3d(11px, -4px, 0); }
+  .player-cover-visualizer { inset: -20px; transform: translate3d(16px, -6px, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(16px, -6px, 0) scale(1.016); }
   .player-cover-visualizer::before { inset: 20% 0; }
   .player-cover-visualizer::after { inset: 30% 8%; }
 }

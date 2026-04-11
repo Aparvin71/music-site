@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.5.5";
+const AINEO_APP_VERSION = "v42.5.6";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const INSTALL_SESSION_SEEN_KEY = "aineo_install_seen_session";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
@@ -76,7 +76,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.5.5</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.5.6</span></p>
           <p class="mission-statement mission-statement--summary">This build keeps install and offline help tucked inside Settings &amp; About by default, and locks the player visualizer more tightly to each track's saved waveform profile, expands the bar height, and nudges the artwork/visualizer slightly up and right for better balance.</p>
         </section>
       </div>
@@ -318,7 +318,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v42.5.5";
+const APP_RUNTIME_VERSION = "v42.5.6";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;
