@@ -12002,21 +12002,21 @@ body.ios-standalone .standalone-welcome-card {
 
 body.ios-standalone .player-sheet-content {
   --player-sheet-ios-top-inset: max(var(--safe-top), var(--app-safe-top-visual));
-  --player-sheet-ios-top-gap: max(16px, calc(var(--player-sheet-ios-top-inset) + 12px));
-  max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 10px);
+  --player-sheet-ios-top-gap: max(24px, calc(var(--player-sheet-ios-top-inset) + 20px));
+  max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 12px);
   margin-top: var(--player-sheet-ios-top-gap);
 }
 
 body.ios-standalone .player-sheet-header {
-  padding-top: calc(18px + max(8px, var(--player-sheet-ios-top-inset) * 0.35));
+  padding-top: calc(22px + max(10px, var(--player-sheet-ios-top-inset) * 0.4));
 }
 
 body.ios-standalone .player-sheet-drag-handle {
-  margin-top: max(8px, calc(var(--player-sheet-ios-top-inset) * 0.3));
+  margin-top: max(10px, calc(4px + var(--player-sheet-ios-top-inset) * 0.34));
 }
 
 body.ios-standalone .player-sheet-header::before {
-  top: max(8px, calc(8px + var(--player-sheet-ios-top-inset) * 0.18));
+  top: max(10px, calc(10px + var(--player-sheet-ios-top-inset) * 0.22));
 }
 
 @media (max-width: 640px) {
@@ -12028,11 +12028,11 @@ body.ios-standalone .player-sheet-header::before {
 
   body.ios-standalone .player-sheet-content {
     width: calc(100% - 10px - var(--safe-left) - var(--safe-right));
-    max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 10px);
+    max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 12px);
   }
 
   body.ios-standalone .player-sheet-header {
-    padding-top: calc(16px + max(10px, var(--player-sheet-ios-top-inset) * 0.4));
+    padding-top: calc(18px + max(12px, var(--player-sheet-ios-top-inset) * 0.44));
   }
 }
 

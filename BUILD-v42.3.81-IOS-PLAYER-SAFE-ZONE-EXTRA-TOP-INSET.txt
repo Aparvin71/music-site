@@ -1,0 +1,12 @@
+BUILD v42.3.81 — iOS full-screen player extra safe-zone top inset
+
+Base build:
+- v42.3.80e
+
+What changed:
+- Pushed the iOS standalone full-screen player slightly farther down to give the top controls more room below the notch / Dynamic Island area.
+- Increased the player header top inset so the close and favorite buttons sit more comfortably inside the safe zone.
+- Kept the fix targeted to iOS app mode only so desktop, Android, and the sticky filter behavior stay unchanged.
+
+Files updated:
+- style.css
