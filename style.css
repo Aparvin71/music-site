@@ -11931,73 +11931,16 @@ main .album-card p {
 }
 
 
-/* v42.3.78 iPhone standalone prep pass */
+/* v42.3.78+ standalone polish merged onto v42.3.77d sticky source of truth */
 :root {
   --app-header-height: 72px;
+  --app-visible-height: 100svh;
+  --app-safe-top-visual: 0px;
+  --app-safe-bottom-visual: 0px;
 }
 
 html {
   scroll-padding-top: calc(var(--app-header-height) + 8px);
-}
-
-body.ios-standalone {
-  min-height: 100svh;
-}
-
-body.ios-standalone .site-header {
-  background: rgba(15, 17, 21, 0.88);
-  backdrop-filter: blur(20px);
-}
-
-body.ios-standalone .navbar {
-  min-height: 58px;
-}
-
-body.ios-standalone .main-content,
-body.ios-standalone .page {
-  padding-bottom: calc(var(--app-bottom-space) + 16px);
-}
-
-body.ios-standalone .page-card,
-body.ios-standalone .utility-card,
-body.ios-standalone .mission-card,
-body.ios-standalone .install-card,
-body.ios-standalone .home-elevated-card {
-  scroll-margin-top: calc(var(--app-header-height) + 12px);
-}
-
-body.ios-standalone .skip-link:focus {
-  top: max(12px, calc(12px + var(--safe-top)));
-}
-
-body.ios-standalone .floating-settings-btn {
-  top: max(10px, calc(8px + var(--safe-top)));
-}
-
-body.ios-standalone .app-feel-surface-panel,
-body.ios-standalone .standalone-welcome-card {
-  bottom: max(12px, calc(12px + var(--safe-bottom)));
-}
-
-@media (max-width: 640px) {
-  body.ios-standalone .main-content,
-  body.ios-standalone .page {
-    padding-left: max(12px, calc(12px + var(--safe-left) * 0.35));
-    padding-right: max(12px, calc(12px + var(--safe-right) * 0.35));
-  }
-
-  body.ios-standalone .player-sheet-content {
-    width: calc(100% - 10px - var(--safe-left) - var(--safe-right));
-    max-height: calc(100svh - 10px - var(--safe-top));
-  }
-}
-
-
-/* v42.3.80 iPhone readiness pass */
-:root {
-  --app-visible-height: 100svh;
-  --app-safe-top-visual: 0px;
-  --app-safe-bottom-visual: 0px;
 }
 
 body.ios-standalone {
@@ -12006,7 +11949,9 @@ body.ios-standalone {
   overscroll-behavior-y: none;
 }
 
-body.ios-standalone .site-header {
+/* Keep non-music pages on the newer standalone header treatment,
+   but preserve v42.3.77d music-page sticky filter positioning behavior. */
+body.ios-standalone:not(.music-page-layout) .site-header {
   position: sticky;
   top: 0;
   z-index: 1200;
@@ -12019,10 +11964,26 @@ body.ios-standalone .navbar {
   min-height: 58px;
 }
 
+body.ios-standalone:not(.music-page-layout) .main-content,
+body.ios-standalone:not(.music-page-layout) .page {
+  min-height: calc(var(--app-visible-height) - var(--app-header-height));
+}
+
 body.ios-standalone .main-content,
 body.ios-standalone .page {
-  min-height: calc(var(--app-visible-height) - var(--app-header-height));
   padding-bottom: calc(var(--app-bottom-space) + max(var(--safe-bottom), var(--app-safe-bottom-visual)) + 18px);
+}
+
+body.ios-standalone .page-card,
+body.ios-standalone .utility-card,
+body.ios-standalone .mission-card,
+body.ios-standalone .install-card,
+body.ios-standalone .home-elevated-card {
+  scroll-margin-top: calc(var(--app-header-height) + 12px);
+}
+
+body.ios-standalone .skip-link:focus {
+  top: max(12px, calc(12px + var(--safe-top)));
 }
 
 body.ios-standalone .sticky-player {
@@ -12044,30 +12005,14 @@ body.ios-standalone .player-sheet-content {
 }
 
 @media (max-width: 640px) {
-  body.ios-standalone .site-header {
-    position: sticky;
+  body.ios-standalone .main-content,
+  body.ios-standalone .page {
+    padding-left: max(12px, calc(12px + var(--safe-left) * 0.35));
+    padding-right: max(12px, calc(12px + var(--safe-right) * 0.35));
   }
 
   body.ios-standalone .player-sheet-content {
     width: calc(100% - 10px - var(--safe-left) - var(--safe-right));
     max-height: calc(var(--app-visible-height) - 10px - max(var(--safe-top), var(--app-safe-top-visual)));
   }
-}
-
-
-/* v42.3.80a sticky filter root-cause fix */
-body.music-page-layout.ios-standalone .site-header {
-  position: relative !important;
-  top: auto !important;
-}
-
-#stickyFilterBar.sticky-filter-bar {
-  z-index: 1600 !important;
-}
-
-#stickyFilterBar.sticky-filter-bar.is-fixed .sticky-filter-bar-inner {
-  top: 0 !important;
-  z-index: 1601 !important;
-  transform: translateZ(0) !important;
-  will-change: top, left, width !important;
 }

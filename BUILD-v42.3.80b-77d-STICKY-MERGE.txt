@@ -1,0 +1,13 @@
+v42.3.80b
+
+Base: v42.3.80a
+Sticky source of truth: v42.3.77d
+
+This build preserves the later non-sticky changes from the newer builds,
+while restoring the v42.3.77d sticky filter positioning environment on the music page.
+
+Key approach:
+- keep later clear-filter state reset behavior
+- keep later hamburger/nav and iPhone standalone prep work
+- restore v42.3.77d sticky filter styling as the source of truth
+- scope newer standalone header treatment away from the music page
