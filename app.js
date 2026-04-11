@@ -931,6 +931,7 @@ function bindUI() {
     els.audioPlayer.addEventListener("timeupdate", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
+      drawVisualizerFrame();
       const current = getCurrentTrack();
       const now = Date.now();
       if (current && now - lastResumePersistAt > 2500) {
@@ -974,6 +975,7 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("ended", () => {
       stopLyricsSyncLoop();
+      stopVisualizerAnimation();
       handleTrackEnded();
       syncCurrentPlaybackHighlights();
     });
@@ -1276,7 +1278,8 @@ function initMiniVisualizer() {
   const rightLane = document.createElement('div');
   rightLane.className = 'player-cover-visualizer-lane is-right';
 
-  for (let i = 0; i < 36; i += 1) {
+  const BAR_COUNT = 28;
+  for (let i = 0; i < BAR_COUNT; i += 1) {
     const leftBar = document.createElement('span');
     leftBar.className = 'player-cover-visualizer-bar';
     leftBar.dataset.side = 'left';
@@ -1317,8 +1320,12 @@ function ensureVisualizerAudioSetup() {
 function setMiniVisualizerActive(active) {
   if (!els.playerSheetCoverWrap) return;
   els.playerSheetCoverWrap.classList.toggle('is-visualizer-active', Boolean(active));
-  if (active) startVisualizerAnimation();
-  else stopVisualizerAnimation();
+  if (active) {
+    drawVisualizerFrame();
+    startVisualizerAnimation();
+  } else {
+    stopVisualizerAnimation();
+  }
 }
 
 function getTrackWaveformEnvelope(track) {
@@ -1330,104 +1337,66 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
   const envelope = getTrackWaveformEnvelope(track);
   if (!envelope) return null;
   const clamped = Math.max(0, Math.min(1, normalizedPosition || 0));
-  if (envelope.length === 1) return (envelope[0] || 0) / 255;
+  if (envelope.length === 1) return Math.max(0, Math.min(1, (envelope[0] || 0) / 255));
   const pos = clamped * (envelope.length - 1);
   const left = Math.floor(pos);
   const right = Math.min(envelope.length - 1, left + 1);
   const frac = pos - left;
   const leftValue = (envelope[left] || 0) / 255;
   const rightValue = (envelope[right] || 0) / 255;
-  return leftValue + (rightValue - leftValue) * frac;
+  return Math.max(0, Math.min(1, leftValue + ((rightValue - leftValue) * frac)));
 }
 
-function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
-  const envelope = getTrackWaveformEnvelope(track);
-  if (!envelope || !durationSeconds) return null;
-
-  const timelinePosition = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
-  const localEnergy = sampleTrackWaveformAt(track, timelinePosition) || 0;
-  const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.01)) || localEnergy;
-  const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.01)) || localEnergy;
-  const transient = Math.max(0, nextEnergy - previousEnergy);
-
-  const bass = Math.min(1, 0.08 + localEnergy * 0.95 + transient * 0.45);
-  const mids = Math.min(1, 0.08 + localEnergy * 0.72 + transient * 0.24);
-  const treble = Math.min(1, 0.06 + localEnergy * 0.44 + transient * 0.14);
-  const energy = Math.min(1, 0.10 + localEnergy * 0.86 + transient * 0.30);
-
-  return {
-    bass,
-    mids,
-    treble,
-    energy,
-    timelinePosition,
-    transient,
-    sample(progress) {
-      return Math.max(0, Math.min(1, sampleTrackWaveformAt(track, progress) || 0));
-    }
-  };
+function buildVisualizerLaneSamples(track, progress, barCount, side) {
+  const samples = [];
+  const visibleSpan = 0.028;
+  const centerGuard = 0.0015;
+  for (let i = 0; i < barCount; i += 1) {
+    const ratio = (i + 0.5) / Math.max(1, barCount);
+    const offset = centerGuard + (ratio * visibleSpan);
+    const lanePos = side === 'left' ? progress - offset : progress + offset;
+    const raw = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos) || 0));
+    const prev = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos - 0.0015) || raw));
+    const next = Math.max(0, Math.min(1, sampleTrackWaveformAt(track, lanePos + 0.0015) || raw));
+    const smoothed = (prev * 0.18) + (raw * 0.64) + (next * 0.18);
+    samples.push(Math.max(0, Math.min(1, smoothed)));
+  }
+  return side === 'left' ? samples.reverse() : samples;
 }
-
-
 
 function drawVisualizerFrame() {
   const currentTrack = getCurrentTrack();
-  const currentTime = els.audioPlayer?.currentTime || 0;
-  const durationSeconds = currentTrack?.durationSeconds || currentTrack?.duration || els.audioPlayer?.duration || 0;
-
   if (!currentTrack || !visualizerLeftBars.length || !visualizerRightBars.length) return;
 
-  const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
-  const progress = prerenderedState
-    ? prerenderedState.timelinePosition
-    : (durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0);
-
+  const audio = els.audioPlayer;
+  const currentTime = audio?.currentTime || 0;
+  const durationSeconds = currentTrack?.durationSeconds || currentTrack?.duration || audio?.duration || 0;
+  const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
+  const envelope = getTrackWaveformEnvelope(currentTrack);
   const laneCount = Math.min(visualizerLeftBars.length, visualizerRightBars.length);
-  const visibleSpan = 0.075;
-  const minHeight = 12;
-  const maxHeight = 92;
+  const leftSamples = envelope ? buildVisualizerLaneSamples(currentTrack, progress, laneCount, 'left') : [];
+  const rightSamples = envelope ? buildVisualizerLaneSamples(currentTrack, progress, laneCount, 'right') : [];
 
-  const sampleEnvelopeAt = (timelinePos) => {
-    const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
-    if (prerenderedState) return Math.max(0, Math.min(1, prerenderedState.sample(clampedPos) || 0));
-    return Math.max(0, Math.min(1, sampleTrackWaveformAt(currentTrack, clampedPos) || 0));
-  };
-
-  const smoothValue = (arr, i) => {
-    const center = arr[i] ?? 0;
-    const left = arr[Math.max(0, i - 1)] ?? center;
-    const right = arr[Math.min(arr.length - 1, i + 1)] ?? center;
-    return (left * 0.22) + (center * 0.56) + (right * 0.22);
-  };
-
-  const leftSamples = [];
-  const rightSamples = [];
-  for (let i = 0; i < laneCount; i += 1) {
-    const outward = (i + 0.5) / laneCount;
-    const offset = outward * visibleSpan;
-    leftSamples.push(sampleEnvelopeAt(progress - offset));
-    rightSamples.push(sampleEnvelopeAt(progress + offset));
-  }
+  const fallbackBeat = (Date.now() % 1400) / 1400;
 
   const renderLane = (bars, samples, side) => {
     for (let i = 0; i < bars.length; i += 1) {
       const bar = bars[i];
-      const sample = Math.max(0, Math.min(1, smoothValue(samples, i)));
-      const boosted = Math.pow(sample, 0.92);
-      const barHeight = minHeight + ((maxHeight - minHeight) * boosted);
-      const alpha = 0.40 + (boosted * 0.56);
-      const cool = side === 'left';
-      const color = cool
-        ? `linear-gradient(180deg, rgba(202,226,255,${alpha * 0.96}) 0%, rgba(100,158,255,${alpha}) 55%, rgba(63,107,221,${alpha * 0.92}) 100%)`
-        : `linear-gradient(180deg, rgba(229,209,255,${alpha * 0.96}) 0%, rgba(162,108,255,${alpha}) 55%, rgba(103,78,219,${alpha * 0.92}) 100%)`;
-      const glow = cool
-        ? `0 0 14px rgba(90,145,255,${0.16 + boosted * 0.30})`
-        : `0 0 14px rgba(158,104,255,${0.16 + boosted * 0.30})`;
-
+      const sample = samples[i] ?? (0.18 + (0.16 * Math.sin((fallbackBeat * Math.PI * 2) + (i * 0.35))));
+      const energy = Math.max(0, Math.min(1, sample));
+      const eased = Math.pow(energy, 0.9);
+      const barHeight = 10 + (eased * 118);
+      const alpha = 0.32 + (eased * 0.62);
       bar.style.height = `${barHeight}px`;
       bar.style.opacity = `${alpha}`;
-      bar.style.background = color;
-      bar.style.boxShadow = glow;
+      bar.style.transform = `scaleY(1)`;
+      if (side === 'left') {
+        bar.style.background = `linear-gradient(180deg, rgba(208,230,255,${alpha}) 0%, rgba(93,152,255,${alpha}) 56%, rgba(65,96,228,${alpha * 0.96}) 100%)`;
+        bar.style.boxShadow = `0 0 16px rgba(92,144,255,${0.18 + eased * 0.34})`;
+      } else {
+        bar.style.background = `linear-gradient(180deg, rgba(233,219,255,${alpha}) 0%, rgba(168,106,255,${alpha}) 56%, rgba(92,76,223,${alpha * 0.96}) 100%)`;
+        bar.style.boxShadow = `0 0 16px rgba(162,106,255,${0.18 + eased * 0.34})`;
+      }
     }
   };
 
@@ -1436,17 +1405,18 @@ function drawVisualizerFrame() {
 }
 
 function startVisualizerAnimation() {
-  if (visualizerFrame || !visualizerBars.length) return;
+  if (!visualizerBars.length) return;
   ensureVisualizerAudioSetup();
-  if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
-    visualizerAudioContext.resume().catch(() => {});
-  }
+  drawVisualizerFrame();
+  if (visualizerFrame) return;
 
   const animate = () => {
-    visualizerTick += 1;
     drawVisualizerFrame();
-    if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) visualizerFrame = window.requestAnimationFrame(animate);
-    else visualizerFrame = 0;
+    if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) {
+      visualizerFrame = window.requestAnimationFrame(animate);
+    } else {
+      visualizerFrame = 0;
+    }
   };
   visualizerFrame = window.requestAnimationFrame(animate);
 }
@@ -1457,10 +1427,10 @@ function stopVisualizerAnimation() {
     visualizerFrame = 0;
   }
 
-  visualizerBars.forEach((bar) => {
-    bar.style.height = '';
-    bar.style.opacity = '';
-    bar.style.transform = '';
+  visualizerBars.forEach((bar, index) => {
+    const seed = 0.12 + ((index % 7) * 0.018);
+    bar.style.height = `${10 + seed * 42}px`;
+    bar.style.opacity = '0.34';
   });
 }
 

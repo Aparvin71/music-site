@@ -1,0 +1,9 @@
+Aineo Music v42.7.0
+
+Full site cleanup pass with refreshed versioning and quieter package notes.
+
+Visualizer:
+- Rebuilt as a simpler split left/right bar system
+- Reads track waveform_envelope directly
+- Restores visible wave motion
+- Moves artwork slightly left and visualizer slightly right
