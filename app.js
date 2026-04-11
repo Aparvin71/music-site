@@ -1,4 +1,4 @@
-/* v42.3.83 full regression audit + UI polish cleanup */
+/* v42.3.86 premium audio-reactive visualizer */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -33,6 +33,15 @@ let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
 let visualizerTick = 0;
+let visualizerCanvas = null;
+let visualizerCtx = null;
+let visualizerAudioContext = null;
+let visualizerAnalyser = null;
+let visualizerSourceNode = null;
+let visualizerFreqData = null;
+let visualizerWaveData = null;
+let visualizerAudioSetupAttempted = false;
+let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
@@ -222,6 +231,9 @@ const els = {
   trackActionGoAlbumBtn: document.getElementById("trackActionGoAlbumBtn"),
   trackActionCloseBtn: document.getElementById("trackActionCloseBtn")
 };
+
+if (els.audioPlayer) els.audioPlayer.crossOrigin = 'anonymous';
+
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -1248,20 +1260,71 @@ function initMiniVisualizer() {
   const visualizer = document.createElement('div');
   visualizer.className = 'player-cover-visualizer';
   visualizer.setAttribute('aria-hidden', 'true');
+
   const glow = document.createElement('div');
   glow.className = 'player-cover-visualizer-glow';
+
+  const canvas = document.createElement('canvas');
+  canvas.className = 'player-cover-visualizer-canvas';
+  visualizerCanvas = canvas;
+  visualizerCtx = canvas.getContext('2d', { alpha: true });
+
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
   for (let i = 0; i < 18; i += 1) {
     const bar = document.createElement('span');
     bar.className = 'player-cover-visualizer-bar';
     bar.style.setProperty('--bar-index', String(i));
-    bar.style.height = `${18 + (i % 6) * 8}px`;
+    bar.style.height = `${16 + (i % 6) * 7}px`;
     bars.appendChild(bar);
   }
-  visualizer.append(glow, bars);
+
+  visualizer.append(glow, canvas, bars);
   wrap.prepend(visualizer);
   visualizerBars = [...bars.children];
+  resizeMiniVisualizerCanvas();
+  window.addEventListener('resize', resizeMiniVisualizerCanvas, { passive: true });
+}
+
+function resizeMiniVisualizerCanvas() {
+  if (!visualizerCanvas || !els.playerSheetCoverWrap) return;
+  const rect = els.playerSheetCoverWrap.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(220, Math.round(rect.width + 72));
+  const height = Math.max(220, Math.round(rect.height + 72));
+  visualizerCanvas.width = Math.round(width * dpr);
+  visualizerCanvas.height = Math.round(height * dpr);
+  visualizerCanvas.style.width = `${width}px`;
+  visualizerCanvas.style.height = `${height}px`;
+  if (visualizerCtx) visualizerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function ensureVisualizerAudioSetup() {
+  if (visualizerAudioSetupAttempted || !els.audioPlayer) return;
+  visualizerAudioSetupAttempted = true;
+  try {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) throw new Error('AudioContext unavailable');
+    visualizerAudioContext = new AudioContextCtor();
+    els.audioPlayer.crossOrigin = 'anonymous';
+    visualizerAnalyser = visualizerAudioContext.createAnalyser();
+    visualizerAnalyser.fftSize = 1024;
+    visualizerAnalyser.smoothingTimeConstant = 0.86;
+    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(els.audioPlayer);
+    visualizerSourceNode.connect(visualizerAnalyser);
+    visualizerAnalyser.connect(visualizerAudioContext.destination);
+    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
+    visualizerWaveData = new Uint8Array(visualizerAnalyser.fftSize);
+    visualizerUseFallback = false;
+  } catch (err) {
+    console.warn('Visualizer audio analysis unavailable, using fallback animation.', err);
+    visualizerUseFallback = true;
+    visualizerAudioContext = null;
+    visualizerAnalyser = null;
+    visualizerSourceNode = null;
+    visualizerFreqData = null;
+    visualizerWaveData = null;
+  }
 }
 
 function setMiniVisualizerActive(active) {
@@ -1271,18 +1334,140 @@ function setMiniVisualizerActive(active) {
   else stopVisualizerAnimation();
 }
 
+function drawVisualizerFrame() {
+  if (!visualizerCtx || !visualizerCanvas) return;
+  resizeMiniVisualizerCanvas();
+
+  const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
+  const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
+  const ctx = visualizerCtx;
+  ctx.clearRect(0, 0, width, height);
+
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const coverRadius = Math.min(width, height) * 0.255;
+  const baseRadius = coverRadius + 20;
+
+  let bass = 0.18;
+  let mids = 0.14;
+  let treble = 0.12;
+
+  if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
+    visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
+    visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
+
+    const lowEnd = Math.max(1, Math.floor(visualizerFreqData.length * 0.08));
+    const midEnd = Math.max(lowEnd + 1, Math.floor(visualizerFreqData.length * 0.28));
+    const highEnd = Math.max(midEnd + 1, Math.floor(visualizerFreqData.length * 0.65));
+
+    const avg = (start, end) => {
+      let total = 0;
+      for (let i = start; i < end; i += 1) total += visualizerFreqData[i] || 0;
+      return total / Math.max(1, end - start) / 255;
+    };
+
+    bass = avg(0, lowEnd);
+    mids = avg(lowEnd, midEnd);
+    treble = avg(midEnd, highEnd);
+  } else {
+    const current = els.audioPlayer?.currentTime || 0;
+    bass = 0.18 + Math.abs(Math.sin((visualizerTick / 18) + current * 1.4)) * 0.34;
+    mids = 0.14 + Math.abs(Math.sin((visualizerTick / 14) + current * 1.9 + 0.7)) * 0.24;
+    treble = 0.12 + Math.abs(Math.cos((visualizerTick / 9) + current * 2.5 + 0.3)) * 0.2;
+  }
+
+  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.45, centerX, centerY, baseRadius + 70);
+  outerGlow.addColorStop(0, `rgba(99, 196, 255, ${0.12 + bass * 0.12})`);
+  outerGlow.addColorStop(0.55, `rgba(98, 116, 255, ${0.1 + mids * 0.12})`);
+  outerGlow.addColorStop(1, 'rgba(10, 16, 30, 0)');
+  ctx.fillStyle = outerGlow;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, baseRadius + 64, 0, Math.PI * 2);
+  ctx.fill();
+
+  const ringCount = 60;
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.shadowBlur = 18;
+  ctx.shadowColor = `rgba(88, 190, 255, ${0.18 + treble * 0.22})`;
+  for (let i = 0; i < ringCount; i += 1) {
+    const angle = (Math.PI * 2 * i) / ringCount;
+    const normIndex = Math.floor((i / ringCount) * ((visualizerFreqData && !visualizerUseFallback) ? visualizerFreqData.length : 60));
+    const freqValue = (visualizerFreqData && !visualizerUseFallback) ? ((visualizerFreqData[normIndex] || 0) / 255) : (0.18 + Math.abs(Math.sin((visualizerTick / 10) + i * 0.45)) * 0.5);
+    const inner = baseRadius + 2 + freqValue * 10;
+    const outer = inner + 8 + freqValue * (20 + bass * 22);
+    const x1 = centerX + Math.cos(angle) * inner;
+    const y1 = centerY + Math.sin(angle) * inner;
+    const x2 = centerX + Math.cos(angle) * outer;
+    const y2 = centerY + Math.sin(angle) * outer;
+    ctx.strokeStyle = `rgba(${160 + Math.round(freqValue * 70)}, ${206 + Math.round(freqValue * 32)}, 255, ${0.18 + freqValue * 0.6})`;
+    ctx.lineWidth = 2 + freqValue * 2.6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
+  const waveformSteps = waveformSource ? Math.min(180, waveformSource.length) : 180;
+
+  for (let lineIndex = 0; lineIndex < 2; lineIndex += 1) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.lineWidth = lineIndex === 0 ? 2.6 : 1.3;
+    ctx.strokeStyle = lineIndex === 0
+      ? `rgba(235, 246, 255, ${0.32 + treble * 0.32})`
+      : `rgba(102, 190, 255, ${0.18 + mids * 0.28})`;
+    ctx.shadowBlur = lineIndex === 0 ? 18 : 8;
+    ctx.shadowColor = lineIndex === 0 ? 'rgba(162, 224, 255, 0.32)' : 'rgba(86, 140, 255, 0.22)';
+
+    for (let i = 0; i <= waveformSteps; i += 1) {
+      const progress = i / waveformSteps;
+      const angle = (Math.PI * 2 * progress) - (Math.PI / 2);
+      let waveAmount;
+      if (waveformSource) {
+        const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
+        waveAmount = Math.abs((waveformSource[sourceIndex] - 128) / 128);
+      } else {
+        waveAmount = 0.18 + Math.abs(Math.sin((visualizerTick / (11 + lineIndex * 4)) + progress * Math.PI * (3.4 + lineIndex))) * (0.3 + bass * 0.18);
+      }
+      const radius = baseRadius - 8 + (lineIndex * 8) + (waveAmount * (16 + bass * 14));
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  visualizerBars.forEach((bar, index) => {
+    const freqIndex = visualizerFreqData && !visualizerUseFallback
+      ? Math.min(visualizerFreqData.length - 1, Math.floor((index / visualizerBars.length) * visualizerFreqData.length * 0.85))
+      : -1;
+    const level = freqIndex >= 0
+      ? (visualizerFreqData[freqIndex] || 0) / 255
+      : (0.18 + Math.abs(Math.sin((visualizerTick / 10) + index * 0.55)) * 0.55);
+    const height = 14 + Math.round(level * 54) + ((index % 3) * 2);
+    bar.style.height = `${height}px`;
+    bar.style.opacity = `${0.16 + level * 0.84}`;
+    bar.style.transform = `translateY(${Math.round((1 - level) * 6)}px) scaleY(${(0.92 + level * 0.25).toFixed(3)})`;
+  });
+}
+
 function startVisualizerAnimation() {
   if (visualizerFrame || !visualizerBars.length) return;
+  ensureVisualizerAudioSetup();
+  if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
+    visualizerAudioContext.resume().catch(() => {});
+  }
+
   const animate = () => {
     visualizerTick += 1;
-    const current = els.audioPlayer?.currentTime || 0;
-    visualizerBars.forEach((bar, index) => {
-      const wave = Math.abs(Math.sin((visualizerTick / 10) + index * 0.55 + current * 1.6));
-      const lift = Math.abs(Math.cos((visualizerTick / 15) + index * 0.22 + current * 0.9));
-      const height = 18 + Math.round((wave * 42) + (lift * 16));
-      bar.style.height = `${height}px`;
-      bar.style.opacity = `${0.2 + (wave * 0.65)}`;
-    });
+    drawVisualizerFrame();
     if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) visualizerFrame = window.requestAnimationFrame(animate);
     else visualizerFrame = 0;
   };
@@ -1294,9 +1479,17 @@ function stopVisualizerAnimation() {
     window.cancelAnimationFrame(visualizerFrame);
     visualizerFrame = 0;
   }
+
+  if (visualizerCtx && visualizerCanvas) {
+    const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
+    const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
+    visualizerCtx.clearRect(0, 0, width, height);
+  }
+
   visualizerBars.forEach((bar, index) => {
-    bar.style.height = `${18 + (index % 6) * 8}px`;
+    bar.style.height = `${16 + (index % 6) * 7}px`;
     bar.style.opacity = '';
+    bar.style.transform = '';
   });
 }
 
