@@ -1,0 +1,18 @@
+Aineo Music Build v42.3.95 — Incremental make_tracks.py
+
+What changed
+- make_tracks.py now supports incremental waveform generation.
+- Added track-build-cache.json support.
+- Reuses existing waveform_envelope and waveform_ring_preview when the source MP3 is unchanged.
+- Detects changes using file name, file size, file mtime_ns, and duration_seconds.
+- New or changed tracks regenerate waveform data automatically.
+- Removed tracks are naturally dropped from the next generated tracks.json and cache.
+
+Behavior
+- First run: builds waveform data for all tracks.
+- Later runs: skips expensive waveform extraction for unchanged files.
+- Console output now reports reused vs regenerated waveform counts.
+
+Files
+- make_tracks.py updated
+- BUILD-v42.3.95-INCREMENTAL-MAKE-TRACKS.txt added

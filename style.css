@@ -10140,7 +10140,7 @@ button:active{
 }
 
 
-/* ===== v42.3.94 beat-accented mirrored halo visualizer ===== */
+/* ===== v42.3.96 four-ring blue-purple halo visualizer ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10201,10 +10201,20 @@ button:active{
   width: 3px;
   justify-self: center;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(245, 249, 255, 0.72), rgba(76, 191, 255, 0.64) 52%, rgba(94, 77, 255, 0.30));
+  background: linear-gradient(180deg, rgba(245, 249, 255, 0.76), rgba(76, 191, 255, 0.68) 52%, rgba(94, 77, 255, 0.34));
   box-shadow: 0 0 10px rgba(73, 181, 255, 0.12);
   align-self: center;
   transition: height 120ms linear, opacity 120ms linear, transform 120ms linear;
+}
+
+.player-cover-visualizer-bar:nth-child(odd) {
+  background: linear-gradient(180deg, rgba(240, 248, 255, 0.78), rgba(86, 196, 255, 0.72) 56%, rgba(82, 128, 255, 0.38));
+  box-shadow: 0 0 12px rgba(76, 191, 255, 0.16);
+}
+
+.player-cover-visualizer-bar:nth-child(even) {
+  background: linear-gradient(180deg, rgba(247, 240, 255, 0.78), rgba(168, 118, 255, 0.68) 56%, rgba(98, 84, 255, 0.34));
+  box-shadow: 0 0 12px rgba(150, 112, 255, 0.14);
 }
 
 .player-sheet-cover,

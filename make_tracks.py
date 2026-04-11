@@ -2,6 +2,7 @@ import json
 import re
 import unicodedata
 import subprocess
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -20,6 +21,7 @@ DEFAULT_PLAYLIST = "Music"
 DEFAULT_COLLECTION = "All Songs"
 LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
+TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 AUDIO_EXTENSIONS = {".mp3"}
 WAVEFORM_ENVELOPE_POINTS = 2048
 WAVEFORM_FFMPEG_SAMPLE_RATE = 400
@@ -38,6 +40,7 @@ LYRICS_DIR = SITE_DIR / "lyrics"
 OUTPUT_FILE = SITE_DIR / "tracks.json"
 LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
 TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
+TRACK_BUILD_CACHE_FILE = SITE_DIR / TRACK_BUILD_CACHE_NAME
 
 SCRIPTURE_BOOKS = [
     "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
@@ -259,6 +262,87 @@ def get_mp3_metadata(mp3_path: Path) -> dict[str, Any]:
             "comment": "",
         }
 
+
+
+@dataclass
+class TrackCacheEntry:
+    file_name: str
+    size: int
+    mtime_ns: int
+    duration_seconds: int
+
+    @classmethod
+    def from_path(cls, mp3_path: Path, duration_seconds: int) -> "TrackCacheEntry":
+        stat = mp3_path.stat()
+        return cls(
+            file_name=mp3_path.name,
+            size=int(stat.st_size),
+            mtime_ns=int(getattr(stat, "st_mtime_ns", int(stat.st_mtime * 1_000_000_000))),
+            duration_seconds=int(duration_seconds or 0),
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "file_name": self.file_name,
+            "size": self.size,
+            "mtime_ns": self.mtime_ns,
+            "duration_seconds": self.duration_seconds,
+        }
+
+
+def load_existing_tracks() -> list[dict[str, Any]]:
+    if not OUTPUT_FILE.exists():
+        return []
+    try:
+        data = json.loads(OUTPUT_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
+    except Exception as exc:
+        print(f"Warning: could not read existing tracks.json: {exc}")
+        return []
+
+
+def load_track_build_cache() -> dict[str, dict[str, Any]]:
+    if not TRACK_BUILD_CACHE_FILE.exists():
+        return {}
+    try:
+        data = json.loads(TRACK_BUILD_CACHE_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except Exception as exc:
+        print(f"Warning: could not read track build cache: {exc}")
+        return {}
+
+
+def source_cache_matches(cache_data: dict[str, Any], entry: TrackCacheEntry) -> bool:
+    if not cache_data:
+        return False
+    return (
+        str(cache_data.get("file_name") or "") == entry.file_name
+        and int(cache_data.get("size") or -1) == entry.size
+        and int(cache_data.get("mtime_ns") or -1) == entry.mtime_ns
+        and int(cache_data.get("duration_seconds") or -1) == entry.duration_seconds
+    )
+
+
+def find_existing_track_for_file(existing_tracks_by_src: dict[str, dict[str, Any]], file_name: str) -> dict[str, Any]:
+    return existing_tracks_by_src.get(build_audio_url(file_name), {})
+
+
+def get_reusable_waveform_data(
+    existing_track: dict[str, Any],
+    build_cache: dict[str, dict[str, Any]],
+    cache_entry: TrackCacheEntry,
+) -> tuple[list[int], list[int], bool]:
+    existing_envelope = existing_track.get("waveform_envelope")
+    existing_ring = existing_track.get("waveform_ring_preview")
+    cache_data = build_cache.get(cache_entry.file_name, {})
+
+    envelope_ok = isinstance(existing_envelope, list) and len(existing_envelope) >= WAVEFORM_MIN_SAMPLES
+    ring_ok = isinstance(existing_ring, list) and len(existing_ring) > 0
+
+    if envelope_ok and ring_ok and source_cache_matches(cache_data, cache_entry):
+        return ([int(round(v)) for v in existing_envelope], [int(round(v)) for v in existing_ring], True)
+
+    return ([], [], False)
 
 
 def get_embedded_lyrics(mp3_path: Path) -> str | None:
@@ -615,8 +699,14 @@ def main() -> None:
     COVERS_DIR.mkdir(parents=True, exist_ok=True)
     lrc_map = load_lrc_manifest()
     track_meta_map = load_track_metadata()
+    existing_tracks = load_existing_tracks()
+    existing_tracks_by_src = {str(track.get("src") or ""): track for track in existing_tracks if isinstance(track, dict)}
+    build_cache = load_track_build_cache()
+    next_build_cache: dict[str, dict[str, Any]] = {}
     tracks: list[dict[str, Any]] = []
     seen_ids: set[str] = set()
+    reused_waveforms = 0
+    regenerated_waveforms = 0
 
     audio_files = sorted(
         [f for f in AUDIO_DIR.iterdir() if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS],
@@ -639,8 +729,17 @@ def main() -> None:
         track_number = mp3_meta.get("track_number")
         duration_seconds = mp3_meta.get("duration_seconds", 0)
         duration_display = format_duration(duration_seconds)
-        waveform_envelope = extract_waveform_envelope(file, duration_seconds)
-        waveform_ring = build_waveform_ring_preview(waveform_envelope)
+        cache_entry = TrackCacheEntry.from_path(file, duration_seconds)
+        existing_track = find_existing_track_for_file(existing_tracks_by_src, file.name)
+        waveform_envelope, waveform_ring, reused_waveform = get_reusable_waveform_data(existing_track, build_cache, cache_entry)
+        if reused_waveform:
+            reused_waveforms += 1
+        else:
+            waveform_envelope = extract_waveform_envelope(file, duration_seconds)
+            waveform_ring = build_waveform_ring_preview(waveform_envelope)
+            if waveform_envelope:
+                regenerated_waveforms += 1
+        next_build_cache[file.name] = cache_entry.to_dict()
 
         slug = slugify(title)
         artist_slug = slugify(artist)
@@ -789,13 +888,18 @@ def main() -> None:
         print(f"  LRC file: {track.get('lyrics_file', 'none')}")
         print(f"  Cover found: {track.get('cover', 'none')}")
         if waveform_envelope:
-            print(f"  Waveform envelope: {len(waveform_envelope)} samples")
+            source_label = "reused" if reused_waveform else "regenerated"
+            print(f"  Waveform envelope: {len(waveform_envelope)} samples ({source_label})")
 
     tracks.sort(key=lambda t: (t.get("album", "").lower(), t.get("trackNumber", 9999), t.get("title", "").lower()))
     OUTPUT_FILE.write_text(json.dumps(tracks, indent=2, ensure_ascii=False), encoding="utf-8")
+    TRACK_BUILD_CACHE_FILE.write_text(json.dumps(next_build_cache, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(f"\ntracks.json created successfully with {len(tracks)} tracks.")
+    print(f"Waveforms reused: {reused_waveforms}")
+    print(f"Waveforms regenerated: {regenerated_waveforms}")
     print(f"Wrote file to: {OUTPUT_FILE}")
+    print(f"Wrote cache to: {TRACK_BUILD_CACHE_FILE}")
 
 
 if __name__ == "__main__":

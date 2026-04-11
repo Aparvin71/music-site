@@ -1,0 +1,9 @@
+Aineo Music Build v42.3.96 — Four-Ring Halo Color Pass
+
+What changed
+- Expanded the full-screen waveform halo from 2 visible rings to 4 layered waveform rings
+- Alternated the ring palette between blue and purple hues for a higher-end look
+- Kept the current per-track prerendered waveform motion path intact
+- Left playback behavior untouched
+- Synced asset version markers, PWA version, and service-worker cache version to v42.3.96
+- Added changelog entry for v42.3.96

@@ -1,4 +1,4 @@
-/* v42.3.94 real waveform data */
+/* v42.3.96 four-ring halo color pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1495,14 +1495,50 @@ function drawVisualizerFrame() {
     ctx.restore();
   };
 
-  drawHalo(baseRadius + 1, 3.2, `rgba(236, 246, 255, ${0.18 + treble * 0.26 + bass * 0.10})`, 22, 'rgba(168, 224, 255, 0.28)', 1.18);
-  drawHalo(baseRadius + 10, 1.55, `rgba(96, 190, 255, ${0.12 + mids * 0.22 + bass * 0.06})`, 12, 'rgba(94, 142, 255, 0.20)', 0.86);
+  const ringPalette = [
+    {
+      radius: baseRadius - 3,
+      lineWidth: 3.4,
+      strokeStyle: `rgba(214, 238, 255, ${0.20 + treble * 0.24 + bass * 0.12})`,
+      shadowBlur: 24,
+      shadowColor: 'rgba(120, 208, 255, 0.30)',
+      sampleScale: 1.22
+    },
+    {
+      radius: baseRadius + 7,
+      lineWidth: 2.2,
+      strokeStyle: `rgba(154, 118, 255, ${0.14 + mids * 0.20 + treble * 0.10})`,
+      shadowBlur: 18,
+      shadowColor: 'rgba(124, 88, 255, 0.22)',
+      sampleScale: 1.02
+    },
+    {
+      radius: baseRadius + 16,
+      lineWidth: 1.8,
+      strokeStyle: `rgba(92, 194, 255, ${0.12 + bass * 0.18 + mids * 0.10})`,
+      shadowBlur: 14,
+      shadowColor: 'rgba(84, 168, 255, 0.20)',
+      sampleScale: 0.88
+    },
+    {
+      radius: baseRadius + 25,
+      lineWidth: 1.35,
+      strokeStyle: `rgba(170, 108, 255, ${0.10 + mids * 0.16 + treble * 0.08})`,
+      shadowBlur: 12,
+      shadowColor: 'rgba(140, 88, 255, 0.18)',
+      sampleScale: 0.74
+    }
+  ];
+
+  ringPalette.forEach((ring) => {
+    drawHalo(ring.radius, ring.lineWidth, ring.strokeStyle, ring.shadowBlur, ring.shadowColor, ring.sampleScale);
+  });
 
   ctx.save();
   ctx.beginPath();
   ctx.lineWidth = 1;
-  ctx.strokeStyle = `rgba(180, 220, 255, ${0.06 + treble * 0.10})`;
-  ctx.arc(centerX, centerY, baseRadius + 7, 0, Math.PI * 2);
+  ctx.strokeStyle = `rgba(184, 220, 255, ${0.05 + treble * 0.08})`;
+  ctx.arc(centerX, centerY, baseRadius + 12, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 
