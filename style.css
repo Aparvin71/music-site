@@ -12001,7 +12001,22 @@ body.ios-standalone .standalone-welcome-card {
 }
 
 body.ios-standalone .player-sheet-content {
-  max-height: calc(var(--app-visible-height) - 10px - max(var(--safe-top), var(--app-safe-top-visual)));
+  --player-sheet-ios-top-inset: max(var(--safe-top), var(--app-safe-top-visual));
+  --player-sheet-ios-top-gap: max(16px, calc(var(--player-sheet-ios-top-inset) + 12px));
+  max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 10px);
+  margin-top: var(--player-sheet-ios-top-gap);
+}
+
+body.ios-standalone .player-sheet-header {
+  padding-top: calc(18px + max(8px, var(--player-sheet-ios-top-inset) * 0.35));
+}
+
+body.ios-standalone .player-sheet-drag-handle {
+  margin-top: max(8px, calc(var(--player-sheet-ios-top-inset) * 0.3));
+}
+
+body.ios-standalone .player-sheet-header::before {
+  top: max(8px, calc(8px + var(--player-sheet-ios-top-inset) * 0.18));
 }
 
 @media (max-width: 640px) {
@@ -12013,7 +12028,11 @@ body.ios-standalone .player-sheet-content {
 
   body.ios-standalone .player-sheet-content {
     width: calc(100% - 10px - var(--safe-left) - var(--safe-right));
-    max-height: calc(var(--app-visible-height) - 10px - max(var(--safe-top), var(--app-safe-top-visual)));
+    max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 10px);
+  }
+
+  body.ios-standalone .player-sheet-header {
+    padding-top: calc(16px + max(10px, var(--player-sheet-ios-top-inset) * 0.4));
   }
 }
 

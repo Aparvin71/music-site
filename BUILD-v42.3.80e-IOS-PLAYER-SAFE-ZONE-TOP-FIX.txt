@@ -1,0 +1,12 @@
+BUILD v42.3.80e — iOS full-screen player safe-zone top fix
+
+Base build:
+- v42.3.80d
+
+What changed:
+- Adjusted iOS standalone full-screen player top spacing so the sheet sits lower under the iPhone safe area.
+- Added extra top inset handling for the player header so the close and favorite buttons are easier to reach in app mode.
+- Kept the rest of the player layout and sticky filter behavior unchanged.
+
+Files updated:
+- style.css
