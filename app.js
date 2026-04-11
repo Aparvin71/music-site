@@ -1,4 +1,4 @@
-/* v42.3.97 four-ring halo color pass */
+/* v42.3.98 glass orb aurora halo */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1447,19 +1447,21 @@ function drawVisualizerFrame() {
   ctx.arc(centerX, centerY, baseRadius + 90, 0, Math.PI * 2);
   ctx.fill();
 
-  const innerAura = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.82, centerX, centerY, baseRadius + 34);
+  const innerAura = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.76, centerX, centerY, baseRadius + 46);
   innerAura.addColorStop(0, 'rgba(255,255,255,0)');
-  innerAura.addColorStop(0.46, `rgba(138, 232, 255, ${0.06 + bass * 0.08})`);
-  innerAura.addColorStop(0.68, `rgba(132, 102, 255, ${0.06 + mids * 0.10})`);
+  innerAura.addColorStop(0.16, `rgba(255, 255, 255, ${0.06 + treble * 0.08})`);
+  innerAura.addColorStop(0.34, `rgba(164, 246, 255, ${0.10 + bass * 0.12})`);
+  innerAura.addColorStop(0.56, `rgba(142, 118, 255, ${0.10 + mids * 0.14})`);
+  innerAura.addColorStop(0.72, `rgba(116, 255, 220, ${0.06 + bass * 0.10})`);
   innerAura.addColorStop(1, 'rgba(16, 22, 40, 0)');
   ctx.fillStyle = innerAura;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, baseRadius + 42, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, baseRadius + 54, 0, Math.PI * 2);
   ctx.fill();
 
   const haloSteps = 112;
   const mirroredSamples = [];
-  const maxWavePush = 18 + bass * 34 + mids * 12 + treble * 4;
+  const maxWavePush = 16 + bass * 30 + mids * 14 + treble * 6;
   const sampleWave = (progress) => {
     if (prerenderedState) {
       return prerenderedState.sample(progress);
@@ -1511,36 +1513,36 @@ function drawVisualizerFrame() {
 
   const ringPalette = [
     {
-      radius: baseRadius - 5,
-      lineWidth: 4.0,
-      strokeStyle: `rgba(232, 247, 255, ${0.28 + treble * 0.26 + bass * 0.14})`,
-      shadowBlur: 32,
-      shadowColor: 'rgba(92, 228, 255, 0.46)',
-      sampleScale: 1.28
+      radius: baseRadius - 7,
+      lineWidth: 5.0,
+      strokeStyle: `rgba(255, 255, 255, ${0.20 + treble * 0.18 + bass * 0.10})`,
+      shadowBlur: 36,
+      shadowColor: 'rgba(216, 250, 255, 0.26)',
+      sampleScale: 1.18
     },
     {
-      radius: baseRadius + 5,
-      lineWidth: 2.9,
-      strokeStyle: `rgba(118, 230, 255, ${0.22 + bass * 0.22 + mids * 0.10})`,
+      radius: baseRadius + 2,
+      lineWidth: 3.4,
+      strokeStyle: `rgba(126, 236, 255, ${0.22 + bass * 0.20 + mids * 0.10})`,
+      shadowBlur: 30,
+      shadowColor: 'rgba(82, 220, 255, 0.46)',
+      sampleScale: 1.02
+    },
+    {
+      radius: baseRadius + 13,
+      lineWidth: 2.6,
+      strokeStyle: `rgba(188, 128, 255, ${0.18 + mids * 0.20 + treble * 0.10})`,
       shadowBlur: 26,
-      shadowColor: 'rgba(74, 206, 255, 0.40)',
-      sampleScale: 1.10
+      shadowColor: 'rgba(172, 102, 255, 0.40)',
+      sampleScale: 0.90
     },
     {
-      radius: baseRadius + 15,
-      lineWidth: 2.2,
-      strokeStyle: `rgba(174, 118, 255, ${0.18 + mids * 0.22 + treble * 0.12})`,
-      shadowBlur: 22,
-      shadowColor: 'rgba(164, 88, 255, 0.34)',
-      sampleScale: 0.94
-    },
-    {
-      radius: baseRadius + 26,
-      lineWidth: 1.6,
-      strokeStyle: `rgba(96, 164, 255, ${0.14 + bass * 0.18 + mids * 0.10})`,
-      shadowBlur: 18,
-      shadowColor: 'rgba(90, 146, 255, 0.28)',
-      sampleScale: 0.82
+      radius: baseRadius + 24,
+      lineWidth: 2.1,
+      strokeStyle: `rgba(118, 255, 222, ${0.14 + bass * 0.18 + mids * 0.08})`,
+      shadowBlur: 24,
+      shadowColor: 'rgba(98, 255, 220, 0.34)',
+      sampleScale: 0.78
     }
   ];
 
@@ -1553,9 +1555,10 @@ function drawVisualizerFrame() {
   ctx.lineCap = 'round';
   const orbitBase = (currentTime * 0.72) + (bass * 0.6);
   const accentArcs = [
-    { radius: baseRadius + 3, span: 0.36 + bass * 0.18, width: 2.8, color: `rgba(164, 244, 255, ${0.22 + bass * 0.24})`, blur: 18, offset: -0.55 },
-    { radius: baseRadius + 13, span: 0.28 + mids * 0.16, width: 2.0, color: `rgba(188, 118, 255, ${0.18 + mids * 0.22})`, blur: 16, offset: 1.12 },
-    { radius: baseRadius + 24, span: 0.22 + treble * 0.14, width: 1.4, color: `rgba(108, 176, 255, ${0.16 + treble * 0.18})`, blur: 12, offset: 2.34 }
+    { radius: baseRadius - 1, span: 0.42 + bass * 0.20, width: 3.4, color: `rgba(220, 250, 255, ${0.18 + bass * 0.16})`, blur: 20, offset: -0.72 },
+    { radius: baseRadius + 9, span: 0.34 + mids * 0.18, width: 2.5, color: `rgba(130, 242, 255, ${0.20 + bass * 0.22})`, blur: 18, offset: 0.86 },
+    { radius: baseRadius + 18, span: 0.30 + mids * 0.16, width: 2.1, color: `rgba(204, 126, 255, ${0.18 + mids * 0.20})`, blur: 18, offset: 1.94 },
+    { radius: baseRadius + 28, span: 0.24 + treble * 0.16, width: 1.6, color: `rgba(112, 255, 220, ${0.16 + treble * 0.16})`, blur: 14, offset: 2.72 }
   ];
   accentArcs.forEach((arc) => {
     ctx.beginPath();
@@ -1572,7 +1575,7 @@ function drawVisualizerFrame() {
   ctx.save();
   ctx.beginPath();
   ctx.lineWidth = 1.15;
-  ctx.strokeStyle = `rgba(214, 236, 255, ${0.08 + treble * 0.10 + bass * 0.05})`;
+  ctx.strokeStyle = `rgba(225, 241, 255, ${0.10 + treble * 0.10 + bass * 0.05})`;
   ctx.arc(centerX, centerY, baseRadius + 12, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
@@ -1587,7 +1590,7 @@ function drawVisualizerFrame() {
       : prerenderedState
         ? Math.min(1, Math.max(0.08, prerenderedState.sample(0.12 + mirrorIndex * 0.10) * 1.08 + bass * 0.18))
         : Math.min(1, Math.max(0.08, bass * (0.52 + mirrorIndex * 0.06) + mids * 0.22 + Math.abs(Math.sin((visualizerTick / 8.5) + mirrorIndex * 1.15)) * 0.06));
-    const height = 14 + Math.round(level * 28) + mirrorIndex * 5;
+    const height = 16 + Math.round(level * 30) + mirrorIndex * 5;
     bar.style.height = `${height}px`;
     bar.style.opacity = `${0.20 + level * 0.48}`;
     const yOffset = Math.round((1 - level) * 3);

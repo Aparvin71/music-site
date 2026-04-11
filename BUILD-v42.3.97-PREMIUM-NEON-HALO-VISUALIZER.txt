@@ -1,4 +1,4 @@
-Aineo Music Build v42.3.97 — Premium Neon Halo Visualizer
+Aineo Music Build v42.3.98 — Premium Neon Halo Visualizer
 
 What changed
 - Upgraded the full-screen waveform halo to a brighter premium neon treatment with stronger contrast and more visible depth.
@@ -7,5 +7,5 @@ What changed
 - Brightened the mirrored side bars with richer blue and purple highlights.
 - Kept the real per-track prerendered waveform motion path intact.
 - Left playback logic unchanged for stability.
-- Synced visible version labels, asset query strings, app version markers, and service-worker cache version to v42.3.97.
-- Added changelog entry for v42.3.97.
+- Synced visible version labels, asset query strings, app version markers, and service-worker cache version to v42.3.98.
+- Added changelog entry for v42.3.98.

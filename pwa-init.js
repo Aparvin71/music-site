@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.97";
+const AINEO_APP_VERSION = "v42.3.98";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.97</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a brighter premium neon halo visualizer with stronger color contrast, layered glow, and cleaner depth behind the artwork while preserving the stable playback path.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.98</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a glass-orb aurora halo visualizer with softer luminous bloom, drifting color depth, and richer premium motion around the artwork while preserving the stable playback path.</p>
         </section>
       </div>
     </div>
