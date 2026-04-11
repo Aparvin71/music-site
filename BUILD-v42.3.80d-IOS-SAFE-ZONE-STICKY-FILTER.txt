@@ -1,0 +1,8 @@
+Aineo Music v42.3.80d
+
+Focused fix: move the working sticky clear/filter bar down into the iPhone safe zone in iOS standalone mode only.
+
+Changes:
+- app.js: getStickyFilterTopOffset now respects iOS standalone safe-area metrics and adds a small top inset.
+- Browser behavior remains unchanged.
+- Version markers bumped to v42.3.80d.

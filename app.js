@@ -1817,6 +1817,19 @@ function isTabletLibraryViewport() {
 }
 
 function getStickyFilterTopOffset() {
+  const docStyle = getComputedStyle(document.documentElement);
+  const readPxVar = (name) => {
+    const raw = (docStyle.getPropertyValue(name) || '').trim();
+    if (!raw) return 0;
+    const value = Number.parseFloat(raw);
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  if (document.body.classList.contains("ios-standalone")) {
+    const safeTop = Math.max(readPxVar("--safe-top"), readPxVar("--app-safe-top-visual"));
+    return Math.max(0, Math.round(safeTop + 8));
+  }
+
   return 0;
 }
 
