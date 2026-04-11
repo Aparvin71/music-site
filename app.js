@@ -1272,7 +1272,7 @@ function initMiniVisualizer() {
 
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
-  for (let i = 0; i < 2; i += 1) {
+  for (let i = 0; i < 96; i += 1) {
     const bar = document.createElement('span');
     bar.className = 'player-cover-visualizer-bar';
     bars.appendChild(bar);
@@ -1378,151 +1378,76 @@ function drawVisualizerFrame() {
 
   ctx.clearRect(0, 0, width, height);
 
-  if (!currentTrack) return;
+  if (!currentTrack || !visualizerBars.length) return;
 
   const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
-  const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
-
-  let bass = 0.24;
-  let mids = 0.22;
-  let treble = 0.18;
-  let energy = 0.24;
-  let progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
-
-  if (prerenderedState) {
-    bass = prerenderedState.bass;
-    mids = prerenderedState.mids;
-    treble = prerenderedState.treble;
-    energy = prerenderedState.energy;
-    progress = prerenderedState.timelinePosition;
-  } else if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
-    visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
-    visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
-
-    const lowEnd = Math.max(1, Math.floor(visualizerFreqData.length * 0.08));
-    const midEnd = Math.max(lowEnd + 1, Math.floor(visualizerFreqData.length * 0.28));
-    const highEnd = Math.max(midEnd + 1, Math.floor(visualizerFreqData.length * 0.65));
-    const avgBand = (startBand, endBand) => {
-      let total = 0;
-      for (let i = startBand; i < endBand; i += 1) total += visualizerFreqData[i] || 0;
-      return total / Math.max(1, endBand - startBand) / 255;
-    };
-    bass = avgBand(0, lowEnd);
-    mids = avgBand(lowEnd, midEnd);
-    treble = avgBand(midEnd, highEnd);
-    energy = Math.max(0.08, Math.min(1, (bass * 0.42) + (mids * 0.36) + (treble * 0.22)));
-  }
+  const progress = prerenderedState
+    ? prerenderedState.timelinePosition
+    : (durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0);
 
   const coverRect = els.playerSheetCover?.getBoundingClientRect();
   const wrapRect = els.playerSheetCoverWrap?.getBoundingClientRect();
-  const coverWidth = coverRect && wrapRect ? Math.min(width * 0.58, coverRect.width) : Math.min(width * 0.58, 196);
-  const coverHeight = coverRect && wrapRect ? Math.min(height * 0.58, coverRect.height) : Math.min(height * 0.58, 196);
-  const coverCenterX = coverRect && wrapRect
-    ? ((coverRect.left - wrapRect.left) + (coverRect.width / 2))
-    : ((width / 2) + (width * 0.028));
   const coverCenterY = coverRect && wrapRect
     ? ((coverRect.top - wrapRect.top) + (coverRect.height / 2))
-    : ((height / 2) - (height * 0.038));
-  const coverLeft = coverCenterX - (coverWidth / 2);
-  const coverRight = coverCenterX + (coverWidth / 2);
-  const centerY = coverCenterY;
+    : ((height / 2) - (height * 0.04));
 
-  const barCount = Math.max(72, Math.floor(width / 7.2));
-  const slot = width / barCount;
-  const barWidth = Math.max(3.2, Math.min(6.6, slot * 0.78));
-  const minHeight = Math.max(5, height * 0.022);
-  const maxHeight = height * 0.54;
-  const visibleSpan = prerenderedState ? 0.016 : 0.020;
-  const playheadBias = prerenderedState ? 0.003 : 0.002;
+  const barCount = visualizerBars.length;
+  const visibleSpan = 0.11;
+  const smoothing = 0.18;
+  const minHeight = Math.max(6, height * 0.035);
+  const maxHeight = height * 0.34;
+  const baseOpacity = 0.42;
 
   const sampleEnvelopeAt = (timelinePos) => {
     const clampedPos = Math.max(0, Math.min(0.999999, timelinePos));
-    if (prerenderedState) {
-      return Math.max(0, Math.min(1, prerenderedState.sample(clampedPos)));
-    }
-    if (waveformSource) {
-      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(clampedPos * (waveformSource.length - 1)));
-      return Math.max(0, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
-    }
-    return 0;
+    if (prerenderedState) return Math.max(0, Math.min(1, prerenderedState.sample(clampedPos) || 0));
+    return Math.max(0, Math.min(1, sampleTrackWaveformAt(currentTrack, clampedPos) || 0));
   };
 
-  const windowSamples = [];
+  const rawSamples = [];
   for (let i = 0; i < barCount; i += 1) {
-    const normalizedX = (i + 0.5) / Math.max(1, barCount);
-    const timelineOffset = (normalizedX - 0.5 + playheadBias) * visibleSpan;
-    const timelineSample = progress + timelineOffset;
-    windowSamples.push(sampleEnvelopeAt(timelineSample));
+    const normalizedX = i / Math.max(1, barCount - 1);
+    const timelinePos = progress + ((normalizedX - 0.5) * visibleSpan);
+    rawSamples.push(sampleEnvelopeAt(timelinePos));
   }
 
-
-  const drawRoundedBar = (x, y, w, h, fill, opacity, glowColor) => {
-    if (h <= 0) return;
-    const radius = Math.min(w / 2, 2.6);
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = fill;
-    if (glowColor) {
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = glowColor;
-    }
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + w - radius, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-    ctx.lineTo(x + w, y + h - radius);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-    ctx.lineTo(x + radius, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  };
+  const smoothedSamples = rawSamples.map((value, i) => {
+    const left = rawSamples[Math.max(0, i - 1)] ?? value;
+    const right = rawSamples[Math.min(barCount - 1, i + 1)] ?? value;
+    return Math.max(0, Math.min(1, (left * smoothing) + (value * (1 - smoothing * 2)) + (right * smoothing)));
+  });
 
   for (let i = 0; i < barCount; i += 1) {
-    const xCenter = (i + 0.5) * slot;
-    const x = xCenter - (barWidth / 2);
-    const normalizedX = xCenter / Math.max(1, width);
-    const leftSample = windowSamples[Math.max(0, i - 1)] ?? windowSamples[i] ?? 0;
-    const centerSample = windowSamples[i] ?? leftSample;
-    const rightSample = windowSamples[Math.min(barCount - 1, i + 1)] ?? centerSample;
-    const smoothed = Math.max(0, Math.min(1,
-      (leftSample * 0.20) +
-      (centerSample * 0.60) +
-      (rightSample * 0.20)
-    ));
-    const shapedSample = Math.max(0, Math.min(1, Math.pow(smoothed, 0.92)));
-    const amplitudeBoost = 0.92 + (bass * 0.08) + (mids * 0.05) + (energy * 0.05);
-    const amplitude = Math.min(maxHeight, minHeight + ((maxHeight - minHeight) * shapedSample * amplitudeBoost));
-    const opacity = Math.min(1, 0.38 + shapedSample * 0.48 + energy * 0.08);
+    const bar = visualizerBars[i];
+    const sample = smoothedSamples[i] ?? 0;
+    const boosted = Math.pow(sample, 0.85);
+    const barHeight = minHeight + (maxHeight - minHeight) * boosted;
+    const normalizedX = i / Math.max(1, barCount - 1);
+    const alpha = Math.min(0.96, baseOpacity + boosted * 0.4);
+    const color = normalizedX < 0.52
+      ? `linear-gradient(180deg, rgba(160,200,255,${alpha * 0.92}) 0%, rgba(92,140,255,${alpha}) 52%, rgba(70,102,230,${alpha * 0.9}) 100%)`
+      : `linear-gradient(180deg, rgba(214,188,255,${alpha * 0.92}) 0%, rgba(146,98,255,${alpha}) 52%, rgba(96,74,218,${alpha * 0.9}) 100%)`;
+    const glow = normalizedX < 0.52
+      ? `0 0 12px rgba(92,140,255,${0.12 + boosted * 0.26})`
+      : `0 0 12px rgba(146,98,255,${0.12 + boosted * 0.26})`;
 
-    const blue = Math.round(222 + normalizedX * 18);
-    const purple = Math.round(238 + (1 - normalizedX) * 14);
-    const fill = normalizedX < 0.52
-      ? `rgba(78, 142, ${blue}, ${0.42 + shapedSample * 0.34})`
-      : `rgba(${118 + Math.round(normalizedX * 10)}, 92, ${purple}, ${0.42 + shapedSample * 0.34})`;
-    const glowColor = normalizedX < 0.52
-      ? `rgba(92, 160, 255, ${0.18 + shapedSample * 0.22})`
-      : `rgba(158, 112, 255, ${0.18 + shapedSample * 0.22})`;
-
-    drawRoundedBar(x, centerY - amplitude, barWidth, amplitude * 2, fill, opacity, glowColor);
-    drawRoundedBar(x + 0.7, centerY - amplitude * 0.22, Math.max(1.4, barWidth - 1.4), amplitude * 0.44, `rgba(236, 242, 255, ${0.06 + shapedSample * 0.08})`, opacity * 0.30);
+    bar.style.height = `${barHeight}px`;
+    bar.style.opacity = `${alpha}`;
+    bar.style.transform = `translateY(${-barHeight / 2}px)`;
+    bar.style.background = color;
+    bar.style.boxShadow = glow;
   }
 
   ctx.save();
-  const coverGradient = ctx.createLinearGradient(0, 0, width, 0);
-  coverGradient.addColorStop(0, 'rgba(5,10,18,0)');
-  coverGradient.addColorStop(Math.max(0, coverLeft / width), 'rgba(5,10,18,0)');
-  coverGradient.addColorStop(Math.max(0, (coverLeft + 12) / width), 'rgba(5,10,18,0.10)');
-  coverGradient.addColorStop(Math.min(1, (coverRight - 12) / width), 'rgba(5,10,18,0.10)');
-  coverGradient.addColorStop(Math.min(1, coverRight / width), 'rgba(5,10,18,0)');
-  coverGradient.addColorStop(1, 'rgba(5,10,18,0)');
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = coverGradient;
-  ctx.fillRect(0, Math.max(0, centerY - coverHeight * 0.7), width, Math.min(height, coverHeight * 1.4));
+  const glowGradient = ctx.createLinearGradient(0, 0, width, 0);
+  glowGradient.addColorStop(0, 'rgba(92,140,255,0)');
+  glowGradient.addColorStop(0.22, 'rgba(92,140,255,0.10)');
+  glowGradient.addColorStop(0.50, 'rgba(255,255,255,0.03)');
+  glowGradient.addColorStop(0.78, 'rgba(146,98,255,0.10)');
+  glowGradient.addColorStop(1, 'rgba(146,98,255,0)');
+  ctx.fillStyle = glowGradient;
+  ctx.globalCompositeOperation = 'screen';
+  ctx.fillRect(0, Math.max(0, coverCenterY - height * 0.16), width, height * 0.32);
   ctx.restore();
 }
 

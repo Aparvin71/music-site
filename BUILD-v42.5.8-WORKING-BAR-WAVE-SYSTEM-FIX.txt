@@ -1,0 +1,6 @@
+v42.5.8 — Working Bar Wave System Fix
+
+- Replaced the broken pseudo-bar visualizer path with a real multi-bar DOM waveform system.
+- Bars now sample the current song's waveform_envelope directly across a moving playhead window.
+- Shifted the visualizer slightly farther right and nudged the artwork slightly left.
+- Kept blue and purple bar styling with a lighter background glow.

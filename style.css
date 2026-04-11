@@ -10164,7 +10164,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -34px;
-  transform: translate3d(22px, -8px, 0) scale(0.996);
+  transform: translate3d(30px, -8px, 0) scale(0.996);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10176,7 +10176,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(22px, -8px, 0) scale(1.02);
+  transform: translate3d(30px, -8px, 0) scale(1.02);
 }
 
 .player-cover-visualizer::before,
@@ -10219,18 +10219,31 @@ button:active{
 }
 
 .player-cover-visualizer-bars {
-  display: none;
+  position: absolute;
+  inset: 20% -10% 20% -2%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .player-cover-visualizer-bar {
-  display: none;
+  flex: 1 1 auto;
+  min-width: 4px;
+  height: 8px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: translateY(-4px);
+  will-change: height, transform, opacity;
 }
 
 .player-sheet-cover,
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
-  transform: translateX(-9px);
+  transform: translateX(-14px);
 }
 
 @keyframes aineoAuroraDrift {
@@ -10264,8 +10277,8 @@ button:active{
 
 @media (max-width: 640px) {
   .player-sheet-cover-wrap { transform: translate3d(15px, -4px, 0); }
-  .player-cover-visualizer { inset: -20px; transform: translate3d(21px, -6px, 0) scale(0.994); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(21px, -6px, 0) scale(1.016); }
+  .player-cover-visualizer { inset: -20px; transform: translate3d(28px, -6px, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(28px, -6px, 0) scale(1.016); }
   .player-cover-visualizer::before { inset: 20% 0; }
   .player-cover-visualizer::after { inset: 30% 8%; }
 }
