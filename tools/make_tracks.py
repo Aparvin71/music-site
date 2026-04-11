@@ -1,6 +1,8 @@
 import json
 import re
+import unicodedata
 from pathlib import Path
+from typing import Any
 from urllib.parse import quote
 
 from mutagen.id3 import ID3
@@ -14,24 +16,24 @@ DEFAULT_ARTIST = "Allen Parvin"
 DEFAULT_ALBUM = "Singles"
 DEFAULT_YEAR = 2026
 DEFAULT_PLAYLIST = "Music"
+DEFAULT_COLLECTION = "All Songs"
 LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
-DEFAULT_COLLECTION = "All Songs"
+AUDIO_EXTENSIONS = {".mp3"}
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
-if not (SITE_DIR / "audio").exists() and SCRIPT_PATH.parents:
-    parent_candidate = SCRIPT_PATH.parents[1] if len(SCRIPT_PATH.parents) > 1 else SITE_DIR
+if not (SITE_DIR / "audio").exists() and len(SCRIPT_PATH.parents) > 1:
+    parent_candidate = SCRIPT_PATH.parents[1]
     if (parent_candidate / "audio").exists():
         SITE_DIR = parent_candidate
 
 AUDIO_DIR = SITE_DIR / "audio"
 COVERS_DIR = SITE_DIR / "covers"
+LYRICS_DIR = SITE_DIR / "lyrics"
 OUTPUT_FILE = SITE_DIR / "tracks.json"
 LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
 TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
-
-AUDIO_EXTENSIONS = [".mp3"]
 
 SCRIPTURE_BOOKS = [
     "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
@@ -44,25 +46,11 @@ SCRIPTURE_BOOKS = [
     "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians",
     "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy",
     "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John",
-    "2 John", "3 John", "Jude", "Revelation"
+    "2 John", "3 John", "Jude", "Revelation",
 ]
 
-# --------------------------------------------------
-# OPTIONAL ALBUM METADATA
-# Add album zip files and optional page metadata here.
-#
-# Example:
-# "Grace Songs": {
-#     "album_zip": "grace-songs.zip",
-#     "playlists": ["Worship", "Favorites"],
-#     "featured": True,
-#     "description": "Album description",
-#     "theme": "Main theme",
-#     "story": "Background story",
-#     "badges": ["New", "Worship"]
-# }
-# --------------------------------------------------
-ALBUM_METADATA = {
+# Optional album metadata.
+ALBUM_METADATA: dict[str, dict[str, Any]] = {
     # "Grace Songs": {
     #     "album_zip": "grace-songs.zip",
     #     "playlists": ["Worship"],
@@ -70,72 +58,112 @@ ALBUM_METADATA = {
     # },
 }
 
+SMART_CHAR_REPLACEMENTS = {
+    "\u2018": "'",
+    "\u2019": "'",
+    "\u201c": '"',
+    "\u201d": '"',
+    "\u2013": "-",
+    "\u2014": "-",
+    "\u00a0": " ",
+}
+
+BAD_UNICODE_MARKER_RE = re.compile(r"[#\\]?u?201[89abcd]|#U201[89ABCD]", re.IGNORECASE)
+
+
+def normalize_text(value: str) -> str:
+    text = str(value or "")
+    for old, new in SMART_CHAR_REPLACEMENTS.items():
+        text = text.replace(old, new)
+    text = unicodedata.normalize("NFKC", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
 
 def clean_title(filename: str) -> str:
     title = Path(filename).stem
+    title = normalize_text(title)
     title = re.sub(r"\(\d+\)$", "", title).strip()
     title = re.sub(r"^\d+[-_.\s]*", "", title)
     title = re.sub(r"\s+", " ", title)
     return title.strip()
 
 
+
+def canonical_match_key(text: str) -> str:
+    text = normalize_text(text).lower()
+    text = BAD_UNICODE_MARKER_RE.sub("'", text)
+    text = text.replace("&", " and ")
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+
 def slugify(text: str) -> str:
-    text = (text or "").lower().strip()
+    text = canonical_match_key(text)
     text = re.sub(r"^\d+[-_.\s]*", "", text)
-    text = re.sub(r"[^a-z0-9\s-]", "", text)
-    text = re.sub(r"\s+", "-", text)
-    text = re.sub(r"-+", "-", text)
-    return text.strip("-")
+    return text.replace(" ", "-").strip("-")
+
+
+
+def encode_url_path_component(file_name: str) -> str:
+    cleaned = normalize_text(file_name)
+    cleaned = cleaned.replace("\\", "/")
+    return quote(cleaned, safe="")
+
 
 
 def build_audio_url(file_name: str) -> str:
-    return f"{AUDIO_BASE_URL.rstrip('/')}/{quote(file_name)}"
+    return f"{AUDIO_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
+
 
 
 def build_cover_url(file_name: str) -> str:
-    return f"{COVER_BASE_URL.rstrip('/')}/{quote(file_name)}"
+    return f"{COVER_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
+
 
 
 def build_album_zip_url(file_name: str) -> str:
-    return f"{ALBUM_ZIP_BASE_URL.rstrip('/')}/{quote(file_name)}"
+    return f"{ALBUM_ZIP_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
 
 
-def safe_tag_text(tag_value) -> str:
+
+def safe_tag_text(tag_value: Any) -> str:
     if not tag_value:
         return ""
 
     if hasattr(tag_value, "text"):
         text = tag_value.text
         if isinstance(text, list):
-            return " ".join(str(x).strip() for x in text if str(x).strip())
-        return str(text).strip()
+            return " ".join(normalize_text(str(x)) for x in text if normalize_text(str(x)))
+        return normalize_text(str(text))
 
     if isinstance(tag_value, list):
-        return " ".join(str(x).strip() for x in tag_value if str(x).strip())
+        return " ".join(normalize_text(str(x)) for x in tag_value if normalize_text(str(x)))
 
-    return str(tag_value).strip()
+    return normalize_text(str(tag_value))
 
 
-def parse_year(tag_value) -> int:
+
+def parse_year(tag_value: Any) -> int:
     text = safe_tag_text(tag_value)
     match = re.search(r"\d{4}", text)
-    if match:
-        return int(match.group())
-    return DEFAULT_YEAR
+    return int(match.group()) if match else DEFAULT_YEAR
 
 
-def parse_track_number(tag_value):
+
+def parse_track_number(tag_value: Any) -> int | None:
     text = safe_tag_text(tag_value)
     match = re.match(r"(\d+)", text)
-    if match:
-        return int(match.group(1))
-    return None
+    return int(match.group(1)) if match else None
+
 
 
 def title_case_if_all_caps(text: str) -> str:
-    if text and text.isupper():
-        return text.title()
-    return text
+    return text.title() if text and text.isupper() else text
+
 
 
 def format_duration(seconds: int) -> str:
@@ -145,26 +173,27 @@ def format_duration(seconds: int) -> str:
     return f"{mins}:{secs:02d}"
 
 
+
 def parse_genre_tags(genre_text: str) -> list[str]:
     if not genre_text:
         return []
 
     parts = re.split(r"[,;/|]+", genre_text)
-    cleaned = []
-    seen = set()
+    cleaned: list[str] = []
+    seen: set[str] = set()
 
     for part in parts:
-        value = re.sub(r"\s+", " ", part).strip().lower()
-        if not value:
+        value = canonical_match_key(part)
+        if not value or value in seen:
             continue
-        if value not in seen:
-            seen.add(value)
-            cleaned.append(value)
+        seen.add(value)
+        cleaned.append(value)
 
     return cleaned
 
 
-def get_mp3_metadata(mp3_path: Path) -> dict:
+
+def get_mp3_metadata(mp3_path: Path) -> dict[str, Any]:
     try:
         audio = MP3(mp3_path)
         tags = audio.tags
@@ -203,24 +232,18 @@ def get_mp3_metadata(mp3_path: Path) -> dict:
                         if comment:
                             break
 
-        title = title_case_if_all_caps(title)
-        artist = title_case_if_all_caps(artist)
-        album = title_case_if_all_caps(album)
-        genre = title_case_if_all_caps(genre)
-
         return {
-            "title": title,
-            "artist": artist,
-            "album": album,
-            "genre": genre,
+            "title": title_case_if_all_caps(title),
+            "artist": title_case_if_all_caps(artist),
+            "album": title_case_if_all_caps(album),
+            "genre": title_case_if_all_caps(genre),
             "year": year,
             "track_number": track_number,
             "duration_seconds": duration_seconds,
             "comment": comment,
         }
-
-    except Exception as e:
-        print(f"Error reading MP3 metadata from {mp3_path.name}: {e}")
+    except Exception as exc:
+        print(f"Error reading MP3 metadata from {mp3_path.name}: {exc}")
         return {
             "title": "",
             "artist": "",
@@ -233,27 +256,26 @@ def get_mp3_metadata(mp3_path: Path) -> dict:
         }
 
 
-def get_embedded_lyrics(mp3_path: Path):
+
+def get_embedded_lyrics(mp3_path: Path) -> str | None:
     try:
         tags = ID3(mp3_path)
-
         if "USLT::eng" in tags:
-            text = str(tags["USLT::eng"].text).strip()
+            text = normalize_text(str(tags["USLT::eng"].text))
             if text:
                 return text
-
         for key in tags.keys():
             if key.startswith("USLT"):
-                text = str(tags[key].text).strip()
+                text = normalize_text(str(tags[key].text))
                 if text:
                     return text
     except Exception:
         pass
-
     return None
 
 
-def extract_cover_art(mp3_path: Path, slug: str):
+
+def extract_cover_art(mp3_path: Path, slug: str) -> str | None:
     try:
         tags = ID3(mp3_path)
         apic_frames = tags.getall("APIC")
@@ -261,9 +283,8 @@ def extract_cover_art(mp3_path: Path, slug: str):
             return None
 
         apic = apic_frames[0]
-        mime = (apic.mime or "").lower().strip()
-
-        if mime in ("image/jpeg", "image/jpg"):
+        mime = normalize_text(apic.mime).lower()
+        if mime in {"image/jpeg", "image/jpg"}:
             ext = ".jpg"
         elif mime == "image/png":
             ext = ".png"
@@ -274,58 +295,55 @@ def extract_cover_art(mp3_path: Path, slug: str):
         COVERS_DIR.mkdir(parents=True, exist_ok=True)
         cover_filename = f"{slug}{ext}"
         cover_path = COVERS_DIR / cover_filename
-
-        with open(cover_path, "wb") as img_file:
-            img_file.write(apic.data)
-
+        cover_path.write_bytes(apic.data)
         return cover_filename
-    except Exception as e:
-        print(f"  Error extracting cover from {mp3_path.name}: {e}")
+    except Exception as exc:
+        print(f"  Error extracting cover from {mp3_path.name}: {exc}")
         return None
 
 
-def find_existing_cover(slug: str):
-    for ext in [".jpg", ".jpeg", ".png"]:
+
+def find_existing_cover(slug: str) -> str | None:
+    for ext in (".jpg", ".jpeg", ".png"):
         cover_path = COVERS_DIR / f"{slug}{ext}"
         if cover_path.exists():
-            return f"{slug}{ext}"
+            return cover_path.name
     return None
 
 
+
 def choose_playlists(album: str) -> list[str]:
-    album = (album or "").strip()
+    album = normalize_text(album)
     album_meta = ALBUM_METADATA.get(album, {})
-
     if album_meta.get("playlists"):
-        return [p.strip() for p in album_meta["playlists"] if str(p).strip()]
-
+        return [normalize_text(str(p)) for p in album_meta["playlists"] if normalize_text(str(p))]
     return [album] if album else [DEFAULT_PLAYLIST]
 
 
-def get_album_meta(album: str) -> dict:
-    return ALBUM_METADATA.get((album or "").strip(), {})
+
+def get_album_meta(album: str) -> dict[str, Any]:
+    return ALBUM_METADATA.get(normalize_text(album), {})
+
 
 
 def get_album_zip(album: str) -> str:
-    zip_name = (get_album_meta(album).get("album_zip") or "").strip()
-    if zip_name:
-        return build_album_zip_url(zip_name)
-    return ""
+    zip_name = normalize_text(str(get_album_meta(album).get("album_zip") or ""))
+    return build_album_zip_url(zip_name) if zip_name else ""
+
 
 
 def extract_scripture_references(text: str) -> list[str]:
     if not text:
         return []
 
-    normalized = " ".join(str(text).split())
-    found = []
-    seen = set()
+    normalized = " ".join(normalize_text(text).split())
+    found: list[str] = []
+    seen: set[str] = set()
 
     for book in sorted(SCRIPTURE_BOOKS, key=len, reverse=True):
         pattern = rf"\b{re.escape(book)}\s+\d+:\d+(?:[-–]\d+)?\b"
-        matches = re.finditer(pattern, normalized, flags=re.IGNORECASE)
-        for match in matches:
-            ref = match.group(0).strip()
+        for match in re.finditer(pattern, normalized, flags=re.IGNORECASE):
+            ref = normalize_text(match.group(0))
             key = ref.lower()
             if key not in seen:
                 seen.add(key)
@@ -334,119 +352,162 @@ def extract_scripture_references(text: str) -> list[str]:
     return found
 
 
+
 def make_track_id(title: str, album: str, index: int) -> str:
     return f"{slugify(album or DEFAULT_ALBUM)}__{slugify(title or 'track')}__{index}"
 
 
 
+def build_lookup_keys(*values: str) -> list[str]:
+    keys: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        candidates = {
+            normalize_text(value),
+            clean_title(value),
+            canonical_match_key(value),
+            slugify(value),
+            slugify(value.replace("dont", "don't").replace("its", "it's").replace("im", "i'm")),
+        }
+        for candidate in candidates:
+            candidate = candidate.strip().lower()
+            if candidate and candidate not in seen:
+                seen.add(candidate)
+                keys.append(candidate)
+    return keys
 
-def load_track_metadata() -> dict:
+
+
+def load_track_metadata() -> dict[str, dict[str, Any]]:
     if not TRACK_METADATA_FILE.exists():
         print(f"No {TRACK_METADATA_NAME} found. Skipping track overrides.")
         return {}
 
     try:
-        with open(TRACK_METADATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except Exception as e:
-        print(f"Could not read {TRACK_METADATA_NAME}: {e}")
+        data = json.loads(TRACK_METADATA_FILE.read_text(encoding="utf-8"))
+    except Exception as exc:
+        print(f"Could not read {TRACK_METADATA_NAME}: {exc}")
         return {}
 
     if not isinstance(data, dict):
         print(f"{TRACK_METADATA_NAME} is not a JSON object. Skipping track overrides.")
         return {}
 
-    normalized = {}
+    normalized: dict[str, dict[str, Any]] = {}
     for key, value in data.items():
         if not isinstance(value, dict):
             continue
-        normalized[str(key).strip().lower()] = value
-        normalized[slugify(str(key))] = value
-        normalized[clean_title(str(key)).lower()] = value
+        for lookup_key in build_lookup_keys(str(key)):
+            normalized[lookup_key] = value
+
     print(f"Loaded {len(data)} track metadata override entries from {TRACK_METADATA_NAME}.")
     return normalized
 
 
-def get_track_override(file_name: str, title: str, slug: str, track_meta_map: dict) -> dict:
-    candidates = [
-        file_name.lower(),
-        clean_title(file_name).lower(),
-        slugify(clean_title(file_name)),
-        (title or "").lower(),
-        slug,
-    ]
-    for key in candidates:
-        if key and key in track_meta_map:
+
+def get_track_override(file_name: str, title: str, slug: str, track_meta_map: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    for key in build_lookup_keys(file_name, title, slug):
+        if key in track_meta_map:
             return track_meta_map[key]
     return {}
 
-def load_lrc_manifest() -> dict:
-    if not LRC_MANIFEST_FILE.exists():
-        print(f"No {LRC_MANIFEST_NAME} found. Skipping lyrics_file mapping.")
-        return {}
 
-    try:
-        with open(LRC_MANIFEST_FILE, "r", encoding="utf-8") as f:
-            entries = json.load(f)
-    except Exception as e:
-        print(f"Could not read {LRC_MANIFEST_NAME}: {e}")
-        return {}
 
-    if not isinstance(entries, list):
-        print(f"{LRC_MANIFEST_NAME} is not a JSON list. Skipping lyrics_file mapping.")
-        return {}
+def build_lrc_mapping_from_lyrics_folder() -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    if not LYRICS_DIR.exists():
+        print(f"No lyrics folder found at {LYRICS_DIR}.")
+        return mapping
 
-    mapping = {}
-    for entry in entries:
-        if not isinstance(entry, dict):
-            continue
+    lrc_files = sorted(LYRICS_DIR.glob("*.lrc"))
+    for lrc_path in lrc_files:
+        relative_path = f"lyrics/{lrc_path.name}"
+        for key in build_lookup_keys(lrc_path.stem):
+            mapping.setdefault(key, relative_path)
 
-        lyrics_file = str(entry.get("lyrics_file") or "").strip()
-        mp3_name = str(entry.get("mp3") or "").strip()
-        title = str(entry.get("title") or "").strip()
-
-        if not lyrics_file:
-            continue
-
-        candidate_keys = {
-            mp3_name.lower(),
-            clean_title(mp3_name).lower(),
-            slugify(clean_title(mp3_name)),
-            title.lower(),
-            slugify(title),
-        }
-
-        for key in candidate_keys:
-            if key:
-                mapping[key] = lyrics_file
-
-    print(f"Loaded {len(entries)} LRC manifest entries from {LRC_MANIFEST_NAME}.")
+    print(f"Loaded {len(lrc_files)} LRC files from lyrics folder fallback.")
     return mapping
 
 
-def find_lyrics_file(file_name: str, title: str, slug: str, lrc_map: dict) -> str:
-    candidates = [
-        file_name.lower(),
-        clean_title(file_name).lower(),
-        slugify(clean_title(file_name)),
-        (title or "").lower(),
-        slug,
-    ]
-    for key in candidates:
-        if key and key in lrc_map:
+
+def load_lrc_manifest() -> dict[str, str]:
+    mapping: dict[str, str] = {}
+
+    if LRC_MANIFEST_FILE.exists():
+        try:
+            entries = json.loads(LRC_MANIFEST_FILE.read_text(encoding="utf-8"))
+        except Exception as exc:
+            print(f"Could not read {LRC_MANIFEST_NAME}: {exc}")
+            entries = []
+
+        if isinstance(entries, list):
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                lyrics_file = normalize_text(str(entry.get("lyrics_file") or ""))
+                mp3_name = normalize_text(str(entry.get("mp3") or ""))
+                title = normalize_text(str(entry.get("title") or ""))
+                if not lyrics_file:
+                    continue
+                for key in build_lookup_keys(mp3_name, title):
+                    mapping[key] = lyrics_file
+            print(f"Loaded {len(entries)} LRC manifest entries from {LRC_MANIFEST_NAME}.")
+        else:
+            print(f"{LRC_MANIFEST_NAME} is not a JSON list. Skipping manifest entries.")
+    else:
+        print(f"No {LRC_MANIFEST_NAME} found. Falling back to /lyrics folder scan.")
+
+    fallback_map = build_lrc_mapping_from_lyrics_folder()
+    for key, value in fallback_map.items():
+        mapping.setdefault(key, value)
+    return mapping
+
+
+
+def find_lyrics_file(file_name: str, title: str, slug: str, lrc_map: dict[str, str]) -> str:
+    for key in build_lookup_keys(file_name, title, slug):
+        if key in lrc_map:
             return lrc_map[key]
     return ""
 
 
-def main():
-    print("=== DEBUG INFO ===")
+
+def validate_track(track: dict[str, Any], source_file: Path, seen_ids: set[str]) -> list[str]:
+    warnings: list[str] = []
+    track_id = str(track.get("id") or "")
+    src = str(track.get("src") or "")
+    audio = str(track.get("audio") or "")
+
+    if track_id in seen_ids:
+        warnings.append(f"Duplicate track id: {track_id}")
+    else:
+        seen_ids.add(track_id)
+
+    if src != audio:
+        warnings.append("src/audio mismatch")
+
+    if "#U201" in src or "%23U201" in src or "\\u201" in src.lower():
+        warnings.append(f"Suspicious unicode marker in audio URL: {src}")
+
+    if not src.startswith(AUDIO_BASE_URL):
+        warnings.append(f"Audio URL does not start with expected base URL: {src}")
+
+    if not source_file.exists():
+        warnings.append(f"Source file missing: {source_file}")
+
+    return warnings
+
+
+
+def main() -> None:
+    print("=== make_tracks.py ===")
     print(f"SCRIPT_PATH: {SCRIPT_PATH}")
     print(f"SITE_DIR: {SITE_DIR}")
     print(f"AUDIO_DIR: {AUDIO_DIR}")
     print(f"COVERS_DIR: {COVERS_DIR}")
     print(f"OUTPUT_FILE: {OUTPUT_FILE}")
     print(f"LRC_MANIFEST_FILE: {LRC_MANIFEST_FILE}")
-    print("==================")
+    print("======================")
 
     if not AUDIO_DIR.exists():
         raise SystemExit(f"Missing audio folder: {AUDIO_DIR}")
@@ -454,20 +515,19 @@ def main():
     COVERS_DIR.mkdir(parents=True, exist_ok=True)
     lrc_map = load_lrc_manifest()
     track_meta_map = load_track_metadata()
-    tracks = []
+    tracks: list[dict[str, Any]] = []
+    seen_ids: set[str] = set()
 
-    audio_files = [
-        f for f in AUDIO_DIR.iterdir()
-        if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS
-    ]
+    audio_files = sorted(
+        [f for f in AUDIO_DIR.iterdir() if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS],
+        key=lambda f: f.name.lower(),
+    )
 
     print(f"Found audio files: {len(audio_files)}")
-    for f in audio_files:
-        print(f" - {f.name}")
+    for file in audio_files:
+        print(f" - {file.name}")
 
-    sorted_files = sorted(audio_files, key=lambda f: f.name.lower())
-
-    for index, file in enumerate(sorted_files, start=1):
+    for index, file in enumerate(audio_files, start=1):
         fallback_title = clean_title(file.name)
         mp3_meta = get_mp3_metadata(file)
 
@@ -497,19 +557,18 @@ def main():
         tags = parse_genre_tags(genre)
         album_meta = get_album_meta(album)
         album_zip = get_album_zip(album)
-
         existing_cover = find_existing_cover(slug)
         extracted_cover = existing_cover or extract_cover_art(file, slug)
 
-        track = {
+        track: dict[str, Any] = {
             "id": make_track_id(title, album, index),
-            "title": title,
+            "title": normalize_text(title),
             "slug": slug,
-            "artist": artist,
+            "artist": normalize_text(artist),
             "artist_slug": artist_slug,
-            "album": album,
+            "album": normalize_text(album),
             "album_slug": album_slug,
-            "genre": genre,
+            "genre": normalize_text(genre),
             "year": year,
             "src": build_audio_url(file.name),
             "playlists": playlists,
@@ -527,19 +586,17 @@ def main():
             "has_scripture_refs": bool(scripture_references),
         }
 
-        # Optional album page fields
         if album_meta.get("featured") is True:
             track["album_featured"] = True
         if album_meta.get("description"):
-            track["album_description"] = str(album_meta["description"]).strip()
+            track["album_description"] = normalize_text(str(album_meta["description"]))
         if album_meta.get("theme"):
-            track["album_theme"] = str(album_meta["theme"]).strip()
+            track["album_theme"] = normalize_text(str(album_meta["theme"]))
         if album_meta.get("story"):
-            track["album_story"] = str(album_meta["story"]).strip()
+            track["album_story"] = normalize_text(str(album_meta["story"]))
         if album_meta.get("badges"):
-            track["album_badges"] = [str(x).strip() for x in album_meta["badges"] if str(x).strip()]
+            track["album_badges"] = [normalize_text(str(x)) for x in album_meta["badges"] if normalize_text(str(x))]
 
-        # Compatibility fields for older code
         track["audio"] = track["src"]
         track["playlist"] = playlists[0] if playlists else DEFAULT_PLAYLIST
         track["scripture"] = scripture_references[0] if scripture_references else ""
@@ -548,60 +605,70 @@ def main():
             track["cover"] = build_cover_url(extracted_cover)
 
         if track_override.get("title"):
-            track["title"] = str(track_override["title"]).strip()
+            track["title"] = normalize_text(str(track_override["title"]))
+            track["slug"] = slugify(track["title"])
         if track_override.get("artist"):
-            track["artist"] = str(track_override["artist"]).strip()
+            track["artist"] = normalize_text(str(track_override["artist"]))
             track["artist_slug"] = slugify(track["artist"])
         if track_override.get("album"):
-            track["album"] = str(track_override["album"]).strip()
+            track["album"] = normalize_text(str(track_override["album"]))
             track["album_slug"] = slugify(track["album"])
         if track_override.get("year"):
             track["year"] = int(track_override["year"])
         if track_override.get("genre"):
-            track["genre"] = str(track_override["genre"]).strip()
+            track["genre"] = normalize_text(str(track_override["genre"]))
             track["tags"] = parse_genre_tags(track["genre"])
         if track_override.get("playlists"):
-            track["playlists"] = [str(x).strip() for x in track_override["playlists"] if str(x).strip()]
+            track["playlists"] = [normalize_text(str(x)) for x in track_override["playlists"] if normalize_text(str(x))]
+            track["playlist"] = track["playlists"][0] if track["playlists"] else DEFAULT_PLAYLIST
         if track_override.get("tags"):
-            track["tags"] = [str(x).strip().lower() for x in track_override["tags"] if str(x).strip()]
+            track["tags"] = [canonical_match_key(str(x)) for x in track_override["tags"] if canonical_match_key(str(x))]
         if track_override.get("scripture_references"):
-            track["scripture_references"] = [str(x).strip() for x in track_override["scripture_references"] if str(x).strip()]
+            track["scripture_references"] = [normalize_text(str(x)) for x in track_override["scripture_references"] if normalize_text(str(x))]
             track["has_scripture_refs"] = bool(track["scripture_references"])
             track["scripture"] = track["scripture_references"][0] if track["scripture_references"] else ""
         if track_override.get("lyrics"):
             track["lyrics"] = str(track_override["lyrics"]).strip()
             track["has_lyrics"] = True
         if track_override.get("lyrics_file"):
-            track["lyrics_file"] = str(track_override["lyrics_file"]).strip()
+            track["lyrics_file"] = normalize_text(str(track_override["lyrics_file"]))
             track["has_lyrics"] = True
         if track_override.get("cover"):
-            cover_name = str(track_override["cover"]).strip()
+            cover_name = normalize_text(str(track_override["cover"]))
             track["cover"] = cover_name if cover_name.startswith("http") else build_cover_url(cover_name)
         if track_override.get("album_zip"):
-            zip_name = str(track_override["album_zip"]).strip()
+            zip_name = normalize_text(str(track_override["album_zip"]))
             track["album_zip"] = zip_name if zip_name.startswith("http") else build_album_zip_url(zip_name)
         if "featured" in track_override:
             track["featured"] = bool(track_override.get("featured"))
         if track_override.get("collection"):
-            track["collection"] = str(track_override["collection"]).strip()
-
+            track["collection"] = normalize_text(str(track_override["collection"]))
+        if track_override.get("date_added"):
+            track["date_added"] = normalize_text(str(track_override["date_added"]))
+        if track_override.get("search_keywords"):
+            track["search_keywords"] = [normalize_text(str(v)) for v in track_override.get("search_keywords", []) if normalize_text(str(v))]
 
         if lyrics:
             track["lyrics"] = lyrics
-
         if lyrics_file:
             track["lyrics_file"] = lyrics_file
 
         if track["trackNumber"] is None:
-            del track["trackNumber"]
+            track.pop("trackNumber", None)
         if not track["album_zip"]:
-            del track["album_zip"]
+            track.pop("album_zip", None)
         if not track["scripture_references"]:
-            del track["scripture_references"]
-        if not track["genre"]:
-            del track["genre"]
+            track.pop("scripture_references", None)
+        if not track.get("genre"):
+            track.pop("genre", None)
         if not track.get("album_badges"):
             track.pop("album_badges", None)
+
+        warnings = validate_track(track, file, seen_ids)
+        if warnings:
+            print(f"Warnings for {file.name}:")
+            for warning in warnings:
+                print(f"  - {warning}")
 
         tracks.append(track)
 
@@ -609,27 +676,14 @@ def main():
         print(f"  Title: {track['title']}")
         print(f"  Slug: {track['slug']}")
         print(f"  Artist: {track['artist']}")
-        print(f"  Artist slug: {track['artist_slug']}")
         print(f"  Album: {track['album']}")
-        print(f"  Album slug: {track['album_slug']}")
-        print(f"  Genre: {genre or 'none'}")
-        print(f"  Playlists: {', '.join(track['playlists'])}")
-        print(f"  Tags: {', '.join(track['tags']) if track['tags'] else 'none'}")
-        print(f"  Scripture refs: {', '.join(scripture_references) if scripture_references else 'none'}")
         print(f"  Duration: {track['duration']}")
-        print(f"  Lyrics found: {'yes' if lyrics else 'no'}")
+        print(f"  Audio URL: {track['src']}")
         print(f"  LRC file: {track.get('lyrics_file', 'none')}")
         print(f"  Cover found: {track.get('cover', 'none')}")
-        print(f"  Album zip: {track.get('album_zip', 'none')}")
 
-    tracks.sort(key=lambda t: (
-        t.get("album", "").lower(),
-        t.get("trackNumber", 9999),
-        t.get("title", "").lower(),
-    ))
-
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(tracks, f, indent=2, ensure_ascii=False)
+    tracks.sort(key=lambda t: (t.get("album", "").lower(), t.get("trackNumber", 9999), t.get("title", "").lower()))
+    OUTPUT_FILE.write_text(json.dumps(tracks, indent=2, ensure_ascii=False), encoding="utf-8")
 
     print(f"\ntracks.json created successfully with {len(tracks)} tracks.")
     print(f"Wrote file to: {OUTPUT_FILE}")

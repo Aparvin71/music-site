@@ -1,0 +1,10 @@
+v42.3.85 — make_tracks.py rewrite
+
+Included:
+- rewritten make_tracks.py at root
+- rewritten tools/make_tracks.py
+- stronger filename normalization
+- safer URL encoding for audio, covers, and album zips
+- improved matching for lyrics and track metadata overrides
+- validation warnings for suspicious audio URLs and duplicate IDs
+- keeps current tracks.json structure compatible with the app
