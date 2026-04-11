@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.99";
+const AINEO_APP_VERSION = "v42.4.0";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -302,6 +302,223 @@ async function registerStandaloneServiceWorker() {
   }
 }
 
+const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
+const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
+let tracksUpdateTimer = null;
+let lastKnownTracksSignature = null;
+let lastKnownTracksUrl = null;
+let appRefreshPending = false;
+let appRefreshReason = "";
+
+function getCurrentAudioPlayer() {
+  return document.getElementById("audioPlayer");
+}
+
+function isPlaybackActive() {
+  const audio = getCurrentAudioPlayer();
+  return Boolean(audio && !audio.paused && !audio.ended && audio.readyState > 2);
+}
+
+function canAutoRefreshNow() {
+  return document.visibilityState === "visible" && navigator.onLine !== false && !isPlaybackActive();
+}
+
+function simpleStringHash(input) {
+  let hash = 0;
+  for (let i = 0; i < input.length; i += 1) {
+    hash = ((hash << 5) - hash) + input.charCodeAt(i);
+    hash |= 0;
+  }
+  return String(hash >>> 0);
+}
+
+function ensureAppUpdateToast() {
+  let mount = document.getElementById("appUpdateToast");
+  if (mount) return mount;
+
+  mount = document.createElement("section");
+  mount.id = "appUpdateToast";
+  mount.className = "app-update-toast hidden";
+  mount.setAttribute("aria-live", "polite");
+  mount.innerHTML = `
+    <div class="app-update-toast__card">
+      <div class="app-update-toast__copy">
+        <p class="eyebrow app-update-toast__eyebrow">Update Ready</p>
+        <h2 id="appUpdateToastTitle">Fresh music is available</h2>
+        <p id="appUpdateToastBody">The library changed in the background. Refresh to pull in the latest songs and updates.</p>
+      </div>
+      <div class="app-update-toast__actions">
+        <button type="button" class="action-btn primary-btn small-action-btn" data-app-update-refresh>Refresh now</button>
+        <button type="button" class="action-btn secondary-btn small-action-btn" data-app-update-dismiss>Later</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(mount);
+
+  mount.querySelector("[data-app-update-refresh]")?.addEventListener("click", () => {
+    performAppRefresh({ immediate: true });
+  });
+
+  mount.querySelector("[data-app-update-dismiss]")?.addEventListener("click", () => {
+    mount.classList.add("hidden");
+  });
+
+  return mount;
+}
+
+function showAppUpdateToast({ title, body, primaryLabel = "Refresh now", secondaryLabel = "Later" } = {}) {
+  const mount = ensureAppUpdateToast();
+  const titleEl = mount.querySelector("#appUpdateToastTitle");
+  const bodyEl = mount.querySelector("#appUpdateToastBody");
+  const primary = mount.querySelector("[data-app-update-refresh]");
+  const secondary = mount.querySelector("[data-app-update-dismiss]");
+
+  if (titleEl && title) titleEl.textContent = title;
+  if (bodyEl && body) bodyEl.textContent = body;
+  if (primary) primary.textContent = primaryLabel;
+  if (secondary) secondary.textContent = secondaryLabel;
+  mount.classList.remove("hidden");
+}
+
+function hideAppUpdateToast() {
+  const mount = document.getElementById("appUpdateToast");
+  if (mount) mount.classList.add("hidden");
+}
+
+function rememberTracksSignature(signature, url = "./tracks.json") {
+  if (!signature) return;
+  lastKnownTracksSignature = signature;
+  lastKnownTracksUrl = url;
+  try {
+    localStorage.setItem(TRACKS_UPDATE_SIGNATURE_KEY, signature);
+  } catch (error) {}
+}
+
+async function computeTracksSignature(url = "./tracks.json") {
+  const requestUrl = new URL(url, window.location.href);
+  requestUrl.searchParams.set("updateCheck", String(Date.now()));
+  const response = await fetch(requestUrl.toString(), { cache: "no-store", headers: { "cache-control": "no-cache" } });
+  if (!response.ok) throw new Error(`tracks.json check failed: ${response.status}`);
+  const text = await response.text();
+  try {
+    return simpleStringHash(JSON.stringify(JSON.parse(text)));
+  } catch (error) {
+    return simpleStringHash(text);
+  }
+}
+
+function markBackgroundUpdateAvailable(reason = "music library updates") {
+  appRefreshPending = true;
+  appRefreshReason = reason;
+
+  if (canAutoRefreshNow()) {
+    showAppUpdateToast({
+      title: "Refreshing for new music",
+      body: `Aineo detected ${reason} in the background and is pulling them in now.`
+    });
+    window.setTimeout(() => performAppRefresh({ immediate: true }), 900);
+    return;
+  }
+
+  showAppUpdateToast({
+    title: "New songs or updates are ready",
+    body: isPlaybackActive()
+      ? "Aineo found fresh music in the background. Finish this song, then tap Refresh now to load the latest library."
+      : "Aineo found fresh music in the background. Refresh to load the latest library and app updates."
+  });
+}
+
+function performAppRefresh({ immediate = false } = {}) {
+  if (!immediate && !canAutoRefreshNow()) return;
+  hideAppUpdateToast();
+  window.location.reload();
+}
+
+async function maybeAutoRefreshPendingUpdate() {
+  if (!appRefreshPending) return;
+  if (!canAutoRefreshNow()) return;
+  showAppUpdateToast({
+    title: "Refreshing for the newest music",
+    body: `Aineo is loading the latest ${appRefreshReason || "updates"} now.`
+  });
+  window.setTimeout(() => performAppRefresh({ immediate: true }), 700);
+}
+
+async function checkForTracksJsonUpdate({ force = false } = {}) {
+  if (navigator.onLine === false) return;
+  if (!force && document.visibilityState === "hidden") return;
+
+  try {
+    const nextSignature = await computeTracksSignature(lastKnownTracksUrl || "./tracks.json");
+    if (!lastKnownTracksSignature) {
+      const stored = localStorage.getItem(TRACKS_UPDATE_SIGNATURE_KEY);
+      lastKnownTracksSignature = stored || nextSignature;
+      if (!stored) rememberTracksSignature(nextSignature, "./tracks.json");
+      return;
+    }
+    if (nextSignature !== lastKnownTracksSignature) {
+      rememberTracksSignature(nextSignature, "./tracks.json");
+      markBackgroundUpdateAvailable("music library updates");
+    }
+  } catch (error) {
+    console.warn("Could not check for tracks.json updates:", error);
+  }
+}
+
+function initBackgroundUpdateDetection() {
+  const currentPageLooksLikeApp = Boolean(document.querySelector('script[src*="app.js"], script[src*="album-page.js"], script[src*="aineo-album-page.js"]') || document.getElementById("audioPlayer"));
+  if (!currentPageLooksLikeApp) return;
+
+  const stored = (() => {
+    try { return localStorage.getItem(TRACKS_UPDATE_SIGNATURE_KEY) || ""; } catch (error) { return ""; }
+  })();
+  if (stored) lastKnownTracksSignature = stored;
+
+  checkForTracksJsonUpdate({ force: true });
+  if (tracksUpdateTimer) window.clearInterval(tracksUpdateTimer);
+  tracksUpdateTimer = window.setInterval(() => checkForTracksJsonUpdate(), TRACKS_UPDATE_CHECK_INTERVAL);
+
+  window.addEventListener("online", () => checkForTracksJsonUpdate({ force: true }));
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      checkForTracksJsonUpdate({ force: true });
+      maybeAutoRefreshPendingUpdate();
+    }
+  });
+
+  const audio = getCurrentAudioPlayer();
+  if (audio && !audio.dataset.appRefreshBound) {
+    audio.dataset.appRefreshBound = "true";
+    audio.addEventListener("pause", () => { window.setTimeout(maybeAutoRefreshPendingUpdate, 250); });
+    audio.addEventListener("ended", () => { window.setTimeout(maybeAutoRefreshPendingUpdate, 250); });
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      markBackgroundUpdateAvailable("app updates");
+    });
+    navigator.serviceWorker.getRegistration().then((registration) => {
+      if (!registration) return;
+      if (registration.waiting) markBackgroundUpdateAvailable("app updates");
+      registration.addEventListener("updatefound", () => {
+        const worker = registration.installing;
+        if (!worker) return;
+        worker.addEventListener("statechange", () => {
+          if (worker.state === "installed" && navigator.serviceWorker.controller) {
+            markBackgroundUpdateAvailable("app updates");
+          }
+        });
+      });
+    }).catch(() => {});
+  }
+}
+
+window.AineoAppUpdates = {
+  rememberTracksSignature,
+  checkForTracksJsonUpdate,
+  markBackgroundUpdateAvailable
+};
+
 function closeMobileNav(toggle, nav) {
   if (!toggle || !nav) return;
   nav.classList.remove("nav-open");
@@ -549,4 +766,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); initBackgroundUpdateDetection(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });

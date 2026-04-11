@@ -1,0 +1,13 @@
+Aineo Music Build v42.4.0 — Background Update Detection
+
+What changed
+- Added background update detection for tracks.json changes.
+- Added app update detection tied to service worker lifecycle changes.
+- Added in-app update toast with Refresh now / Later actions.
+- Auto-refreshes when safe (visible, online, and not actively playing audio).
+- Defers refresh while a song is playing, then refreshes after pause/end or when the app becomes visible again.
+- Synced version markers, install page copy, changelog top entry, and service worker cache version.
+
+Notes
+- New songs should now surface more smoothly after uploading refreshed files.
+- Playback path and waveform system were left untouched in this pass.

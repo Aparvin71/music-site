@@ -1,4 +1,4 @@
-/* v42.3.99 neon flare halo pass */
+/* v42.4.0 background update detection */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -372,6 +372,10 @@ async function loadTracks() {
     tracks = nextTracks;
     filteredTracks = [...tracks];
     saveTracksCache(nextTracks);
+    try {
+      const signature = String((Array.isArray(data) ? JSON.stringify(data) : "[]").length) + ":" + nextTracks.length + ":" + (nextTracks[0]?.id || "") + ":" + (nextTracks[nextTracks.length - 1]?.id || "");
+      window.AineoAppUpdates?.rememberTracksSignature?.(signature, "./tracks.json");
+    } catch (error) {}
   } catch (error) {
     console.error("Error loading tracks.json:", error);
     const cachedTracks = loadTracksCache();
