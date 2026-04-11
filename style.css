@@ -10140,7 +10140,7 @@ button:active{
 }
 
 
-/* ===== v42.3.90 playback restore + centered mirrored halo visualizer ===== */
+/* ===== v42.3.91 playback restore + centered mirrored halo visualizer ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10155,8 +10155,8 @@ button:active{
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -26px;
-  transform: scale(0.97);
+  inset: -28px;
+  transform: translate3d(12px, -10px, 0) scale(0.985);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10167,12 +10167,12 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: scale(1);
+  transform: translate3d(12px, -10px, 0) scale(1.015);
 }
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 12%;
+  inset: 10.5%;
   border-radius: 999px;
   background: radial-gradient(circle at center, rgba(88, 179, 255, 0.20), rgba(108, 76, 255, 0.10) 44%, rgba(12, 16, 32, 0) 74%);
   filter: blur(18px);
@@ -10190,7 +10190,7 @@ button:active{
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 16px -6px;
+  inset: 14px -2px;
   display: grid;
   grid-template-columns: repeat(9, minmax(0, 1fr));
   align-items: center;
@@ -10237,8 +10237,9 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -16px; }
-  .player-cover-visualizer-bars { inset: 14px -4px; }
+  .player-cover-visualizer { inset: -18px; transform: translate3d(8px, -8px, 0) scale(0.985); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(8px, -8px, 0) scale(1.01); }
+  .player-cover-visualizer-bars { inset: 12px -2px; }
   .player-cover-visualizer-bar { width: 2px; }
 }
 

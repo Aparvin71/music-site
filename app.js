@@ -1,4 +1,4 @@
-/* v42.3.90 sound restore + cover-anchored mirrored halo */
+/* v42.3.91 sound restore + cover-anchored mirrored halo */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1328,10 +1328,10 @@ function drawVisualizerFrame() {
   const ctx = visualizerCtx;
   ctx.clearRect(0, 0, width, height);
 
-  const centerX = width / 2;
-  const centerY = height / 2;
-  const coverRadius = Math.min(width, height) * 0.255;
-  const baseRadius = coverRadius + 20;
+  const centerX = (width / 2) + 8;
+  const centerY = (height / 2) - 8;
+  const coverRadius = Math.min(width, height) * 0.262;
+  const baseRadius = coverRadius + 24;
   const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
 
   let bass = 0.18;
@@ -1357,9 +1357,12 @@ function drawVisualizerFrame() {
     treble = avg(midEnd, highEnd);
   } else {
     const current = els.audioPlayer?.currentTime || 0;
-    bass = 0.18 + Math.abs(Math.sin((visualizerTick / 18) + current * 1.4)) * 0.34;
-    mids = 0.14 + Math.abs(Math.sin((visualizerTick / 14) + current * 1.9 + 0.7)) * 0.24;
-    treble = 0.12 + Math.abs(Math.cos((visualizerTick / 9) + current * 2.5 + 0.3)) * 0.2;
+    const pulseA = Math.abs(Math.sin((visualizerTick / 15) + current * 1.7));
+    const pulseB = Math.abs(Math.sin((visualizerTick / 9.5) + current * 2.8 + 0.7));
+    const pulseC = Math.abs(Math.cos((visualizerTick / 7.5) + current * 3.4 + 0.35));
+    bass = 0.26 + pulseA * 0.34 + pulseB * 0.12;
+    mids = 0.18 + pulseB * 0.28 + pulseC * 0.08;
+    treble = 0.14 + pulseC * 0.22 + pulseA * 0.06;
   }
 
   const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.55, centerX, centerY, baseRadius + 82);
@@ -1372,15 +1375,17 @@ function drawVisualizerFrame() {
   ctx.arc(centerX, centerY, baseRadius + 78, 0, Math.PI * 2);
   ctx.fill();
 
-  const haloSteps = 96;
+  const haloSteps = 112;
   const mirroredSamples = [];
-  const maxWavePush = 16 + bass * 14;
+  const maxWavePush = 22 + bass * 22 + mids * 8;
   const sampleWave = (progress) => {
     if (waveformSource) {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
       return Math.abs((waveformSource[sourceIndex] - 128) / 128);
     }
-    return 0.12 + Math.abs(Math.sin((visualizerTick / 14) + progress * Math.PI * 4)) * (0.18 + bass * 0.1);
+    const layerA = Math.abs(Math.sin((visualizerTick / 13) + progress * Math.PI * 4));
+    const layerB = Math.abs(Math.sin((visualizerTick / 7.5) + progress * Math.PI * 8 + 0.6));
+    return 0.15 + layerA * (0.18 + bass * 0.14) + layerB * (0.06 + mids * 0.05);
   };
 
   for (let i = 0; i <= haloSteps; i += 1) {
@@ -1413,8 +1418,8 @@ function drawVisualizerFrame() {
     ctx.restore();
   };
 
-  drawHalo(baseRadius + 2, 2.6, `rgba(236, 246, 255, ${0.18 + treble * 0.24})`, 16, 'rgba(168, 224, 255, 0.20)', 1);
-  drawHalo(baseRadius + 11, 1.2, `rgba(96, 190, 255, ${0.12 + mids * 0.18})`, 8, 'rgba(94, 142, 255, 0.14)', 0.68);
+  drawHalo(baseRadius + 1, 2.9, `rgba(236, 246, 255, ${0.20 + treble * 0.24})`, 18, 'rgba(168, 224, 255, 0.24)', 1.08);
+  drawHalo(baseRadius + 10, 1.35, `rgba(96, 190, 255, ${0.14 + mids * 0.20})`, 10, 'rgba(94, 142, 255, 0.18)', 0.78);
 
   ctx.save();
   ctx.beginPath();
@@ -1432,10 +1437,10 @@ function drawVisualizerFrame() {
     const level = freqIndex >= 0
       ? (visualizerFreqData[freqIndex] || 0) / 255
       : (0.14 + Math.abs(Math.sin((visualizerTick / 11) + mirrorIndex * 0.7)) * 0.28);
-    const height = 10 + Math.round(level * 20) + mirrorIndex * 4;
+    const height = 14 + Math.round(level * 28) + mirrorIndex * 5;
     bar.style.height = `${height}px`;
-    bar.style.opacity = `${0.08 + level * 0.24}`;
-    const yOffset = Math.round((1 - level) * 4);
+    bar.style.opacity = `${0.10 + level * 0.30}`;
+    const yOffset = Math.round((1 - level) * 3);
     bar.style.transform = `translate3d(0, ${yOffset}px, 0) scaleY(${(0.96 + level * 0.1).toFixed(3)})`;
   });
 }

@@ -1,0 +1,10 @@
+Aineo Music Build Notes
+Version: v42.3.91
+Title: Halo Recenter + Stronger Motion
+
+Changes included:
+- Kept the restored live song audio path stable without reintroducing visualizer audio takeover.
+- Shifted the mirrored halo slightly right and up so it sits more accurately behind the full-player artwork.
+- Increased fallback halo motion and waveform push so the visualizer feels less flat and more alive.
+- Slightly enlarged and energized the side accent bars while keeping the premium mirrored halo look.
+- Updated package version strings, changelog entry, PWA summary, and cache version to v42.3.91.
