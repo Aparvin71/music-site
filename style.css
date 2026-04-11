@@ -10263,8 +10263,8 @@ button:active{
 
 @media (max-width: 640px) {
   .player-sheet-cover-wrap { transform: translate3d(9px, -4px, 0); }
-  .player-cover-visualizer { inset: -20px; transform: translate3d(7px, -6px, 0) scale(0.994); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -6px, 0) scale(1.016); }
+  .player-cover-visualizer { inset: -20px; transform: translate3d(10px, -6px, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(10px, -6px, 0) scale(1.016); }
   .player-cover-visualizer::before { inset: 20% 0; }
   .player-cover-visualizer::after { inset: 30% 8%; }
 }

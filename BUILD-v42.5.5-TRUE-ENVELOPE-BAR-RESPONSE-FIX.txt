@@ -1,0 +1,9 @@
+Aineo Music
+Build: v42.5.5 — True Envelope Bar Response Fix
+
+Includes:
+- fixes the full-player bar waveform so heights respond directly to each song's waveform_envelope instead of staying blown open
+- reduces aggressive local normalization that was making the waveform look wide open and static
+- keeps blue and purple bar styling
+- nudges the visualizer/artwork grouping slightly farther right
+- keeps quiet install/offline notices and safe web refresh behavior
