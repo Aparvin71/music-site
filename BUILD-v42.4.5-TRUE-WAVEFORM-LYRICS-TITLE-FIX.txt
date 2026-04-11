@@ -1,0 +1,9 @@
+Aineo Music
+Build: v42.4.5 — True Waveform Visualizer + Lyrics Title Fix
+
+Included in this build:
+- Replaced the stylized vocal aura draw routine with a true waveform ring visualizer driven by each track's prerendered waveform data
+- Kept the safe playback path and prerendered track-specific waveform pipeline
+- Reduced the side accent bars so the waveform ring is the primary visual effect
+- Fixed the lyrics modal song title showing in dark text by explicitly setting modal title color
+- Synced visible version markers, changelog, and cache version labels

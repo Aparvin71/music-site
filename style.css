@@ -1167,6 +1167,13 @@ a:hover {
 .album-modal-header h2 {
   margin: 0;
   font-size: 24px;
+  color: #f4f7fb;
+}
+
+#lyricsModalTitle,
+#albumModalTitle,
+#playlistModalTitle {
+  color: #f4f7fb !important;
 }
 
 .lyrics-modal-body,
@@ -10235,7 +10242,7 @@ button:active{
   grid-template-columns: repeat(10, minmax(0, 1fr));
   align-items: center;
   pointer-events: none;
-  opacity: 0.92;
+  opacity: 0.42;
 }
 
 .player-cover-visualizer-bar {
@@ -10246,7 +10253,8 @@ button:active{
   box-shadow: 0 0 20px rgba(0, 238, 255, 0.88), 0 0 38px rgba(92, 136, 255, 0.42);
   align-self: center;
   transition: height 100ms linear, opacity 100ms linear, transform 100ms linear, filter 100ms linear;
-  filter: saturate(1.24);
+  filter: saturate(1.18);
+  mix-blend-mode: screen;
 }
 
 .player-cover-visualizer-bar:nth-child(odd) {
@@ -12205,7 +12213,7 @@ body.ios-standalone .player-sheet-header::before {
 
 
 
-/* ===== v42.4.4 modal safe-zone polish ===== */
+/* ===== v42.4.5 modal safe-zone polish ===== */
 .lyrics-modal,
 .album-modal {
   padding:

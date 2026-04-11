@@ -1374,6 +1374,7 @@ function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
 }
 
 
+
 function drawVisualizerFrame() {
   if (!visualizerCtx || !visualizerCanvas) return;
   resizeMiniVisualizerCanvas();
@@ -1425,47 +1426,44 @@ function drawVisualizerFrame() {
     const beatIndex = Math.floor(beatPosition) % 16;
     const beatFraction = beatPosition - Math.floor(beatPosition);
     const accentPattern = [1.0, 0.34, 0.56, 0.30, 0.84, 0.36, 0.52, 0.28, 0.96, 0.32, 0.60, 0.30, 0.88, 0.40, 0.58, 0.34];
-    const subPattern = [0.22, 0.14, 0.18, 0.12, 0.24, 0.14, 0.16, 0.10, 0.20, 0.13, 0.17, 0.11, 0.22, 0.15, 0.18, 0.12];
     const attack = Math.max(0, 1 - (beatFraction / 0.16));
     const decay = Math.max(0, 1 - ((beatFraction - 0.16) / 0.48));
     const beatEnvelope = beatFraction < 0.16 ? attack : decay * 0.78;
-    const offBeatPhase = ((current / (beatLength / 2)) % 1);
-    const offBeatPulse = Math.max(0, 1 - Math.abs(offBeatPhase - 0.18) / 0.22) * subPattern[beatIndex];
     const phrasePhase = (current / (beatLength * 8)) % 1;
     const phraseLift = 0.18 + Math.sin(phrasePhase * Math.PI) * 0.32;
     const shimmer = 0.08 + Math.abs(Math.sin(current * 5.8 + beatIndex * 0.9)) * 0.18;
     const beatStrength = accentPattern[beatIndex] * beatEnvelope;
-    bass = 0.10 + phraseLift * 0.22 + beatStrength * 0.88 + offBeatPulse * 0.16;
-    mids = 0.08 + phraseLift * 0.18 + beatStrength * 0.56 + shimmer * 0.18 + offBeatPulse * 0.26;
+    bass = 0.10 + phraseLift * 0.22 + beatStrength * 0.88;
+    mids = 0.08 + phraseLift * 0.18 + beatStrength * 0.56 + shimmer * 0.18;
     treble = 0.06 + phraseLift * 0.10 + beatStrength * 0.24 + shimmer * 0.42;
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const outerRadius = coverRadius + 54 + bass * 16;
+  const baseRadius = coverRadius + 30;
+  const haloOuterRadius = baseRadius + 56 + bass * 12;
 
-  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.58, centerX, centerY, outerRadius + 82);
+  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.58, centerX, centerY, haloOuterRadius + 64);
   outerGlow.addColorStop(0, "rgba(255,255,255,0)");
-  outerGlow.addColorStop(0.18, `rgba(180, 248, 255, ${0.10 + bass * 0.14})`);
-  outerGlow.addColorStop(0.34, `rgba(0, 234, 255, ${0.12 + bass * 0.18 + mids * 0.10})`);
-  outerGlow.addColorStop(0.56, `rgba(76, 122, 255, ${0.10 + mids * 0.14})`);
-  outerGlow.addColorStop(0.76, `rgba(162, 74, 255, ${0.10 + treble * 0.18 + mids * 0.08})`);
+  outerGlow.addColorStop(0.18, `rgba(178, 248, 255, ${0.08 + bass * 0.12})`);
+  outerGlow.addColorStop(0.34, `rgba(0, 234, 255, ${0.10 + bass * 0.16 + mids * 0.08})`);
+  outerGlow.addColorStop(0.58, `rgba(78, 122, 255, ${0.08 + mids * 0.12})`);
+  outerGlow.addColorStop(0.78, `rgba(160, 72, 255, ${0.08 + treble * 0.15 + mids * 0.06})`);
   outerGlow.addColorStop(1, "rgba(8, 12, 28, 0)");
   ctx.fillStyle = outerGlow;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, outerRadius + 72, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, haloOuterRadius + 52, 0, Math.PI * 2);
   ctx.fill();
 
-  const inhale = 0.5 + Math.sin(currentTime * 1.2) * 0.5;
-  const orbGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.74, centerX, centerY, coverRadius + 46);
-  orbGlow.addColorStop(0, "rgba(255,255,255,0)");
-  orbGlow.addColorStop(0.16, `rgba(255,255,255, ${0.06 + treble * 0.08})`);
-  orbGlow.addColorStop(0.30, `rgba(172, 245, 255, ${0.10 + bass * 0.14})`);
-  orbGlow.addColorStop(0.48, `rgba(0, 236, 255, ${0.12 + mids * 0.12 + inhale * 0.04})`);
-  orbGlow.addColorStop(0.72, `rgba(158, 72, 255, ${0.10 + treble * 0.12 + mids * 0.08})`);
-  orbGlow.addColorStop(1, "rgba(14, 20, 38, 0)");
-  ctx.fillStyle = orbGlow;
+  const innerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.72, centerX, centerY, baseRadius + 26);
+  innerGlow.addColorStop(0, "rgba(255,255,255,0)");
+  innerGlow.addColorStop(0.20, `rgba(255,255,255, ${0.04 + treble * 0.06})`);
+  innerGlow.addColorStop(0.38, `rgba(170, 246, 255, ${0.08 + bass * 0.10})`);
+  innerGlow.addColorStop(0.58, `rgba(0, 236, 255, ${0.10 + mids * 0.10})`);
+  innerGlow.addColorStop(0.78, `rgba(158, 72, 255, ${0.08 + treble * 0.10})`);
+  innerGlow.addColorStop(1, "rgba(14, 20, 38, 0)");
+  ctx.fillStyle = innerGlow;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, coverRadius + 42, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, baseRadius + 30, 0, Math.PI * 2);
   ctx.fill();
 
   const sampleWave = (progress) => {
@@ -1474,76 +1472,112 @@ function drawVisualizerFrame() {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
       return Math.abs((waveformSource[sourceIndex] - 128) / 128);
     }
-    return 0.12 + Math.abs(Math.sin((visualizerTick / 10.5) + progress * Math.PI * 5 + currentTime * 1.4)) * (0.18 + mids * 0.12);
+    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + progress * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
   };
 
-  const columnCount = 10;
-  const maxColumnHeight = coverRadius * 1.22 + 42;
-  const innerGap = coverRadius + 18;
-  const baseColumnSpacing = 11;
-  const colorForColumn = (i) => (i % 2 === 0
-    ? ["rgba(255,255,255,0.98)", "rgba(120,244,255,0.98)", "rgba(0,236,255,0.96)", "rgba(72,124,255,0.56)"]
-    : ["rgba(255,250,255,0.98)", "rgba(234,160,255,0.98)", "rgba(164,78,255,0.96)", "rgba(96,62,255,0.56)"]);
+  const steps = 240;
+  const waveformValues = [];
+  for (let i = 0; i <= steps; i += 1) {
+    const progress = i / steps;
+    waveformValues.push(Math.max(0.02, Math.min(1, sampleWave(progress))));
+  }
 
-  const drawColumn = (x, heightAmount, widthAmount, colors, lean = 0) => {
-    const halfHeight = heightAmount / 2;
-    const top = centerY - halfHeight;
-    const grad = ctx.createLinearGradient(x, top, x, top + heightAmount);
-    grad.addColorStop(0, colors[0]);
-    grad.addColorStop(0.28, colors[1]);
-    grad.addColorStop(0.62, colors[2]);
-    grad.addColorStop(1, colors[3]);
+  const drawWaveformRing = ({ radiusBase, lineWidth, glowWidth, colorStops, glowAlpha = 1, sampleScale = 1, phaseOffset = 0, blur = 24 }) => {
+    const gradient = ctx.createLinearGradient(centerX - radiusBase, centerY - radiusBase, centerX + radiusBase, centerY + radiusBase);
+    gradient.addColorStop(0, colorStops[0]);
+    gradient.addColorStop(0.35, colorStops[1]);
+    gradient.addColorStop(0.68, colorStops[2]);
+    gradient.addColorStop(1, colorStops[3]);
+
+    const buildPath = (extraRadius = 0) => {
+      ctx.beginPath();
+      for (let i = 0; i <= steps; i += 1) {
+        const progress = i / steps;
+        const angle = (Math.PI * 2 * progress) - (Math.PI / 2) + phaseOffset;
+        const wave = waveformValues[i];
+        const radius = radiusBase + extraRadius + (wave * (18 + bass * 16 + mids * 8) * sampleScale);
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    };
 
     ctx.save();
     ctx.globalCompositeOperation = "screen";
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = widthAmount;
+    ctx.lineJoin = "round";
     ctx.lineCap = "round";
-    ctx.shadowBlur = 20 + energy * 18;
-    ctx.shadowColor = colors[2];
 
-    ctx.beginPath();
-    ctx.moveTo(x + lean, top);
-    ctx.bezierCurveTo(
-      x + lean * 1.6, centerY - heightAmount * 0.16,
-      x - lean * 1.2, centerY + heightAmount * 0.16,
-      x, top + heightAmount
-    );
+    ctx.strokeStyle = gradient;
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = colorStops[2];
+    ctx.lineWidth = glowWidth;
+    ctx.globalAlpha = 0.18 * glowAlpha;
+    buildPath(2.5);
     ctx.stroke();
 
-    ctx.lineWidth = Math.max(1.2, widthAmount * 0.34);
-    ctx.shadowBlur = 8 + treble * 12;
-    ctx.strokeStyle = "rgba(255,255,255,0.18)";
-    ctx.beginPath();
-    ctx.moveTo(x + lean * 0.4, top + 4);
-    ctx.bezierCurveTo(
-      x + lean * 0.8, centerY - heightAmount * 0.12,
-      x - lean * 0.5, centerY + heightAmount * 0.10,
-      x + lean * 0.2, top + heightAmount - 4
-    );
+    ctx.strokeStyle = gradient;
+    ctx.shadowBlur = blur + 10;
+    ctx.shadowColor = colorStops[1];
+    ctx.lineWidth = lineWidth + 1.8;
+    ctx.globalAlpha = 0.24 * glowAlpha;
+    buildPath(1.2);
     ctx.stroke();
+
+    ctx.strokeStyle = gradient;
+    ctx.shadowBlur = blur;
+    ctx.shadowColor = colorStops[2];
+    ctx.lineWidth = lineWidth;
+    ctx.globalAlpha = 0.98;
+    buildPath(0);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = Math.max(1, lineWidth * 0.22);
+    ctx.globalAlpha = 0.9;
+    buildPath(-0.8);
+    ctx.stroke();
+
     ctx.restore();
   };
 
-  for (let i = 0; i < columnCount; i += 1) {
-    const outward = i / (columnCount - 1);
-    const progress = outward * 0.94;
-    const wave = sampleWave(progress);
-    const taper = 1 - outward * 0.12;
-    const hit = Math.max(0, bass - 0.16) * (0.8 - outward * 0.18);
-    const heightAmount = 34 + maxColumnHeight * (wave * 0.52 + bass * 0.18 + mids * 0.10 + hit * 0.22) * taper;
-    const widthAmount = Math.max(2.2, 5.4 - outward * 0.24 + treble * 0.9);
-    const xOffset = innerGap + (i * baseColumnSpacing) + outward * 7;
-    const lean = (1.6 + outward * 2.8) * (0.5 + mids * 0.5);
-    const colors = colorForColumn(i);
+  drawWaveformRing({
+    radiusBase: baseRadius - 2,
+    lineWidth: 4.2,
+    glowWidth: 8.0,
+    colorStops: [
+      "rgba(236, 250, 255, 0.98)",
+      "rgba(118, 246, 255, 0.98)",
+      "rgba(0, 236, 255, 0.96)",
+      "rgba(74, 126, 255, 0.70)"
+    ],
+    glowAlpha: 1.0,
+    sampleScale: 1.12,
+    phaseOffset: 0,
+    blur: 26
+  });
 
-    drawColumn(centerX - xOffset, heightAmount, widthAmount, colors, -lean);
-    drawColumn(centerX + xOffset, heightAmount, widthAmount, colors, lean);
-  }
+  drawWaveformRing({
+    radiusBase: baseRadius + 14,
+    lineWidth: 2.6,
+    glowWidth: 5.4,
+    colorStops: [
+      "rgba(255, 248, 255, 0.96)",
+      "rgba(232, 156, 255, 0.98)",
+      "rgba(164, 76, 255, 0.94)",
+      "rgba(96, 62, 255, 0.66)"
+    ],
+    glowAlpha: 0.92,
+    sampleScale: 0.84,
+    phaseOffset: 0.025,
+    blur: 22
+  });
 
   const subtleRings = [
-    { radius: coverRadius + 22, width: 1.4, color: `rgba(132, 244, 255, ${0.10 + energy * 0.16})`, blur: 12 },
-    { radius: coverRadius + 38, width: 1.8, color: `rgba(170, 84, 255, ${0.10 + mids * 0.12})`, blur: 15 }
+    { radius: coverRadius + 16, width: 1.2, color: `rgba(132, 244, 255, ${0.08 + energy * 0.12})`, blur: 10 },
+    { radius: coverRadius + 28, width: 1.5, color: `rgba(170, 84, 255, ${0.08 + mids * 0.10})`, blur: 12 }
   ];
 
   subtleRings.forEach((ring, idx) => {
@@ -1554,7 +1588,7 @@ function drawVisualizerFrame() {
     ctx.strokeStyle = ring.color;
     ctx.shadowBlur = ring.blur;
     ctx.shadowColor = ring.color;
-    ctx.arc(centerX, centerY, ring.radius + Math.sin(currentTime * (0.9 + idx * 0.2)) * 1.8, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, ring.radius + Math.sin(currentTime * (0.9 + idx * 0.2)) * 1.4, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   });
