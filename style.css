@@ -12002,21 +12002,21 @@ body.ios-standalone .standalone-welcome-card {
 
 body.ios-standalone .player-sheet-content {
   --player-sheet-ios-top-inset: max(var(--safe-top), var(--app-safe-top-visual));
-  --player-sheet-ios-top-gap: max(24px, calc(var(--player-sheet-ios-top-inset) + 20px));
+  --player-sheet-ios-top-gap: max(28px, calc(var(--player-sheet-ios-top-inset) + 24px));
   max-height: calc(var(--app-visible-height) - var(--player-sheet-ios-top-gap) - 12px);
   margin-top: var(--player-sheet-ios-top-gap);
 }
 
 body.ios-standalone .player-sheet-header {
-  padding-top: calc(22px + max(10px, var(--player-sheet-ios-top-inset) * 0.4));
+  padding-top: calc(24px + max(12px, var(--player-sheet-ios-top-inset) * 0.42));
 }
 
 body.ios-standalone .player-sheet-drag-handle {
-  margin-top: max(10px, calc(4px + var(--player-sheet-ios-top-inset) * 0.34));
+  margin-top: max(12px, calc(6px + var(--player-sheet-ios-top-inset) * 0.36));
 }
 
 body.ios-standalone .player-sheet-header::before {
-  top: max(10px, calc(10px + var(--player-sheet-ios-top-inset) * 0.22));
+  top: max(12px, calc(12px + var(--player-sheet-ios-top-inset) * 0.24));
 }
 
 @media (max-width: 640px) {
@@ -12032,7 +12032,7 @@ body.ios-standalone .player-sheet-header::before {
   }
 
   body.ios-standalone .player-sheet-header {
-    padding-top: calc(18px + max(12px, var(--player-sheet-ios-top-inset) * 0.44));
+    padding-top: calc(20px + max(14px, var(--player-sheet-ios-top-inset) * 0.46));
   }
 }
 
