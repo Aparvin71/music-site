@@ -1,0 +1,16 @@
+Aineo Music
+Build: v42.4.6 — True Waveform Profile Pass
+
+Included in this build:
+- Replaced the stylized vocal aura draw routine with a true waveform ring visualizer driven by each track's prerendered waveform data
+- Kept the safe playback path and prerendered track-specific waveform pipeline
+- Reduced the side accent bars so the waveform ring is the primary visual effect
+- Fixed the lyrics modal song title showing in dark text by explicitly setting modal title color
+- Synced visible version markers, changelog, and cache version labels
+
+
+Changes in v42.4.6:
+- Replaced circular visualizer rings with a true horizontal waveform display.
+- Waveform motion now follows per-track waveform_envelope data from tracks.json.
+- Reduced ring-style decorative overlays so the waveform reads clearly behind the cover art.
+- Bumped app/cache version so update detection treats this as a true new build.

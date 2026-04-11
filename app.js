@@ -1439,159 +1439,163 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const baseRadius = coverRadius + 30;
-  const haloOuterRadius = baseRadius + 56 + bass * 12;
+  const sideGap = coverRadius + 18;
+  const waveformReach = Math.max(64, (width / 2) - sideGap - 16);
+  const laneHeight = Math.max(24, Math.min(height * 0.22, 62));
+  const detailSteps = 96;
 
-  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.58, centerX, centerY, haloOuterRadius + 64);
-  outerGlow.addColorStop(0, "rgba(255,255,255,0)");
-  outerGlow.addColorStop(0.18, `rgba(178, 248, 255, ${0.08 + bass * 0.12})`);
-  outerGlow.addColorStop(0.34, `rgba(0, 234, 255, ${0.10 + bass * 0.16 + mids * 0.08})`);
-  outerGlow.addColorStop(0.58, `rgba(78, 122, 255, ${0.08 + mids * 0.12})`);
-  outerGlow.addColorStop(0.78, `rgba(160, 72, 255, ${0.08 + treble * 0.15 + mids * 0.06})`);
-  outerGlow.addColorStop(1, "rgba(8, 12, 28, 0)");
-  ctx.fillStyle = outerGlow;
+  const backgroundGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.68, centerX, centerY, sideGap + 110);
+  backgroundGlow.addColorStop(0, "rgba(255,255,255,0)");
+  backgroundGlow.addColorStop(0.22, `rgba(144, 242, 255, ${0.06 + bass * 0.12})`);
+  backgroundGlow.addColorStop(0.48, `rgba(0, 234, 255, ${0.08 + mids * 0.14})`);
+  backgroundGlow.addColorStop(0.72, `rgba(144, 72, 255, ${0.08 + treble * 0.14})`);
+  backgroundGlow.addColorStop(1, "rgba(10,16,28,0)");
+  ctx.fillStyle = backgroundGlow;
   ctx.beginPath();
-  ctx.arc(centerX, centerY, haloOuterRadius + 52, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, sideGap + 100, 0, Math.PI * 2);
   ctx.fill();
 
-  const innerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.72, centerX, centerY, baseRadius + 26);
-  innerGlow.addColorStop(0, "rgba(255,255,255,0)");
-  innerGlow.addColorStop(0.20, `rgba(255,255,255, ${0.04 + treble * 0.06})`);
-  innerGlow.addColorStop(0.38, `rgba(170, 246, 255, ${0.08 + bass * 0.10})`);
-  innerGlow.addColorStop(0.58, `rgba(0, 236, 255, ${0.10 + mids * 0.10})`);
-  innerGlow.addColorStop(0.78, `rgba(158, 72, 255, ${0.08 + treble * 0.10})`);
-  innerGlow.addColorStop(1, "rgba(14, 20, 38, 0)");
-  ctx.fillStyle = innerGlow;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, baseRadius + 30, 0, Math.PI * 2);
-  ctx.fill();
-
-  const sampleWave = (progress) => {
-    if (prerenderedState) return prerenderedState.sample(progress);
+  const trackCenter = Math.max(0, Math.min(0.999999, durationSeconds ? currentTime / Math.max(durationSeconds, 0.001) : 0));
+  const sampleEnvelopeAt = (offset) => {
+    const pos = Math.max(0, Math.min(0.999999, trackCenter + offset));
+    const value = sampleTrackWaveformAt(currentTrack, pos);
+    if (value != null) return Math.max(0.02, Math.min(1, value));
     if (waveformSource) {
-      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
-      return Math.abs((waveformSource[sourceIndex] - 128) / 128);
+      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(pos * (waveformSource.length - 1)));
+      return Math.max(0.02, Math.min(1, Math.abs((waveformSource[sourceIndex] - 128) / 128)));
     }
-    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + progress * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
+    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + pos * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
   };
 
-  const steps = 240;
-  const waveformValues = [];
-  for (let i = 0; i <= steps; i += 1) {
-    const progress = i / steps;
-    waveformValues.push(Math.max(0.02, Math.min(1, sampleWave(progress))));
-  }
+  const buildWaveLane = (side) => {
+    const dir = side === 'left' ? -1 : 1;
+    const points = [];
+    for (let i = 0; i <= detailSteps; i += 1) {
+      const t = i / detailSteps;
+      const distance = t * waveformReach;
+      const x = centerX + (dir * (sideGap + distance));
+      const envelopeOffset = dir * ((detailSteps - i) / detailSteps) * 0.24;
+      const primary = sampleEnvelopeAt(envelopeOffset);
+      const secondary = sampleEnvelopeAt(envelopeOffset + (0.008 * dir));
+      const blend = Math.max(0.02, Math.min(1, primary * 0.72 + secondary * 0.28));
+      const taper = Math.pow(Math.sin(t * Math.PI), 0.72);
+      const introLift = 0.42 + (1 - t) * 0.58;
+      const amplitude = (8 + blend * laneHeight * (0.70 + bass * 0.24 + mids * 0.12)) * taper * introLift;
+      points.push({ x, amplitude, alpha: 0.24 + blend * 0.74 });
+    }
+    return points;
+  };
 
-  const drawWaveformRing = ({ radiusBase, lineWidth, glowWidth, colorStops, glowAlpha = 1, sampleScale = 1, phaseOffset = 0, blur = 24 }) => {
-    const gradient = ctx.createLinearGradient(centerX - radiusBase, centerY - radiusBase, centerX + radiusBase, centerY + radiusBase);
-    gradient.addColorStop(0, colorStops[0]);
-    gradient.addColorStop(0.35, colorStops[1]);
-    gradient.addColorStop(0.68, colorStops[2]);
-    gradient.addColorStop(1, colorStops[3]);
+  const drawWaveLane = ({ points, colorA, colorB, colorGlow, widthScale = 1, verticalShift = 0, alpha = 1 }) => {
+    if (!points.length) return;
+    const gradient = ctx.createLinearGradient(points[0].x, centerY, points[points.length - 1].x, centerY);
+    gradient.addColorStop(0, colorA);
+    gradient.addColorStop(0.52, colorB);
+    gradient.addColorStop(1, colorA);
 
-    const buildPath = (extraRadius = 0) => {
+    const trace = (sign = -1) => {
       ctx.beginPath();
-      for (let i = 0; i <= steps; i += 1) {
-        const progress = i / steps;
-        const angle = (Math.PI * 2 * progress) - (Math.PI / 2) + phaseOffset;
-        const wave = waveformValues[i];
-        const radius = radiusBase + extraRadius + (wave * (18 + bass * 16 + mids * 8) * sampleScale);
-        const x = centerX + Math.cos(angle) * radius;
-        const y = centerY + Math.sin(angle) * radius;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
+      points.forEach((point, index) => {
+        const y = centerY + verticalShift + (sign * point.amplitude * widthScale);
+        if (index === 0) ctx.moveTo(point.x, y);
+        else ctx.lineTo(point.x, y);
+      });
     };
 
     ctx.save();
-    ctx.globalCompositeOperation = "screen";
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
+    ctx.globalCompositeOperation = 'screen';
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
 
     ctx.strokeStyle = gradient;
-    ctx.shadowBlur = blur;
-    ctx.shadowColor = colorStops[2];
-    ctx.lineWidth = glowWidth;
-    ctx.globalAlpha = 0.18 * glowAlpha;
-    buildPath(2.5);
+    ctx.shadowBlur = 24;
+    ctx.shadowColor = colorGlow;
+    ctx.globalAlpha = 0.24 * alpha;
+    ctx.lineWidth = 8;
+    trace(-1);
+    ctx.stroke();
+    trace(1);
     ctx.stroke();
 
     ctx.strokeStyle = gradient;
-    ctx.shadowBlur = blur + 10;
-    ctx.shadowColor = colorStops[1];
-    ctx.lineWidth = lineWidth + 1.8;
-    ctx.globalAlpha = 0.24 * glowAlpha;
-    buildPath(1.2);
+    ctx.shadowBlur = 14;
+    ctx.shadowColor = colorGlow;
+    ctx.globalAlpha = 0.92 * alpha;
+    ctx.lineWidth = 2.8;
+    trace(-1);
+    ctx.stroke();
+    trace(1);
     ctx.stroke();
 
-    ctx.strokeStyle = gradient;
-    ctx.shadowBlur = blur;
-    ctx.shadowColor = colorStops[2];
-    ctx.lineWidth = lineWidth;
-    ctx.globalAlpha = 0.98;
-    buildPath(0);
-    ctx.stroke();
-
-    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.strokeStyle = 'rgba(255,255,255,0.20)';
     ctx.shadowBlur = 0;
-    ctx.lineWidth = Math.max(1, lineWidth * 0.22);
-    ctx.globalAlpha = 0.9;
-    buildPath(-0.8);
+    ctx.globalAlpha = 0.72 * alpha;
+    ctx.lineWidth = 1.0;
+    trace(-1);
     ctx.stroke();
-
+    trace(1);
+    ctx.stroke();
     ctx.restore();
   };
 
-  drawWaveformRing({
-    radiusBase: baseRadius - 2,
-    lineWidth: 4.2,
-    glowWidth: 8.0,
-    colorStops: [
-      "rgba(236, 250, 255, 0.98)",
-      "rgba(118, 246, 255, 0.98)",
-      "rgba(0, 236, 255, 0.96)",
-      "rgba(74, 126, 255, 0.70)"
-    ],
-    glowAlpha: 1.0,
-    sampleScale: 1.12,
-    phaseOffset: 0,
-    blur: 26
-  });
-
-  drawWaveformRing({
-    radiusBase: baseRadius + 14,
-    lineWidth: 2.6,
-    glowWidth: 5.4,
-    colorStops: [
-      "rgba(255, 248, 255, 0.96)",
-      "rgba(232, 156, 255, 0.98)",
-      "rgba(164, 76, 255, 0.94)",
-      "rgba(96, 62, 255, 0.66)"
-    ],
-    glowAlpha: 0.92,
-    sampleScale: 0.84,
-    phaseOffset: 0.025,
-    blur: 22
-  });
-
-  const subtleRings = [
-    { radius: coverRadius + 16, width: 1.2, color: `rgba(132, 244, 255, ${0.08 + energy * 0.12})`, blur: 10 },
-    { radius: coverRadius + 28, width: 1.5, color: `rgba(170, 84, 255, ${0.08 + mids * 0.10})`, blur: 12 }
-  ];
-
-  subtleRings.forEach((ring, idx) => {
+  const drawCenterRail = () => {
+    const leftX = centerX - sideGap;
+    const rightX = centerX + sideGap;
+    const railGradient = ctx.createLinearGradient(leftX - waveformReach, centerY, rightX + waveformReach, centerY);
+    railGradient.addColorStop(0, 'rgba(0,236,255,0)');
+    railGradient.addColorStop(0.18, `rgba(114,244,255,${0.18 + energy * 0.14})`);
+    railGradient.addColorStop(0.50, `rgba(255,255,255,${0.22 + treble * 0.16})`);
+    railGradient.addColorStop(0.82, `rgba(184,96,255,${0.16 + mids * 0.12})`);
+    railGradient.addColorStop(1, 'rgba(168,88,255,0)');
     ctx.save();
-    ctx.globalCompositeOperation = "screen";
+    ctx.globalCompositeOperation = 'screen';
+    ctx.strokeStyle = railGradient;
+    ctx.lineWidth = 1.3;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(120, 226, 255, 0.35)';
     ctx.beginPath();
-    ctx.lineWidth = ring.width;
-    ctx.strokeStyle = ring.color;
-    ctx.shadowBlur = ring.blur;
-    ctx.shadowColor = ring.color;
-    ctx.arc(centerX, centerY, ring.radius + Math.sin(currentTime * (0.9 + idx * 0.2)) * 1.4, 0, Math.PI * 2);
+    ctx.moveTo(centerX - waveformReach - 6, centerY);
+    ctx.lineTo(leftX, centerY);
+    ctx.moveTo(rightX, centerY);
+    ctx.lineTo(centerX + waveformReach + 6, centerY);
     ctx.stroke();
     ctx.restore();
+  };
+
+  const leftPoints = buildWaveLane('left');
+  const rightPoints = buildWaveLane('right');
+  drawCenterRail();
+
+  drawWaveLane({
+    points: leftPoints,
+    colorA: 'rgba(236,250,255,0.92)',
+    colorB: 'rgba(0,236,255,0.98)',
+    colorGlow: 'rgba(0,236,255,0.88)',
+    widthScale: 1.0,
+    verticalShift: -1.5,
+    alpha: 1.0
   });
+  drawWaveLane({
+    points: rightPoints,
+    colorA: 'rgba(255,248,255,0.92)',
+    colorB: 'rgba(172,82,255,0.96)',
+    colorGlow: 'rgba(176,84,255,0.84)',
+    widthScale: 1.0,
+    verticalShift: 1.5,
+    alpha: 0.98
+  });
+
+  const pulseRadius = coverRadius + 16;
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.beginPath();
+  ctx.lineWidth = 1.4;
+  ctx.strokeStyle = `rgba(138, 244, 255, ${0.08 + energy * 0.16})`;
+  ctx.shadowBlur = 12;
+  ctx.shadowColor = 'rgba(138, 244, 255, 0.38)';
+  ctx.arc(centerX, centerY, pulseRadius + Math.sin(currentTime * 1.1) * 1.2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function startVisualizerAnimation() {
