@@ -1,0 +1,11 @@
+Aineo Music
+Build: v42.4.4 — Safe Zone + True Update Notification Fix
+
+Included in this build:
+- Brought lyrics and album modals into safe-area-aware spacing in app mode
+- Made modal headers sticky and increased close button hit area so the close control stays reachable
+- Fixed app update note showing on open without a true new update
+- Startup is now silent; app update toast only appears when a new service worker update is detected during the current session
+- Kept tracks.json change detection active for true library updates
+- Left playback and visualizer behavior untouched
+- Synced visible version markers and cache version labels
