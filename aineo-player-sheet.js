@@ -1,184 +1,186 @@
-/* v42.3.76 featured track state sync fix */
+
 (function(){
-  function getVisibleAlbums(trackList) {
-    const map = new Map();
-    (trackList || []).forEach(track => {
-      const albumName = track.album || "Singles";
-      if (!map.has(albumName)) {
-        map.set(albumName, {
-          name: albumName,
-          cover: track.cover || "",
-          artist: track.artist || "Allen Parvin",
-          year: track.year || "",
-          tracks: [],
-          album_zip: track.album_zip || ""
-        });
-      }
-      const album = map.get(albumName);
-      album.tracks.push(track);
-      if (!album.cover && track.cover) album.cover = track.cover;
-      if (!album.album_zip && track.album_zip) album.album_zip = track.album_zip;
-    });
-    return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }
+  const PLAYER_SHEET_TABS = ['lyrics'];
 
-  function renderAlbums({ els, trackList, filters, getVisibleAlbums, escapeHtml, escapeHtmlAttr, setAlbumFilter }) {
-    if (!els.albumGrid) return;
-    const albums = getVisibleAlbums(trackList);
-    if (!albums.length) {
-      els.albumGrid.innerHTML = `<p class="empty-message">No albums found.</p>`;
-      return;
-    }
-    els.albumGrid.innerHTML = albums.map(album => {
-      const isActive = filters.selectedAlbum === album.name;
-      if (window.AineoUI?.renderAlbumCard) {
-        return window.AineoUI.renderAlbumCard({ album, isActive, escapeHtml, escapeAttr: escapeHtmlAttr });
-      }
-      return `
-        <button class="album-card ${isActive ? "active" : ""}" data-album="${escapeHtmlAttr(album.name)}" type="button">
-          <div class="album-card-cover-wrap">
-            ${album.cover ? `<img class="album-card-cover" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-card-cover album-card-placeholder">No Cover</div>`}
-          </div>
-          <div class="album-card-meta">
-            <h3>${escapeHtml(album.name)}</h3>
-            <p>${album.tracks.length} song${album.tracks.length === 1 ? "" : "s"}</p>
-          </div>
-        </button>`;
-    }).join("");
-    els.albumGrid.querySelectorAll('[data-album]').forEach(btn => {
-      btn.addEventListener('click', () => setAlbumFilter(btn.dataset.album));
-    });
-  }
-
-  function renderFeaturedAlbum({ els, getFeaturedCollection }) {
-    const collection = getFeaturedCollection();
-    const formatDuration = (tracks) => {
-      const secs = (tracks || []).reduce((sum, track) => sum + (Number(track.duration_seconds) || 0), 0);
-      if (!secs) return "";
-      const hours = Math.floor(secs / 3600);
-      const mins = Math.floor((secs % 3600) / 60);
-      return hours ? `${hours} hr ${mins} min` : `${mins} min`;
+  function initGestures({ els, getPlayerSheetTab, setPlayerSheetTab, playNextTrack, playPreviousTrack, closePlayerSheet, openPlayerSheet }) {
+    if (!els.playerSheetContent) return;
+    const interactiveSelector = 'button, a, input, select, textarea, label, [role="tab"]';
+    let gesture = null;
+    const reset = () => {
+      if (!els.playerSheetContent) return;
+      els.playerSheetContent.style.transform = '';
+      els.playerSheetContent.style.transition = '';
     };
-    if (!collection) {
-      if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = "No songs found";
-      if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = "—";
-      if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = "0 songs";
-      if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = "none";
-      if (els.playAlbumBtn) els.playAlbumBtn.disabled = true;
-      if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = true;
-      return;
-    }
-    if (els.featuredAlbumCover) {
-      els.featuredAlbumCover.src = collection.cover || "";
-      els.featuredAlbumCover.alt = `${collection.name} cover`;
-    }
-    if (els.featuredAlbumTitle) els.featuredAlbumTitle.textContent = collection.name || 'All Songs';
-    if (els.featuredAlbumArtist) els.featuredAlbumArtist.textContent = collection.subtitle || 'Entire music library';
-    if (els.featuredAlbumCount) els.featuredAlbumCount.textContent = `${collection.tracks.length} song${collection.tracks.length === 1 ? '' : 's'}`;
-    if (els.featuredCollectionStats) {
-      const duration = formatDuration(collection.tracks);
-      const type = `<span class="featured-stat-pill">${collection.openMode === "album" ? "Album" : "Collection"}</span>`;
-      const durationPill = duration ? `<span class="featured-stat-pill">${duration}</span>` : "";
-      els.featuredCollectionStats.innerHTML = `${type}${durationPill}`;
-    }
-    if (els.featuredCollectionLead) {
-      els.featuredCollectionLead.textContent = collection.name === 'All Songs'
-        ? 'Start here with the full music library. Play or shuffle the whole library, or filter down to a smaller collection.'
-        : `Start here with Play or Shuffle for ${collection.name}.`;
-    }
-    if (els.downloadAlbumBtn) els.downloadAlbumBtn.style.display = collection.album_zip ? 'inline-flex' : 'none';
-    if (els.playAlbumBtn) els.playAlbumBtn.disabled = false;
-    if (els.shuffleAlbumBtn) els.shuffleAlbumBtn.disabled = false;
-  }
+    els.playerSheetContent.addEventListener('touchstart', event => {
+      if (!els.playerSheet || els.playerSheet.classList.contains('hidden')) return;
+      if (event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      const target = event.target;
+      const inNow = Boolean(els.playerSheetNowSection && els.playerSheetNowSection.contains(target));
+      const inPanelSection = Boolean(els.playerSheetPanelSection && els.playerSheetPanelSection.contains(target));
+      const onCover = Boolean(target.closest('.player-sheet-cover-wrap'));
+      const onHeader = Boolean(target.closest('.player-sheet-header'));
+      const inScrollablePanel = Boolean(target.closest('.player-tab-panel'));
+      const activePanel = document.querySelector('#playerSheet [data-player-panel].active');
+      const panelAtTop = !activePanel || activePanel.scrollTop <= 4;
+      let mode = null;
+      if (onCover && !target.closest(interactiveSelector)) mode = 'track';
+      else if (onHeader || (inNow && !target.closest(interactiveSelector))) mode = 'dismiss';
+      else if (inPanelSection && !inScrollablePanel && !target.closest(interactiveSelector)) mode = 'tabs';
+      else if (inScrollablePanel && panelAtTop && !target.closest(interactiveSelector)) mode = 'dismiss';
+      if (!mode) return;
+      gesture = { mode, startX: touch.clientX, startY: touch.clientY, dx: 0, dy: 0 };
+    }, { passive: true });
 
-  function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
-    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
-    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
-    return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
-  }
-
-  function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
-    if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
-    const collection = getFeaturedCollection();
-    if (!collection) {
-      els.featuredTrackListTitle.textContent = 'All Songs';
-      els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
-      return;
-    }
-    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
-    els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
-      const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
-      const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';
-      const isFav = isFavorite(track) ? 'favorited' : '';
-      const offlineSaved = isDownloaded ? isDownloaded(track) : false;
-      return `
-      <div class="featured-track-row ${rowStateClass}" data-track-id="${escapeHtmlAttr(track.id)}" data-preview-track-id="${escapeHtmlAttr(track.id)}">
-        <button class="featured-track-play ${playState.isPlaying ? 'is-playing' : ''}" data-featured-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}" type="button" aria-label="${playState.action} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? 'true' : 'false'}">${playState.label}</button>
-        <div class="featured-track-main">
-          <div class="featured-track-title-line">
-            <strong class="featured-track-title" title="${escapeHtmlAttr(track.title)}">${escapeHtml(track.title)}</strong>
-            ${track.duration ? `<span class="featured-track-duration" title="${escapeHtmlAttr(track.duration)}">${escapeHtml(track.duration)}</span>` : ''}
-          </div>
-          <div class="featured-track-meta-line">
-            <span class="featured-track-album" title="${escapeHtmlAttr(track.album || '')}">${escapeHtml(track.album || '')}</span>
-          </div>
-        </div>
-        <div class="featured-track-actions">
-          <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
-          <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
-        </div>
-      </div>`;
-    }).join('');
-
-    els.featuredTrackList.querySelectorAll('[data-featured-index]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (Date.now && Date.now() < (window.__AINEO_SUPPRESS_PREVIEW_CLICK_UNTIL__ || 0)) return;
-        const idx = Number(btn.dataset.featuredIndex);
-        const track = collection.tracks[idx];
-        if (!track) return;
-        if (getCurrentTrack()?.id === track.id && audioPlayer?.src) {
-          togglePlayPause();
-          return;
-        }
-        syncQueueToCurrentCollection(true);
-        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
-        playFromQueueIndex(idx);
-      });
-    });
-
-    els.featuredTrackList.querySelectorAll('[data-favorite-track]').forEach(btn => btn.addEventListener('click', () => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.favoriteTrack);
-      if (!track) return;
-      toggleFavorite(track);
-      renderFeaturedTrackList(ctx);
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-lyrics-track]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.lyricsTrack);
-      if (track) openLyricsModalForTrack(track, e.currentTarget);
-    }));
-
-    els.featuredTrackList.querySelectorAll('[data-offline-track]').forEach(btn => btn.addEventListener('click', async e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.offlineTrack);
-      if (!track) return;
-      e.currentTarget.disabled = true;
-      try {
-        const currentlySaved = isDownloaded ? isDownloaded(track) : false;
-        if (currentlySaved && removeTrackOffline) await removeTrackOffline(track);
-        else if (saveTrackOffline) await saveTrackOffline(track);
-      } finally {
-        renderFeaturedTrackList(ctx);
+    els.playerSheetContent.addEventListener('touchmove', event => {
+      if (!gesture || event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      gesture.dx = touch.clientX - gesture.startX;
+      gesture.dy = touch.clientY - gesture.startY;
+      if (gesture.mode === 'dismiss' && gesture.dy > 0 && Math.abs(gesture.dy) > Math.abs(gesture.dx)) {
+        if (event.cancelable) event.preventDefault();
+        els.playerSheetContent.style.transition = 'none';
+        els.playerSheetContent.style.transform = `translateY(${Math.min(gesture.dy, 220)}px)`;
       }
-    }));
+    }, { passive: false });
 
-    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
-      if (track) openTrackActionSheet?.(track, e.currentTarget);
-    }));
+    els.playerSheetContent.addEventListener('touchend', () => {
+      if (!gesture) return;
+      const { mode, dx, dy } = gesture;
+      const absX = Math.abs(dx), absY = Math.abs(dy);
+      if (mode === 'dismiss') {
+        els.playerSheetContent.style.transition = 'transform 180ms ease';
+        if (dy > 110 && absY > absX * 1.15) closePlayerSheet();
+        reset();
+      }
+      if (mode === 'tabs' && absX > 70 && absX > absY * 1.2) {
+        const currentIndex = Math.max(0, PLAYER_SHEET_TABS.indexOf(getPlayerSheetTab()));
+        const nextIndex = dx < 0 ? Math.min(PLAYER_SHEET_TABS.length - 1, currentIndex + 1) : Math.max(0, currentIndex - 1);
+        if (nextIndex !== currentIndex) setPlayerSheetTab(PLAYER_SHEET_TABS[nextIndex]);
+      }
+      if (mode === 'track' && absX > 80 && absX > absY * 1.2) {
+        if (dx < 0) playNextTrack(); else playPreviousTrack();
+      }
+      gesture = null;
+    }, { passive: true });
+
+    els.playerSheetContent.addEventListener('touchcancel', () => { gesture = null; reset(); }, { passive: true });
+
+    const stickyPlayer = els.stickyPlayer || document.querySelector('.sticky-player');
+    if (stickyPlayer) {
+      const primaryHitAreas = stickyPlayer.querySelectorAll('.sticky-player-left, .sticky-player-center, #nowCover, .now-meta');
+      primaryHitAreas.forEach(area => {
+        area?.addEventListener('click', event => {
+          if (event.target.closest('button, input, a, label')) return;
+          openPlayerSheet(area);
+        });
+      });
+
+      let miniGesture = null;
+      const interactiveMini = 'button, input, a, label';
+      stickyPlayer.addEventListener('touchstart', event => {
+        if (window.matchMedia('(min-width: 1101px)').matches) return;
+        if (event.touches.length !== 1) return;
+        if (event.target.closest(interactiveMini)) return;
+        const touch = event.touches[0];
+        miniGesture = { startX: touch.clientX, startY: touch.clientY, dx: 0, dy: 0 };
+      }, { passive: true });
+
+      stickyPlayer.addEventListener('touchmove', event => {
+        if (!miniGesture || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        miniGesture.dx = touch.clientX - miniGesture.startX;
+        miniGesture.dy = touch.clientY - miniGesture.startY;
+      }, { passive: true });
+
+      const endMiniGesture = () => {
+        if (!miniGesture) return;
+        const { dx, dy } = miniGesture;
+        if (dy < -42 && Math.abs(dy) > Math.abs(dx) * 1.15) {
+          openPlayerSheet(stickyPlayer);
+        } else if (Math.abs(dx) > 52 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+          if (dx < 0) playNextTrack(); else playPreviousTrack();
+        }
+        miniGesture = null;
+      };
+      stickyPlayer.addEventListener('touchend', endMiniGesture, { passive: true });
+      stickyPlayer.addEventListener('touchcancel', () => { miniGesture = null; }, { passive: true });
+    }
+
   }
 
-  window.AineoFeatured = { getVisibleAlbums, renderAlbums, renderFeaturedAlbum, getFeaturedTrackPlayState, renderFeaturedTrackList };
+  function open({ els, triggerEl, setLastFocusedElement, lockBodyScroll, updatePlayerSheet }) {
+    if (!els.playerSheet) return;
+    const sheet = els.playerSheet;
+    setLastFocusedElement(triggerEl || document.activeElement || null);
+    sheet.classList.remove('hidden');
+    sheet.setAttribute('aria-hidden', 'false');
+    sheet.classList.remove('is-closing');
+    lockBodyScroll(true);
+    updatePlayerSheet();
+    requestAnimationFrame(() => {
+      sheet.classList.add('is-open');
+    });
+  }
+
+  function close({ els, isAnyModalOpen, lockBodyScroll, restoreFocus }) {
+    if (!els.playerSheet) return;
+    const sheet = els.playerSheet;
+    sheet.classList.remove('is-open');
+    sheet.classList.add('is-closing');
+    window.setTimeout(() => {
+      if (sheet.classList.contains('is-open')) return;
+      sheet.classList.add('hidden');
+      sheet.classList.remove('is-closing');
+      sheet.setAttribute('aria-hidden', 'true');
+      if (!isAnyModalOpen()) {
+        lockBodyScroll(false);
+        restoreFocus();
+      }
+    }, 220);
+  }
+
+  function setTab({ tabName }) {
+    if (!PLAYER_SHEET_TABS.includes(tabName)) tabName = 'lyrics';
+    document.querySelectorAll('[data-player-tab]').forEach(btn => {
+      const active = btn.dataset.playerTab === tabName;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    document.querySelectorAll('[data-player-panel]').forEach(panel => panel.classList.toggle('active', panel.dataset.playerPanel === tabName));
+    return tabName;
+  }
+
+  function openLyricsPanel({ els }) {
+    const panel = els.playerSheetLyricsPanel;
+    if (!panel) return;
+    panel.scrollTop = 0;
+    if (window.matchMedia('(max-width: 640px)').matches) {
+      requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    }
+  }
+
+  function update({ els, track, audioPlayer, renderScriptureLinks, renderLyricsInto, updateOfflineButtons, updateFavoriteButton, updateProgressUI, getPlayerSheetTab, setPlayerSheetTab }) {
+    if (els.playerSheetCover) {
+      els.playerSheetCover.src = track?.cover || '';
+      els.playerSheetCover.alt = track ? `${track.title} cover` : 'Current song cover';
+    }
+    if (els.playerSheetTrackTitle) els.playerSheetTrackTitle.textContent = track?.title || 'Select a song';
+    if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || '—';
+    if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || '—';
+    if (els.playerSheetTrackScripture) {
+      els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length ? renderScriptureLinks(track.scripture_references, { compact: true }) : '—';
+    }
+    if (els.playerSheetLyricsPanel) renderLyricsInto(els.playerSheetLyricsPanel, track, 'No lyrics available.');
+    if (els.playerSheetScripturePanel) {
+      els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>` : `<p class="empty-message">No scripture references available.</p>`;
+    }
+    if (els.playerSheetPlayBtn && audioPlayer) els.playerSheetPlayBtn.textContent = audioPlayer.paused ? '▶' : '❚❚';
+    updateOfflineButtons(track);
+    updateFavoriteButton();
+    updateProgressUI();
+    setPlayerSheetTab(getPlayerSheetTab());
+  }
+
+  window.AineoPlayerSheet = { initGestures, open, close, setTab, openLyricsPanel, update };
 })();

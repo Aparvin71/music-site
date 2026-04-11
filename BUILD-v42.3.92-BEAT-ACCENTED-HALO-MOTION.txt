@@ -1,6 +1,22 @@
-Aineo Music Build v42.3.84
+Aineo Music — Build v42.3.92
+Title: Beat-Accented Halo Motion
 
-Fixes:
-- Fixed malformed audio URL encoding for "Chop it like it’s hot!" in tracks.json
-- Corrected src/audio path from #U2019 sequence to proper UTF-8 apostrophe encoding
-- No layout or player UI changes in this build
+Base:
+- v42.3.91 halo recenter + stronger motion
+
+Changes in this build:
+- Reworked the mirrored halo fallback motion to feel more beat-accented instead of constant-flow.
+- Added stronger hit/decay behavior using a sequenced accent envelope.
+- Increased contrast between emphasized peaks and quieter valleys.
+- Increased halo push and refined outer/inner ring energy for more visible musical motion.
+- Updated fallback side accents to follow the stronger pulse pattern.
+- Synced site version references to v42.3.92.
+- Updated changelog top entry and service worker cache version.
+
+Stability:
+- Playback path left untouched to preserve working audio.
+- Visualizer remains on the safe non-invasive mode rather than true live analysis.
+
+Note:
+- This improves perceived beat response substantially without touching the live audio output path.
+- True waveform / analyser-following motion still depends on a safe audio analysis path and compatible hosting/CORS behavior.

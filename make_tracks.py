@@ -1,6 +1,7 @@
 import json
 import re
 import unicodedata
+import subprocess
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote
@@ -20,6 +21,9 @@ DEFAULT_COLLECTION = "All Songs"
 LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 AUDIO_EXTENSIONS = {".mp3"}
+WAVEFORM_ENVELOPE_POINTS = 2048
+WAVEFORM_FFMPEG_SAMPLE_RATE = 400
+WAVEFORM_MIN_SAMPLES = 256
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
@@ -472,6 +476,102 @@ def find_lyrics_file(file_name: str, title: str, slug: str, lrc_map: dict[str, s
 
 
 
+def extract_waveform_envelope(mp3_path: Path, duration_seconds: int, target_points: int = WAVEFORM_ENVELOPE_POINTS) -> list[int]:
+    target_points = max(WAVEFORM_MIN_SAMPLES, int(target_points or WAVEFORM_ENVELOPE_POINTS))
+    sample_rate = WAVEFORM_FFMPEG_SAMPLE_RATE
+    command = [
+        "ffmpeg",
+        "-v", "error",
+        "-i", str(mp3_path),
+        "-f", "s16le",
+        "-acodec", "pcm_s16le",
+        "-ac", "1",
+        "-ar", str(sample_rate),
+        "-",
+    ]
+
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except FileNotFoundError:
+        print("  ffmpeg not found; skipping waveform prerender.")
+        return []
+    except subprocess.CalledProcessError as exc:
+        error_text = exc.stderr.decode("utf-8", errors="ignore").strip()
+        print(f"  ffmpeg waveform extraction failed for {mp3_path.name}: {error_text or exc}")
+        return []
+
+    raw = result.stdout
+    if len(raw) < 4:
+        return []
+
+    sample_count = len(raw) // 2
+    if sample_count <= 0:
+        return []
+
+    peaks: list[float] = []
+    chunk_size = max(1, sample_count // target_points)
+    max_abs = 1.0
+
+    for start_sample in range(0, sample_count, chunk_size):
+        end_sample = min(sample_count, start_sample + chunk_size)
+        peak = 0
+        total = 0.0
+        count = 0
+        byte_start = start_sample * 2
+        byte_end = end_sample * 2
+        for i in range(byte_start, byte_end, 2):
+            sample = int.from_bytes(raw[i:i + 2], byteorder="little", signed=True)
+            abs_sample = abs(sample)
+            if abs_sample > peak:
+                peak = abs_sample
+            total += abs_sample * abs_sample
+            count += 1
+        rms = (total / count) ** 0.5 if count else 0.0
+        combined = max(peak * 0.72, rms * 1.18)
+        peaks.append(combined)
+        if combined > max_abs:
+            max_abs = combined
+
+    if not peaks:
+        return []
+
+    normalized = [min(1.0, value / max_abs) for value in peaks]
+
+    smoothed: list[float] = []
+    for idx, value in enumerate(normalized):
+        left = normalized[idx - 1] if idx > 0 else value
+        right = normalized[idx + 1] if idx + 1 < len(normalized) else value
+        smoothed_value = value * 0.62 + left * 0.19 + right * 0.19
+        smoothed.append(max(0.0, min(1.0, smoothed_value)))
+
+    if len(smoothed) > target_points:
+        smoothed = smoothed[:target_points]
+    elif len(smoothed) < target_points and smoothed:
+        last = smoothed[-1]
+        smoothed.extend([last] * (target_points - len(smoothed)))
+
+    return [int(round(value * 255)) for value in smoothed]
+
+
+def build_waveform_ring_preview(envelope: list[int], steps: int = 64) -> list[int]:
+    if not envelope:
+        return []
+    steps = max(16, int(steps or 64))
+    if len(envelope) == 1:
+        return [int(envelope[0])] * steps
+
+    preview: list[int] = []
+    max_index = len(envelope) - 1
+    for i in range(steps):
+        pos = (i / max(1, steps - 1)) * max_index
+        left = int(pos)
+        right = min(max_index, left + 1)
+        frac = pos - left
+        sample = envelope[left] * (1 - frac) + envelope[right] * frac
+        preview.append(int(round(sample)))
+    return preview
+
+
 def validate_track(track: dict[str, Any], source_file: Path, seen_ids: set[str]) -> list[str]:
     warnings: list[str] = []
     track_id = str(track.get("id") or "")
@@ -539,6 +639,8 @@ def main() -> None:
         track_number = mp3_meta.get("track_number")
         duration_seconds = mp3_meta.get("duration_seconds", 0)
         duration_display = format_duration(duration_seconds)
+        waveform_envelope = extract_waveform_envelope(file, duration_seconds)
+        waveform_ring = build_waveform_ring_preview(waveform_envelope)
 
         slug = slugify(title)
         artist_slug = slugify(artist)
@@ -585,6 +687,11 @@ def main() -> None:
             "has_lyrics": bool(lyrics or lyrics_file),
             "has_scripture_refs": bool(scripture_references),
         }
+
+        if waveform_envelope:
+            track["waveform_envelope"] = waveform_envelope
+            track["waveform_ring_preview"] = waveform_ring
+
 
         if album_meta.get("featured") is True:
             track["album_featured"] = True
@@ -681,6 +788,8 @@ def main() -> None:
         print(f"  Audio URL: {track['src']}")
         print(f"  LRC file: {track.get('lyrics_file', 'none')}")
         print(f"  Cover found: {track.get('cover', 'none')}")
+        if waveform_envelope:
+            print(f"  Waveform envelope: {len(waveform_envelope)} samples")
 
     tracks.sort(key=lambda t: (t.get("album", "").lower(), t.get("trackNumber", 9999), t.get("title", "").lower()))
     OUTPUT_FILE.write_text(json.dumps(tracks, indent=2, ensure_ascii=False), encoding="utf-8")

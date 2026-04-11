@@ -1,267 +1,152 @@
 
-(function () {
-  function resetNamedFilters(filters) {
+(function(){
+  function normalizeState({ customPlaylists, activeCustomPlaylistName }) {
+    const names = Object.keys(customPlaylists || {}).sort((a,b) => a.localeCompare(b));
+    if (!names.length) return null;
+    if (!activeCustomPlaylistName || !customPlaylists[activeCustomPlaylistName]) return null;
+    return activeCustomPlaylistName;
+  }
+
+  function getCustomPlaylistTracks({ name, customPlaylists, tracks }) {
+    const ids = customPlaylists?.[name] || [];
+    return ids.map(id => tracks.find(track => track.id === id)).filter(Boolean);
+  }
+
+  function ensureWorkspace() { return null; }
+
+  function openPlaylistModal({ els, customPlaylists, track, triggerEl, setLastFocusedElement, setPlaylistPickerTrackId, lockBodyScroll }) {
+    if (!els.playlistModal) return;
+    setLastFocusedElement(triggerEl || document.activeElement || null);
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
+    if (els.playlistSelect) {
+      els.playlistSelect.innerHTML = `<option value="">Choose a playlist</option>` + names.map(name => `<option value="${escapeHtmlAttr(name)}">${escapeHtml(name)}</option>`).join('');
+    }
+    if (els.newPlaylistName) els.newPlaylistName.value = '';
+    setPlaylistPickerTrackId(track?.id || null);
+    els.playlistModal.classList.remove('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll(true);
+  }
+
+  function closePlaylistModal({ els, isAnyModalOpen, lockBodyScroll, restoreFocus, onClosed }) {
+    if (!els.playlistModal) return;
+    els.playlistModal.classList.add('hidden');
+    els.playlistModal.setAttribute('aria-hidden', 'true');
+    onClosed?.();
+    if (!isAnyModalOpen()) {
+      lockBodyScroll(false);
+      restoreFocus();
+    }
+  }
+
+  function saveTrackToPlaylistFromModal({ els, customPlaylists, playlistPickerTrackId }) {
+    const typedName = els.newPlaylistName?.value?.trim();
+    const selectedName = els.playlistSelect?.value?.trim();
+    const playlistName = typedName || selectedName;
+    if (!playlistName) return { saved: false };
+    if (!customPlaylists[playlistName]) customPlaylists[playlistName] = [];
+    if (playlistPickerTrackId && !customPlaylists[playlistName].includes(playlistPickerTrackId)) {
+      customPlaylists[playlistName].push(playlistPickerTrackId);
+    }
+    return { saved: true, playlistName };
+  }
+
+  function applyCustomPlaylistFilter({ name, customPlaylists, filters, searchInput, onAfterChange }) {
+    if (!name || !customPlaylists?.[name]) return { applied: false };
     filters.selectedAlbum = null;
     filters.selectedPlaylist = null;
     filters.selectedTag = null;
     filters.selectedSmartPlaylist = null;
-    filters.selectedCustomPlaylist = null;
-  }
-
-  function clearSearch(searchInput, filters) {
-    filters.searchTerm = "";
-    if (searchInput) searchInput.value = "";
-  }
-
-  function applyNamedFilter({ filters, searchInput, type, value, onAfterChange }) {
-    resetNamedFilters(filters);
-
-    if (type === "search") {
-      filters.searchTerm = String(value || "").trim();
-      if (searchInput) searchInput.value = filters.searchTerm;
-    } else {
-      clearSearch(searchInput, filters);
-      if (type === "album") filters.selectedAlbum = value;
-      if (type === "playlist") filters.selectedPlaylist = value;
-      if (type === "tag") filters.selectedTag = value;
-      if (type === "smart-playlist") filters.selectedSmartPlaylist = value;
-      if (type === "custom-playlist") filters.selectedCustomPlaylist = value;
-    }
-
+    filters.selectedCustomPlaylist = name;
+    filters.searchTerm = '';
+    if (searchInput) searchInput.value = '';
     onAfterChange?.();
+    return { applied: true, name };
   }
 
-  function clearFilters({ filters, searchInput, onAfterChange }) {
-    resetNamedFilters(filters);
-    clearSearch(searchInput, filters);
-    filters.searchScope = 'all';
-    onAfterChange?.();
+  function setActiveCustomPlaylist({ name, customPlaylists, currentActiveName }) {
+    if (!name || !customPlaylists[name]) return { activeName: currentActiveName, changed: false };
+    return { activeName: name, changed: name !== currentActiveName };
   }
 
-  function buildSearchHaystack(track, scope = "all") {
-    const fields = {
-      titles: [track.title, track.artist],
-      albums: [track.album, track.album_description, track.album_theme, track.album_story],
-      lyrics: [track.lyrics],
-      scripture: [...(track.scripture_references || [])],
-      tags: [...(track.tags || []), ...(track.search_keywords || [])],
-      playlists: [...(track.playlists || []), track.collection]
-    };
+  function renderWorkspace() { return null; }
 
-    const allParts = [
-      ...fields.titles,
-      ...fields.albums,
-      ...fields.lyrics,
-      ...fields.scripture,
-      ...fields.tags,
-      ...fields.playlists,
-      track.genre,
-      track.description
-    ];
+  function renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName, filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr }) {
+    if (!els.myPlaylistList) return;
+    const names = Object.keys(customPlaylists).sort((a,b) => a.localeCompare(b));
 
-    const list = scope === "all" ? allParts : (fields[scope] || allParts);
-    return list.join(" ").toLowerCase();
-  }
-
-  function getTrackDateValue(track) {
-    const raw = String(track?.date_added || track?.last_played || "").trim();
-    if (!raw) return 0;
-    const time = Date.parse(raw);
-    if (Number.isFinite(time)) return time;
-    const year = Number(raw);
-    return Number.isFinite(year) ? Date.parse(`${year}-01-01`) : 0;
-  }
-
-  function getSmartPlaylistDefinitions({ tracks, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {} }) {
-    const byId = new Map((tracks || []).map(track => [track.id, track]));
-    const mapIds = ids => ids.map(id => byId.get(id)).filter(Boolean);
-    const uniqueTracks = list => {
-      const seen = new Set();
-      return list.filter(track => track && !seen.has(track.id) && seen.add(track.id));
-    };
-
-    const favoriteTracks = uniqueTracks(mapIds(favorites));
-    const recentTracks = uniqueTracks(mapIds(recentlyPlayed));
-    const downloaded = uniqueTracks(mapIds(downloadedTracks));
-    const mostPlayed = uniqueTracks(
-      [...(tracks || [])]
-        .map(track => ({ track, score: Number(playStats?.[track.id]?.count || track.play_count || 0) }))
-        .filter(item => item.score > 0)
-        .sort((a, b) => b.score - a.score || a.track.title.localeCompare(b.track.title))
-        .slice(0, 24)
-        .map(item => item.track)
-    );
-    const recentlyAdded = uniqueTracks(
-      [...(tracks || [])]
-        .filter(track => getTrackDateValue(track) > 0)
-        .sort((a, b) => getTrackDateValue(b) - getTrackDateValue(a))
-        .slice(0, 24)
-    );
-    const scriptureSongs = uniqueTracks((tracks || []).filter(track => (track.scripture_references || []).length));
-    const worshipSongs = uniqueTracks((tracks || []).filter(track => {
-      const haystack = [...(track.tags || []), ...(track.playlists || []), track.genre || "", track.collection || ""].join(' ').toLowerCase();
-      return haystack.includes('worship') || haystack.includes('gospel') || haystack.includes('scripture');
-    }));
-
-    return [
-      { key: 'favorites', name: 'Favorites', icon: '★', tracks: favoriteTracks },
-      { key: 'recent', name: 'Recent', icon: '🕘', tracks: recentTracks },
-      { key: 'downloaded', name: 'Offline', icon: '⬇', tracks: downloaded },
-      { key: 'most-played', name: 'Most Played', icon: '🔥', tracks: mostPlayed },
-      { key: 'recently-added', name: 'New', icon: '✨', tracks: recentlyAdded },
-      { key: 'scripture', name: 'Scripture', icon: '✝', tracks: scriptureSongs },
-      { key: 'worship', name: 'Worship', icon: '♪', tracks: worshipSongs }
-    ].filter(item => item.tracks.length);
-  }
-
-  function getFilteredTracks({ tracks, filters, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {}, customPlaylists = {} }) {
-    let result = Array.isArray(tracks) ? [...tracks] : [];
-
-    if (filters.selectedAlbum) result = result.filter(track => track.album === filters.selectedAlbum);
-    if (filters.selectedPlaylist) result = result.filter(track => (track.playlists || []).includes(filters.selectedPlaylist));
-    if (filters.selectedCustomPlaylist) {
-      const playlistIds = new Set(customPlaylists?.[filters.selectedCustomPlaylist] || []);
-      result = result.filter(track => playlistIds.has(track.id));
-    }
-    if (filters.selectedTag) result = result.filter(track => (track.tags || []).includes(filters.selectedTag));
-    if (filters.selectedSmartPlaylist) {
-      const smart = getSmartPlaylistDefinitions({ tracks: result, favorites, recentlyPlayed, downloadedTracks, playStats })
-        .find(item => item.key === filters.selectedSmartPlaylist);
-      result = smart ? [...smart.tracks] : [];
-    }
-    if (filters.searchTerm) {
-      const q = String(filters.searchTerm).toLowerCase();
-      const scope = filters.searchScope || 'all';
-      result = result.filter(track => buildSearchHaystack(track, scope).includes(q));
+    if (!names.length) {
+      els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
+      els.myPlaylistList.innerHTML = `<p class="empty-message playlist-empty-message">No custom playlists yet.</p>`;
+      return;
     }
 
-    return result;
-  }
+    const activeName = normalizeState({ customPlaylists, activeCustomPlaylistName });
+    const hasSelectionFocus = Boolean(filters?.selectedPlaylist || filters?.selectedSmartPlaylist || filters?.selectedCustomPlaylist);
+    const visibleNames = activeName
+      ? names.filter(name => name === activeName)
+      : (hasSelectionFocus ? [] : names);
 
-  function renderPlaylists({ container, trackList, allTracks, filters, hasActiveFilter, onClearAll, onSetPlaylistFilter, onSetSmartPlaylistFilter, favorites, recentlyPlayed, downloadedTracks, playStats, escapeHtml, escapeHtmlAttr }) {
-    if (!container) return;
+    els.myPlaylistList.className = 'playlist-list playlist-list--custom playlist-pill-grid playlist-pill-grid--custom playlist-list--custom-standalone';
 
-    const map = new Map();
-    (trackList || []).forEach(track => {
-      (track.playlists || []).forEach(playlist => {
-        map.set(playlist, (map.get(playlist) || 0) + 1);
-      });
-    });
-
-    const smartNameMap = {
-      favorites: 'Favorites',
-      recent: 'Recent',
-      downloaded: 'Offline',
-      'most-played': 'Most Played',
-      'recently-added': 'New',
-      scripture: 'Scripture',
-      worship: 'Worship'
-    };
-
-    const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats })
-      .map(item => ({ ...item, shortName: smartNameMap[item.key] || item.name }));
-    const playlists = [{ name: 'All Songs', count: Array.isArray(allTracks) ? allTracks.length : 0 }]
-      .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
-
-    const quickFilterIcons = {
-      favorites: '★',
-      recent: '🕘',
-      downloaded: '⬇',
-      'most-played': '🔥',
-      'recently-added': '✨',
-      scripture: '✝',
-      worship: '♪'
-    };
-
-    const hasSelectionFocus = Boolean(filters.selectedPlaylist || filters.selectedSmartPlaylist || filters.selectedCustomPlaylist);
-    const visibleSmartPlaylists = filters.selectedSmartPlaylist
-      ? smartPlaylists.filter(item => item.key === filters.selectedSmartPlaylist)
-      : (hasSelectionFocus ? [] : smartPlaylists);
-    const visiblePlaylists = filters.selectedPlaylist
-      ? playlists.filter(item => item.name === filters.selectedPlaylist)
-      : (hasSelectionFocus ? [] : playlists);
-
-    const quickFiltersMarkup = visibleSmartPlaylists.map(item => `
-      <button class="filter-chip quick-filter-icon-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}" aria-label="${escapeHtmlAttr(item.name)}">
-        <span class="quick-filter-icon" aria-hidden="true">${quickFilterIcons[item.key] || item.icon || '•'}</span>
-      </button>
-    `).join('');
-
-    const playlistMarkup = visiblePlaylists.map(playlist => {
-      const isAllSongs = playlist.name === 'All Songs';
-      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
-      const label = isAllSongs ? 'All Songs' : playlist.name;
+    const gridMarkup = visibleNames.map(name => {
+      const list = getCustomPlaylistTracks(name);
+      const active = name === activeName ? 'active' : '';
+      const countLabel = `${list.length} song${list.length === 1 ? '' : 's'}`;
       return `
-        <button class="filter-chip playlist-card-pill ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
-          <span class="playlist-card-pill__title">${escapeHtml(label)}</span>
-          <span class="playlist-card-pill__meta">${playlist.count} song${playlist.count === 1 ? '' : 's'}</span>
+        <button class="filter-chip playlist-card-pill playlist-card-pill--custom-compact ${active}" data-open-custom-playlist="${escapeHtmlAttr(name)}" type="button" title="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}" aria-label="${escapeHtmlAttr(name)} — ${escapeHtmlAttr(countLabel)}">
+          <span class="playlist-card-pill__title">${escapeHtml(name)}</span>
         </button>
       `;
     }).join('');
 
-    const quickFiltersSection = quickFiltersMarkup ? `
-        <div class="playlist-filter-block">
-          <p class="playlist-filter-heading">Quick Filters</p>
-          <div class="quick-filter-grid">${quickFiltersMarkup}</div>
+    const trayMarkup = activeName ? `
+      <div class="custom-playlist-action-tray" data-custom-playlist-tray="${escapeHtmlAttr(activeName)}">
+        <div class="custom-playlist-action-tray__label">Selected: ${escapeHtml(activeName)} · ${escapeHtml(getCustomPlaylistTracks(activeName).length)} song${getCustomPlaylistTracks(activeName).length === 1 ? '' : 's'}</div>
+        <div class="playlist-card-actions playlist-card-actions--selected-tray">
+          <button class="mini-action-btn" data-custom-playlist-play="${escapeHtmlAttr(activeName)}" type="button" title="Play ${escapeHtmlAttr(activeName)}">Play</button>
+          <button class="mini-action-btn" data-custom-playlist-shuffle="${escapeHtmlAttr(activeName)}" type="button" title="Shuffle ${escapeHtmlAttr(activeName)}">Shuffle</button>
+          <button class="mini-action-btn danger-btn" data-delete-custom-playlist="${escapeHtmlAttr(activeName)}" type="button" title="Delete ${escapeHtmlAttr(activeName)}">Delete</button>
         </div>
-    ` : '';
-
-    const playlistsSection = playlistMarkup ? `
-        <div class="playlist-filter-block playlist-filter-block--playlists">
-          <p class="playlist-filter-heading">Playlists</p>
-          <div class="playlist-pill-grid">${playlistMarkup}</div>
-        </div>
-    ` : '';
-
-    container.innerHTML = `
-      <div class="playlist-filter-sections">
-        ${quickFiltersSection}
-        ${playlistsSection}
       </div>
-    `;
+    ` : '';
 
-    container.querySelectorAll('[data-playlist]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (btn.dataset.playlist === 'All Songs') onClearAll?.();
-        else onSetPlaylistFilter?.(btn.dataset.playlist);
-      });
-    });
-    container.querySelectorAll('[data-smart-playlist]').forEach(btn => {
-      btn.addEventListener('click', () => onSetSmartPlaylistFilter?.(btn.dataset.smartPlaylist));
-    });
+    els.myPlaylistList.innerHTML = `${gridMarkup}${trayMarkup}`;
+
+    els.myPlaylistList.querySelectorAll('[data-open-custom-playlist]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.openCustomPlaylist;
+      setActiveCustomPlaylist(name);
+      applyCustomPlaylistFilter(name);
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-play]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistPlay;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, false, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-custom-playlist-shuffle]').forEach(btn => btn.addEventListener('click', () => {
+      const name = btn.dataset.customPlaylistShuffle;
+      const list = getCustomPlaylistTracks(name);
+      if (list.length) {
+        setActiveCustomPlaylist(name);
+        startPlaybackFromList(list, true, 0);
+      }
+    }));
+
+    els.myPlaylistList.querySelectorAll('[data-delete-custom-playlist]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      onDelete(btn.dataset.deleteCustomPlaylist);
+      saveCustomPlaylists();
+      renderMyPlaylists({ els, customPlaylists, activeCustomPlaylistName: normalizeState({ customPlaylists, activeCustomPlaylistName: null }), filters, getCustomPlaylistTracks, setActiveCustomPlaylist, startPlaybackFromList, applyCustomPlaylistFilter, saveCustomPlaylists, onDelete, renderPlaylistWorkspace, escapeHtml, escapeHtmlAttr });
+    }));
   }
 
-  function renderTags({ container, trackList, filters, windowWidth, onSetTagFilter, escapeHtml, escapeHtmlAttr, getVisibleTags }) {
-    if (!container) return;
+  function escapeHtml(value) { return String(value ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function escapeHtmlAttr(value) { return escapeHtml(value); }
 
-    let tags = getVisibleTags(trackList || []);
-    if (windowWidth <= 640) tags = tags.sort((a, b) => b.count - a.count).slice(0, 12);
-
-    if (!tags.length) {
-      container.innerHTML = `<p class="empty-message">No tags found.</p>`;
-      return;
-    }
-
-    container.innerHTML = tags.map(tag => {
-      const active = filters.selectedTag === tag.name ? "active" : "";
-      return `
-        <button class="filter-chip ${active}" data-tag="${escapeHtmlAttr(tag.name)}" type="button">
-          #${escapeHtml(tag.name)} <span class="chip-count">(${tag.count})</span>
-        </button>
-      `;
-    }).join("");
-
-    container.querySelectorAll("[data-tag]").forEach(btn => {
-      btn.addEventListener("click", () => onSetTagFilter?.(btn.dataset.tag));
-    });
-  }
-
-  window.AineoLibrary = {
-    applyNamedFilter,
-    clearFilters,
-    getFilteredTracks,
-    renderPlaylists,
-    renderTags,
-    getSmartPlaylistDefinitions
-  };
+  window.AineoPlaylists = { normalizeState, getCustomPlaylistTracks, ensureWorkspace, openPlaylistModal, closePlaylistModal, saveTrackToPlaylistFromModal, applyCustomPlaylistFilter, setActiveCustomPlaylist, renderWorkspace, renderMyPlaylists };
 })();

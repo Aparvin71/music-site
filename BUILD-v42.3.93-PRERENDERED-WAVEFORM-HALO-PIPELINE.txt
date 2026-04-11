@@ -1,0 +1,21 @@
+BUILD v42.3.93 — PRERENDERED WAVEFORM HALO PIPELINE
+
+What changed
+- Added ffmpeg-based waveform envelope extraction to make_tracks.py and tools/make_tracks.py.
+- Each track can now receive:
+  - waveform_envelope: 2048 prerendered amplitude samples across the whole song
+  - waveform_ring_preview: 64-sample preview ring
+- Updated app.js so the full-screen halo visualizer reads prerendered per-track waveform data when present.
+- Kept playback path untouched for safety.
+- Synced package version markers to v42.3.93 and refreshed service-worker cache version.
+
+Important
+- This zip does not include the source audio folder, so the existing tracks.json in this package was not regenerated with waveform_envelope data inside the container.
+- To activate true per-track waveform halos for your library, run the updated make_tracks.py in your real source build folder where the MP3 files exist, then upload the newly generated tracks.json with the rest of the site.
+
+Suggested local command
+- python make_tracks.py
+
+Result after regeneration
+- Each song gets its own prerendered halo behavior based on its actual audio shape.
+- No live analyser / CORS / playback-risk path is required.

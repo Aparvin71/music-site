@@ -1,180 +1,75 @@
-(function () {
-  function getDisplayTracks({ currentQueue, filteredTracks, tracks }) {
-    if (Array.isArray(currentQueue) && currentQueue.length) return currentQueue;
-    if (Array.isArray(filteredTracks) && filteredTracks.length) return filteredTracks;
-    return Array.isArray(tracks) ? tracks : [];
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Browse album pages in the Aineo Music library." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>Albums - Aineo Music</title>
+  <link rel="stylesheet" href="./style.css?v=42.3.94" />
+  <script src="./pwa-init.js?v=42.3.94" defer></script>
+  <script src="./aineo-shared.js?v=42.3.94" defer></script>
+  <script src="./albums-page.js?v=42.3.94" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="./home.html">Home</a></li>
+  <li><a href="./index.html">Music</a></li>
+  <li><a href="./albums.html" class="active" aria-current="page">Albums</a></li>
+  <li><a href="./about.html">About</a></li>
+  <li><a href="./mission.html">Mission</a></li>
+  <li><a href="./install.html">Install</a></li>
+  <li><a href="./contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
 
-  function buildQueueHtml({ displayTracks, currentQueue, currentQueueIndex, currentTrack, audioPlayer, escapeHtml, escapeHtmlAttr }) {
-    const currentTrackId = currentTrack?.id || "";
-    const currentTrackPlaying = Boolean(currentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
+  <main class="page">
+    <section class="page-card page-hero-card">
+      <p class="eyebrow">Albums</p>
+      <h1>Browse by Album</h1>
+      <p class="page-lead">Open any album page for its story, theme, full track list, scripture references, and queue.</p>
+    </section>
 
-    return displayTracks.map((track, index) => {
-      const activeIndex = currentQueue.length ? currentQueueIndex : displayTracks.findIndex(t => t.id === currentTrackId);
-      const isCurrentTrack = Boolean(currentTrackId && track.id === currentTrackId);
-      const isPlayingTrack = isCurrentTrack && currentTrackPlaying;
-      const active = index === activeIndex || isCurrentTrack ? "active is-current" : "";
-      const stateClass = isPlayingTrack ? "is-playing" : isCurrentTrack ? "is-paused" : "";
-      const playLabel = isPlayingTrack ? "Pause" : "Play";
-      const playIcon = isPlayingTrack ? "❚❚" : "▶";
-      const queueBadge = isCurrentTrack ? `<span class="queue-position-pill queue-position-pill--current">Now Playing</span>` : (currentQueue.length && index === activeIndex + 1) ? `<span class="queue-position-pill">Up Next</span>` : "";
+    <section id="albumsGrid" class="catalog-grid" aria-live="polite">
+      <article class="page-card">
+        <p class="eyebrow">Loading</p>
+        <h2>Building your album shelf…</h2>
+        <p>Your albums will appear here in a moment.</p>
+      </article>
+    </section>
+  </main>
 
-      return `
-        <div class="queue-row ${active} ${stateClass}" draggable="true" data-queue-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">
-          <button class="queue-play-btn ${stateClass} ${isCurrentTrack ? "is-current" : ""}" data-queue-play="${index}" type="button" aria-label="${playLabel} ${escapeHtmlAttr(track.title)}" aria-pressed="${isPlayingTrack ? "true" : "false"}">${playIcon}</button>
-          ${track.cover ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" />` : `<div class="queue-cover"></div>`}
-          <div class="queue-main">
-            <div class="queue-title-row">
-              <h3>${escapeHtml(track.title)}</h3>
-              <span class="queue-duration">${escapeHtml(track.duration || "")}</span>
-            </div>
-            <p class="queue-artist">${escapeHtml(track.artist)}</p>
-            <div class="queue-meta-row">
-              <span>${escapeHtml(track.album)}</span>
-              ${track.year ? `<span>${escapeHtml(String(track.year))}</span>` : ""}
-            </div>
-            ${queueBadge}${track.tags.length ? `<div class="queue-tags">${escapeHtml(track.tags.join(" • "))}</div>` : ""}
-          </div>
-          <div class="queue-actions">
-            <button class="mini-action-btn" data-queue-play-next="${index}" type="button">Play Next</button>
-            <button class="mini-action-btn" data-queue-more="${index}" type="button">•••</button>
-            <button class="mini-action-btn" data-queue-remove="${index}" type="button">Remove</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
+  <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v42.3.94</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="./changelog.html">Changelog</a>
+      <a href="./feedback.html">Feedback</a>
+      <a href="./lyrics-editor.html">Lyrics Editor</a>
+      <a href="./admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
 
-  function renderQueue({ currentQueue, currentQueueIndex, filteredTracks, tracks, queueListEl, queueCountEl, playerSheetQueuePanelEl, audioPlayer, getCurrentTrack, escapeHtml, escapeHtmlAttr, bindInteractions }) {
-    const displayTracks = getDisplayTracks({ currentQueue, filteredTracks, tracks });
-    if (queueCountEl) queueCountEl.textContent = `${displayTracks.length} song${displayTracks.length === 1 ? "" : "s"}`;
-    if (!queueListEl) return;
-
-    if (!displayTracks.length) {
-      queueListEl.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
-      if (playerSheetQueuePanelEl) playerSheetQueuePanelEl.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
-      return;
-    }
-
-    const queueHtml = buildQueueHtml({
-      displayTracks,
-      currentQueue,
-      currentQueueIndex,
-      currentTrack: getCurrentTrack?.(),
-      audioPlayer,
-      escapeHtml,
-      escapeHtmlAttr
-    });
-
-    queueListEl.innerHTML = queueHtml;
-    if (playerSheetQueuePanelEl) playerSheetQueuePanelEl.innerHTML = `<div class="player-sheet-queue-list">${queueHtml}</div>`;
-    bindInteractions?.(queueListEl, displayTracks);
-    if (playerSheetQueuePanelEl) bindInteractions?.(playerSheetQueuePanelEl, displayTracks);
-  }
-
-  function bindInteractions({ container, displayTracks, currentQueue, setCurrentQueue, getCurrentQueueIndex, setCurrentQueueIndex, getCurrentTrack, togglePlayPause, setQueue, playFromQueueIndex, saveQueueState, renderQueue, syncQueuePlaybackUI, openAndScrollQueueToCurrentTrack, setQueueDragIndex, getQueueDragIndex }) {
-    container.querySelectorAll("[data-queue-play]").forEach(btn => {
-      btn.addEventListener("click", event => {
-        event.stopPropagation();
-        const index = Number(btn.dataset.queuePlay);
-        const baseQueue = currentQueue.length ? currentQueue : displayTracks;
-        const targetTrack = baseQueue[index];
-        const currentTrack = getCurrentTrack?.();
-        if (!targetTrack) return;
-        if (!currentQueue.length) setQueue?.(displayTracks, false);
-
-        if (currentTrack && currentTrack.id === targetTrack.id) {
-          togglePlayPause?.();
-          syncQueuePlaybackUI?.();
-        } else {
-          playFromQueueIndex?.(index);
-        }
-
-        if (openAndScrollQueueToCurrentTrack && container.id === "queueList") openAndScrollQueueToCurrentTrack();
-      });
-    });
-
-    container.querySelectorAll("[data-queue-remove]").forEach(btn => {
-      btn.addEventListener("click", event => {
-        event.stopPropagation();
-        const index = Number(btn.dataset.queueRemove);
-        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
-        if (index < 0 || index >= baseQueue.length) return;
-        const [removed] = baseQueue.splice(index, 1);
-        setCurrentQueue(baseQueue);
-        if (!baseQueue.length) setCurrentQueueIndex(-1);
-        else if (removed?.id === getCurrentTrack?.()?.id) setCurrentQueueIndex(Math.min(index, baseQueue.length - 1));
-        else setCurrentQueueIndex(baseQueue.findIndex(track => track.id === getCurrentTrack?.()?.id));
-        saveQueueState?.();
-        renderQueue?.();
-      });
-    });
-
-    container.querySelectorAll("[data-queue-play-next]").forEach(btn => {
-      btn.addEventListener("click", event => {
-        event.stopPropagation();
-        const index = Number(btn.dataset.queuePlayNext);
-        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
-        if (index < 0 || index >= baseQueue.length) return;
-        const current = getCurrentTrack?.();
-        if (!current) {
-          setQueue?.(baseQueue, false);
-          playFromQueueIndex?.(index);
-          return;
-        }
-        const currentIndex = baseQueue.findIndex(track => track.id === current.id);
-        const [moved] = baseQueue.splice(index, 1);
-        baseQueue.splice(Math.max(currentIndex + 1, 0), 0, moved);
-        setCurrentQueue(baseQueue);
-        setCurrentQueueIndex(baseQueue.findIndex(track => track.id === current.id));
-        saveQueueState?.();
-        renderQueue?.();
-      });
-    });
-
-    container.querySelectorAll(".queue-row").forEach(row => {
-      row.addEventListener("click", () => {
-        const index = Number(row.dataset.queueIndex);
-        if (!currentQueue.length) setQueue?.(displayTracks, false);
-        playFromQueueIndex?.(index);
-        openAndScrollQueueToCurrentTrack?.();
-      });
-
-      row.addEventListener("dragstart", () => {
-        setQueueDragIndex?.(Number(row.dataset.queueIndex));
-        row.classList.add("dragging");
-      });
-
-      row.addEventListener("dragend", () => {
-        row.classList.remove("dragging");
-      });
-
-      row.addEventListener("dragover", event => {
-        event.preventDefault();
-      });
-
-      row.addEventListener("drop", event => {
-        event.preventDefault();
-        const dropIndex = Number(row.dataset.queueIndex);
-        const dragIndex = getQueueDragIndex?.();
-        if (dragIndex === null || dragIndex === dropIndex) return;
-
-        const baseQueue = currentQueue.length ? [...currentQueue] : [...displayTracks];
-        const moved = baseQueue.splice(dragIndex, 1)[0];
-        baseQueue.splice(dropIndex, 0, moved);
-        const current = getCurrentTrack?.();
-        setCurrentQueue(baseQueue);
-        setCurrentQueueIndex(current ? baseQueue.findIndex(track => track.id === current.id) : 0);
-        saveQueueState?.();
-        renderQueue?.();
-        setQueueDragIndex?.(null);
-      });
-    });
-  }
-
-  window.AineoQueue = {
-    getDisplayTracks,
-    renderQueue,
-    bindInteractions
-  };
-})();
+</body>
+</html>

@@ -1,693 +1,891 @@
-import json
-import re
-import unicodedata
-from pathlib import Path
-from typing import Any
-from urllib.parse import quote
+window.AineoAlbumPage = (() => {
+const albumPageEls = {
+  root: document.getElementById("albumPageRoot"),
+  mobileNavToggle: document.getElementById("mobileNavToggle"),
+  siteNavLinks: document.getElementById("siteNavLinks"),
+  lyricsModal: document.getElementById("lyricsModal"),
+  lyricsModalBackdrop: document.getElementById("lyricsModalBackdrop"),
+  lyricsModalBody: document.getElementById("lyricsModalBody"),
+  lyricsModalTitle: document.getElementById("lyricsModalTitle"),
+  closeLyricsBtn: document.getElementById("closeLyricsBtn"),
+  audioPlayer: document.getElementById("audioPlayer"),
+  nowCover: document.getElementById("nowCover"),
+  nowTitle: document.getElementById("nowTitle"),
+  nowArtist: document.getElementById("nowArtist"),
+  nowAlbum: document.getElementById("nowAlbum"),
+  nowScripture: document.getElementById("nowScripture"),
+  prevBtn: document.getElementById("prevBtn"),
+  playBtn: document.getElementById("playBtn"),
+  nextBtn: document.getElementById("nextBtn"),
+  currentTime: document.getElementById("currentTime"),
+  seekBar: document.getElementById("seekBar"),
+  duration: document.getElementById("duration")
+};
 
-from mutagen.id3 import ID3
-from mutagen.mp3 import MP3
+let allTracks = [];
+let albumTracks = [];
+let albumLibrary = [];
+let currentQueue = [];
+let currentQueueIndex = -1;
+let toastTimer = null;
+let albumQueueDragIndex = null;
+let activeAlbumQueueTouchDrag = null;
 
-AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
-COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
-ALBUM_ZIP_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/albums"
+const params = new URLSearchParams(window.location.search);
+const albumParam = params.get("album") || "";
 
-DEFAULT_ARTIST = "Allen Parvin"
-DEFAULT_ALBUM = "Singles"
-DEFAULT_YEAR = 2026
-DEFAULT_PLAYLIST = "Music"
-DEFAULT_COLLECTION = "All Songs"
-LRC_MANIFEST_NAME = "lrc-manifest.json"
-TRACK_METADATA_NAME = "track-metadata.json"
-AUDIO_EXTENSIONS = {".mp3"}
-
-SCRIPT_PATH = Path(__file__).resolve()
-SITE_DIR = SCRIPT_PATH.parent
-if not (SITE_DIR / "audio").exists() and len(SCRIPT_PATH.parents) > 1:
-    parent_candidate = SCRIPT_PATH.parents[1]
-    if (parent_candidate / "audio").exists():
-        SITE_DIR = parent_candidate
-
-AUDIO_DIR = SITE_DIR / "audio"
-COVERS_DIR = SITE_DIR / "covers"
-LYRICS_DIR = SITE_DIR / "lyrics"
-OUTPUT_FILE = SITE_DIR / "tracks.json"
-LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
-TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
-
-SCRIPTURE_BOOKS = [
-    "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
-    "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings", "2 Kings",
-    "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah", "Esther", "Job",
-    "Psalm", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon", "Isaiah",
-    "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea", "Joel", "Amos",
-    "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk", "Zephaniah", "Haggai",
-    "Zechariah", "Malachi", "Matthew", "Mark", "Luke", "John", "Acts", "Romans",
-    "1 Corinthians", "2 Corinthians", "Galatians", "Ephesians", "Philippians",
-    "Colossians", "1 Thessalonians", "2 Thessalonians", "1 Timothy", "2 Timothy",
-    "Titus", "Philemon", "Hebrews", "James", "1 Peter", "2 Peter", "1 John",
-    "2 John", "3 John", "Jude", "Revelation",
-]
-
-# Optional album metadata.
-ALBUM_METADATA: dict[str, dict[str, Any]] = {
-    # "Grace Songs": {
-    #     "album_zip": "grace-songs.zip",
-    #     "playlists": ["Worship"],
-    #     "featured": True,
-    # },
+async function initAlbumPage() {
+  initMobileNav();
+  bindPlayer();
+  bindModal();
+  await Promise.all([loadTracks(), loadAlbumsMetadata()]);
+  renderAlbumPage();
 }
 
-SMART_CHAR_REPLACEMENTS = {
-    "\u2018": "'",
-    "\u2019": "'",
-    "\u201c": '"',
-    "\u201d": '"',
-    "\u2013": "-",
-    "\u2014": "-",
-    "\u00a0": " ",
+function initMobileNav() {
+  const toggle = albumPageEls.mobileNavToggle;
+  const nav = albumPageEls.siteNavLinks;
+  if (!toggle || !nav) return;
+  if (toggle.dataset.navBound === "true") return;
+  toggle.dataset.navBound = "true";
+  ["pointerdown", "touchstart"].forEach(eventName => {
+    toggle.addEventListener(eventName, event => {
+      event.stopPropagation();
+    }, { passive: true });
+  });
+  toggle.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    const open = nav.classList.toggle("nav-open");
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    toggle.textContent = open ? "✕" : "☰";
+  });
 }
 
-BAD_UNICODE_MARKER_RE = re.compile(r"[#\\]?u?201[89abcd]|#U201[89ABCD]", re.IGNORECASE)
+function bindPlayer() {
+  const audio = albumPageEls.audioPlayer;
+  if (!audio) return;
+
+  albumPageEls.playBtn?.addEventListener("click", togglePlayPause);
+  albumPageEls.prevBtn?.addEventListener("click", playPrevious);
+  albumPageEls.nextBtn?.addEventListener("click", playNext);
+  albumPageEls.seekBar?.addEventListener("input", () => {
+    if (!isFinite(audio.duration)) return;
+    audio.currentTime = (Number(albumPageEls.seekBar.value) / 100) * audio.duration;
+  });
+
+  audio.addEventListener("timeupdate", updateProgressUI);
+  audio.addEventListener("loadedmetadata", () => {
+    updateProgressUI();
+    syncAlbumTrackPlaybackUI();
+  });
+  audio.addEventListener("play", () => {
+    updatePlayButton();
+    syncAlbumTrackPlaybackUI();
+  });
+  audio.addEventListener("pause", () => {
+    updatePlayButton();
+    syncAlbumTrackPlaybackUI();
+  });
+  audio.addEventListener("ended", handleTrackEnded);
+}
+
+function bindModal() {
+  albumPageEls.closeLyricsBtn?.addEventListener("click", closeLyricsModal);
+  albumPageEls.lyricsModalBackdrop?.addEventListener("click", closeLyricsModal);
+}
+
+async function loadTracks() {
+  const data = await (window.AineoShared?.fetchJson ? window.AineoShared.fetchJson("tracks.json", []) : fetch("tracks.json", { cache: "no-cache" }).then(res => res.json()));
+  allTracks = Array.isArray(data) ? data.map(normalizeTrack) : [];
+  albumTracks = allTracks.filter(track => track.album.toLowerCase() === albumParam.toLowerCase());
+}
+
+async function loadAlbumsMetadata() {
+  try {
+    const data = await (window.AineoShared?.fetchJson ? window.AineoShared.fetchJson("albums.json", []) : fetch("albums.json", { cache: "no-cache" }).then(res => res.json()));
+    albumLibrary = Array.isArray(data) ? data.map(normalizeAlbumMetadata) : [];
+  } catch (error) {
+    console.warn("albums.json could not be loaded.", error);
+    albumLibrary = [];
+  }
+}
+
+function normalizeAlbumMetadata(album) {
+  const toArray = value => Array.isArray(value) ? value : String(value || "").split(",").map(v => v.trim()).filter(Boolean);
+  return {
+    title: album.title || album.name || "",
+    slug: album.slug || slugify(album.title || album.name || ""),
+    year: album.year || "",
+    cover: album.cover || "",
+    description: album.description || album.album_description || "",
+    theme: album.theme || album.album_theme || "",
+    story: album.story || album.album_story || "",
+    badges: toArray(album.badges || album.album_badges),
+    track_count: Number(album.track_count || album.song_count || 0) || 0,
+    album_zip: album.album_zip || "",
+    artist: album.artist || ""
+  };
+}
 
 
-def normalize_text(value: str) -> str:
-    text = str(value or "")
-    for old, new in SMART_CHAR_REPLACEMENTS.items():
-        text = text.replace(old, new)
-    text = unicodedata.normalize("NFKC", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+function normalizeTrack(track) {
+  const toArray = value => Array.isArray(value) ? value : String(value || "").split(",").map(v => v.trim()).filter(Boolean);
+  return {
+    id: track.id || `${track.title}-${track.album}`,
+    title: track.title || "Untitled",
+    artist: track.artist || "Allen Parvin",
+    album: track.album || "Singles",
+    year: track.year || "",
+    duration: track.duration || "",
+    src: track.src || track.audio || track.url || "",
+    cover: track.cover || "",
+    lyrics: track.lyrics || "",
+    scripture_references: toArray(track.scripture_references || track.scriptureReferences || track.scripture),
+    tags: toArray(track.tags),
+    album_zip: track.album_zip || "",
+    album_description: track.album_description || "",
+    album_theme: track.album_theme || "",
+    album_story: track.album_story || "",
+    album_badges: toArray(track.album_badges),
+    has_lyrics: Boolean(track.has_lyrics || track.lyrics),
+    has_scripture_refs: Boolean(track.has_scripture_refs || toArray(track.scripture_references || track.scriptureReferences || track.scripture).length)
+  };
+}
 
 
+function getTrackPlayState(track) {
+  const currentTrack = getCurrentTrack();
+  const isCurrentTrack = Boolean(currentTrack && track && currentTrack.id === track.id);
+  const isPlaying = Boolean(isCurrentTrack && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused && albumPageEls.audioPlayer.src);
+  return {
+    isCurrentTrack,
+    isPlaying,
+    icon: isPlaying ? "❚❚" : "▶",
+    label: isPlaying ? "Pause" : "Play"
+  };
+}
 
-def clean_title(filename: str) -> str:
-    title = Path(filename).stem
-    title = normalize_text(title)
-    title = re.sub(r"\(\d+\)$", "", title).strip()
-    title = re.sub(r"^\d+[-_.\s]*", "", title)
-    title = re.sub(r"\s+", " ", title)
-    return title.strip()
+function getArtistPageHref(artist) {
+  return './about.html';
+}
 
+function renderAlbumPage() {
+  if (!albumPageEls.root) return;
+  if (!albumTracks.length) {
+    document.title = "Album Not Found - Aineo Music";
+    albumPageEls.root.innerHTML = `
+      <section class="page-card album-page-empty">
+        <p class="eyebrow">Album Page</p>
+        <h2>Album not found</h2>
+        <p>We couldn't find that album. Head back to the library and pick another one.</p>
+      </section>
+    `;
+    return;
+  }
 
+  const album = getAlbumMetadataForPage(albumTracks);
 
-def canonical_match_key(text: str) -> str:
-    text = normalize_text(text).lower()
-    text = BAD_UNICODE_MARKER_RE.sub("'", text)
-    text = text.replace("&", " and ")
-    text = re.sub(r"[^a-z0-9]+", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+  const scriptureSummary = getAlbumScriptureSummary(albumTracks);
+  const tagSummary = [...new Set(albumTracks.flatMap(track => track.tags || []))].slice(0, 6);
+  const totalDuration = formatDurationLabel(albumTracks);
+  const relatedSongs = getAlbumRelatedSongs(albumTracks).slice(0, 6);
+  const trackCountWithLyrics = albumTracks.filter(track => track.has_lyrics).length;
+  const trackCountWithScripture = albumTracks.filter(track => track.has_scripture_refs).length;
 
+  document.title = `${album.name} - Aineo Music`;
 
+  albumPageEls.root.innerHTML = `
+    <section class="album-page-hero-card album-page-hero-card--redesign">
+      <div class="album-page-hero-backdrop"${album.cover ? ` style="background-image:url('${escapeHtmlAttr(album.cover)}')"` : ""}></div>
+      <div class="album-page-hero-layout album-page-hero-layout--redesign">
+        <div class="album-page-hero-cover-shell">
+          ${album.cover ? `<img class="featured-cover album-page-hero-cover album-page-hero-cover--xl" src="${escapeHtmlAttr(album.cover)}" alt="${escapeHtmlAttr(album.name)} cover" loading="eager" decoding="async" />` : `<div class="featured-cover album-page-hero-cover album-page-hero-cover--xl"></div>`}
+        </div>
+        <div class="featured-meta album-page-hero-copy album-page-hero-copy--redesign">
+          <p class="eyebrow">Album</p>
+          <h1 class="album-page-title">${escapeHtml(album.name)}</h1>
+          <p class="album-page-subtitle">${escapeHtml(album.artist)}</p>
+          <div class="album-page-breadcrumbs" aria-label="Album breadcrumb">
+            <a href="./home.html">Home</a>
+            <span aria-hidden="true">/</span>
+            <a href="./albums.html">Albums</a>
+            <span aria-hidden="true">/</span>
+            <span>${escapeHtml(album.name)}</span>
+          </div>
+          <div class="album-page-stat-row album-page-stat-row--hero">
+            <span class="album-stat-pill">${albumTracks.length} song${albumTracks.length === 1 ? "" : "s"}</span>
+            ${totalDuration ? `<span class="album-stat-pill">${escapeHtml(totalDuration)}</span>` : ""}
+            ${albumTracks[0].year ? `<span class="album-stat-pill">${escapeHtml(String(albumTracks[0].year))}</span>` : ""}
+            <span class="album-stat-pill">${trackCountWithLyrics} with lyrics</span>
+            <span class="album-stat-pill">${trackCountWithScripture} scripture songs</span>
+          </div>
+          ${album.description ? `<p class="album-page-description album-page-description--hero">${escapeHtml(album.description)}</p>` : ""}
+          ${album.story ? `<p class="album-page-story-lead">${escapeHtml(album.story)}</p>` : ""}
+          ${album.badges.length ? `<div class="album-page-badge-row">${album.badges.map(badge => `<span class="album-inline-chip album-badge-chip">${escapeHtml(badge)}</span>`).join("")}</div>` : ""}
+          ${tagSummary.length ? `<div class="album-page-tag-row">${tagSummary.map(tag => `<span class="album-inline-chip">#${escapeHtml(tag)}</span>`).join("")}</div>` : ""}
+          <div class="featured-actions album-page-hero-actions album-page-hero-actions--stackable">
+            <button id="albumPagePlayBtn" class="action-btn" type="button">Play Album</button>
+            <button id="albumPageShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Album</button>
+            <button id="albumPageSaveOfflineBtn" class="action-btn secondary-btn" type="button">Save Album Offline</button>${album.album_zip ? `<button id="albumPageDownloadBtn" class="action-btn secondary-btn" type="button">Download Album</button>` : ""}
+          </div>
+          <div class="quick-link-pills album-page-inline-links">
+            <a class="quick-link-pill" href="./index.html">Music</a>
+            <a class="quick-link-pill" href="./albums.html">All Albums</a>
+            <a class="quick-link-pill" href="./about.html">About</a>
+            <a class="quick-link-pill" href="./contact.html">Request a Song</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-def slugify(text: str) -> str:
-    text = canonical_match_key(text)
-    text = re.sub(r"^\d+[-_.\s]*", "", text)
-    return text.replace(" ", "-").strip("-")
+    <div class="album-page-grid polished-album-page-grid album-page-grid--redesign">
+      <section class="library-panel featured-tracklist-panel album-page-main-panel album-page-main-panel--redesign">
+        <div class="section-header album-page-section-header album-page-section-header--tight">
+          <div>
+            <p class="eyebrow">Track List</p>
+            <h2>${escapeHtml(album.name)}</h2>
+          </div>
+          <p class="hero-text">Play the full album, tap any track to start there, or queue songs for later without leaving the page.</p>
+        </div>
+        <div class="featured-track-list album-page-track-list album-page-track-list--redesign">
+          ${albumTracks.map((track, index) => {
+            const playState = getTrackPlayState(track);
+            return `
+            <div class="featured-track-row album-page-track-row album-page-track-row--redesign ${playState.isCurrentTrack ? "playing" : ""}">
+              <button class="featured-track-play ${playState.isCurrentTrack ? "is-current" : ""}" type="button" data-play-index="${index}" aria-label="${playState.label} ${escapeHtmlAttr(track.title)}" aria-pressed="${playState.isPlaying ? "true" : "false"}">${playState.icon}</button>
+              <div class="featured-track-main album-page-track-main-hit" data-play-index="${index}" role="button" tabindex="0" aria-label="Play ${escapeHtmlAttr(track.title)}">
+                <div class="featured-track-title-line">
+                  <strong>${index + 1}. ${escapeHtml(track.title)}</strong>
+                  ${track.duration ? `<span class="featured-track-duration">${escapeHtml(track.duration)}</span>` : ""}
+                </div>
+                <div class="featured-track-meta-line album-page-track-meta-line">
+                  <span class="album-track-number-pill">Track ${index + 1}</span>${track.tags?.length ? track.tags.slice(0, 2).map(tag => `<span class="album-inline-chip album-track-chip">${escapeHtml(tag)}</span>`).join("") : ""}
+                  ${playState.isCurrentTrack ? `<span class="queue-position-pill queue-position-pill--current">${playState.isPlaying ? "Now Playing" : "Paused"}</span>` : `<span class="album-track-status-pill">Ready</span>`}
+                </div>
+              </div>
+              <div class="featured-track-actions album-page-track-actions album-page-track-actions--redesign">
+                <button class="mini-action-btn" type="button" data-play-next="${index}">Play Next</button>
+                <button class="mini-action-btn" type="button" data-add-queue="${index}">Add Queue</button>
+                <button class="mini-action-btn" type="button" data-lyrics-index="${index}">Lyrics</button>
+              </div>
+            </div>`;
+          }).join("")}
+        </div>
+      </section>
 
+      <aside class="album-page-side polished-album-page-side album-page-side--redesign">
+        <section class="queue-panel album-page-info-card album-page-highlight-card album-page-info-card--hero">
+          <div class="queue-header">
+            <div>
+              <h2>Album highlights</h2>
+              <p>At-a-glance details</p>
+            </div>
+          </div>
+          <div class="album-highlight-grid album-highlight-grid--redesign">
+            <div class="album-highlight-pill"><strong>${albumTracks.length}</strong><span>Tracks</span></div>
+            <div class="album-highlight-pill"><strong>${escapeHtml(totalDuration || '—')}</strong><span>Runtime</span></div>
+            <div class="album-highlight-pill"><strong>${trackCountWithScripture}</strong><span>Scripture songs</span></div>
+            <div class="album-highlight-pill"><strong>${tagSummary.length}</strong><span>Theme tags</span></div>
+          </div>
+          ${album.theme ? `<p class="album-page-story">Theme: ${escapeHtml(album.theme)}</p>` : ""}
+        </section>
 
+        <section class="queue-panel album-page-info-card album-page-info-card--scripture">
+          <div class="queue-header">
+            <div>
+              <h2>Scripture in this album</h2>
+              <p>${scriptureSummary.totalReferences} reference${scriptureSummary.totalReferences === 1 ? "" : "s"}</p>
+            </div>
+          </div>
+          <div class="album-page-scripture-summary ${scriptureSummary.books.length ? "" : "empty"}">
+            ${scriptureSummary.books.length
+              ? scriptureSummary.books.map(book => `<button class="scripture-summary-chip" type="button" data-jump-scripture="${escapeHtmlAttr(book.name)}">${escapeHtml(book.name)} <span>${book.count}</span></button>`).join("")
+              : `<p class="empty-message">No scripture references listed for this album.</p>`}
+          </div>
+        </section>
 
-def encode_url_path_component(file_name: str) -> str:
-    cleaned = normalize_text(file_name)
-    cleaned = cleaned.replace("\\", "/")
-    return quote(cleaned, safe="")
+        <section class="queue-panel album-page-info-card">
+          <div class="queue-header">
+            <div>
+              <h2>Album Queue</h2>
+              <p>${album.name} • ${albumTracks.length} tracks</p>
+            </div>
+          </div>
+          <div id="albumPageQueueList" class="queue-list"></div>
+        </section>
 
+        <section class="queue-panel album-page-info-card">
+          <div class="queue-header">
+            <div>
+              <h2>Related songs</h2>
+              <p>Similar themes and tags</p>
+            </div>
+          </div>
+          <div class="album-page-related-list">
+            ${relatedSongs.length ? relatedSongs.map((track, index) => `
+              <button class="album-related-card" type="button" data-related-index="${index}">
+                <span class="album-related-cover-wrap">
+                  ${track.cover ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="album-related-cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="album-related-cover album-related-cover-fallback">♪</div>`}
+                </span>
+                <span class="album-related-copy">
+                  <strong>${escapeHtml(track.title)}</strong>
+                  <span>${escapeHtml(track.album)}</span>
+                </span>
+              </button>
+            `).join("") : `<p class="empty-message">No related songs found yet.</p>`}
+          </div>
+        </section>
+      </aside>
+    </div>
+  `;
+  document.getElementById("albumPagePlayBtn")?.addEventListener("click", () => {
+    if (isAlbumContextActive()) {
+      togglePlayPause();
+      return;
+    }
+    startPlaybackFromList(albumTracks, false, 0);
+  });
+  document.getElementById("albumPageShuffleBtn")?.addEventListener("click", () => startPlaybackFromList(albumTracks, true, 0));
+  document.getElementById("albumPageDownloadBtn")?.addEventListener("click", () => triggerDownload(album.album_zip, `${safeFileName(album.name)}.zip`));
+  document.getElementById("albumPageSaveOfflineBtn")?.addEventListener("click", async () => {
+    if (!window.AineoOffline) return;
+    const btn = document.getElementById("albumPageSaveOfflineBtn");
+    const tracks = album.tracks || [];
+    const downloadedTracks = JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]");
+    const allSaved = window.AineoOffline.isCollectionDownloaded({ tracks, downloadedTracks });
+    const result = allSaved
+      ? await window.AineoOffline.removeCollectionOffline({ tracks, downloadedTracks, setDownloadedTracks(next){ localStorage.setItem("aineo_downloaded_tracks", JSON.stringify(next)); }, saveDownloadedTracks(){} })
+      : await window.AineoOffline.saveCollectionOffline({ tracks, downloadedTracks, setDownloadedTracks(next){ localStorage.setItem("aineo_downloaded_tracks", JSON.stringify(next)); }, saveDownloadedTracks(){} });
+    if (btn) btn.textContent = window.AineoOffline.isCollectionDownloaded({ tracks, downloadedTracks: JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]") }) ? "Remove Album Offline" : "Save Album Offline";
+  });
+  const albumOfflineBtn = document.getElementById("albumPageSaveOfflineBtn");
+  if (albumOfflineBtn && window.AineoOffline) {
+    const downloadedTracks = JSON.parse(localStorage.getItem("aineo_downloaded_tracks") || "[]");
+    albumOfflineBtn.textContent = window.AineoOffline.isCollectionDownloaded({ tracks: album.tracks || [], downloadedTracks }) ? "Remove Album Offline" : "Save Album Offline";
+  }
 
-
-def build_audio_url(file_name: str) -> str:
-    return f"{AUDIO_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
-
-
-
-def build_cover_url(file_name: str) -> str:
-    return f"{COVER_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
-
-
-
-def build_album_zip_url(file_name: str) -> str:
-    return f"{ALBUM_ZIP_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
-
-
-
-def safe_tag_text(tag_value: Any) -> str:
-    if not tag_value:
-        return ""
-
-    if hasattr(tag_value, "text"):
-        text = tag_value.text
-        if isinstance(text, list):
-            return " ".join(normalize_text(str(x)) for x in text if normalize_text(str(x)))
-        return normalize_text(str(text))
-
-    if isinstance(tag_value, list):
-        return " ".join(normalize_text(str(x)) for x in tag_value if normalize_text(str(x)))
-
-    return normalize_text(str(tag_value))
-
-
-
-def parse_year(tag_value: Any) -> int:
-    text = safe_tag_text(tag_value)
-    match = re.search(r"\d{4}", text)
-    return int(match.group()) if match else DEFAULT_YEAR
-
-
-
-def parse_track_number(tag_value: Any) -> int | None:
-    text = safe_tag_text(tag_value)
-    match = re.match(r"(\d+)", text)
-    return int(match.group(1)) if match else None
-
-
-
-def title_case_if_all_caps(text: str) -> str:
-    return text.title() if text and text.isupper() else text
-
-
-
-def format_duration(seconds: int) -> str:
-    seconds = int(seconds or 0)
-    mins = seconds // 60
-    secs = seconds % 60
-    return f"{mins}:{secs:02d}"
-
-
-
-def parse_genre_tags(genre_text: str) -> list[str]:
-    if not genre_text:
-        return []
-
-    parts = re.split(r"[,;/|]+", genre_text)
-    cleaned: list[str] = []
-    seen: set[str] = set()
-
-    for part in parts:
-        value = canonical_match_key(part)
-        if not value or value in seen:
-            continue
-        seen.add(value)
-        cleaned.append(value)
-
-    return cleaned
-
-
-
-def get_mp3_metadata(mp3_path: Path) -> dict[str, Any]:
-    try:
-        audio = MP3(mp3_path)
-        tags = audio.tags
-
-        title = ""
-        artist = ""
-        album = ""
-        genre = ""
-        year = DEFAULT_YEAR
-        track_number = None
-        duration_seconds = int(audio.info.length) if audio.info and audio.info.length else 0
-        comment = ""
-
-        if tags:
-            if "TIT2" in tags:
-                title = safe_tag_text(tags["TIT2"])
-            if "TPE1" in tags:
-                artist = safe_tag_text(tags["TPE1"])
-            if "TALB" in tags:
-                album = safe_tag_text(tags["TALB"])
-            if "TCON" in tags:
-                genre = safe_tag_text(tags["TCON"])
-            if "TDRC" in tags:
-                year = parse_year(tags["TDRC"])
-            elif "TYER" in tags:
-                year = parse_year(tags["TYER"])
-            if "TRCK" in tags:
-                track_number = parse_track_number(tags["TRCK"])
-
-            if "COMM::eng" in tags:
-                comment = safe_tag_text(tags["COMM::eng"])
-            else:
-                for key in tags.keys():
-                    if key.startswith("COMM"):
-                        comment = safe_tag_text(tags[key])
-                        if comment:
-                            break
-
-        return {
-            "title": title_case_if_all_caps(title),
-            "artist": title_case_if_all_caps(artist),
-            "album": title_case_if_all_caps(album),
-            "genre": title_case_if_all_caps(genre),
-            "year": year,
-            "track_number": track_number,
-            "duration_seconds": duration_seconds,
-            "comment": comment,
+  albumPageEls.root.querySelectorAll("[data-play-index]").forEach(btn => {
+    const activate = () => {
+      const index = Number(btn.dataset.playIndex);
+      const targetTrack = albumTracks[index];
+      const currentTrack = getCurrentTrack();
+      if (currentTrack && targetTrack && currentTrack.id === targetTrack.id) {
+        togglePlayPause();
+        renderAlbumPage();
+        return;
+      }
+      startPlaybackFromList(albumTracks, false, index);
+    };
+    btn.addEventListener("click", event => {
+      if (btn.classList.contains('album-page-track-main-hit') && event.target.closest('.album-page-track-actions')) return;
+      activate();
+    });
+    if (btn.classList.contains('album-page-track-main-hit')) {
+      btn.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activate();
         }
-    except Exception as exc:
-        print(f"Error reading MP3 metadata from {mp3_path.name}: {exc}")
-        return {
-            "title": "",
-            "artist": "",
-            "album": "",
-            "genre": "",
-            "year": DEFAULT_YEAR,
-            "track_number": None,
-            "duration_seconds": 0,
-            "comment": "",
-        }
-
-
-
-def get_embedded_lyrics(mp3_path: Path) -> str | None:
-    try:
-        tags = ID3(mp3_path)
-        if "USLT::eng" in tags:
-            text = normalize_text(str(tags["USLT::eng"].text))
-            if text:
-                return text
-        for key in tags.keys():
-            if key.startswith("USLT"):
-                text = normalize_text(str(tags[key].text))
-                if text:
-                    return text
-    except Exception:
-        pass
-    return None
-
-
-
-def extract_cover_art(mp3_path: Path, slug: str) -> str | None:
-    try:
-        tags = ID3(mp3_path)
-        apic_frames = tags.getall("APIC")
-        if not apic_frames:
-            return None
-
-        apic = apic_frames[0]
-        mime = normalize_text(apic.mime).lower()
-        if mime in {"image/jpeg", "image/jpg"}:
-            ext = ".jpg"
-        elif mime == "image/png":
-            ext = ".png"
-        else:
-            print(f"  Cover art found but unsupported mime type: {mime}")
-            return None
-
-        COVERS_DIR.mkdir(parents=True, exist_ok=True)
-        cover_filename = f"{slug}{ext}"
-        cover_path = COVERS_DIR / cover_filename
-        cover_path.write_bytes(apic.data)
-        return cover_filename
-    except Exception as exc:
-        print(f"  Error extracting cover from {mp3_path.name}: {exc}")
-        return None
-
-
-
-def find_existing_cover(slug: str) -> str | None:
-    for ext in (".jpg", ".jpeg", ".png"):
-        cover_path = COVERS_DIR / f"{slug}{ext}"
-        if cover_path.exists():
-            return cover_path.name
-    return None
-
-
-
-def choose_playlists(album: str) -> list[str]:
-    album = normalize_text(album)
-    album_meta = ALBUM_METADATA.get(album, {})
-    if album_meta.get("playlists"):
-        return [normalize_text(str(p)) for p in album_meta["playlists"] if normalize_text(str(p))]
-    return [album] if album else [DEFAULT_PLAYLIST]
-
-
-
-def get_album_meta(album: str) -> dict[str, Any]:
-    return ALBUM_METADATA.get(normalize_text(album), {})
-
-
-
-def get_album_zip(album: str) -> str:
-    zip_name = normalize_text(str(get_album_meta(album).get("album_zip") or ""))
-    return build_album_zip_url(zip_name) if zip_name else ""
-
-
-
-def extract_scripture_references(text: str) -> list[str]:
-    if not text:
-        return []
-
-    normalized = " ".join(normalize_text(text).split())
-    found: list[str] = []
-    seen: set[str] = set()
-
-    for book in sorted(SCRIPTURE_BOOKS, key=len, reverse=True):
-        pattern = rf"\b{re.escape(book)}\s+\d+:\d+(?:[-–]\d+)?\b"
-        for match in re.finditer(pattern, normalized, flags=re.IGNORECASE):
-            ref = normalize_text(match.group(0))
-            key = ref.lower()
-            if key not in seen:
-                seen.add(key)
-                found.append(ref)
-
-    return found
-
-
-
-def make_track_id(title: str, album: str, index: int) -> str:
-    return f"{slugify(album or DEFAULT_ALBUM)}__{slugify(title or 'track')}__{index}"
-
-
-
-def build_lookup_keys(*values: str) -> list[str]:
-    keys: list[str] = []
-    seen: set[str] = set()
-    for value in values:
-        candidates = {
-            normalize_text(value),
-            clean_title(value),
-            canonical_match_key(value),
-            slugify(value),
-            slugify(value.replace("dont", "don't").replace("its", "it's").replace("im", "i'm")),
-        }
-        for candidate in candidates:
-            candidate = candidate.strip().lower()
-            if candidate and candidate not in seen:
-                seen.add(candidate)
-                keys.append(candidate)
-    return keys
-
-
-
-def load_track_metadata() -> dict[str, dict[str, Any]]:
-    if not TRACK_METADATA_FILE.exists():
-        print(f"No {TRACK_METADATA_NAME} found. Skipping track overrides.")
-        return {}
-
-    try:
-        data = json.loads(TRACK_METADATA_FILE.read_text(encoding="utf-8"))
-    except Exception as exc:
-        print(f"Could not read {TRACK_METADATA_NAME}: {exc}")
-        return {}
-
-    if not isinstance(data, dict):
-        print(f"{TRACK_METADATA_NAME} is not a JSON object. Skipping track overrides.")
-        return {}
-
-    normalized: dict[str, dict[str, Any]] = {}
-    for key, value in data.items():
-        if not isinstance(value, dict):
-            continue
-        for lookup_key in build_lookup_keys(str(key)):
-            normalized[lookup_key] = value
-
-    print(f"Loaded {len(data)} track metadata override entries from {TRACK_METADATA_NAME}.")
-    return normalized
-
-
-
-def get_track_override(file_name: str, title: str, slug: str, track_meta_map: dict[str, dict[str, Any]]) -> dict[str, Any]:
-    for key in build_lookup_keys(file_name, title, slug):
-        if key in track_meta_map:
-            return track_meta_map[key]
-    return {}
-
-
-
-def build_lrc_mapping_from_lyrics_folder() -> dict[str, str]:
-    mapping: dict[str, str] = {}
-    if not LYRICS_DIR.exists():
-        print(f"No lyrics folder found at {LYRICS_DIR}.")
-        return mapping
-
-    lrc_files = sorted(LYRICS_DIR.glob("*.lrc"))
-    for lrc_path in lrc_files:
-        relative_path = f"lyrics/{lrc_path.name}"
-        for key in build_lookup_keys(lrc_path.stem):
-            mapping.setdefault(key, relative_path)
-
-    print(f"Loaded {len(lrc_files)} LRC files from lyrics folder fallback.")
-    return mapping
-
-
-
-def load_lrc_manifest() -> dict[str, str]:
-    mapping: dict[str, str] = {}
-
-    if LRC_MANIFEST_FILE.exists():
-        try:
-            entries = json.loads(LRC_MANIFEST_FILE.read_text(encoding="utf-8"))
-        except Exception as exc:
-            print(f"Could not read {LRC_MANIFEST_NAME}: {exc}")
-            entries = []
-
-        if isinstance(entries, list):
-            for entry in entries:
-                if not isinstance(entry, dict):
-                    continue
-                lyrics_file = normalize_text(str(entry.get("lyrics_file") or ""))
-                mp3_name = normalize_text(str(entry.get("mp3") or ""))
-                title = normalize_text(str(entry.get("title") or ""))
-                if not lyrics_file:
-                    continue
-                for key in build_lookup_keys(mp3_name, title):
-                    mapping[key] = lyrics_file
-            print(f"Loaded {len(entries)} LRC manifest entries from {LRC_MANIFEST_NAME}.")
-        else:
-            print(f"{LRC_MANIFEST_NAME} is not a JSON list. Skipping manifest entries.")
-    else:
-        print(f"No {LRC_MANIFEST_NAME} found. Falling back to /lyrics folder scan.")
-
-    fallback_map = build_lrc_mapping_from_lyrics_folder()
-    for key, value in fallback_map.items():
-        mapping.setdefault(key, value)
-    return mapping
-
-
-
-def find_lyrics_file(file_name: str, title: str, slug: str, lrc_map: dict[str, str]) -> str:
-    for key in build_lookup_keys(file_name, title, slug):
-        if key in lrc_map:
-            return lrc_map[key]
-    return ""
-
-
-
-def validate_track(track: dict[str, Any], source_file: Path, seen_ids: set[str]) -> list[str]:
-    warnings: list[str] = []
-    track_id = str(track.get("id") or "")
-    src = str(track.get("src") or "")
-    audio = str(track.get("audio") or "")
-
-    if track_id in seen_ids:
-        warnings.append(f"Duplicate track id: {track_id}")
-    else:
-        seen_ids.add(track_id)
-
-    if src != audio:
-        warnings.append("src/audio mismatch")
-
-    if "#U201" in src or "%23U201" in src or "\\u201" in src.lower():
-        warnings.append(f"Suspicious unicode marker in audio URL: {src}")
-
-    if not src.startswith(AUDIO_BASE_URL):
-        warnings.append(f"Audio URL does not start with expected base URL: {src}")
-
-    if not source_file.exists():
-        warnings.append(f"Source file missing: {source_file}")
-
-    return warnings
-
-
-
-def main() -> None:
-    print("=== make_tracks.py ===")
-    print(f"SCRIPT_PATH: {SCRIPT_PATH}")
-    print(f"SITE_DIR: {SITE_DIR}")
-    print(f"AUDIO_DIR: {AUDIO_DIR}")
-    print(f"COVERS_DIR: {COVERS_DIR}")
-    print(f"OUTPUT_FILE: {OUTPUT_FILE}")
-    print(f"LRC_MANIFEST_FILE: {LRC_MANIFEST_FILE}")
-    print("======================")
-
-    if not AUDIO_DIR.exists():
-        raise SystemExit(f"Missing audio folder: {AUDIO_DIR}")
-
-    COVERS_DIR.mkdir(parents=True, exist_ok=True)
-    lrc_map = load_lrc_manifest()
-    track_meta_map = load_track_metadata()
-    tracks: list[dict[str, Any]] = []
-    seen_ids: set[str] = set()
-
-    audio_files = sorted(
-        [f for f in AUDIO_DIR.iterdir() if f.is_file() and f.suffix.lower() in AUDIO_EXTENSIONS],
-        key=lambda f: f.name.lower(),
-    )
-
-    print(f"Found audio files: {len(audio_files)}")
-    for file in audio_files:
-        print(f" - {file.name}")
-
-    for index, file in enumerate(audio_files, start=1):
-        fallback_title = clean_title(file.name)
-        mp3_meta = get_mp3_metadata(file)
-
-        title = mp3_meta.get("title") or fallback_title
-        artist = mp3_meta.get("artist") or DEFAULT_ARTIST
-        album = mp3_meta.get("album") or DEFAULT_ALBUM
-        genre = mp3_meta.get("genre") or ""
-        year = mp3_meta.get("year") or DEFAULT_YEAR
-        track_number = mp3_meta.get("track_number")
-        duration_seconds = mp3_meta.get("duration_seconds", 0)
-        duration_display = format_duration(duration_seconds)
-
-        slug = slugify(title)
-        artist_slug = slugify(artist)
-        album_slug = slugify(album)
-        lyrics = get_embedded_lyrics(file)
-        lyrics_file = find_lyrics_file(file.name, title, slug, lrc_map)
-        track_override = get_track_override(file.name, title, slug, track_meta_map)
-
-        scripture_references = (
-            extract_scripture_references(mp3_meta.get("comment", ""))
-            or extract_scripture_references(lyrics or "")
-            or []
-        )
-
-        playlists = choose_playlists(album)
-        tags = parse_genre_tags(genre)
-        album_meta = get_album_meta(album)
-        album_zip = get_album_zip(album)
-        existing_cover = find_existing_cover(slug)
-        extracted_cover = existing_cover or extract_cover_art(file, slug)
-
-        track: dict[str, Any] = {
-            "id": make_track_id(title, album, index),
-            "title": normalize_text(title),
-            "slug": slug,
-            "artist": normalize_text(artist),
-            "artist_slug": artist_slug,
-            "album": normalize_text(album),
-            "album_slug": album_slug,
-            "genre": normalize_text(genre),
-            "year": year,
-            "src": build_audio_url(file.name),
-            "playlists": playlists,
-            "tags": tags,
-            "duration": duration_display,
-            "duration_seconds": duration_seconds,
-            "scripture_references": scripture_references,
-            "trackNumber": track_number,
-            "album_zip": album_zip,
-            "collection": DEFAULT_COLLECTION,
-            "featured": bool(album_meta.get("featured") is True),
-            "play_count": 0,
-            "last_played": "",
-            "has_lyrics": bool(lyrics or lyrics_file),
-            "has_scripture_refs": bool(scripture_references),
-        }
-
-        if album_meta.get("featured") is True:
-            track["album_featured"] = True
-        if album_meta.get("description"):
-            track["album_description"] = normalize_text(str(album_meta["description"]))
-        if album_meta.get("theme"):
-            track["album_theme"] = normalize_text(str(album_meta["theme"]))
-        if album_meta.get("story"):
-            track["album_story"] = normalize_text(str(album_meta["story"]))
-        if album_meta.get("badges"):
-            track["album_badges"] = [normalize_text(str(x)) for x in album_meta["badges"] if normalize_text(str(x))]
-
-        track["audio"] = track["src"]
-        track["playlist"] = playlists[0] if playlists else DEFAULT_PLAYLIST
-        track["scripture"] = scripture_references[0] if scripture_references else ""
-
-        if extracted_cover:
-            track["cover"] = build_cover_url(extracted_cover)
-
-        if track_override.get("title"):
-            track["title"] = normalize_text(str(track_override["title"]))
-            track["slug"] = slugify(track["title"])
-        if track_override.get("artist"):
-            track["artist"] = normalize_text(str(track_override["artist"]))
-            track["artist_slug"] = slugify(track["artist"])
-        if track_override.get("album"):
-            track["album"] = normalize_text(str(track_override["album"]))
-            track["album_slug"] = slugify(track["album"])
-        if track_override.get("year"):
-            track["year"] = int(track_override["year"])
-        if track_override.get("genre"):
-            track["genre"] = normalize_text(str(track_override["genre"]))
-            track["tags"] = parse_genre_tags(track["genre"])
-        if track_override.get("playlists"):
-            track["playlists"] = [normalize_text(str(x)) for x in track_override["playlists"] if normalize_text(str(x))]
-            track["playlist"] = track["playlists"][0] if track["playlists"] else DEFAULT_PLAYLIST
-        if track_override.get("tags"):
-            track["tags"] = [canonical_match_key(str(x)) for x in track_override["tags"] if canonical_match_key(str(x))]
-        if track_override.get("scripture_references"):
-            track["scripture_references"] = [normalize_text(str(x)) for x in track_override["scripture_references"] if normalize_text(str(x))]
-            track["has_scripture_refs"] = bool(track["scripture_references"])
-            track["scripture"] = track["scripture_references"][0] if track["scripture_references"] else ""
-        if track_override.get("lyrics"):
-            track["lyrics"] = str(track_override["lyrics"]).strip()
-            track["has_lyrics"] = True
-        if track_override.get("lyrics_file"):
-            track["lyrics_file"] = normalize_text(str(track_override["lyrics_file"]))
-            track["has_lyrics"] = True
-        if track_override.get("cover"):
-            cover_name = normalize_text(str(track_override["cover"]))
-            track["cover"] = cover_name if cover_name.startswith("http") else build_cover_url(cover_name)
-        if track_override.get("album_zip"):
-            zip_name = normalize_text(str(track_override["album_zip"]))
-            track["album_zip"] = zip_name if zip_name.startswith("http") else build_album_zip_url(zip_name)
-        if "featured" in track_override:
-            track["featured"] = bool(track_override.get("featured"))
-        if track_override.get("collection"):
-            track["collection"] = normalize_text(str(track_override["collection"]))
-        if track_override.get("date_added"):
-            track["date_added"] = normalize_text(str(track_override["date_added"]))
-        if track_override.get("search_keywords"):
-            track["search_keywords"] = [normalize_text(str(v)) for v in track_override.get("search_keywords", []) if normalize_text(str(v))]
-
-        if lyrics:
-            track["lyrics"] = lyrics
-        if lyrics_file:
-            track["lyrics_file"] = lyrics_file
-
-        if track["trackNumber"] is None:
-            track.pop("trackNumber", None)
-        if not track["album_zip"]:
-            track.pop("album_zip", None)
-        if not track["scripture_references"]:
-            track.pop("scripture_references", None)
-        if not track.get("genre"):
-            track.pop("genre", None)
-        if not track.get("album_badges"):
-            track.pop("album_badges", None)
-
-        warnings = validate_track(track, file, seen_ids)
-        if warnings:
-            print(f"Warnings for {file.name}:")
-            for warning in warnings:
-                print(f"  - {warning}")
-
-        tracks.append(track)
-
-        print(f"Processed: {file.name}")
-        print(f"  Title: {track['title']}")
-        print(f"  Slug: {track['slug']}")
-        print(f"  Artist: {track['artist']}")
-        print(f"  Album: {track['album']}")
-        print(f"  Duration: {track['duration']}")
-        print(f"  Audio URL: {track['src']}")
-        print(f"  LRC file: {track.get('lyrics_file', 'none')}")
-        print(f"  Cover found: {track.get('cover', 'none')}")
-
-    tracks.sort(key=lambda t: (t.get("album", "").lower(), t.get("trackNumber", 9999), t.get("title", "").lower()))
-    OUTPUT_FILE.write_text(json.dumps(tracks, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    print(f"\ntracks.json created successfully with {len(tracks)} tracks.")
-    print(f"Wrote file to: {OUTPUT_FILE}")
-
-
-if __name__ == "__main__":
-    main()
+      });
+    }
+  });
+  albumPageEls.root.querySelectorAll("[data-play-next]").forEach(btn => {
+    btn.addEventListener("click", () => addTrackToQueue(albumTracks[Number(btn.dataset.playNext)], { playNext: true }));
+  });
+  albumPageEls.root.querySelectorAll("[data-add-queue]").forEach(btn => {
+    btn.addEventListener("click", () => addTrackToQueue(albumTracks[Number(btn.dataset.addQueue)]));
+  });
+  albumPageEls.root.querySelectorAll("[data-lyrics-index]").forEach(btn => {
+    btn.addEventListener("click", () => openLyricsModal(albumTracks[Number(btn.dataset.lyricsIndex)]));
+  });
+  albumPageEls.root.querySelectorAll("[data-jump-scripture]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      window.location.href = `index.html?scripture=${encodeURIComponent(btn.dataset.jumpScripture)}`;
+    });
+  });
+  albumPageEls.root.querySelectorAll("[data-related-index]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const track = relatedSongs[Number(btn.dataset.relatedIndex)];
+      if (track) addTrackToQueue(track, { playNext: true });
+    });
+  });
+
+  renderQueue();
+}
+
+function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
+  currentQueue = shuffle ? shuffleArray([...trackList]) : [...trackList];
+  currentQueueIndex = Math.max(0, Math.min(startIndex, currentQueue.length - 1));
+  playTrack(currentQueue[currentQueueIndex]);
+  renderQueue();
+}
+
+function addTrackToQueue(track, options = {}) {
+  if (!track) return;
+  const playNext = Boolean(options.playNext);
+  const current = getCurrentTrack();
+
+  if (!current) {
+    currentQueue = [track];
+    currentQueueIndex = 0;
+    playTrack(track);
+    renderQueue();
+    showToast(playNext ? `Playing next: ${track.title}` : `Added and playing: ${track.title}`);
+    return;
+  }
+
+  const queue = currentQueue.length ? [...currentQueue] : [current];
+  const existing = queue.findIndex(item => item.id === track.id);
+  if (existing >= 0) queue.splice(existing, 1);
+  const currentIndex = Math.max(queue.findIndex(item => item.id === current.id), 0);
+  queue.splice(playNext ? currentIndex + 1 : queue.length, 0, track);
+  currentQueue = queue;
+  currentQueueIndex = currentQueue.findIndex(item => item.id === current.id);
+  renderQueue();
+  showToast(playNext ? `Play next set: ${track.title}` : `Added to queue: ${track.title}`);
+}
+
+function renderQueue() {
+  const wrap = document.getElementById("albumPageQueueList");
+  if (!wrap) return;
+  if (!currentQueue.length) {
+    wrap.innerHTML = `<p class="empty-message">Queue is empty.</p>`;
+    return;
+  }
+
+  wrap.innerHTML = currentQueue.map((track, index) => `
+    <div class="queue-row ${index === currentQueueIndex ? "active" : ""}" draggable="true" data-queue-index="${index}">
+      <button class="queue-drag-handle" data-queue-drag-handle="${index}" type="button" aria-label="Drag to reorder ${escapeHtmlAttr(track.title)}">↕</button>
+      ${track.cover ? `<img class="queue-cover" src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" loading="lazy" decoding="async" fetchpriority="low" />` : `<div class="queue-cover"></div>`}
+      <div class="queue-main">
+        <div class="queue-title-row">
+          <h3>${escapeHtml(track.title)}</h3>
+          <span class="queue-duration">${escapeHtml(track.duration || "")}</span>
+        </div>
+        <p class="queue-artist">${escapeHtml(track.artist)}</p>
+        <div class="queue-actions">
+          <button class="mini-action-btn" type="button" data-queue-play="${index}">${index === currentQueueIndex && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused ? "Pause" : "Play"}</button>
+          <button class="mini-action-btn" type="button" data-queue-remove="${index}">Remove</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+
+  wrap.querySelectorAll("[data-queue-play]").forEach(btn => btn.addEventListener("click", () => {
+    const index = Number(btn.dataset.queuePlay);
+    if (index === currentQueueIndex && albumPageEls.audioPlayer && albumPageEls.audioPlayer.src) {
+      togglePlayPause();
+      syncAlbumTrackPlaybackUI();
+      renderQueue();
+      return;
+    }
+    playFromQueueIndex(index);
+  }));
+  wrap.querySelectorAll("[data-queue-remove]").forEach(btn => btn.addEventListener("click", () => {
+    const index = Number(btn.dataset.queueRemove);
+    currentQueue.splice(index, 1);
+    if (!currentQueue.length) {
+      currentQueueIndex = -1;
+      albumPageEls.audioPlayer.pause();
+    } else if (index <= currentQueueIndex) {
+      currentQueueIndex = Math.max(0, currentQueueIndex - 1);
+    }
+    renderQueue();
+  }));
+
+  wrap.querySelectorAll(".queue-row").forEach(row => {
+    row.addEventListener("dragstart", event => {
+      if (event.target && !event.target.closest(".queue-drag-handle")) {
+        event.preventDefault();
+        return;
+      }
+      albumQueueDragIndex = Number(row.dataset.queueIndex);
+      row.classList.add("dragging");
+    });
+    row.addEventListener("dragend", () => row.classList.remove("dragging"));
+    row.addEventListener("dragover", event => event.preventDefault());
+    row.addEventListener("drop", event => {
+      event.preventDefault();
+      const targetIndex = Number(row.dataset.queueIndex);
+      if (albumQueueDragIndex === null || albumQueueDragIndex === targetIndex) return;
+      const current = getCurrentTrack();
+      const moved = currentQueue.splice(albumQueueDragIndex, 1)[0];
+      currentQueue.splice(targetIndex, 0, moved);
+      currentQueueIndex = current ? currentQueue.findIndex(track => track.id === current.id) : 0;
+      renderQueue();
+      albumQueueDragIndex = null;
+    });
+  });
+
+  wrap.querySelectorAll("[data-queue-drag-handle]").forEach(handle => {
+    handle.addEventListener("touchstart", startAlbumQueueTouchDrag, { passive: true });
+    handle.addEventListener("touchmove", updateAlbumQueueTouchDrag, { passive: false });
+    handle.addEventListener("touchend", finishAlbumQueueTouchDrag);
+    handle.addEventListener("touchcancel", cancelAlbumQueueTouchDrag);
+  });
+}
+
+function startAlbumQueueTouchDrag(event) {
+  const touch = event.touches?.[0];
+  const row = event.currentTarget.closest(".queue-row");
+  if (!touch || !row) return;
+  activeAlbumQueueTouchDrag = {
+    sourceIndex: Number(row.dataset.queueIndex),
+    targetIndex: Number(row.dataset.queueIndex)
+  };
+  document.querySelectorAll("#albumPageQueueList .queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+  row.classList.add("dragging");
+}
+
+function updateAlbumQueueTouchDrag(event) {
+  if (!activeAlbumQueueTouchDrag) return;
+  const touch = event.touches?.[0];
+  if (!touch) return;
+  event.preventDefault();
+  const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest("#albumPageQueueList .queue-row");
+  if (!target) return;
+  activeAlbumQueueTouchDrag.targetIndex = Number(target.dataset.queueIndex);
+  document.querySelectorAll("#albumPageQueueList .queue-row").forEach(item => item.classList.remove("drag-target"));
+  target.classList.add("drag-target");
+}
+
+function finishAlbumQueueTouchDrag() {
+  if (!activeAlbumQueueTouchDrag) return;
+  const { sourceIndex, targetIndex } = activeAlbumQueueTouchDrag;
+  document.querySelectorAll("#albumPageQueueList .queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+  if (Number.isInteger(sourceIndex) && Number.isInteger(targetIndex) && sourceIndex !== targetIndex) {
+    const current = getCurrentTrack();
+    const moved = currentQueue.splice(sourceIndex, 1)[0];
+    if (moved) {
+      currentQueue.splice(targetIndex, 0, moved);
+      currentQueueIndex = current ? currentQueue.findIndex(track => track.id === current.id) : 0;
+      renderQueue();
+      showToast(`Moved: ${moved.title}`);
+    }
+  }
+  activeAlbumQueueTouchDrag = null;
+}
+
+function cancelAlbumQueueTouchDrag() {
+  document.querySelectorAll("#albumPageQueueList .queue-row").forEach(item => item.classList.remove("drag-target", "dragging"));
+  activeAlbumQueueTouchDrag = null;
+}
+
+function syncAlbumTrackPlaybackUI() {
+  const currentTrack = getCurrentTrack();
+  const isPlaying = Boolean(currentTrack && albumPageEls.audioPlayer && !albumPageEls.audioPlayer.paused && albumPageEls.audioPlayer.src);
+
+  document.querySelectorAll('.album-page-track-row--redesign').forEach((row, index) => {
+    const track = albumTracks[index];
+    if (!track) return;
+    const isCurrent = Boolean(currentTrack && currentTrack.id === track.id);
+    row.classList.toggle('playing', isCurrent);
+    row.classList.toggle('is-paused', isCurrent && !isPlaying);
+    const playButton = row.querySelector('[data-play-index]');
+    if (playButton) {
+      playButton.textContent = isCurrent && isPlaying ? '❚❚' : '▶';
+      playButton.setAttribute('aria-label', `${isCurrent && isPlaying ? 'Pause' : 'Play'} ${track.title}`);
+      playButton.setAttribute('aria-pressed', isCurrent && isPlaying ? 'true' : 'false');
+      playButton.classList.toggle('is-current', isCurrent);
+    }
+    const pill = row.querySelector('.queue-position-pill--current');
+    if (pill) pill.textContent = isPlaying ? 'Now Playing' : 'Paused';
+  });
+}
+
+function playTrack(track) {
+  if (!track || !track.src || !albumPageEls.audioPlayer) return;
+  albumPageEls.audioPlayer.src = track.src;
+  albumPageEls.audioPlayer.play().catch(() => {});
+  updateNowPlaying(track);
+  updatePlayButton();
+  updateProgressUI();
+  renderAlbumPage();
+  syncAlbumTrackPlaybackUI();
+}
+
+function playFromQueueIndex(index) {
+  if (index < 0 || index >= currentQueue.length) return;
+  currentQueueIndex = index;
+  playTrack(currentQueue[currentQueueIndex]);
+}
+
+function playNext() {
+  if (!currentQueue.length) return;
+  currentQueueIndex = (currentQueueIndex + 1) % currentQueue.length;
+  playTrack(currentQueue[currentQueueIndex]);
+}
+
+function handleTrackEnded() {
+  const current = getCurrentTrack();
+  if (!current) return;
+
+  if (currentQueueIndex >= currentQueue.length - 1) {
+    const radioTracks = getRelatedTracks(current, { limit: 8, excludeIds: currentQueue.map(track => track.id) });
+    if (radioTracks.length) {
+      currentQueue = [...currentQueue, ...radioTracks];
+      renderQueue();
+      showToast(`Radio mode added ${radioTracks.length} related song${radioTracks.length === 1 ? "" : "s"}.`);
+    }
+  }
+
+  playNext();
+}
+
+function playPrevious() {
+  if (!currentQueue.length) return;
+  currentQueueIndex = (currentQueueIndex - 1 + currentQueue.length) % currentQueue.length;
+  playTrack(currentQueue[currentQueueIndex]);
+}
+
+function togglePlayPause() {
+  if (!albumPageEls.audioPlayer.src && albumTracks.length) {
+    startPlaybackFromList(albumTracks, false, 0);
+    return;
+  }
+  if (albumPageEls.audioPlayer.paused) albumPageEls.audioPlayer.play();
+  else albumPageEls.audioPlayer.pause();
+}
+
+function updateNowPlaying(track) {
+  albumPageEls.nowCover.src = track.cover || "";
+  albumPageEls.nowTitle.textContent = track.title || "Select a song";
+  albumPageEls.nowArtist.textContent = track.artist || "—";
+  albumPageEls.nowAlbum.textContent = track.album || "—";
+  albumPageEls.nowScripture.textContent = track.scripture_references.length ? track.scripture_references.join(" • ") : "—";
+}
+
+function updatePlayButton() {
+  const paused = Boolean(albumPageEls.audioPlayer?.paused);
+  if (albumPageEls.playBtn) albumPageEls.playBtn.textContent = paused ? "▶" : "❚❚";
+  const heroPlayBtn = document.getElementById("albumPagePlayBtn");
+  if (heroPlayBtn) {
+    const isAlbumActive = isAlbumContextActive();
+    heroPlayBtn.textContent = isAlbumActive && !paused ? "Pause Album" : isAlbumActive && paused ? "Resume Album" : "Play Album";
+    heroPlayBtn.setAttribute("aria-pressed", isAlbumActive && !paused ? "true" : "false");
+  }
+}
+
+function updateProgressUI() {
+  const audio = albumPageEls.audioPlayer;
+  if (!audio) return;
+  const duration = isFinite(audio.duration) ? audio.duration : 0;
+  const current = audio.currentTime || 0;
+  if (albumPageEls.seekBar) albumPageEls.seekBar.value = duration ? ((current / duration) * 100).toFixed(3) : 0;
+  if (albumPageEls.currentTime) albumPageEls.currentTime.textContent = formatTime(current);
+  if (albumPageEls.duration) albumPageEls.duration.textContent = formatTime(duration);
+}
+
+function openLyricsModal(track) {
+  if (!track || !albumPageEls.lyricsModal) return;
+  albumPageEls.lyricsModalTitle.textContent = `${track.title} Lyrics`;
+  albumPageEls.lyricsModalBody.innerHTML = track.lyrics ? `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>` : `<p class="empty-message">No lyrics available.</p>`;
+  albumPageEls.lyricsModal.classList.remove("hidden");
+  albumPageEls.lyricsModal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeLyricsModal() {
+  albumPageEls.lyricsModal?.classList.add("hidden");
+  albumPageEls.lyricsModal?.setAttribute("aria-hidden", "true");
+  document.body.style.overflow = "";
+}
+
+function getCurrentTrack() {
+  return currentQueue[currentQueueIndex] || null;
+}
+
+
+function getAlbumMetadataForPage(trackList) {
+  const firstTrack = trackList[0] || {};
+  const title = firstTrack.album || albumParam || "";
+  const normalizedTitle = String(title).toLowerCase();
+  const slug = slugify(title);
+  const albumMeta = albumLibrary.find(item =>
+    String(item.title || "").toLowerCase() === normalizedTitle ||
+    String(item.slug || "").toLowerCase() === slug
+  );
+
+  const fallbackBadges = [...new Set(trackList.flatMap(track => track.album_badges || []))].slice(0, 8);
+
+  return {
+    name: albumMeta?.title || title,
+    artist: albumMeta?.artist || firstTrack.artist || "Allen Parvin",
+    cover: albumMeta?.cover || trackList.find(track => track.cover)?.cover || "",
+    album_zip: albumMeta?.album_zip || trackList.find(track => track.album_zip)?.album_zip || "",
+    description: albumMeta?.description || trackList.find(track => track.album_description)?.album_description || "",
+    theme: albumMeta?.theme || trackList.find(track => track.album_theme)?.album_theme || "",
+    story: albumMeta?.story || trackList.find(track => track.album_story)?.album_story || "",
+    badges: (albumMeta?.badges?.length ? albumMeta.badges : fallbackBadges).slice(0, 8)
+  };
+}
+
+function getAlbumRelatedSongs(trackList) {
+  const excludeIds = new Set(trackList.map(track => track.id));
+  const albumTags = new Set(trackList.flatMap(track => track.tags || []).map(tag => String(tag).toLowerCase()));
+  const albumBooks = new Set(trackList.flatMap(track => (track.scripture_references || []).map(ref => getScriptureBook(ref).toLowerCase())));
+  const albumArtist = String(trackList[0]?.artist || "").toLowerCase();
+
+  return allTracks
+    .filter(track => track?.src && !excludeIds.has(track.id))
+    .map(track => {
+      let score = 0;
+      if (String(track.artist || "").toLowerCase() === albumArtist) score += 4;
+      (track.tags || []).forEach(tag => {
+        if (albumTags.has(String(tag).toLowerCase())) score += 3;
+      });
+      (track.scripture_references || []).forEach(ref => {
+        if (albumBooks.has(getScriptureBook(ref).toLowerCase())) score += 3;
+      });
+      return { track, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.track.title.localeCompare(b.track.title))
+    .map(item => item.track);
+}
+
+function getRelatedTracks(track, options = {}) {
+  if (!track) return [];
+  const excludeIds = new Set(options.excludeIds || []);
+  excludeIds.add(track.id);
+
+  const currentTags = new Set((track.tags || []).map(tag => String(tag).toLowerCase()));
+  const currentBooks = new Set((track.scripture_references || []).map(ref => getScriptureBook(ref).toLowerCase()));
+  const currentArtist = String(track.artist || "").toLowerCase();
+
+  return allTracks
+    .filter(candidate => candidate?.src && !excludeIds.has(candidate.id))
+    .map(candidate => {
+      let score = 0;
+      if (String(candidate.artist || "").toLowerCase() === currentArtist) score += 4;
+      (candidate.tags || []).forEach(tag => {
+        if (currentTags.has(String(tag).toLowerCase())) score += 3;
+      });
+      (candidate.scripture_references || []).forEach(ref => {
+        if (currentBooks.has(getScriptureBook(ref).toLowerCase())) score += 3;
+      });
+      return { candidate, score };
+    })
+    .filter(item => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.candidate.title.localeCompare(b.candidate.title))
+    .slice(0, options.limit || 8)
+    .map(item => item.candidate);
+}
+
+function getAlbumScriptureSummary(trackList) {
+  const map = new Map();
+  let totalReferences = 0;
+
+  trackList.forEach(track => {
+    (track.scripture_references || []).forEach(ref => {
+      const book = getScriptureBook(ref);
+      if (!book) return;
+      totalReferences += 1;
+      if (!map.has(book)) map.set(book, { name: book, count: 0 });
+      map.get(book).count += 1;
+    });
+  });
+
+  return {
+    totalReferences,
+    books: [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)).slice(0, 10)
+  };
+}
+
+function getScriptureBook(reference) {
+  const text = String(reference || "").trim();
+  if (!text) return "";
+  const cleaned = text.replace(/[–-].*$/, "").trim();
+  const match = cleaned.match(/^((?:[1-3]\s+)?[A-Za-z]+(?:\s+[A-Za-z]+)*?)(?=\s+\d|$)/);
+  return match ? match[1].trim() : cleaned;
+}
+
+function formatDurationLabel(trackList) {
+  const totalSeconds = trackList.reduce((sum, track) => {
+    const parts = String(track.duration || "").split(":").map(Number);
+    if (parts.some(Number.isNaN)) return sum;
+    if (parts.length === 2) return sum + parts[0] * 60 + parts[1];
+    if (parts.length === 3) return sum + parts[0] * 3600 + parts[1] * 60 + parts[2];
+    return sum;
+  }, 0);
+
+  if (!totalSeconds) return "";
+  const minutes = Math.round(totalSeconds / 60);
+  return `${minutes} min total`;
+}
+
+function showToast(message) {
+  let toast = document.getElementById("appToast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "appToast";
+    toast.className = "app-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+}
+
+function triggerDownload(url, filename) {
+  if (!url) return;
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "download";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function formatTime(seconds) {
+  const total = Math.max(0, Math.floor(seconds || 0));
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function safeFileName(value) {
+  return String(value || "download").replace(/[\\/:*?"<>|]+/g, "-").trim();
+}
+
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+
+function nl2br(text) {
+  return String(text || "").replace(/\n/g, "<br>");
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function escapeHtmlAttr(value) {
+  return escapeHtml(value);
+}
+
+
+  return {
+    init: initAlbumPage
+  };
+})();

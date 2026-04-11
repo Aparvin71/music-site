@@ -1,0 +1,7 @@
+Aineo Music build v42.3.94
+
+What changed:
+- Generated real per-track waveform_envelope data for 72 tracks from the uploaded MP3 source library.
+- Added waveform_ring_preview data for the full-screen mirrored halo visualizer.
+- Kept playback on the safe non-live-analysis path.
+- Bumped app/page/cache versioning to v42.3.94.

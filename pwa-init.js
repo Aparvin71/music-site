@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.3.92";
+const AINEO_APP_VERSION = "v42.3.94";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,7 +73,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.92</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.94</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a more alive mirrored halo visualizer with a cleaner center lock behind the artwork while preserving the restored playback path.</p>
         </section>
       </div>

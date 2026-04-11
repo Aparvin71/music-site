@@ -1,15 +1,10 @@
-Aineo Music — Build v42.3.83
+Aineo Music Build Notes
+Version: v42.3.92
+Title: Halo Recenter + Stronger Motion
 
-Release: iOS final safe-zone polish
-
-Summary
-- Final small bump down for the full-screen player in iOS app mode
-- Slightly increased the standalone iOS player top gap
-- Slightly increased player header top padding and top control breathing room
-- Kept the change isolated to iOS standalone player sheet layout
-- Synced visible version labels, asset query strings, and app version markers to v42.3.83
-
-Notes
-- Built from v42.3.82 stable package
-- Intended as a final micro-adjustment for iPhone safe-zone comfort
-- No broad layout or sticky filter changes included
+Changes included:
+- Kept the restored live song audio path stable without reintroducing visualizer audio takeover.
+- Shifted the mirrored halo slightly right and up so it sits more accurately behind the full-player artwork.
+- Increased fallback halo motion and waveform push so the visualizer feels less flat and more alive.
+- Slightly enlarged and energized the side accent bars while keeping the premium mirrored halo look.
+- Updated package version strings, changelog entry, PWA summary, and cache version to v42.3.92.
