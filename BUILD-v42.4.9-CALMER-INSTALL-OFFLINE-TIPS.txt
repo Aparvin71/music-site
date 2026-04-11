@@ -1,0 +1,9 @@
+Aineo Music
+Build: v42.4.9 — Calmer Install + Offline Tips Pass
+
+Changes:
+- Install banner now shows only on landing page instead of following navigation
+- Install banner only appears once per browser session unless explicitly reopened
+- Offline tip card now shows only on landing page and only once per session
+- Dismissing the offline tip now persists for this version
+- Preserves v42.4.8 wave bar visualizer and v42.4.7 safe web refresh loop fix

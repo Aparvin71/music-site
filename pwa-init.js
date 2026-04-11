@@ -1,5 +1,8 @@
-const AINEO_APP_VERSION = "v42.4.8";
+const AINEO_APP_VERSION = "v42.4.9";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
+const INSTALL_SESSION_SEEN_KEY = "aineo_install_seen_session";
+const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
+const OFFLINE_HINT_SESSION_SEEN_KEY = "aineo_offline_hint_seen_session";
 let deferredInstallPrompt = null;
 
 const APP_FEEL_SETTINGS_KEY = "aineo_app_feel_settings";
@@ -73,8 +76,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.3.99</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a glass-orb aurora halo visualizer with softer luminous bloom, drifting color depth, and richer premium motion around the artwork while preserving the stable playback path.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.4.9</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on calmer install and offline messaging so banners do not keep reappearing as you move around the site, while preserving the latest bar-wave visualizer and safe update behavior.</p>
         </section>
       </div>
     </div>
@@ -142,7 +145,9 @@ function shouldShowInstallUi() {
   const settings = loadAppFeelSettings();
   if (!settings.showInstallTips) return false;
   if (isStandalone()) return false;
+  if (!isPrimaryLandingPage()) return false;
   if (localStorage.getItem(INSTALL_DISMISSED_KEY) === AINEO_APP_VERSION) return false;
+  if (hasSessionSeen(INSTALL_SESSION_SEEN_KEY)) return false;
   return Boolean(deferredInstallPrompt || isIosSafari());
 }
 
@@ -165,10 +170,18 @@ function renderOfflineHintCard() {
       <button type="button" class="control-btn" data-dismiss-offline-hint aria-label="Dismiss offline tip">✕</button>
     `;
     document.body.appendChild(card);
-    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => card.classList.add("hidden"));
+    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => {
+      try { localStorage.setItem(OFFLINE_HINT_DISMISSED_KEY, AINEO_APP_VERSION); } catch (error) {}
+      markSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
+      card.classList.add("hidden");
+    });
   }
   const standalonePreferred = isStandalone() || isIosSafari();
-  card.classList.toggle("hidden", !standalonePreferred);
+  const wasDismissed = localStorage.getItem(OFFLINE_HINT_DISMISSED_KEY) === AINEO_APP_VERSION;
+  const seenThisSession = hasSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
+  const shouldShow = standalonePreferred && isPrimaryLandingPage() && !wasDismissed && !seenThisSession;
+  card.classList.toggle("hidden", !shouldShow);
+  if (shouldShow) markSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
 }
 
 function initPageMotionHooks() {
@@ -691,9 +704,27 @@ function isIosSafari() {
   const ua = navigator.userAgent || "";
   return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
 }
+function getCurrentPageName() {
+  const path = (window.location.pathname || "").split("/").pop() || "index.html";
+  return path || "index.html";
+}
+function isPrimaryLandingPage() {
+  const page = getCurrentPageName();
+  return page === "" || page === "index.html" || page === "home.html";
+}
+function markSessionSeen(key) {
+  try { sessionStorage.setItem(key, "1"); } catch (error) {}
+}
+function hasSessionSeen(key) {
+  try { return sessionStorage.getItem(key) === "1"; } catch (error) { return false; }
+}
 function shouldShowInstallUi() {
+  const settings = loadAppFeelSettings();
+  if (!settings.showInstallTips) return false;
   if (isStandalone()) return false;
+  if (!isPrimaryLandingPage()) return false;
   if (localStorage.getItem(INSTALL_DISMISSED_KEY) === AINEO_APP_VERSION) return false;
+  if (hasSessionSeen(INSTALL_SESSION_SEEN_KEY)) return false;
   return Boolean(deferredInstallPrompt || isIosSafari());
 }
 function ensureInstallUi() {
@@ -745,7 +776,9 @@ function renderInstallUi() {
   const banner = document.getElementById("installBanner");
   const steps = document.getElementById("installModalSteps");
   if (steps) steps.innerHTML = installStepsMarkup();
-  if (banner) banner.classList.toggle("hidden", !shouldShowInstallUi());
+  const shouldShow = shouldShowInstallUi();
+  if (banner) banner.classList.toggle("hidden", !shouldShow);
+  if (shouldShow) markSessionSeen(INSTALL_SESSION_SEEN_KEY);
   const confirmBtn = document.getElementById("confirmInstallBtn");
   if (confirmBtn) confirmBtn.textContent = deferredInstallPrompt ? "Install App" : (isIosSafari() ? "How to Install" : "Open Install Guide");
 }
