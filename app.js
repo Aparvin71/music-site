@@ -1,4 +1,4 @@
-/* v43.0.4 spectrum reactive restore + refresh-noise removal */
+/* v42.4.2 background update detection */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -33,6 +33,7 @@ let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
 let visualizerTick = 0;
+const VISUALIZER_BAR_COUNT = 24;
 let visualizerCanvas = null;
 let visualizerCtx = null;
 let visualizerAudioContext = null;
@@ -1272,19 +1273,12 @@ function initMiniVisualizer() {
 
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
-  const barCount = 16;
-  const barsPerSide = barCount / 2;
-  for (let i = 0; i < barCount; i += 1) {
+  bars.style.gridTemplateColumns = `repeat(${VISUALIZER_BAR_COUNT}, minmax(0, 1fr))`;
+  for (let i = 0; i < VISUALIZER_BAR_COUNT; i += 1) {
     const bar = document.createElement('span');
     bar.className = 'player-cover-visualizer-bar';
-    const side = i < barsPerSide ? 'left' : 'right';
-    const index = i;
-    const sideIndex = side === 'left' ? i : (i - barsPerSide);
-    bar.dataset.side = side;
-    bar.dataset.index = String(index);
-    bar.dataset.sideIndex = String(sideIndex);
-    bar.style.gridColumn = String(i + 1);
-    bar.style.height = `${18 + ((index % barsPerSide) * 4)}px`;
+    bar.dataset.index = String(i);
+    bar.style.height = '8px';
     bars.appendChild(bar);
   }
 
@@ -1317,11 +1311,6 @@ function ensureVisualizerAudioSetup() {
   visualizerSourceNode = null;
   visualizerFreqData = null;
   visualizerWaveData = null;
-
-  // Keep playback path non-invasive.
-  // The v43.0.4 pass attempted to attach a MediaElementSource here, which can
-  // interfere with stable browser playback depending on timing/CORS/context state.
-  // This build intentionally stays on the prerendered waveform envelope path.
 }
 
 function setMiniVisualizerActive(active) {
@@ -1334,6 +1323,11 @@ function setMiniVisualizerActive(active) {
 function getTrackWaveformEnvelope(track) {
   if (!track || !Array.isArray(track.waveform_envelope) || !track.waveform_envelope.length) return null;
   return track.waveform_envelope;
+}
+
+function getTrackSpectrumFrames(track) {
+  if (!track || !Array.isArray(track.spectrum_frames) || !track.spectrum_frames.length) return null;
+  return track.spectrum_frames;
 }
 
 function sampleTrackWaveformAt(track, normalizedPosition) {
@@ -1350,38 +1344,56 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
   return leftValue + (rightValue - leftValue) * frac;
 }
 
-function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
+function getSpectrumState(track, currentTime, durationSeconds) {
+  const frames = getTrackSpectrumFrames(track);
+  if (frames && frames.length && durationSeconds) {
+    const clamped = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
+    const framePos = clamped * (frames.length - 1);
+    const left = Math.floor(framePos);
+    const right = Math.min(frames.length - 1, left + 1);
+    const mix = framePos - left;
+    const bandCount = Math.min(VISUALIZER_BAR_COUNT, frames[left]?.length || 0, frames[right]?.length || 0);
+    if (bandCount > 0) {
+      const bands = new Array(bandCount).fill(0).map((_, index) => {
+        const a = ((frames[left][index] || 0) / 255);
+        const b = ((frames[right][index] || 0) / 255);
+        return a + (b - a) * mix;
+      });
+      const bassSlice = bands.slice(0, Math.max(1, Math.floor(bands.length * 0.18)));
+      const midSlice = bands.slice(Math.max(1, Math.floor(bands.length * 0.18)), Math.max(2, Math.floor(bands.length * 0.62)));
+      const highSlice = bands.slice(Math.max(2, Math.floor(bands.length * 0.62)));
+      const avg = (arr) => arr.length ? arr.reduce((sum, value) => sum + value, 0) / arr.length : 0;
+      return {
+        bands,
+        bass: avg(bassSlice),
+        mids: avg(midSlice),
+        treble: avg(highSlice),
+        fromSpectrumFrames: true,
+      };
+    }
+  }
+
   const envelope = getTrackWaveformEnvelope(track);
   if (!envelope || !durationSeconds) return null;
-
   const timelinePosition = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
   const localEnergy = sampleTrackWaveformAt(track, timelinePosition) || 0;
   const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy;
   const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy;
   const transient = Math.max(0, nextEnergy - previousEnergy);
   const phraseLift = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy;
-
-  const bass = Math.min(1, 0.06 + localEnergy * 0.92 + transient * 0.50);
-  const mids = Math.min(1, 0.05 + localEnergy * 0.62 + phraseLift * 0.20 + transient * 0.22);
-  const treble = Math.min(1, 0.04 + localEnergy * 0.22 + transient * 0.65);
-  const ringWindow = 0.06 + bass * 0.08;
-
-  return {
-    bass,
-    mids,
-    treble,
-    sample(progress) {
-      const mirrored = progress <= 0.5 ? (progress * 2) : ((1 - progress) * 2);
-      const offset = (mirrored - 0.5) * ringWindow;
-      const scan = Math.max(0, Math.min(0.999999, timelinePosition + offset));
-      const value = sampleTrackWaveformAt(track, scan) || 0;
-      const edgeTaper = 0.80 + Math.sin(mirrored * Math.PI) * 0.20;
-      return Math.max(0.02, Math.min(1, value * edgeTaper + transient * 0.22));
-    }
-  };
+  const bass = Math.min(1, 0.04 + localEnergy * 0.86 + transient * 0.36);
+  const mids = Math.min(1, 0.04 + localEnergy * 0.64 + phraseLift * 0.14 + transient * 0.14);
+  const treble = Math.min(1, 0.02 + localEnergy * 0.24 + transient * 0.42);
+  const bands = new Array(VISUALIZER_BAR_COUNT).fill(0).map((_, index) => {
+    const progress = index / Math.max(1, VISUALIZER_BAR_COUNT - 1);
+    const offset = (progress - 0.5) * 0.10;
+    const scan = Math.max(0, Math.min(0.999999, timelinePosition + offset));
+    const value = sampleTrackWaveformAt(track, scan) || 0;
+    const contour = 0.80 + Math.sin(progress * Math.PI) * 0.20;
+    return Math.max(0.02, Math.min(1, value * contour + transient * 0.10));
+  });
+  return { bands, bass, mids, treble, fromSpectrumFrames: false };
 }
-
-
 
 function drawVisualizerFrame() {
   if (!visualizerCtx || !visualizerCanvas) return;
@@ -1392,154 +1404,90 @@ function drawVisualizerFrame() {
   const ctx = visualizerCtx;
   ctx.clearRect(0, 0, width, height);
 
-  const centerX = (width / 2) + 11;
-  const centerY = (height / 2) - 10;
-  const coverRadius = Math.min(width, height) * 0.262;
   const currentTrack = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
   const durationSeconds = currentTrack?.duration_seconds || els.audioPlayer?.duration || 0;
-  const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
-  const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
+  const spectrumState = getSpectrumState(currentTrack, currentTime, durationSeconds);
+  if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
-  let bass = 0.18;
-  let mids = 0.14;
-  let treble = 0.12;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const bass = spectrumState.bass || 0;
+  const mids = spectrumState.mids || 0;
+  const treble = spectrumState.treble || 0;
+  const lineInset = Math.max(8, width * 0.06);
+  const usableWidth = Math.max(120, width - (lineInset * 2));
+  const step = usableWidth / Math.max(1, spectrumState.bands.length - 1);
+  const maxHalfHeight = Math.max(26, height * 0.19 + bass * 16 + mids * 10);
 
-  if (prerenderedState) {
-    bass = prerenderedState.bass;
-    mids = prerenderedState.mids;
-    treble = prerenderedState.treble;
-  } else if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
-    visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
-    visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
-
-    const lowEnd = Math.max(1, Math.floor(visualizerFreqData.length * 0.08));
-    const midEnd = Math.max(lowEnd + 1, Math.floor(visualizerFreqData.length * 0.28));
-    const highEnd = Math.max(midEnd + 1, Math.floor(visualizerFreqData.length * 0.65));
-
-    const avg = (startBand, endBand) => {
-      let total = 0;
-      for (let i = startBand; i < endBand; i += 1) total += visualizerFreqData[i] || 0;
-      return total / Math.max(1, endBand - startBand) / 255;
-    };
-
-    bass = avg(0, lowEnd);
-    mids = avg(lowEnd, midEnd);
-    treble = avg(midEnd, highEnd);
-  } else {
-    bass = 0.06;
-    mids = 0.05;
-    treble = 0.04;
-  }
-
-  const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const reactiveBoost = prerenderedState ? 1.42 : 1.08;
-  const lineHalfWidth = Math.min(width * 0.56, Math.max(width, height) * 0.60);
-  const lineY = centerY;
-  const lineLeft = centerX - lineHalfWidth;
-  const lineRight = centerX + lineHalfWidth;
-
-  const horizontalGlow = ctx.createLinearGradient(lineLeft, lineY, lineRight, lineY);
-  horizontalGlow.addColorStop(0, 'rgba(0, 234, 255, 0)');
-  horizontalGlow.addColorStop(0.16, `rgba(112, 246, 255, ${0.10 + bass * 0.10})`);
-  horizontalGlow.addColorStop(0.5, `rgba(255, 255, 255, ${0.06 + energy * 0.12})`);
-  horizontalGlow.addColorStop(0.84, `rgba(214, 118, 255, ${0.10 + treble * 0.12})`);
-  horizontalGlow.addColorStop(1, 'rgba(164, 74, 255, 0)');
+  const outerGlow = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
+  outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.10 + bass * 0.10})`);
+  outerGlow.addColorStop(0.35, `rgba(142, 188, 255, ${0.14 + mids * 0.10})`);
+  outerGlow.addColorStop(0.7, `rgba(172, 120, 255, ${0.14 + treble * 0.10})`);
+  outerGlow.addColorStop(1, `rgba(108, 82, 255, ${0.10 + treble * 0.10})`);
   ctx.save();
-  ctx.strokeStyle = horizontalGlow;
+  ctx.strokeStyle = outerGlow;
+  ctx.lineWidth = maxHalfHeight * 1.45;
+  ctx.globalAlpha = 0.16;
   ctx.lineCap = 'round';
-  ctx.lineWidth = 22 + bass * 7;
-  ctx.globalAlpha = 0.18 + energy * 0.10;
-  ctx.shadowBlur = 34 + bass * 16;
-  ctx.shadowColor = 'rgba(112, 246, 255, 0.32)';
+  ctx.shadowBlur = 34;
+  ctx.shadowColor = 'rgba(122, 154, 255, 0.85)';
   ctx.beginPath();
-  ctx.moveTo(lineLeft, lineY);
-  ctx.lineTo(lineRight, lineY);
-  ctx.stroke();
-
-  const coreLine = ctx.createLinearGradient(lineLeft, lineY, lineRight, lineY);
-  coreLine.addColorStop(0, 'rgba(240, 251, 255, 0.20)');
-  coreLine.addColorStop(0.18, 'rgba(112, 246, 255, 0.92)');
-  coreLine.addColorStop(0.5, 'rgba(255, 255, 255, 0.86)');
-  coreLine.addColorStop(0.82, 'rgba(214, 118, 255, 0.92)');
-  coreLine.addColorStop(1, 'rgba(255, 248, 255, 0.20)');
-  ctx.strokeStyle = coreLine;
-  ctx.lineWidth = 1.6 + energy * 1.2;
-  ctx.globalAlpha = 0.82;
-  ctx.shadowBlur = 12 + treble * 10;
-  ctx.shadowColor = 'rgba(255, 255, 255, 0.22)';
-  ctx.beginPath();
-  ctx.moveTo(lineLeft, lineY);
-  ctx.lineTo(lineRight, lineY);
+  ctx.moveTo(lineInset, centerY);
+  ctx.lineTo(width - lineInset, centerY);
   ctx.stroke();
   ctx.restore();
 
-  const sampleWave = (progress) => {
-    if (prerenderedState) return prerenderedState.sample(progress);
-    if (waveformSource) {
-      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
-      return Math.abs((waveformSource[sourceIndex] - 128) / 128);
-    }
-    return 0.04;
-  };
+  const lineGradient = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
+  lineGradient.addColorStop(0, 'rgba(186, 214, 255, 0.92)');
+  lineGradient.addColorStop(0.28, 'rgba(104, 156, 255, 0.98)');
+  lineGradient.addColorStop(0.58, 'rgba(126, 110, 255, 0.98)');
+  lineGradient.addColorStop(1, 'rgba(198, 134, 255, 0.90)');
+  ctx.strokeStyle = lineGradient;
+  ctx.lineWidth = 1.3;
+  ctx.globalAlpha = 0.8;
+  ctx.beginPath();
+  ctx.moveTo(lineInset, centerY);
+  ctx.lineTo(width - lineInset, centerY);
+  ctx.stroke();
 
-  const bandCount = 56;
-  const bars = [];
-  for (let i = 0; i < bandCount; i += 1) {
-    const progress = i / Math.max(1, bandCount - 1);
-    const local = Math.max(0.02, Math.min(1, sampleWave(progress)));
-    const bandBias = i < bandCount * 0.28 ? bass : (i < bandCount * 0.7 ? mids : treble);
-    bars.push(Math.max(0.14, Math.min(1, (local * 1.16 + bandBias * 0.52) * reactiveBoost)));
-  }
+  spectrumState.bands.forEach((band, index) => {
+    const value = Math.max(0.035, Math.min(1, band));
+    const x = lineInset + (step * index);
+    const mirroredIndex = Math.abs(index - ((spectrumState.bands.length - 1) / 2));
+    const edgeTaper = 0.74 + (1 - (mirroredIndex / Math.max(1, spectrumState.bands.length / 2))) * 0.26;
+    const halfHeight = Math.max(5, value * maxHalfHeight * edgeTaper);
+    const barWidth = Math.max(2, step * 0.44);
+    const barGradient = ctx.createLinearGradient(x, centerY - halfHeight, x, centerY + halfHeight);
+    barGradient.addColorStop(0, 'rgba(204, 226, 255, 0.98)');
+    barGradient.addColorStop(0.18, 'rgba(132, 176, 255, 0.98)');
+    barGradient.addColorStop(0.55, 'rgba(104, 114, 255, 0.96)');
+    barGradient.addColorStop(1, 'rgba(188, 126, 255, 0.96)');
 
-  const barMaxLength = 58 + bass * 28 + mids * 18;
-  const barWidth = 3.6;
-  const usableSpan = lineHalfWidth * 2;
-
-  ctx.save();
-  ctx.globalCompositeOperation = 'screen';
-  ctx.lineCap = 'round';
-
-  for (let i = 0; i < bandCount; i += 1) {
-    const value = bars[i];
-    const t = i / Math.max(1, bandCount - 1);
-    const x = lineLeft + usableSpan * t;
-    const mirrored = Math.abs(t - 0.5) / 0.5;
-    const edgeLift = 1 - mirrored * 0.18;
-    const length = (7 + value * barMaxLength) * edgeLift;
-    const y1 = lineY - length;
-    const y2 = lineY + length;
-
-    const gradient = ctx.createLinearGradient(x, y1, x, y2);
-    gradient.addColorStop(0, t < 0.5 ? 'rgba(172, 220, 255, 0.22)' : 'rgba(222, 174, 255, 0.22)');
-    gradient.addColorStop(0.16, t < 0.5 ? 'rgba(146, 208, 255, 0.98)' : 'rgba(208, 156, 255, 0.98)');
-    gradient.addColorStop(0.5, t < 0.5 ? 'rgba(66, 146, 255, 0.98)' : 'rgba(126, 92, 255, 0.98)');
-    gradient.addColorStop(0.84, t < 0.5 ? 'rgba(22, 94, 224, 0.96)' : 'rgba(92, 48, 214, 0.96)');
-    gradient.addColorStop(1, t < 0.5 ? 'rgba(18, 52, 142, 0.22)' : 'rgba(64, 28, 152, 0.22)');
-
-    ctx.strokeStyle = gradient;
-    ctx.shadowColor = t < 0.5 ? 'rgba(72, 144, 255, 0.60)' : 'rgba(138, 84, 255, 0.58)';
-    ctx.shadowBlur = 14 + value * 14;
-    ctx.globalAlpha = 0.76 + value * 0.20;
-    ctx.lineWidth = barWidth + value * 1.4;
+    ctx.save();
+    ctx.strokeStyle = barGradient;
+    ctx.lineWidth = barWidth;
+    ctx.lineCap = 'round';
+    ctx.globalAlpha = 0.95;
+    ctx.shadowBlur = 16;
+    ctx.shadowColor = index % 2 === 0 ? 'rgba(110, 156, 255, 0.72)' : 'rgba(170, 112, 255, 0.66)';
     ctx.beginPath();
-    ctx.moveTo(x, y1);
-    ctx.lineTo(x, y2);
+    ctx.moveTo(x, centerY - halfHeight);
+    ctx.lineTo(x, centerY + halfHeight);
     ctx.stroke();
-  }
-  ctx.restore();
+    ctx.restore();
 
-  visualizerBars.forEach((bar, index) => {
-    const t = index / Math.max(1, visualizerBars.length - 1);
-    const sampleIndex = Math.min(bars.length - 1, Math.round(t * (bars.length - 1)));
-    const value = bars[sampleIndex] || 0.1;
-    bar.style.height = `${20 + Math.round(value * 48)}px`;
-    bar.style.opacity = `${0.32 + value * 0.54}`;
-    bar.style.transform = `scaleY(${(0.92 + value * 0.22).toFixed(3)})`;
+    const barEl = visualizerBars[index];
+    if (barEl) {
+      barEl.style.height = `${Math.round(halfHeight * 2)}px`;
+      barEl.style.opacity = `${0.42 + value * 0.46}`;
+      barEl.style.transform = `translateY(0) scaleY(1)`;
+    }
   });
 }
 
 function startVisualizerAnimation() {
+
   if (visualizerFrame || !visualizerBars.length) return;
   ensureVisualizerAudioSetup();
   if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
@@ -1568,7 +1516,7 @@ function stopVisualizerAnimation() {
   }
 
   visualizerBars.forEach((bar) => {
-    bar.style.height = '16px';
+    bar.style.height = '8px';
     bar.style.opacity = '';
     bar.style.transform = '';
   });

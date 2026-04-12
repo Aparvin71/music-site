@@ -1,0 +1,42 @@
+v43.1.0 TRUE SPECTRUM SYSTEM — MINIMAL PATCH
+
+Files included
+- app.js
+- style.css
+- make_tracks.py
+- tools/make_tracks.py
+
+What this patch changes
+- Replaces the old ring-style waveform visualizer logic with a centered horizontal spectrum renderer.
+- Removes the generic time-based bar motion from the spectrum path.
+- Adds support for precomputed multi-band spectrum data in tracks.json using:
+  - spectrum_frames
+  - spectrum_band_count
+  - spectrum_frame_count
+- Keeps playback on the safe existing HTML audio path.
+
+How to apply
+1. Back up your current stable build.
+2. Replace these files in your site with the files from this patch.
+3. Put your MP3 files in the site's /audio folder.
+4. Run:
+   python make_tracks.py
+   or, if your build uses the tools folder version:
+   python tools/make_tracks.py
+5. Upload the newly generated tracks.json with the rest of your site files.
+
+Important note
+- This patch zip is intentionally small, so it does NOT include a regenerated tracks.json.
+- The new visualizer will use true spectrum behavior only after tracks.json is rebuilt with spectrum_frames from your local audio library.
+- Until you regenerate tracks.json, the visualizer will fall back to the old waveform envelope path.
+
+Generator details
+- Sample rate: 11025 Hz
+- Frames per track: 120
+- Bands per frame: 24
+- Analysis: FFT with log-spaced frequency bands
+
+Expected result after rebuilding tracks.json
+- Bars move independently instead of as one shape.
+- Motion reflects low / mid / high content per song.
+- Playback remains stable because the visualizer reads JSON data rather than attaching a risky live analyser path.
