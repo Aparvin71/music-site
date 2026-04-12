@@ -1,0 +1,15 @@
+Aineo Music
+Build: v42.9.0 — Deep Dive Spectrum Fix
+
+What changed
+- Full package bump and version-marker cleanup across runtime, service worker, config, and page footers
+- Restored a safer audio playback path while rebuilding the player visualizer separately
+- Visualizer now prefers true audio analyser data when available
+- Falls back to per-track waveform_envelope JSON data instead of generic animation
+- Left and right lanes use different data bands so the split visualizer no longer behaves like a mirror
+- Artwork shifted slightly right for better centering in the full-screen player
+
+Post-deploy
+- Upload all files
+- Hard refresh once after deploy
+- If an old build sticks, unregister the service worker once and refresh again

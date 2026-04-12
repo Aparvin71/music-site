@@ -246,6 +246,7 @@ async function init() {
   initSmoothHashJumps();
   initMobilePlayerDrawer();
   initMiniVisualizer();
+  primeVisualizerAudioElement();
   initHoldToPreview();
   initMobileNav();
   initPlayerSheetGestures();
@@ -948,6 +949,11 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("play", () => {
       stopPreviewAudio();
+      primeVisualizerAudioElement();
+      ensureVisualizerAudioSetup();
+      if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
+        visualizerAudioContext.resume().catch(() => {});
+      }
       updatePlayButton();
       updateMediaSessionPlaybackState();
       setMiniVisualizerActive(true);
@@ -1306,6 +1312,14 @@ function resizeMiniVisualizerCanvas() {
   return;
 }
 
+function primeVisualizerAudioElement() {
+  if (!els.audioPlayer) return;
+  try {
+    if (!els.audioPlayer.crossOrigin) els.audioPlayer.crossOrigin = 'anonymous';
+    els.audioPlayer.setAttribute('crossorigin', 'anonymous');
+  } catch (_) {}
+}
+
 function ensureVisualizerAudioSetup() {
   if (visualizerAudioSetupAttempted) return;
   visualizerAudioSetupAttempted = true;
@@ -1315,6 +1329,32 @@ function ensureVisualizerAudioSetup() {
   visualizerSourceNode = null;
   visualizerFreqData = null;
   visualizerWaveData = null;
+
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx || !els.audioPlayer) return;
+
+  try {
+    primeVisualizerAudioElement();
+    visualizerAudioContext = new AudioCtx();
+    visualizerAnalyser = visualizerAudioContext.createAnalyser();
+    visualizerAnalyser.fftSize = 256;
+    visualizerAnalyser.smoothingTimeConstant = 0.76;
+    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
+    visualizerWaveData = new Uint8Array(visualizerAnalyser.fftSize);
+
+    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(els.audioPlayer);
+    visualizerSourceNode.connect(visualizerAnalyser);
+    visualizerAnalyser.connect(visualizerAudioContext.destination);
+    visualizerUseFallback = false;
+  } catch (error) {
+    console.warn('Visualizer audio setup failed; using JSON fallback.', error);
+    visualizerUseFallback = true;
+    visualizerAudioContext = null;
+    visualizerAnalyser = null;
+    visualizerSourceNode = null;
+    visualizerFreqData = null;
+    visualizerWaveData = null;
+  }
 }
 
 function setMiniVisualizerActive(active) {
@@ -1353,7 +1393,7 @@ function buildJsonSpectrumSamples(track, progress, barCount, side) {
 
   const maxIndex = envelope.length - 1;
   const centerIndex = Math.max(0, Math.min(maxIndex, Math.round(progress * maxIndex)));
-  const span = Math.max(barCount * 10, Math.round(envelope.length * 0.12));
+  const span = Math.max(barCount * 5, Math.round(envelope.length * 0.08));
   const startIndex = side === 'left'
     ? Math.max(0, centerIndex - span)
     : Math.min(maxIndex, centerIndex + 1);
@@ -1373,28 +1413,69 @@ function buildJsonSpectrumSamples(track, progress, barCount, side) {
     let peak = 0;
     let sum = 0;
     let count = 0;
-    let deltaSum = 0;
-    let previous = null;
-
     for (let j = chunkStart; j <= chunkEnd; j += 1) {
       const value = (envelope[j] || 0) / 255;
       peak = Math.max(peak, value);
       sum += value;
       count += 1;
-      if (previous !== null) deltaSum += Math.abs(value - previous);
-      previous = value;
     }
 
     const mean = count ? (sum / count) : 0;
-    const texture = count > 1 ? Math.min(1, deltaSum / (count - 1) * 3.2) : 0;
-    const positionWeight = side === 'left'
-      ? (0.84 + ((barCount - 1 - i) / Math.max(1, barCount - 1)) * 0.22)
-      : (0.84 + (i / Math.max(1, barCount - 1)) * 0.22);
-    const value = Math.max(0.03, Math.min(1, ((peak * 0.62) + (mean * 0.28) + (texture * 0.10)) * positionWeight));
+    const value = Math.max(0.03, Math.min(1, (peak * 0.72) + (mean * 0.28)));
     samples.push(value);
   }
 
   return samples;
+}
+
+function buildAnalyserSpectrumSamples(barCount, side) {
+  if (!visualizerAnalyser || !visualizerFreqData || !barCount) return [];
+
+  visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
+  const half = Math.max(8, Math.floor(visualizerFreqData.length / 2));
+  const startBin = side === 'left' ? 2 : half;
+  const endBin = side === 'left' ? half : Math.max(half + 1, visualizerFreqData.length - 2);
+  const available = Math.max(1, endBin - startBin);
+  const chunkSize = Math.max(1, Math.floor(available / barCount));
+  const samples = [];
+
+  for (let i = 0; i < barCount; i += 1) {
+    const chunkStart = startBin + (i * chunkSize);
+    const chunkEnd = Math.min(endBin, chunkStart + chunkSize);
+    let peak = 0;
+    let sum = 0;
+    let count = 0;
+    for (let j = chunkStart; j < chunkEnd; j += 1) {
+      const value = (visualizerFreqData[j] || 0) / 255;
+      peak = Math.max(peak, value);
+      sum += value;
+      count += 1;
+    }
+    const mean = count ? (sum / count) : 0;
+    const shaped = Math.max(0.03, Math.min(1, Math.pow((peak * 0.7) + (mean * 0.3), 0.9)));
+    samples.push(shaped);
+  }
+
+  return samples;
+}
+
+function applyVisualizerLaneStyles(bars, samples, side) {
+  for (let i = 0; i < bars.length; i += 1) {
+    const bar = bars[i];
+    const sample = samples[i] ?? 0.04;
+    const eased = Math.pow(Math.max(0, Math.min(1, sample)), 0.96);
+    const barHeight = 10 + (eased * 94);
+    const alpha = 0.28 + (eased * 0.68);
+    bar.style.height = `${barHeight}px`;
+    bar.style.opacity = `${alpha}`;
+    if (side === 'left') {
+      bar.style.background = `linear-gradient(180deg, rgba(231,245,255,${alpha}) 0%, rgba(93,169,255,${alpha}) 45%, rgba(43,88,224,${Math.min(1, alpha * 0.98)}) 100%)`;
+      bar.style.boxShadow = `0 0 14px rgba(74,144,255,${0.16 + eased * 0.26})`;
+    } else {
+      bar.style.background = `linear-gradient(180deg, rgba(247,236,255,${alpha}) 0%, rgba(187,112,255,${alpha}) 45%, rgba(114,67,233,${Math.min(1, alpha * 0.98)}) 100%)`;
+      bar.style.boxShadow = `0 0 14px rgba(176,104,255,${0.16 + eased * 0.26})`;
+    }
+  }
 }
 
 function drawVisualizerFrame() {
@@ -1406,30 +1487,24 @@ function drawVisualizerFrame() {
   const durationSeconds = currentTrack?.duration_seconds || currentTrack?.durationSeconds || currentTrack?.duration || audio?.duration || 0;
   const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
 
-  const leftSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerLeftBars.length, 'left');
-  const rightSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerRightBars.length, 'right');
+  let leftSamples = [];
+  let rightSamples = [];
 
-  const renderLane = (bars, samples, side) => {
-    for (let i = 0; i < bars.length; i += 1) {
-      const bar = bars[i];
-      const sample = samples[i] ?? 0.04;
-      const eased = Math.pow(Math.max(0, Math.min(1, sample)), 0.92);
-      const barHeight = 12 + (eased * 88);
-      const alpha = 0.24 + (eased * 0.72);
-      bar.style.height = `${barHeight}px`;
-      bar.style.opacity = `${alpha}`;
-      if (side === 'left') {
-        bar.style.background = `linear-gradient(180deg, rgba(229,243,255,${alpha}) 0%, rgba(98,164,255,${alpha}) 50%, rgba(54,86,218,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(84,144,255,${0.12 + eased * 0.28})`;
-      } else {
-        bar.style.background = `linear-gradient(180deg, rgba(244,231,255,${alpha}) 0%, rgba(184,112,255,${alpha}) 50%, rgba(102,66,226,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(170,104,255,${0.12 + eased * 0.28})`;
-      }
+  if (!visualizerUseFallback && visualizerAnalyser && visualizerFreqData) {
+    leftSamples = buildAnalyserSpectrumSamples(visualizerLeftBars.length, 'left');
+    rightSamples = buildAnalyserSpectrumSamples(visualizerRightBars.length, 'right');
+    const activeEnergy = [...leftSamples, ...rightSamples].some(v => v > 0.035);
+    if (!activeEnergy) {
+      leftSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerLeftBars.length, 'left');
+      rightSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerRightBars.length, 'right');
     }
-  };
+  } else {
+    leftSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerLeftBars.length, 'left');
+    rightSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerRightBars.length, 'right');
+  }
 
-  renderLane(visualizerLeftBars, leftSamples, 'left');
-  renderLane(visualizerRightBars, rightSamples, 'right');
+  applyVisualizerLaneStyles(visualizerLeftBars, leftSamples, 'left');
+  applyVisualizerLaneStyles(visualizerRightBars, rightSamples, 'right');
 }
 
 function startVisualizerAnimation() {
