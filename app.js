@@ -1,4 +1,4 @@
-/* v43.0.3 reactive-only spectrum motion pass */
+/* v43.0.4 spectrum reactive restore + refresh-noise removal */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1317,6 +1317,31 @@ function ensureVisualizerAudioSetup() {
   visualizerSourceNode = null;
   visualizerFreqData = null;
   visualizerWaveData = null;
+
+  const audio = els.audioPlayer;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!audio || !AudioCtx) return;
+
+  try {
+    if (!audio.crossOrigin) audio.crossOrigin = 'anonymous';
+    visualizerAudioContext = new AudioCtx();
+    visualizerAnalyser = visualizerAudioContext.createAnalyser();
+    visualizerAnalyser.fftSize = 256;
+    visualizerAnalyser.smoothingTimeConstant = 0.72;
+    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
+    visualizerWaveData = new Uint8Array(visualizerAnalyser.fftSize);
+    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(audio);
+    visualizerSourceNode.connect(visualizerAnalyser);
+    visualizerAnalyser.connect(visualizerAudioContext.destination);
+    visualizerUseFallback = false;
+  } catch (error) {
+    visualizerUseFallback = true;
+    visualizerAudioContext = null;
+    visualizerAnalyser = null;
+    visualizerSourceNode = null;
+    visualizerFreqData = null;
+    visualizerWaveData = null;
+  }
 }
 
 function setMiniVisualizerActive(active) {
@@ -1428,6 +1453,7 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
+  const reactiveBoost = prerenderedState ? 1.28 : (visualizerUseFallback ? 1.12 : 1.22);
   const lineHalfWidth = Math.min(width * 0.56, Math.max(width, height) * 0.60);
   const lineY = centerY;
   const lineLeft = centerX - lineHalfWidth;
@@ -1483,10 +1509,10 @@ function drawVisualizerFrame() {
     const progress = i / Math.max(1, bandCount - 1);
     const local = Math.max(0.02, Math.min(1, sampleWave(progress)));
     const bandBias = i < bandCount * 0.28 ? bass : (i < bandCount * 0.7 ? mids : treble);
-    bars.push(Math.max(0.06, Math.min(1, local * 0.82 + bandBias * 0.28)));
+    bars.push(Math.max(0.12, Math.min(1, (local * 1.08 + bandBias * 0.44) * reactiveBoost)));
   }
 
-  const barMaxLength = 38 + bass * 16 + mids * 10;
+  const barMaxLength = 52 + bass * 24 + mids * 16;
   const barWidth = 3.6;
   const usableSpan = lineHalfWidth * 2;
 
@@ -1527,7 +1553,7 @@ function drawVisualizerFrame() {
     const t = index / Math.max(1, visualizerBars.length - 1);
     const sampleIndex = Math.min(bars.length - 1, Math.round(t * (bars.length - 1)));
     const value = bars[sampleIndex] || 0.1;
-    bar.style.height = `${14 + Math.round(value * 30)}px`;
+    bar.style.height = `${18 + Math.round(value * 42)}px`;
     bar.style.opacity = `${0.32 + value * 0.54}`;
     bar.style.transform = `scaleY(${(0.92 + value * 0.22).toFixed(3)})`;
   });

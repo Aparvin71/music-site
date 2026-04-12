@@ -10147,7 +10147,7 @@ button:active{
 }
 
 
-/* ===== v43.0.3 reactive-only spectrum motion pass ===== */
+/* ===== v43.0.4 spectrum reactive restore + refresh-noise removal ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10317,7 +10317,7 @@ button:active{
 @media (max-width: 640px) {
   .player-cover-visualizer { inset: -22px; transform: translate3d(9px, -9px, 0) scale(0.992); }
   .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(9px, -9px, 0) scale(1.018); }
-  .player-cover-visualizer-bars { left: 7%; right: 7%; }
+  .player-cover-visualizer-bars { left: 4.5%; right: 4.5%; }
   .player-cover-visualizer-bar { width: 2px; }
 }
 

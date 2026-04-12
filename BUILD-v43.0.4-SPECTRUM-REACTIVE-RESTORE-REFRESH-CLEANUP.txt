@@ -1,0 +1,15 @@
+Aineo Music — v43.0.4
+
+Pass: Spectrum Reactive Restore + Refresh Cleanup
+
+Changes in this build
+- Removed the noisy background refresh/update behavior from the web path.
+- Disabled the update toast / auto-refresh loop that had been surfacing in the browser.
+- Restored reactive spectrum behavior so the bars respond visibly again.
+- Re-enabled live analyser hookup when available, with waveform-envelope fallback from tracks.json.
+- Increased bar travel so reactive motion is easier to see.
+- Kept the centered horizontal spectrum layout and blue/purple bar color treatment.
+
+Notes
+- This pass is aimed at using the current base cleanly without the added refresh noise.
+- If remote audio blocks live analyser access in some browsers, the spectrum still uses per-track waveform envelope data from tracks.json.

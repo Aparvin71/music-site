@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.0.3";
+const AINEO_APP_VERSION = "v43.0.4";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.3</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a glass-orb aurora halo visualizer with softer luminous bloom, drifting color depth, and richer premium motion around the artwork while preserving the stable playback path.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.4</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a centered spectrum visualizer with a cleaner playback path and quieter web behavior.</p>
         </section>
       </div>
     </div>
@@ -371,6 +371,7 @@ function ensureAppUpdateToast() {
 }
 
 function showAppUpdateToast({ title, body, primaryLabel = "Refresh now", secondaryLabel = "Later" } = {}) {
+  return null;
   const mount = ensureAppUpdateToast();
   const titleEl = mount.querySelector("#appUpdateToastTitle");
   const bodyEl = mount.querySelector("#appUpdateToastBody");
@@ -480,6 +481,7 @@ function clearAppUpdateDetectedThisSession() {
 }
 
 function markBackgroundUpdateAvailable(reason = "music library updates") {
+  return;
   appRefreshPending = true;
   appRefreshReason = reason;
   notePendingRefreshSession(reason);
@@ -551,6 +553,7 @@ async function checkForTracksJsonUpdate({ force = false } = {}) {
 }
 
 function initBackgroundUpdateDetection() {
+  return;
   const currentPageLooksLikeApp = Boolean(document.querySelector('script[src*="app.js"], script[src*="album-page.js"], script[src*="aineo-album-page.js"]') || document.getElementById("audioPlayer"));
   if (!currentPageLooksLikeApp) return;
 
@@ -863,4 +866,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); initBackgroundUpdateDetection(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
