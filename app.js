@@ -1,4 +1,4 @@
-/* v43.1.7 true spectrum clean package */
+/* v43.1.8 true spectrum clean package */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];

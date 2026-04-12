@@ -10147,7 +10147,7 @@ button:active{
 }
 
 
-/* ===== v43.1.7 neon flare halo pass ===== */
+/* ===== v43.1.8 neon flare halo pass ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -12272,4 +12272,97 @@ body.ios-standalone .player-sheet-header::before {
   .album-modal-body {
     padding-bottom: max(18px, calc(18px + var(--safe-bottom)));
   }
+}
+
+/* v43.1.8 dark text visibility sweep */
+.albums-page-hero h1,
+.albums-page-hero h2,
+.albums-page-hero h3,
+.albums-page-hero .eyebrow,
+.albums-page-hero p,
+.albums-grid .album-card,
+.albums-grid .album-card *,
+.albums-page-grid .album-card,
+.albums-page-grid .album-card *,
+.album-card,
+.album-card *,
+.album-card-title,
+.album-card h3,
+.album-card p,
+.album-card-meta,
+.album-card-meta h3,
+.album-card-meta p {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.album-card p,
+.album-card-meta p,
+.albums-page-hero p,
+.albums-grid .album-card p,
+.albums-page-grid .album-card p {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+.album-page-track-row--redesign .featured-track-title,
+.album-page-track-row--redesign .featured-track-title-line strong,
+.album-page-track-row--redesign .featured-track-main strong,
+.album-page-track-row--redesign .featured-track-main-hit strong,
+.album-page-track-row--redesign .album-track-title-row strong,
+.album-page-track-row--redesign .album-track-title-row,
+.album-page-main-panel--redesign .featured-track-title,
+.album-page-main-panel--redesign .featured-track-title-line strong,
+.album-page-main-panel--redesign .album-track-title-row strong {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.album-page-track-row--redesign .featured-track-meta-line,
+.album-page-track-row--redesign .featured-track-meta-line *,
+.album-page-track-row--redesign .featured-track-duration,
+.album-page-track-row--redesign .album-track-duration,
+.album-page-main-panel--redesign .featured-track-meta-line,
+.album-page-main-panel--redesign .featured-track-meta-line *,
+.album-page-main-panel--redesign .featured-track-duration,
+.album-page-main-panel--redesign .album-track-duration {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
+}
+
+.album-page-tag-row,
+.album-page-tag-row *,
+.album-page-badge-row,
+.album-page-badge-row *,
+.album-inline-chip,
+.album-inline-chip *,
+.album-badge-chip,
+.album-badge-chip * {
+  color: #dce8fb !important;
+  -webkit-text-fill-color: #dce8fb !important;
+}
+
+.page-card h1,
+.page-card h2,
+.page-card h3,
+.page-card .eyebrow,
+.page-card .section-title,
+.page-card .card-title,
+.library-panel h1,
+.library-panel h2,
+.library-panel h3,
+.queue-panel h1,
+.queue-panel h2,
+.queue-panel h3 {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.page-card p,
+.page-card li,
+.library-panel p,
+.library-panel li,
+.queue-panel p,
+.queue-panel li {
+  color: #d7deea;
 }
