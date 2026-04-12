@@ -1318,30 +1318,10 @@ function ensureVisualizerAudioSetup() {
   visualizerFreqData = null;
   visualizerWaveData = null;
 
-  const audio = els.audioPlayer;
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  if (!audio || !AudioCtx) return;
-
-  try {
-    if (!audio.crossOrigin) audio.crossOrigin = 'anonymous';
-    visualizerAudioContext = new AudioCtx();
-    visualizerAnalyser = visualizerAudioContext.createAnalyser();
-    visualizerAnalyser.fftSize = 256;
-    visualizerAnalyser.smoothingTimeConstant = 0.72;
-    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
-    visualizerWaveData = new Uint8Array(visualizerAnalyser.fftSize);
-    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(audio);
-    visualizerSourceNode.connect(visualizerAnalyser);
-    visualizerAnalyser.connect(visualizerAudioContext.destination);
-    visualizerUseFallback = false;
-  } catch (error) {
-    visualizerUseFallback = true;
-    visualizerAudioContext = null;
-    visualizerAnalyser = null;
-    visualizerSourceNode = null;
-    visualizerFreqData = null;
-    visualizerWaveData = null;
-  }
+  // Keep playback path non-invasive.
+  // The v43.0.4 pass attempted to attach a MediaElementSource here, which can
+  // interfere with stable browser playback depending on timing/CORS/context state.
+  // This build intentionally stays on the prerendered waveform envelope path.
 }
 
 function setMiniVisualizerActive(active) {
@@ -1453,7 +1433,7 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const reactiveBoost = prerenderedState ? 1.28 : (visualizerUseFallback ? 1.12 : 1.22);
+  const reactiveBoost = prerenderedState ? 1.42 : 1.08;
   const lineHalfWidth = Math.min(width * 0.56, Math.max(width, height) * 0.60);
   const lineY = centerY;
   const lineLeft = centerX - lineHalfWidth;
@@ -1509,10 +1489,10 @@ function drawVisualizerFrame() {
     const progress = i / Math.max(1, bandCount - 1);
     const local = Math.max(0.02, Math.min(1, sampleWave(progress)));
     const bandBias = i < bandCount * 0.28 ? bass : (i < bandCount * 0.7 ? mids : treble);
-    bars.push(Math.max(0.12, Math.min(1, (local * 1.08 + bandBias * 0.44) * reactiveBoost)));
+    bars.push(Math.max(0.14, Math.min(1, (local * 1.16 + bandBias * 0.52) * reactiveBoost)));
   }
 
-  const barMaxLength = 52 + bass * 24 + mids * 16;
+  const barMaxLength = 58 + bass * 28 + mids * 18;
   const barWidth = 3.6;
   const usableSpan = lineHalfWidth * 2;
 
@@ -1553,7 +1533,7 @@ function drawVisualizerFrame() {
     const t = index / Math.max(1, visualizerBars.length - 1);
     const sampleIndex = Math.min(bars.length - 1, Math.round(t * (bars.length - 1)));
     const value = bars[sampleIndex] || 0.1;
-    bar.style.height = `${18 + Math.round(value * 42)}px`;
+    bar.style.height = `${20 + Math.round(value * 48)}px`;
     bar.style.opacity = `${0.32 + value * 0.54}`;
     bar.style.transform = `scaleY(${(0.92 + value * 0.22).toFixed(3)})`;
   });

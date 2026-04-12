@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.0.4";
+const AINEO_APP_VERSION = "v43.0.5";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.4</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a centered spectrum visualizer with a cleaner playback path and quieter web behavior.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.5</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a centered spectrum visualizer with safer playback behavior and refresh cleanup while keeping the wider blue-purple bar styling.</p>
         </section>
       </div>
     </div>

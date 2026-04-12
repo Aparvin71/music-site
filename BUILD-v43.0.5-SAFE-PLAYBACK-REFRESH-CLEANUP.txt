@@ -1,0 +1,14 @@
+Aineo Music v43.0.5 — Safe Playback + Refresh Cleanup
+
+Base: v43.0.4
+
+Changes:
+- Removed the invasive Web Audio MediaElementSource hookup introduced in v43.0.4
+- Preserved quieter web behavior by leaving background refresh/update noise disabled
+- Kept centered horizontal spectrum layout
+- Kept wider left/right span
+- Kept blue/purple bar palette and existing glow
+- Increased prerendered waveform envelope responsiveness so bars stay visibly reactive without touching playback
+
+Intent:
+Restore stable audio playback while keeping the current spectrum visual treatment and the refresh cleanup.
