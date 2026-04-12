@@ -1,0 +1,14 @@
+Build: v43.1.2 — Audio/Art Repair Package
+
+What changed
+- Replaced packaged tracks.json with the latest regenerated file containing spectrum_frames
+- Replaced packaged track-build-cache.json with the latest regenerated cache
+- Fixed stale asset version references that were still set to 42.3.99
+- Bumped page query-string asset markers to 43.1.2
+- Updated AineoConfig version and assetVersion to v43.1.2 / 43.1.2
+- Updated service worker cache version to v43.1.2-repair-package
+- Restored stable track IDs from v42.4.5 when title+src matched, to reduce saved-state breakage
+- Replaced older v43.1.1 notes with clean v43.1.2 repair notes
+
+Focus
+This pass is specifically meant to repair stale cached asset loading and track identity drift that could cause missing audio, missing artwork, or mismatched saved state after the previous package.
