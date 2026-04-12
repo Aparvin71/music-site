@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.0.0";
+const AINEO_APP_VERSION = "v43.0.1";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,7 +73,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.0</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.1</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a glass-orb aurora halo visualizer with softer luminous bloom, drifting color depth, and richer premium motion around the artwork while preserving the stable playback path.</p>
         </section>
       </div>
@@ -305,7 +305,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.0.0";
+const APP_RUNTIME_VERSION = "v43.0.1";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.0.0-spectrum-visualizer";
+const CACHE_VERSION = "v43.0.1-centered-line-spectrum";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

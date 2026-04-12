@@ -1,4 +1,4 @@
-/* v43.0.0 spectrum visualizer pass */
+/* v43.0.1 centered line spectrum pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1442,32 +1442,45 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const baseRadius = coverRadius + 34;
-  const haloOuterRadius = baseRadius + 62 + bass * 14;
+  const lineHalfWidth = Math.min(width, height) * 0.40;
+  const lineY = centerY;
+  const lineLeft = centerX - lineHalfWidth;
+  const lineRight = centerX + lineHalfWidth;
 
-  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.58, centerX, centerY, haloOuterRadius + 64);
-  outerGlow.addColorStop(0, "rgba(255,255,255,0)");
-  outerGlow.addColorStop(0.18, `rgba(178, 248, 255, ${0.08 + bass * 0.12})`);
-  outerGlow.addColorStop(0.34, `rgba(0, 234, 255, ${0.10 + bass * 0.16 + mids * 0.08})`);
-  outerGlow.addColorStop(0.58, `rgba(78, 122, 255, ${0.08 + mids * 0.12})`);
-  outerGlow.addColorStop(0.78, `rgba(160, 72, 255, ${0.08 + treble * 0.15 + mids * 0.06})`);
-  outerGlow.addColorStop(1, "rgba(8, 12, 28, 0)");
-  ctx.fillStyle = outerGlow;
+  const horizontalGlow = ctx.createLinearGradient(lineLeft, lineY, lineRight, lineY);
+  horizontalGlow.addColorStop(0, 'rgba(0, 234, 255, 0)');
+  horizontalGlow.addColorStop(0.16, `rgba(112, 246, 255, ${0.10 + bass * 0.10})`);
+  horizontalGlow.addColorStop(0.5, `rgba(255, 255, 255, ${0.06 + energy * 0.12})`);
+  horizontalGlow.addColorStop(0.84, `rgba(214, 118, 255, ${0.10 + treble * 0.12})`);
+  horizontalGlow.addColorStop(1, 'rgba(164, 74, 255, 0)');
+  ctx.save();
+  ctx.strokeStyle = horizontalGlow;
+  ctx.lineCap = 'round';
+  ctx.lineWidth = 22 + bass * 7;
+  ctx.globalAlpha = 0.18 + energy * 0.10;
+  ctx.shadowBlur = 34 + bass * 16;
+  ctx.shadowColor = 'rgba(112, 246, 255, 0.32)';
   ctx.beginPath();
-  ctx.arc(centerX, centerY, haloOuterRadius + 52, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(lineLeft, lineY);
+  ctx.lineTo(lineRight, lineY);
+  ctx.stroke();
 
-  const innerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.72, centerX, centerY, baseRadius + 30);
-  innerGlow.addColorStop(0, "rgba(255,255,255,0)");
-  innerGlow.addColorStop(0.20, `rgba(255,255,255, ${0.04 + treble * 0.06})`);
-  innerGlow.addColorStop(0.38, `rgba(170, 246, 255, ${0.08 + bass * 0.10})`);
-  innerGlow.addColorStop(0.58, `rgba(0, 236, 255, ${0.10 + mids * 0.10})`);
-  innerGlow.addColorStop(0.78, `rgba(158, 72, 255, ${0.08 + treble * 0.10})`);
-  innerGlow.addColorStop(1, "rgba(14, 20, 38, 0)");
-  ctx.fillStyle = innerGlow;
+  const coreLine = ctx.createLinearGradient(lineLeft, lineY, lineRight, lineY);
+  coreLine.addColorStop(0, 'rgba(240, 251, 255, 0.20)');
+  coreLine.addColorStop(0.18, 'rgba(112, 246, 255, 0.92)');
+  coreLine.addColorStop(0.5, 'rgba(255, 255, 255, 0.86)');
+  coreLine.addColorStop(0.82, 'rgba(214, 118, 255, 0.92)');
+  coreLine.addColorStop(1, 'rgba(255, 248, 255, 0.20)');
+  ctx.strokeStyle = coreLine;
+  ctx.lineWidth = 1.6 + energy * 1.2;
+  ctx.globalAlpha = 0.82;
+  ctx.shadowBlur = 12 + treble * 10;
+  ctx.shadowColor = 'rgba(255, 255, 255, 0.22)';
   ctx.beginPath();
-  ctx.arc(centerX, centerY, baseRadius + 34, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(lineLeft, lineY);
+  ctx.lineTo(lineRight, lineY);
+  ctx.stroke();
+  ctx.restore();
 
   const sampleWave = (progress) => {
     if (prerenderedState) return prerenderedState.sample(progress);
@@ -1488,13 +1501,9 @@ function drawVisualizerFrame() {
     bars.push(Math.max(0.08, Math.min(1, local * 0.78 + bandBias * 0.34)) * ripple);
   }
 
-  const arcStart = (-Math.PI * 0.86);
-  const arcEnd = (Math.PI * 0.86);
-  const angleRange = arcEnd - arcStart;
-  const arcRadius = baseRadius + 10;
-  const innerArcRadius = coverRadius + 12;
-  const barMaxLength = 44 + bass * 20 + mids * 12;
-  const barWidth = 4.2;
+  const barMaxLength = 38 + bass * 16 + mids * 10;
+  const barWidth = 3.6;
+  const usableSpan = lineHalfWidth * 2;
 
   ctx.save();
   ctx.globalCompositeOperation = 'screen';
@@ -1503,62 +1512,39 @@ function drawVisualizerFrame() {
   for (let i = 0; i < bandCount; i += 1) {
     const value = bars[i];
     const t = i / Math.max(1, bandCount - 1);
-    const angle = arcStart + angleRange * t;
-    const sin = Math.sin(angle);
-    const cos = Math.cos(angle);
-    const startRadius = arcRadius + (Math.abs(t - 0.5) * 5.5);
-    const length = 8 + value * barMaxLength;
-    const x1 = centerX + cos * startRadius;
-    const y1 = centerY + sin * startRadius;
-    const x2 = centerX + cos * (startRadius + length);
-    const y2 = centerY + sin * (startRadius + length);
+    const x = lineLeft + usableSpan * t;
+    const mirrored = Math.abs(t - 0.5) / 0.5;
+    const edgeLift = 1 - mirrored * 0.18;
+    const length = (7 + value * barMaxLength) * edgeLift;
+    const y1 = lineY - length;
+    const y2 = lineY + length;
 
-    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
-    if (t < 0.5) {
-      gradient.addColorStop(0, 'rgba(240, 251, 255, 0.92)');
-      gradient.addColorStop(0.32, 'rgba(112, 246, 255, 0.98)');
-      gradient.addColorStop(0.72, 'rgba(0, 236, 255, 0.96)');
-      gradient.addColorStop(1, 'rgba(74, 126, 255, 0.42)');
-      ctx.shadowColor = 'rgba(0, 236, 255, 0.7)';
-    } else {
-      gradient.addColorStop(0, 'rgba(255, 248, 255, 0.92)');
-      gradient.addColorStop(0.32, 'rgba(234, 158, 255, 0.98)');
-      gradient.addColorStop(0.72, 'rgba(164, 76, 255, 0.94)');
-      gradient.addColorStop(1, 'rgba(96, 62, 255, 0.42)');
-      ctx.shadowColor = 'rgba(190, 94, 255, 0.64)';
-    }
+    const gradient = ctx.createLinearGradient(x, y1, x, y2);
+    gradient.addColorStop(0, t < 0.5 ? 'rgba(112, 246, 255, 0.18)' : 'rgba(234, 158, 255, 0.18)');
+    gradient.addColorStop(0.18, t < 0.5 ? 'rgba(112, 246, 255, 0.96)' : 'rgba(234, 158, 255, 0.96)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.98)');
+    gradient.addColorStop(0.82, t < 0.5 ? 'rgba(0, 236, 255, 0.96)' : 'rgba(164, 76, 255, 0.94)');
+    gradient.addColorStop(1, t < 0.5 ? 'rgba(74, 126, 255, 0.18)' : 'rgba(96, 62, 255, 0.18)');
 
     ctx.strokeStyle = gradient;
-    ctx.shadowBlur = 16 + value * 16;
-    ctx.globalAlpha = 0.78 + value * 0.18;
-    ctx.lineWidth = barWidth + value * 1.6;
+    ctx.shadowColor = t < 0.5 ? 'rgba(0, 236, 255, 0.64)' : 'rgba(190, 94, 255, 0.60)';
+    ctx.shadowBlur = 14 + value * 14;
+    ctx.globalAlpha = 0.76 + value * 0.20;
+    ctx.lineWidth = barWidth + value * 1.4;
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.moveTo(x, y1);
+    ctx.lineTo(x, y2);
     ctx.stroke();
   }
-
-  const rimGradient = ctx.createLinearGradient(centerX - arcRadius, centerY, centerX + arcRadius, centerY);
-  rimGradient.addColorStop(0, 'rgba(118, 246, 255, 0.34)');
-  rimGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.16)');
-  rimGradient.addColorStop(1, 'rgba(180, 88, 255, 0.34)');
-  ctx.shadowBlur = 18;
-  ctx.shadowColor = 'rgba(118, 246, 255, 0.28)';
-  ctx.strokeStyle = rimGradient;
-  ctx.lineWidth = 1.5;
-  ctx.globalAlpha = 0.9;
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, innerArcRadius, arcStart + 0.12, arcEnd - 0.12);
-  ctx.stroke();
   ctx.restore();
 
   visualizerBars.forEach((bar, index) => {
     const t = index / Math.max(1, visualizerBars.length - 1);
     const sampleIndex = Math.min(bars.length - 1, Math.round(t * (bars.length - 1)));
     const value = bars[sampleIndex] || 0.1;
-    bar.style.height = `${16 + Math.round(value * 34)}px`;
-    bar.style.opacity = `${0.36 + value * 0.58}`;
-    bar.style.transform = `translateY(${Math.round((1 - value) * 4)}px) scaleY(${(0.88 + value * 0.24).toFixed(3)})`;
+    bar.style.height = `${14 + Math.round(value * 30)}px`;
+    bar.style.opacity = `${0.32 + value * 0.54}`;
+    bar.style.transform = `scaleY(${(0.92 + value * 0.22).toFixed(3)})`;
   });
 }
 
@@ -1590,8 +1576,8 @@ function stopVisualizerAnimation() {
     visualizerCtx.clearRect(0, 0, width, height);
   }
 
-  visualizerBars.forEach((bar, index) => {
-    bar.style.height = `${18 + ((index % Math.max(1, visualizerBars.length / 2)) * 4)}px`;
+  visualizerBars.forEach((bar) => {
+    bar.style.height = '16px';
     bar.style.opacity = '';
     bar.style.transform = '';
   });

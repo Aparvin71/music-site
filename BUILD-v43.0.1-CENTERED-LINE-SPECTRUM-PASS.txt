@@ -1,0 +1,8 @@
+Aineo Music
+Build: v43.0.1 — Centered Line Spectrum Pass
+
+What changed
+- Converted the artwork visualizer from the circular halo layout to a centered straight-line spectrum that runs horizontally through the cover midpoint.
+- Kept the same player-cover visualizer setup and existing track-reactive waveform/fallback motion logic.
+- Realigned the DOM backup bars and glow layers so the visualizer stays centered left-to-right and top-to-bottom over the artwork.
+- Updated runtime and cache version markers to v43.0.1 for a clean package refresh.
