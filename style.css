@@ -10147,7 +10147,7 @@ button:active{
 }
 
 
-/* ===== v42.7.1 true split waveform non-mirror pass ===== */
+/* ===== v42.7.2 spectrum visualizer rescue pass ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10156,44 +10156,44 @@ button:active{
   width: fit-content;
   max-width: 100%;
   margin: 0 auto;
-  transform: translate3d(8px, -6px, 0);
+  transform: translate3d(0, -4px, 0);
   overflow: visible;
   isolation: isolate;
 }
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -18px -70px;
-  transform: translate3d(28px, -8px, 0);
+  inset: -14px -56px;
+  transform: translate3d(8px, -2px, 0);
   display: block;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
   transition: opacity 180ms ease, transform 220ms ease, filter 220ms ease;
-  filter: saturate(1.14) contrast(1.05) brightness(1.04);
+  filter: saturate(1.16) contrast(1.05) brightness(1.05);
 }
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(28px, -8px, 0);
+  transform: translate3d(8px, -2px, 0);
 }
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 20% 0;
+  inset: 18% 0;
   background:
-    radial-gradient(circle at 26% 50%, rgba(95,145,255,0.18), transparent 34%),
-    radial-gradient(circle at 74% 50%, rgba(156,106,255,0.18), transparent 34%);
+    radial-gradient(circle at 27% 50%, rgba(88,144,255,0.16), transparent 36%),
+    radial-gradient(circle at 73% 50%, rgba(154,104,255,0.16), transparent 36%);
   filter: blur(18px);
-  opacity: 0.92;
+  opacity: 0.88;
 }
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 3% 0;
+  inset: 6% 0;
   display: grid;
-  grid-template-columns: minmax(126px, 1fr) minmax(126px, 1fr);
-  column-gap: clamp(142px, 22vw, 210px);
+  grid-template-columns: minmax(148px, 1fr) minmax(148px, 1fr);
+  column-gap: clamp(132px, 18vw, 176px);
   align-items: center;
   height: 100%;
 }
@@ -10202,7 +10202,7 @@ button:active{
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .player-cover-visualizer-lane.is-left {
@@ -10216,7 +10216,8 @@ button:active{
 .player-cover-visualizer-bar {
   flex: 0 0 6px;
   width: 6px;
-  height: 16px;
+  min-height: 10px;
+  height: 18px;
   border-radius: 999px;
   opacity: 0.34;
   will-change: height, opacity;
@@ -10227,18 +10228,18 @@ button:active{
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
-  transform: translateX(-10px);
+  transform: translateX(6px);
 }
 
 @media (max-width: 640px) {
-  .player-sheet-cover-wrap { transform: translate3d(6px, -4px, 0); }
-  .player-cover-visualizer { inset: -16px -30px; transform: translate3d(18px, -6px, 0); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(18px, -6px, 0); }
-  .player-cover-visualizer-bars { column-gap: clamp(104px, 30vw, 148px); }
+  .player-sheet-cover-wrap { transform: translate3d(0, -2px, 0); }
+  .player-cover-visualizer { inset: -12px -26px; transform: translate3d(4px, -2px, 0); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(4px, -2px, 0); }
+  .player-cover-visualizer-bars { column-gap: clamp(88px, 26vw, 118px); }
   .player-cover-visualizer-lane { gap: 3px; }
   .player-cover-visualizer-bar { flex-basis: 4px; width: 4px; }
   .player-sheet-cover,
-  .player-sheet-cover-placeholder { transform: translateX(-8px); }
+  .player-sheet-cover-placeholder { transform: translateX(4px); }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */

@@ -1315,6 +1315,34 @@ function ensureVisualizerAudioSetup() {
   visualizerSourceNode = null;
   visualizerFreqData = null;
   visualizerWaveData = null;
+
+  const audio = els.audioPlayer;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!audio || !AudioCtx) return;
+
+  try {
+    audio.crossOrigin = 'anonymous';
+    visualizerAudioContext = new AudioCtx();
+    visualizerAnalyser = visualizerAudioContext.createAnalyser();
+    visualizerAnalyser.fftSize = 256;
+    visualizerAnalyser.minDecibels = -92;
+    visualizerAnalyser.maxDecibels = -14;
+    visualizerAnalyser.smoothingTimeConstant = 0.82;
+    visualizerFreqData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
+    visualizerWaveData = new Uint8Array(visualizerAnalyser.frequencyBinCount);
+    visualizerSourceNode = visualizerAudioContext.createMediaElementSource(audio);
+    visualizerSourceNode.connect(visualizerAnalyser);
+    visualizerAnalyser.connect(visualizerAudioContext.destination);
+    visualizerUseFallback = false;
+  } catch (error) {
+    console.warn('Visualizer analyser setup failed, using fallback spectrum.', error);
+    visualizerUseFallback = true;
+    visualizerAudioContext = null;
+    visualizerAnalyser = null;
+    visualizerSourceNode = null;
+    visualizerFreqData = null;
+    visualizerWaveData = null;
+  }
 }
 
 function setMiniVisualizerActive(active) {
@@ -1347,30 +1375,67 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
   return Math.max(0, Math.min(1, leftValue + ((rightValue - leftValue) * frac)));
 }
 
-function buildVisualizerLaneSamples(track, progress, barCount, side) {
+function buildFallbackSpectrumSamples(track, progress, barCount, side) {
   const envelope = getTrackWaveformEnvelope(track);
   if (!envelope || !envelope.length || !barCount) return [];
 
   const maxIndex = envelope.length - 1;
   const centerIndex = Math.max(0, Math.min(maxIndex, Math.round(progress * maxIndex)));
-  const laneWindow = Math.max(barCount, Math.round(envelope.length * 0.06));
-  const step = Math.max(1, Math.floor(laneWindow / Math.max(1, barCount)));
+  const span = Math.max(barCount * 3, Math.round(envelope.length * 0.05));
   const samples = [];
 
   for (let i = 0; i < barCount; i += 1) {
-    const offsetFromCenter = (barCount - i) * step;
+    const ratio = (i + 1) / barCount;
+    const curved = Math.pow(ratio, 1.35);
+    const distance = Math.max(1, Math.round(curved * span));
     const sampleIndex = side === 'left'
-      ? Math.max(0, centerIndex - offsetFromCenter)
-      : Math.min(maxIndex, centerIndex + ((i + 1) * step));
+      ? Math.max(0, centerIndex - distance)
+      : Math.min(maxIndex, centerIndex + distance);
 
-    const raw = Math.max(0, Math.min(1, (envelope[sampleIndex] || 0) / 255));
-    const prev = Math.max(0, Math.min(1, ((envelope[Math.max(0, sampleIndex - 1)] || envelope[sampleIndex] || 0) / 255)));
-    const next = Math.max(0, Math.min(1, ((envelope[Math.min(maxIndex, sampleIndex + 1)] || envelope[sampleIndex] || 0) / 255)));
-    const shaped = (prev * 0.2) + (raw * 0.6) + (next * 0.2);
-    samples.push(Math.max(0.04, Math.min(1, shaped)));
+    const here = (envelope[sampleIndex] || 0) / 255;
+    const prev = (envelope[Math.max(0, sampleIndex - 1)] || envelope[sampleIndex] || 0) / 255;
+    const next = (envelope[Math.min(maxIndex, sampleIndex + 1)] || envelope[sampleIndex] || 0) / 255;
+    const localDelta = Math.abs(next - prev);
+    const shaped = Math.max(0.03, Math.min(1, (here * 0.72) + (localDelta * 1.15)));
+    samples.push(shaped);
   }
 
   return samples;
+}
+
+function buildAnalyserSpectrumSamples(barCount, side) {
+  if (!visualizerAnalyser || !visualizerFreqData || !barCount) return [];
+
+  visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
+  const usableStart = 2;
+  const usableEnd = Math.max(usableStart + 8, Math.floor(visualizerFreqData.length * 0.78));
+  const usable = visualizerFreqData.slice(usableStart, usableEnd);
+  const half = Math.max(1, Math.floor(usable.length / 2));
+  const lane = side === 'left' ? usable.slice(0, half) : usable.slice(half);
+  const chunkSize = Math.max(1, Math.floor(lane.length / barCount));
+  const samples = [];
+
+  for (let i = 0; i < barCount; i += 1) {
+    const start = i * chunkSize;
+    const end = i === barCount - 1 ? lane.length : Math.min(lane.length, start + chunkSize);
+    let peak = 0;
+    let avg = 0;
+    let count = 0;
+    for (let j = start; j < end; j += 1) {
+      const value = lane[j] || 0;
+      peak = Math.max(peak, value);
+      avg += value;
+      count += 1;
+    }
+    const mean = count ? avg / count : 0;
+    const raw = ((peak * 0.62) + (mean * 0.38)) / 255;
+    const emphasis = side === 'left'
+      ? 0.9 + ((barCount - i) / barCount) * 0.18
+      : 0.9 + (i / barCount) * 0.18;
+    samples.push(Math.max(0.035, Math.min(1, raw * emphasis)));
+  }
+
+  return side === 'left' ? samples.reverse() : samples;
 }
 
 function drawVisualizerFrame() {
@@ -1381,30 +1446,35 @@ function drawVisualizerFrame() {
   const currentTime = audio?.currentTime || 0;
   const durationSeconds = currentTrack?.durationSeconds || currentTrack?.duration || audio?.duration || 0;
   const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
-  const envelope = getTrackWaveformEnvelope(currentTrack);
   const laneCount = Math.min(visualizerLeftBars.length, visualizerRightBars.length);
-  const leftSamples = envelope ? buildVisualizerLaneSamples(currentTrack, progress, laneCount, 'left') : [];
-  const rightSamples = envelope ? buildVisualizerLaneSamples(currentTrack, progress, laneCount, 'right') : [];
 
-  const fallbackBeat = (Date.now() % 1400) / 1400;
+  if (visualizerAudioContext && visualizerAudioContext.state === 'suspended' && audio && !audio.paused) {
+    visualizerAudioContext.resume().catch(() => {});
+  }
+
+  const leftSamples = !visualizerUseFallback ? buildAnalyserSpectrumSamples(laneCount, 'left') : buildFallbackSpectrumSamples(currentTrack, progress, laneCount, 'left');
+  const rightSamples = !visualizerUseFallback ? buildAnalyserSpectrumSamples(laneCount, 'right') : buildFallbackSpectrumSamples(currentTrack, progress, laneCount, 'right');
+
+  const fallbackBeat = (Date.now() % 1800) / 1800;
 
   const renderLane = (bars, samples, side) => {
     for (let i = 0; i < bars.length; i += 1) {
       const bar = bars[i];
-      const sample = samples[i] ?? (0.18 + (0.16 * Math.sin((fallbackBeat * Math.PI * 2) + (i * 0.35))));
+      const synthetic = 0.08 + (0.08 * Math.sin((fallbackBeat * Math.PI * 2) + (i * 0.28) + (side === 'left' ? 0 : 0.85)));
+      const sample = samples[i] ?? synthetic;
       const energy = Math.max(0, Math.min(1, sample));
-      const eased = Math.pow(energy, 1.05);
-      const barHeight = 8 + (eased * 126);
-      const alpha = 0.28 + (eased * 0.68);
+      const eased = Math.pow(energy, 1.18);
+      const barHeight = 10 + (eased * 108);
+      const alpha = 0.26 + (eased * 0.72);
       bar.style.height = `${barHeight}px`;
       bar.style.opacity = `${alpha}`;
-      bar.style.transform = `scaleY(1)`;
+      bar.style.transform = `translateZ(0)`;
       if (side === 'left') {
-        bar.style.background = `linear-gradient(180deg, rgba(208,230,255,${alpha}) 0%, rgba(93,152,255,${alpha}) 56%, rgba(65,96,228,${alpha * 0.96}) 100%)`;
-        bar.style.boxShadow = `0 0 16px rgba(92,144,255,${0.18 + eased * 0.34})`;
+        bar.style.background = `linear-gradient(180deg, rgba(224,240,255,${alpha}) 0%, rgba(92,164,255,${alpha}) 58%, rgba(56,95,228,${Math.min(1, alpha * 0.98)}) 100%)`;
+        bar.style.boxShadow = `0 0 14px rgba(87,146,255,${0.16 + eased * 0.30})`;
       } else {
-        bar.style.background = `linear-gradient(180deg, rgba(233,219,255,${alpha}) 0%, rgba(168,106,255,${alpha}) 56%, rgba(92,76,223,${alpha * 0.96}) 100%)`;
-        bar.style.boxShadow = `0 0 16px rgba(162,106,255,${0.18 + eased * 0.34})`;
+        bar.style.background = `linear-gradient(180deg, rgba(240,225,255,${alpha}) 0%, rgba(177,109,255,${alpha}) 58%, rgba(95,73,224,${Math.min(1, alpha * 0.98)}) 100%)`;
+        bar.style.boxShadow = `0 0 14px rgba(168,105,255,${0.16 + eased * 0.30})`;
       }
     }
   };
@@ -2326,6 +2396,7 @@ function playTrack(track) {
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
 
   stopLyricsSyncLoop();
+  els.audioPlayer.crossOrigin = 'anonymous';
   els.audioPlayer.src = track.src;
   pendingResumeSeek = track.src === resumeTrackSrc && resumeTrackTime > 1 ? resumeTrackTime : null;
   const applyResumeSeek = () => {

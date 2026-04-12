@@ -1,0 +1,6 @@
+v42.7.2
+Spectrum visualizer rescue pass
+
+- switched player visualizer from broken waveform bars to spectrum-style analyzer bars
+- kept split left/right layout without mirroring identical shapes
+- nudged artwork toward center
