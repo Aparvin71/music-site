@@ -1,4 +1,4 @@
-/* v43.1.8 true spectrum clean package */
+/* v43.1.9 album contrast + quieter offline hint + spectrum energy polish */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1358,6 +1358,7 @@ function getSpectrumState(track, currentTime, durationSeconds) {
   const previousEnergy = envelope ? (sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy) : localEnergy;
   const nextEnergy = envelope ? (sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy) : localEnergy;
   const transient = Math.max(0, nextEnergy - previousEnergy);
+  const beatPulse = Math.max(0, (localEnergy - previousEnergy) * 1.45 + transient * 1.9);
   const phraseLift = envelope ? (sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy) : localEnergy;
 
   const frames = getTrackSpectrumFrames(track);
@@ -1376,10 +1377,13 @@ function getSpectrumState(track, currentTime, durationSeconds) {
         let value = a + (b - a) * mix;
         if (envelope) {
           const bandT = index / Math.max(1, bandCount - 1);
-          const energyBoost = 0.90 + localEnergy * 0.40;
-          const transientBoost = transient * (0.08 + bandT * 0.18);
-          const phraseBoost = phraseLift * (0.04 + (1 - Math.abs(bandT - 0.42) / 0.42) * 0.08);
-          value = Math.min(1, value * energyBoost + transientBoost + Math.max(0, phraseBoost || 0));
+          const centerWeight = 1 - Math.min(1, Math.abs(bandT - 0.5) / 0.5);
+          const edgeWeight = 1 - centerWeight;
+          const energyBoost = 0.88 + localEnergy * 0.50;
+          const transientBoost = transient * (0.12 + edgeWeight * 0.14);
+          const beatBoost = beatPulse * (0.10 + centerWeight * 0.22);
+          const phraseBoost = phraseLift * (0.05 + (1 - Math.abs(bandT - 0.42) / 0.42) * 0.10);
+          value = Math.min(1, value * energyBoost + transientBoost + beatBoost + Math.max(0, phraseBoost || 0));
         }
         return Math.max(0.02, Math.min(1, value));
       });
@@ -1399,16 +1403,16 @@ function getSpectrumState(track, currentTime, durationSeconds) {
   }
 
   if (!envelope || !durationSeconds) return null;
-  const bass = Math.min(1, 0.04 + localEnergy * 0.86 + transient * 0.36);
-  const mids = Math.min(1, 0.04 + localEnergy * 0.64 + phraseLift * 0.14 + transient * 0.14);
-  const treble = Math.min(1, 0.02 + localEnergy * 0.24 + transient * 0.42);
+  const bass = Math.min(1, 0.05 + localEnergy * 0.92 + transient * 0.42 + beatPulse * 0.12);
+  const mids = Math.min(1, 0.05 + localEnergy * 0.70 + phraseLift * 0.16 + transient * 0.16 + beatPulse * 0.10);
+  const treble = Math.min(1, 0.03 + localEnergy * 0.28 + transient * 0.46 + beatPulse * 0.06);
   const bands = new Array(VISUALIZER_BAR_COUNT).fill(0).map((_, index) => {
     const progress = index / Math.max(1, VISUALIZER_BAR_COUNT - 1);
     const offset = (progress - 0.5) * 0.10;
     const scan = Math.max(0, Math.min(0.999999, timelinePosition + offset));
     const value = sampleTrackWaveformAt(track, scan) || 0;
-    const contour = 0.80 + Math.sin(progress * Math.PI) * 0.20;
-    return Math.max(0.02, Math.min(1, value * contour + transient * 0.10));
+    const contour = 0.90 + Math.sin(progress * Math.PI) * 0.10;
+    return Math.max(0.02, Math.min(1, value * contour + transient * 0.12 + beatPulse * 0.10));
   });
   return { bands, bass, mids, treble, fromSpectrumFrames: false, frameDensity: 0 };
 }
@@ -1433,7 +1437,7 @@ function drawVisualizerFrame() {
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
-  const lineInset = Math.max(6, width * 0.04);
+  const lineInset = Math.max(10, width * 0.065);
   const usableWidth = Math.max(120, width - (lineInset * 2));
   const step = usableWidth / Math.max(1, spectrumState.bands.length - 1);
   const maxHalfHeight = Math.max(26, height * 0.19 + bass * 16 + mids * 10);
@@ -1473,8 +1477,9 @@ function drawVisualizerFrame() {
     const value = Math.max(0.035, Math.min(1, band));
     const x = lineInset + (step * index);
     const mirroredIndex = Math.abs(index - ((spectrumState.bands.length - 1) / 2));
-    const edgeTaper = 0.74 + (1 - (mirroredIndex / Math.max(1, spectrumState.bands.length / 2))) * 0.26;
-    const halfHeight = Math.max(5, value * maxHalfHeight * edgeTaper);
+    const centerBias = 1 - (mirroredIndex / Math.max(1, spectrumState.bands.length / 2));
+    const spreadGain = 0.88 + Math.max(0, centerBias) * 0.12;
+    const halfHeight = Math.max(5, value * maxHalfHeight * spreadGain);
     const barWidth = Math.max(2, step * 0.44);
     const barGradient = ctx.createLinearGradient(x, centerY - halfHeight, x, centerY + halfHeight);
     barGradient.addColorStop(0, 'rgba(204, 226, 255, 0.98)');
@@ -1498,7 +1503,7 @@ function drawVisualizerFrame() {
     const barEl = visualizerBars[index];
     if (barEl) {
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.42 + value * 0.46}`;
+      barEl.style.opacity = `${0.46 + value * 0.44}`;
       barEl.style.transform = `translateY(0) scaleY(1)`;
     }
   });

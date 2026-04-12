@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.8-dark-text-visibility-sweep";
+const CACHE_VERSION = "v43.1.9-album-contrast-offline-hint-spectrum-polish";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

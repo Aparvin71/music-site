@@ -1,5 +1,7 @@
-const AINEO_APP_VERSION = "v43.1.8";
+const AINEO_APP_VERSION = "v43.1.9";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
+const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
+let offlineHintTimer = null;
 let deferredInstallPrompt = null;
 
 const APP_FEEL_SETTINGS_KEY = "aineo_app_feel_settings";
@@ -73,8 +75,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.8</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a stable true-spectrum visualizer driven by precomputed multi-band track data, cleaner package housekeeping, and quieter web behavior without background refresh prompts.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.9</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on album text contrast fixes, a quieter offline-tip experience, and a more centered, more energetic spectrum visualizer while keeping the working audio path stable.</p>
         </section>
       </div>
     </div>
@@ -165,10 +167,30 @@ function renderOfflineHintCard() {
       <button type="button" class="control-btn" data-dismiss-offline-hint aria-label="Dismiss offline tip">✕</button>
     `;
     document.body.appendChild(card);
-    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => card.classList.add("hidden"));
+    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => {
+      try { localStorage.setItem(OFFLINE_HINT_DISMISSED_KEY, AINEO_APP_VERSION); } catch (error) {}
+      card.classList.add("hidden");
+      if (offlineHintTimer) {
+        window.clearTimeout(offlineHintTimer);
+        offlineHintTimer = null;
+      }
+    });
   }
-  const standalonePreferred = isStandalone() || isIosSafari();
-  card.classList.toggle("hidden", !standalonePreferred);
+
+  const dismissed = localStorage.getItem(OFFLINE_HINT_DISMISSED_KEY) === AINEO_APP_VERSION;
+  const shouldShow = !isStandalone() && isIosSafari() && !dismissed;
+  card.classList.toggle("hidden", !shouldShow);
+
+  if (offlineHintTimer) {
+    window.clearTimeout(offlineHintTimer);
+    offlineHintTimer = null;
+  }
+  if (shouldShow) {
+    offlineHintTimer = window.setTimeout(() => {
+      card.classList.add("hidden");
+      offlineHintTimer = null;
+    }, 5200);
+  }
 }
 
 function initPageMotionHooks() {
@@ -305,7 +327,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.8";
+const APP_RUNTIME_VERSION = "v43.1.9";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

@@ -1,0 +1,10 @@
+v43.1.9 — Album Contrast + Offline Hint + Spectrum Polish
+
+This build layers the following onto the working v43.1.8 base:
+
+- fixed dark album titles on album cards
+- fixed dark totals/text inside the Album Highlights card
+- softened offline listening tips so they do not keep returning like a persistent popup
+- centered the spectrum visualizer more evenly around the artwork
+- increased spectrum punch and responsiveness for a livelier beat feel
+- aligned page, runtime, config, and cache version markers to v43.1.9

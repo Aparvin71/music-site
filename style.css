@@ -10163,7 +10163,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -34px;
-  transform: translate3d(13px, -12px, 0) scale(0.994);
+  transform: translate3d(0, -8px, 0) scale(0.996);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(13px, -12px, 0) scale(1.025);
+  transform: translate3d(0, -8px, 0) scale(1.02);
 }
 
 .player-cover-visualizer::before,
@@ -10236,7 +10236,7 @@ button:active{
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 22px -8px;
+  inset: 20px 0;
   display: grid;
   align-items: center;
   pointer-events: none;
@@ -10301,9 +10301,9 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -22px; transform: translate3d(9px, -9px, 0) scale(0.992); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(9px, -9px, 0) scale(1.018); }
-  .player-cover-visualizer-bars { inset: 14px -10px; }
+  .player-cover-visualizer { inset: -22px; transform: translate3d(0, -6px, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(0, -6px, 0) scale(1.014); }
+  .player-cover-visualizer-bars { inset: 14px 0; }
   .player-cover-visualizer-bar { width: 2px; }
 }
 
@@ -12365,4 +12365,34 @@ body.ios-standalone .player-sheet-header::before {
 .queue-panel p,
 .queue-panel li {
   color: #d7deea;
+}
+
+
+/* v43.1.9 album contrast + visualizer centering polish */
+.catalog-card-copy h2,
+.catalog-card-copy h3,
+.catalog-card-copy .eyebrow,
+.catalog-card-copy strong,
+.albums-page-grid .catalog-card h2,
+.albums-page-grid .catalog-card h3,
+.albums-page-grid .catalog-card p,
+.albums-page-grid .catalog-card .eyebrow,
+.albums-page-hero .featured-stat-pill,
+.albums-page-hero .featured-stat-pill strong,
+.albums-page-hero .featured-stat-pill span,
+.album-highlight-pill,
+.album-highlight-pill strong,
+.album-highlight-pill span,
+.album-page-info-card .album-highlight-pill strong,
+.album-page-info-card .album-highlight-pill span {
+  color: #f4f4f4 !important;
+  -webkit-text-fill-color: #f4f4f4 !important;
+}
+
+.catalog-card-copy p,
+.albums-page-grid .catalog-card p,
+.albums-page-hero .featured-stat-pill span,
+.album-highlight-pill span {
+  color: #d7deea !important;
+  -webkit-text-fill-color: #d7deea !important;
 }
