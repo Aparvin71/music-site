@@ -112,16 +112,21 @@ def canonical_match_key(text: str) -> str:
 
 
 def slugify(text: str) -> str:
-    text = canonical_match_key(text)
+    text = normalize_text(text)
+    text = BAD_UNICODE_MARKER_RE.sub("'", text)
+    text = text.replace("&", " and ")
+    text = text.replace("'", "")
     text = re.sub(r"^\d+[-_.\s]*", "", text)
-    return text.replace(" ", "-").strip("-")
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    text = re.sub(r"-+", "-", text)
+    return text.strip("-")
 
 
 
 def encode_url_path_component(file_name: str) -> str:
-    cleaned = normalize_text(file_name)
-    cleaned = cleaned.replace("\\", "/")
-    return quote(cleaned, safe="")
+    raw = str(file_name or "").replace("\\", "/")
+    return quote(raw, safe="")
 
 
 
@@ -767,6 +772,8 @@ def main() -> None:
         album_meta = get_album_meta(album)
         album_zip = get_album_zip(album)
         existing_cover = find_existing_cover(slug)
+        if not existing_cover and isinstance(existing_track, dict) and existing_track.get("cover"):
+            existing_cover = Path(str(existing_track.get("cover"))).name
         extracted_cover = existing_cover or extract_cover_art(file, slug)
 
         track: dict[str, Any] = {

@@ -1,0 +1,7 @@
+v43.1.7 — Quote-Safe Asset Mapping Repair
+
+- merged newest regenerated tracks.json and track-build-cache.json
+- repaired quote and curly-quote audio URL mapping from exact cache filenames
+- preserved known-good cover URL mappings from the prior stable package for matching tracks
+- updated make_tracks.py and tools/make_tracks.py for exact audio filename encoding and quote-safe cover slugs
+- aligned page, runtime, cache, and changelog version markers to v43.1.7
