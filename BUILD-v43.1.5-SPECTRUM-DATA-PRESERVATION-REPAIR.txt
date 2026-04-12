@@ -1,0 +1,11 @@
+v43.1.5 Spectrum Data Preservation Repair
+
+Root cause fixed:
+The front-end normalizer removed spectrum_frames and waveform_envelope when tracks.json loaded, so the visualizer never received the generated data.
+
+Repairs:
+- Updated aineo-data.js normalizeTrack() to preserve waveform_envelope, waveform_ring_preview, and spectrum_frames
+- Updated app.js fallback normalizeTrack() with the same preservation logic
+- Retained apostrophe asset URL fixes from v43.1.3
+- Retained regenerated tracks.json and track-build-cache.json
+- Version sweep to v43.1.5 across package markers

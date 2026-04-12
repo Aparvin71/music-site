@@ -54,7 +54,12 @@
       date_added: track.date_added || track.added_at || "",
       search_keywords: normalizeStringArray(track.search_keywords || track.searchKeywords),
       has_lyrics: Boolean(track.has_lyrics || track.lyrics || track.lyrics_file),
-      has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length)
+      has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length),
+      waveform_envelope: Array.isArray(track.waveform_envelope) ? track.waveform_envelope.map(v => Number(v) || 0) : [],
+      waveform_ring_preview: Array.isArray(track.waveform_ring_preview) ? track.waveform_ring_preview.map(v => Number(v) || 0) : [],
+      spectrum_frames: Array.isArray(track.spectrum_frames)
+        ? track.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
+        : []
     };
   }
 

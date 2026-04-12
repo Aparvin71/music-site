@@ -1,4 +1,4 @@
-/* v43.1.4 spectrum hookup repair package */
+/* v43.1.5 true spectrum clean package */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -33,7 +33,6 @@ let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
 let visualizerTick = 0;
-let visualizerBandState = [];
 const VISUALIZER_BAR_COUNT = 24;
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -421,7 +420,12 @@ const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
         scripture_references: scriptureRefs,
         trackNumber: track.trackNumber || track.track || "",
         description: track.description || "",
-        album_zip: track.album_zip || ""
+        album_zip: track.album_zip || "",
+        waveform_envelope: Array.isArray(track.waveform_envelope) ? track.waveform_envelope.map(v => Number(v) || 0) : [],
+        waveform_ring_preview: Array.isArray(track.waveform_ring_preview) ? track.waveform_ring_preview.map(v => Number(v) || 0) : [],
+        spectrum_frames: Array.isArray(track.spectrum_frames)
+          ? track.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
+          : []
       };
     };
 
@@ -931,7 +935,6 @@ function bindUI() {
     els.audioPlayer.addEventListener("timeupdate", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
-      drawVisualizerFrame();
       const current = getCurrentTrack();
       const now = Date.now();
       if (current && now - lastResumePersistAt > 2500) {
@@ -945,13 +948,11 @@ function bindUI() {
       window.requestAnimationFrame(() => updateSyncedLyricsProgress());
       updateMediaSessionPositionState();
       syncCurrentPlaybackHighlights();
-      drawVisualizerFrame();
     });
     els.audioPlayer.addEventListener("play", () => {
       stopPreviewAudio();
       updatePlayButton();
       updateMediaSessionPlaybackState();
-      drawVisualizerFrame();
       setMiniVisualizerActive(true);
       savePlayerState();
       updateSyncedLyricsProgress();
@@ -960,9 +961,7 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("playing", () => {
       updateSyncedLyricsProgress();
-      drawVisualizerFrame();
       startLyricsSyncLoop();
-      startVisualizerAnimation();
     });
     els.audioPlayer.addEventListener("pause", () => {
       updatePlayButton();
@@ -972,15 +971,10 @@ function bindUI() {
       stopLyricsSyncLoop();
       syncCurrentPlaybackHighlights();
     });
-    els.audioPlayer.addEventListener("seeking", () => {
-      updateSyncedLyricsProgress();
-      drawVisualizerFrame();
-    });
+    els.audioPlayer.addEventListener("seeking", updateSyncedLyricsProgress);
     els.audioPlayer.addEventListener("seeked", () => {
       updateSyncedLyricsProgress();
-      drawVisualizerFrame();
       startLyricsSyncLoop();
-      startVisualizerAnimation();
     });
     els.audioPlayer.addEventListener("ended", () => {
       stopLyricsSyncLoop();
@@ -1341,21 +1335,8 @@ function getTrackSpectrumFrames(track) {
   return track.spectrum_frames;
 }
 
-function resolveTrackForVisualizer(track) {
-  if (!track) return null;
-  if (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length) return track;
-  const byId = track.id ? tracks.find(item => item.id === track.id) : null;
-  if (byId && Array.isArray(byId.spectrum_frames) && byId.spectrum_frames.length) return byId;
-  const bySrc = track.src ? tracks.find(item => item.src === track.src) : null;
-  if (bySrc && Array.isArray(bySrc.spectrum_frames) && bySrc.spectrum_frames.length) return bySrc;
-  const normalizedTitle = (track.title || '').trim().toLowerCase();
-  const byTitle = normalizedTitle ? tracks.find(item => (item.title || '').trim().toLowerCase() === normalizedTitle) : null;
-  if (byTitle && Array.isArray(byTitle.spectrum_frames) && byTitle.spectrum_frames.length) return byTitle;
-  return byId || bySrc || byTitle || track;
-}
-
 function sampleTrackWaveformAt(track, normalizedPosition) {
-  const envelope = getTrackWaveformEnvelope(resolvedTrack || track);
+  const envelope = getTrackWaveformEnvelope(track);
   if (!envelope) return null;
   const clamped = Math.max(0, Math.min(1, normalizedPosition || 0));
   if (envelope.length === 1) return (envelope[0] || 0) / 255;
@@ -1369,8 +1350,7 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
 }
 
 function getSpectrumState(track, currentTime, durationSeconds) {
-  const resolvedTrack = resolveTrackForVisualizer(track);
-  const frames = getTrackSpectrumFrames(resolvedTrack);
+  const frames = getTrackSpectrumFrames(track);
   if (frames && frames.length && durationSeconds) {
     const clamped = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
     const framePos = clamped * (frames.length - 1);
@@ -1429,9 +1409,9 @@ function drawVisualizerFrame() {
   const ctx = visualizerCtx;
   ctx.clearRect(0, 0, width, height);
 
-  const currentTrack = resolveTrackForVisualizer(getCurrentTrack());
+  const currentTrack = getCurrentTrack();
   const currentTime = els.audioPlayer?.currentTime || 0;
-  const durationSeconds = currentTrack?.duration_seconds || (Number.isFinite(els.audioPlayer?.duration) ? els.audioPlayer.duration : 0) || 0;
+  const durationSeconds = currentTrack?.duration_seconds || els.audioPlayer?.duration || 0;
   const spectrumState = getSpectrumState(currentTrack, currentTime, durationSeconds);
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
@@ -1443,7 +1423,7 @@ function drawVisualizerFrame() {
   const lineInset = Math.max(6, width * 0.04);
   const usableWidth = Math.max(120, width - (lineInset * 2));
   const step = usableWidth / Math.max(1, spectrumState.bands.length - 1);
-  const maxHalfHeight = Math.max(34, height * 0.24 + bass * 22 + mids * 14 + treble * 8);
+  const maxHalfHeight = Math.max(26, height * 0.19 + bass * 16 + mids * 10);
 
   const outerGlow = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
   outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.10 + bass * 0.10})`);
@@ -1477,15 +1457,11 @@ function drawVisualizerFrame() {
   ctx.stroke();
 
   spectrumState.bands.forEach((band, index) => {
-    const boosted = Math.pow(Math.max(0, Math.min(1, band)), 0.82);
-    const value = Math.max(0.08, Math.min(1, boosted * 1.18));
+    const value = Math.max(0.035, Math.min(1, band));
     const x = lineInset + (step * index);
     const mirroredIndex = Math.abs(index - ((spectrumState.bands.length - 1) / 2));
     const edgeTaper = 0.74 + (1 - (mirroredIndex / Math.max(1, spectrumState.bands.length / 2))) * 0.26;
-    const targetHalfHeight = Math.max(7, value * maxHalfHeight * edgeTaper);
-    const previousHalfHeight = visualizerBandState[index] || 0;
-    const halfHeight = previousHalfHeight + (targetHalfHeight - previousHalfHeight) * 0.45;
-    visualizerBandState[index] = halfHeight;
+    const halfHeight = Math.max(5, value * maxHalfHeight * edgeTaper);
     const barWidth = Math.max(2, step * 0.44);
     const barGradient = ctx.createLinearGradient(x, centerY - halfHeight, x, centerY + halfHeight);
     barGradient.addColorStop(0, 'rgba(204, 226, 255, 0.98)');
@@ -1509,7 +1485,7 @@ function drawVisualizerFrame() {
     const barEl = visualizerBars[index];
     if (barEl) {
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.58 + value * 0.34}`;
+      barEl.style.opacity = `${0.42 + value * 0.46}`;
       barEl.style.transform = `translateY(0) scaleY(1)`;
     }
   });
@@ -1517,7 +1493,7 @@ function drawVisualizerFrame() {
 
 function startVisualizerAnimation() {
 
-  if (visualizerFrame || !visualizerBars.length || !els.audioPlayer) return;
+  if (visualizerFrame || !visualizerBars.length) return;
   ensureVisualizerAudioSetup();
   if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
     visualizerAudioContext.resume().catch(() => {});
