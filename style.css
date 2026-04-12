@@ -10240,7 +10240,7 @@ button:active{
   display: grid;
   align-items: center;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.18;
 }
 
 .player-cover-visualizer-bar {
@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.9 album contrast + visualizer centering polish */
+/* v43.1.10 split-wing spectrum beat polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12396,3 +12396,5 @@ body.ios-standalone .player-sheet-header::before {
   color: #d7deea !important;
   -webkit-text-fill-color: #d7deea !important;
 }
+
+/* v43.1.10 spectrum split-wing beat polish */

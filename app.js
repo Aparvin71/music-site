@@ -1,4 +1,4 @@
-/* v43.1.9 album contrast + quieter offline hint + spectrum energy polish */
+/* v43.1.10 split-wing spectrum beat polish */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -34,6 +34,7 @@ let visualizerFrame = 0;
 let visualizerBars = [];
 let visualizerTick = 0;
 const VISUALIZER_BAR_COUNT = 24;
+let visualizerRenderedBands = [];
 let visualizerCanvas = null;
 let visualizerCtx = null;
 let visualizerAudioContext = null;
@@ -1396,6 +1397,10 @@ function getSpectrumState(track, currentTime, durationSeconds) {
         bass: avg(bassSlice),
         mids: avg(midSlice),
         treble: avg(highSlice),
+        localEnergy,
+        transient,
+        beatPulse,
+        phraseLift,
         fromSpectrumFrames: true,
         frameDensity,
       };
@@ -1414,7 +1419,7 @@ function getSpectrumState(track, currentTime, durationSeconds) {
     const contour = 0.90 + Math.sin(progress * Math.PI) * 0.10;
     return Math.max(0.02, Math.min(1, value * contour + transient * 0.12 + beatPulse * 0.10));
   });
-  return { bands, bass, mids, treble, fromSpectrumFrames: false, frameDensity: 0 };
+  return { bands, bass, mids, treble, localEnergy, transient, beatPulse, phraseLift, fromSpectrumFrames: false, frameDensity: 0 };
 }
 
 function drawVisualizerFrame() {
@@ -1437,10 +1442,17 @@ function drawVisualizerFrame() {
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
+  const localEnergy = spectrumState.localEnergy || 0;
+  const transient = spectrumState.transient || 0;
+  const beatPulse = spectrumState.beatPulse || 0;
   const lineInset = Math.max(10, width * 0.065);
-  const usableWidth = Math.max(120, width - (lineInset * 2));
-  const step = usableWidth / Math.max(1, spectrumState.bands.length - 1);
-  const maxHalfHeight = Math.max(26, height * 0.19 + bass * 16 + mids * 10);
+  const coverGap = Math.max(104, Math.min(width * 0.42, height * 0.72));
+  const leftStart = lineInset;
+  const leftEnd = Math.max(leftStart + 36, centerX - (coverGap / 2));
+  const rightStart = Math.min(width - lineInset - 36, centerX + (coverGap / 2));
+  const rightEnd = width - lineInset;
+  const sideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
+  const maxHalfHeight = Math.max(28, height * 0.20 + bass * 18 + mids * 12 + beatPulse * 10);
 
   const outerGlow = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
   outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.10 + bass * 0.10})`);
@@ -1455,58 +1467,100 @@ function drawVisualizerFrame() {
   ctx.shadowBlur = 34;
   ctx.shadowColor = 'rgba(122, 154, 255, 0.85)';
   ctx.beginPath();
-  ctx.moveTo(lineInset, centerY);
-  ctx.lineTo(width - lineInset, centerY);
+  ctx.moveTo(leftStart, centerY);
+  ctx.lineTo(leftEnd, centerY);
+  ctx.moveTo(rightStart, centerY);
+  ctx.lineTo(rightEnd, centerY);
   ctx.stroke();
   ctx.restore();
 
-  const lineGradient = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
-  lineGradient.addColorStop(0, 'rgba(186, 214, 255, 0.92)');
-  lineGradient.addColorStop(0.28, 'rgba(104, 156, 255, 0.98)');
-  lineGradient.addColorStop(0.58, 'rgba(126, 110, 255, 0.98)');
-  lineGradient.addColorStop(1, 'rgba(198, 134, 255, 0.90)');
-  ctx.strokeStyle = lineGradient;
-  ctx.lineWidth = 1.3;
-  ctx.globalAlpha = 0.8;
+  const lineGradientLeft = ctx.createLinearGradient(leftStart, centerY, leftEnd, centerY);
+  lineGradientLeft.addColorStop(0, 'rgba(186, 214, 255, 0.86)');
+  lineGradientLeft.addColorStop(1, 'rgba(126, 110, 255, 0.98)');
+  ctx.strokeStyle = lineGradientLeft;
+  ctx.lineWidth = 1.35;
+  ctx.globalAlpha = 0.84;
   ctx.beginPath();
-  ctx.moveTo(lineInset, centerY);
-  ctx.lineTo(width - lineInset, centerY);
+  ctx.moveTo(leftStart, centerY);
+  ctx.lineTo(leftEnd, centerY);
   ctx.stroke();
 
-  spectrumState.bands.forEach((band, index) => {
-    const value = Math.max(0.035, Math.min(1, band));
-    const x = lineInset + (step * index);
-    const mirroredIndex = Math.abs(index - ((spectrumState.bands.length - 1) / 2));
-    const centerBias = 1 - (mirroredIndex / Math.max(1, spectrumState.bands.length / 2));
-    const spreadGain = 0.88 + Math.max(0, centerBias) * 0.12;
-    const halfHeight = Math.max(5, value * maxHalfHeight * spreadGain);
-    const barWidth = Math.max(2, step * 0.44);
+  const lineGradientRight = ctx.createLinearGradient(rightStart, centerY, rightEnd, centerY);
+  lineGradientRight.addColorStop(0, 'rgba(126, 110, 255, 0.98)');
+  lineGradientRight.addColorStop(1, 'rgba(198, 134, 255, 0.90)');
+  ctx.strokeStyle = lineGradientRight;
+  ctx.beginPath();
+  ctx.moveTo(rightStart, centerY);
+  ctx.lineTo(rightEnd, centerY);
+  ctx.stroke();
+
+  const leftBands = spectrumState.bands.slice(0, sideBandCount);
+  const rightBands = spectrumState.bands.slice(spectrumState.bands.length - sideBandCount);
+  const leftStep = (leftEnd - leftStart) / Math.max(1, sideBandCount - 1);
+  const rightStep = (rightEnd - rightStart) / Math.max(1, sideBandCount - 1);
+  const totalBarCount = sideBandCount * 2;
+  if (!visualizerRenderedBands.length || visualizerRenderedBands.length !== totalBarCount) {
+    visualizerRenderedBands = new Array(totalBarCount).fill(0);
+  }
+
+  const drawSideBand = (band, sideIndex, side, x, totalIndex) => {
+    const normalizedSide = sideBandCount <= 1 ? 0 : sideIndex / (sideBandCount - 1);
+    const inwardBias = side === 'left' ? normalizedSide : (1 - normalizedSide);
+    const outwardBias = 1 - inwardBias;
+    const beatAccent = beatPulse * (0.22 + inwardBias * 0.30) + transient * (0.18 + outwardBias * 0.14) + localEnergy * 0.08;
+    const liveValue = Math.max(0.04, Math.min(1, band * (1.02 + beatAccent * 0.28) + beatAccent));
+    const previousValue = visualizerRenderedBands[totalIndex] || 0;
+    const smoothedValue = liveValue >= previousValue
+      ? (previousValue * 0.22) + (liveValue * 0.78)
+      : (previousValue * 0.76) + (liveValue * 0.24);
+    visualizerRenderedBands[totalIndex] = smoothedValue;
+
+    const spreadGain = 0.92 + inwardBias * 0.18 + beatPulse * 0.06;
+    const halfHeight = Math.max(6, smoothedValue * maxHalfHeight * spreadGain);
+    const barWidth = Math.max(2.5, Math.min(5, (side === 'left' ? leftStep : rightStep) * 0.34));
     const barGradient = ctx.createLinearGradient(x, centerY - halfHeight, x, centerY + halfHeight);
-    barGradient.addColorStop(0, 'rgba(204, 226, 255, 0.98)');
-    barGradient.addColorStop(0.18, 'rgba(132, 176, 255, 0.98)');
-    barGradient.addColorStop(0.55, 'rgba(104, 114, 255, 0.96)');
-    barGradient.addColorStop(1, 'rgba(188, 126, 255, 0.96)');
+    barGradient.addColorStop(0, 'rgba(214, 232, 255, 0.99)');
+    barGradient.addColorStop(0.18, 'rgba(132, 176, 255, 0.99)');
+    barGradient.addColorStop(0.55, 'rgba(104, 114, 255, 0.97)');
+    barGradient.addColorStop(1, 'rgba(196, 132, 255, 0.96)');
 
     ctx.save();
     ctx.strokeStyle = barGradient;
     ctx.lineWidth = barWidth;
     ctx.lineCap = 'round';
-    ctx.globalAlpha = 0.95;
-    ctx.shadowBlur = 16;
-    ctx.shadowColor = index % 2 === 0 ? 'rgba(110, 156, 255, 0.72)' : 'rgba(170, 112, 255, 0.66)';
+    ctx.globalAlpha = 0.97;
+    ctx.shadowBlur = 18 + smoothedValue * 10;
+    ctx.shadowColor = sideIndex % 2 === 0 ? 'rgba(110, 156, 255, 0.78)' : 'rgba(170, 112, 255, 0.72)';
     ctx.beginPath();
     ctx.moveTo(x, centerY - halfHeight);
     ctx.lineTo(x, centerY + halfHeight);
     ctx.stroke();
     ctx.restore();
 
-    const barEl = visualizerBars[index];
+    const barEl = visualizerBars[totalIndex];
     if (barEl) {
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.46 + value * 0.44}`;
-      barEl.style.transform = `translateY(0) scaleY(1)`;
+      barEl.style.opacity = `${0.52 + smoothedValue * 0.40}`;
+      barEl.style.transform = 'translateY(0) scaleY(1)';
     }
+  };
+
+  leftBands.forEach((band, sideIndex) => {
+    const x = leftStart + (leftStep * sideIndex);
+    drawSideBand(band, sideIndex, 'left', x, sideIndex);
   });
+  rightBands.forEach((band, sideIndex) => {
+    const x = rightStart + (rightStep * sideIndex);
+    drawSideBand(band, sideIndex, 'right', x, sideBandCount + sideIndex);
+  });
+
+  for (let index = totalBarCount; index < visualizerBars.length; index += 1) {
+    const barEl = visualizerBars[index];
+    if (barEl) {
+      barEl.style.height = '0px';
+      barEl.style.opacity = '0';
+    }
+  }
 }
 
 function startVisualizerAnimation() {
