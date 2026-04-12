@@ -1,0 +1,10 @@
+v43.1.4 spectrum hookup repair package
+
+Included:
+- strengthened front-end visualizer hookup to prefer spectrum_frames
+- visualizer now rehydrates current track from latest tracks.json by id/src/title when needed
+- added redraw hooks on play, playing, loadedmetadata, timeupdate, seeking, and seeked
+- boosted spectrum scaling and smoothing so movement is visibly stronger
+- bumped visible page/version markers package-wide to v43.1.4
+- aligned pwa-init runtime/version markers to v43.1.4
+- kept v43.1.3 audio/art apostrophe asset fixes intact
