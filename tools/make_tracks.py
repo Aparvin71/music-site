@@ -8,6 +8,7 @@ from urllib.parse import quote
 
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
+import numpy as np
 
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
@@ -24,6 +25,11 @@ AUDIO_EXTENSIONS = {".mp3"}
 WAVEFORM_ENVELOPE_POINTS = 2048
 WAVEFORM_FFMPEG_SAMPLE_RATE = 400
 WAVEFORM_MIN_SAMPLES = 256
+SPECTRUM_FRAME_COUNT = 120
+SPECTRUM_BAND_COUNT = 24
+SPECTRUM_SAMPLE_RATE = 11025
+SPECTRUM_MIN_HZ = 40.0
+SPECTRUM_MAX_HZ = 5200.0
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
@@ -553,6 +559,107 @@ def extract_waveform_envelope(mp3_path: Path, duration_seconds: int, target_poin
     return [int(round(value * 255)) for value in smoothed]
 
 
+
+def extract_spectrum_frames(
+    mp3_path: Path,
+    frame_count: int = SPECTRUM_FRAME_COUNT,
+    band_count: int = SPECTRUM_BAND_COUNT,
+    sample_rate: int = SPECTRUM_SAMPLE_RATE,
+) -> list[list[int]]:
+    command = [
+        "ffmpeg",
+        "-v", "error",
+        "-i", str(mp3_path),
+        "-f", "s16le",
+        "-acodec", "pcm_s16le",
+        "-ac", "1",
+        "-ar", str(sample_rate),
+        "-",
+    ]
+
+    try:
+        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except FileNotFoundError:
+        print("  ffmpeg not found; skipping spectrum prerender.")
+        return []
+    except subprocess.CalledProcessError as exc:
+        error_text = exc.stderr.decode("utf-8", errors="ignore").strip()
+        print(f"  ffmpeg spectrum extraction failed for {mp3_path.name}: {error_text or exc}")
+        return []
+
+    raw = result.stdout
+    if len(raw) < 8:
+        return []
+
+    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
+    if samples.size < 2048:
+        return []
+
+    samples /= 32768.0
+    frame_count = max(24, int(frame_count or SPECTRUM_FRAME_COUNT))
+    band_count = max(8, int(band_count or SPECTRUM_BAND_COUNT))
+
+    edges = np.geomspace(SPECTRUM_MIN_HZ, min(SPECTRUM_MAX_HZ, sample_rate / 2 - 10), band_count + 1)
+    chunks = np.array_split(samples, frame_count)
+    n_fft = 2048
+    freq_axis = np.fft.rfftfreq(n_fft, d=1.0 / sample_rate)
+
+    frames: list[np.ndarray] = []
+    for chunk in chunks:
+        if chunk.size < 32:
+            frames.append(np.zeros(band_count, dtype=np.float32))
+            continue
+
+        if chunk.size < n_fft:
+            padded = np.zeros(n_fft, dtype=np.float32)
+            padded[:chunk.size] = chunk
+            windowed = padded * np.hanning(n_fft)
+        else:
+            start = max(0, (chunk.size - n_fft) // 2)
+            trimmed = chunk[start:start + n_fft]
+            if trimmed.size < n_fft:
+                padded = np.zeros(n_fft, dtype=np.float32)
+                padded[:trimmed.size] = trimmed
+                trimmed = padded
+            windowed = trimmed * np.hanning(n_fft)
+
+        spectrum = np.abs(np.fft.rfft(windowed))
+        band_values = np.zeros(band_count, dtype=np.float32)
+        for i in range(band_count):
+            start_hz = edges[i]
+            end_hz = edges[i + 1]
+            mask = (freq_axis >= start_hz) & (freq_axis < end_hz)
+            if not np.any(mask):
+                continue
+            band_slice = spectrum[mask]
+            if band_slice.size:
+                band_values[i] = float(np.sqrt(np.mean(np.square(band_slice))))
+        frames.append(band_values)
+
+    frame_matrix = np.vstack(frames)
+    if not np.any(frame_matrix):
+        return []
+
+    compression = np.power(frame_matrix, 0.6)
+    reference = np.percentile(compression, 95, axis=0)
+    reference[reference <= 1e-6] = np.max(compression) if np.max(compression) > 1e-6 else 1.0
+    normalized = np.clip(compression / reference, 0.0, 1.0)
+
+    smoothed = normalized.copy()
+    for idx in range(smoothed.shape[0]):
+        left = normalized[idx - 1] if idx > 0 else normalized[idx]
+        center = normalized[idx]
+        right = normalized[idx + 1] if idx + 1 < normalized.shape[0] else normalized[idx]
+        smoothed[idx] = left * 0.2 + center * 0.6 + right * 0.2
+
+    shaped = np.clip(np.power(smoothed, 0.82) * 1.12, 0.0, 1.0)
+    shaped[:, :3] *= 1.18
+    shaped[:, 3:8] *= 1.10
+    shaped[:, -4:] *= 0.94
+    shaped = np.clip(shaped, 0.0, 1.0)
+
+    return [[int(round(float(value) * 255)) for value in row] for row in shaped]
+
 def build_waveform_ring_preview(envelope: list[int], steps: int = 64) -> list[int]:
     if not envelope:
         return []
@@ -691,6 +798,10 @@ def main() -> None:
         if waveform_envelope:
             track["waveform_envelope"] = waveform_envelope
             track["waveform_ring_preview"] = waveform_ring
+        if spectrum_frames:
+            track["spectrum_frames"] = spectrum_frames
+            track["spectrum_band_count"] = len(spectrum_frames[0])
+            track["spectrum_frame_count"] = len(spectrum_frames)
 
 
         if album_meta.get("featured") is True:

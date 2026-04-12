@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.0.5";
+const AINEO_APP_VERSION = "v43.1.1";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 let deferredInstallPrompt = null;
 
@@ -73,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.5</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on a centered spectrum visualizer with safer playback behavior and refresh cleanup while keeping the wider blue-purple bar styling.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.1</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a stable true-spectrum visualizer driven by precomputed multi-band track data, cleaner package housekeeping, and quieter web behavior without background refresh prompts.</p>
         </section>
       </div>
     </div>
@@ -305,7 +305,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.0.3";
+const APP_RUNTIME_VERSION = "v43.1.1";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;
@@ -371,7 +371,6 @@ function ensureAppUpdateToast() {
 }
 
 function showAppUpdateToast({ title, body, primaryLabel = "Refresh now", secondaryLabel = "Later" } = {}) {
-  return null;
   const mount = ensureAppUpdateToast();
   const titleEl = mount.querySelector("#appUpdateToastTitle");
   const bodyEl = mount.querySelector("#appUpdateToastBody");
@@ -481,7 +480,6 @@ function clearAppUpdateDetectedThisSession() {
 }
 
 function markBackgroundUpdateAvailable(reason = "music library updates") {
-  return;
   appRefreshPending = true;
   appRefreshReason = reason;
   notePendingRefreshSession(reason);
@@ -554,63 +552,6 @@ async function checkForTracksJsonUpdate({ force = false } = {}) {
 
 function initBackgroundUpdateDetection() {
   return;
-  const currentPageLooksLikeApp = Boolean(document.querySelector('script[src*="app.js"], script[src*="album-page.js"], script[src*="aineo-album-page.js"]') || document.getElementById("audioPlayer"));
-  if (!currentPageLooksLikeApp) return;
-
-  const stored = (() => {
-    try { return localStorage.getItem(TRACKS_UPDATE_SIGNATURE_KEY) || ""; } catch (error) { return ""; }
-  })();
-  if (stored) lastKnownTracksSignature = stored;
-
-  if (!getLastAnnouncedAppVersion()) {
-    rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
-  }
-
-  checkForTracksJsonUpdate({ force: true });
-  if (tracksUpdateTimer) window.clearInterval(tracksUpdateTimer);
-  tracksUpdateTimer = window.setInterval(() => checkForTracksJsonUpdate(), TRACKS_UPDATE_CHECK_INTERVAL);
-
-  window.addEventListener("online", () => checkForTracksJsonUpdate({ force: true }));
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible") {
-      checkForTracksJsonUpdate({ force: true });
-      maybeAutoRefreshPendingUpdate();
-    }
-  });
-
-  const audio = getCurrentAudioPlayer();
-  if (audio && !audio.dataset.appRefreshBound) {
-    audio.dataset.appRefreshBound = "true";
-    audio.addEventListener("pause", () => { window.setTimeout(maybeAutoRefreshPendingUpdate, 250); });
-    audio.addEventListener("ended", () => { window.setTimeout(maybeAutoRefreshPendingUpdate, 250); });
-  }
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (!hasAppUpdateDetectedThisSession() || !shouldAnnounceAppUpdate()) return;
-      appRefreshPending = true;
-      appRefreshReason = "app updates";
-      notePendingRefreshSession("app updates");
-      rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
-      clearAppUpdateDetectedThisSession();
-      showAppUpdateToast({
-        title: "App update is ready",
-        body: "Aineo updated in the background. Tap Refresh now when you want to apply the newest app version."
-      });
-    });
-    navigator.serviceWorker.getRegistration().then((registration) => {
-      if (!registration) return;
-      registration.addEventListener("updatefound", () => {
-        const worker = registration.installing;
-        if (!worker) return;
-        worker.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller && shouldAnnounceAppUpdate()) {
-            markAppUpdateDetectedThisSession();
-          }
-        });
-      });
-    }).catch(() => {});
-  }
 }
 
 window.AineoAppUpdates = {
@@ -866,4 +807,4 @@ function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
 window.addEventListener("load", registerStandaloneServiceWorker);
-document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
+document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); /* background update detection disabled in v43.1.1 */ if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });

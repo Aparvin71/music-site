@@ -1,0 +1,16 @@
+Build: v43.1.1 — True Spectrum Cleanup Package
+
+Highlights
+- Folded the true-spectrum patch into the main package
+- Included regenerated tracks.json and track-build-cache.json
+- Synced page, app, and cache version markers to v43.1.1
+- Disabled background refresh prompt behavior in the web build
+- Cleaned package clutter (removed patch instructions, stale build note, pycache)
+
+Key files
+- app.js
+- style.css
+- make_tracks.py
+- tools/make_tracks.py
+- tracks.json
+- track-build-cache.json

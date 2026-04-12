@@ -12,7 +12,7 @@
   };
 
   window.AineoConfig = {
-    version: "v43.0.3",
+    version: "v43.1.1",
     assetVersion: "42.3.99",
     defaultArtist: "Allen Parvin",
     defaultAlbum: "Singles",
