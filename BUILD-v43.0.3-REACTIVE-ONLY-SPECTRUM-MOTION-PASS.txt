@@ -1,0 +1,11 @@
+Aineo Music — v43.0.3 Reactive-Only Spectrum Motion Pass
+
+What changed
+- removed the synthetic idle beat/shimmer fallback from the centered spectrum motion
+- removed the extra per-bar ripple modulation that made the bars feel constantly animated
+- left the centered line geometry, wider span, bar colors, and glow styling in place
+- updated visible app version, runtime version, and cache version markers to v43.0.3
+
+Result
+- the spectrum should now move only when reactive track data or live audio response changes
+- when reactive data is unavailable, the bars settle instead of continuing a generic animation

@@ -7,5 +7,5 @@ Changes in this build
 - kept the same cover-wrap visualizer structure and audio-reactive behavior
 
 Notes
-- this is a visual refinement pass on top of v43.0.1
+- this is a visual refinement pass on top of v43.0.3
 - no architecture swap was introduced in this pass

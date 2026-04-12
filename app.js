@@ -1,4 +1,4 @@
-/* v43.0.2 wider centered spectrum + blue-purple bars pass */
+/* v43.0.3 reactive-only spectrum motion pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1422,23 +1422,9 @@ function drawVisualizerFrame() {
     mids = avg(lowEnd, midEnd);
     treble = avg(midEnd, highEnd);
   } else {
-    const current = els.audioPlayer?.currentTime || 0;
-    const bpm = 92;
-    const beatLength = 60 / bpm;
-    const beatPosition = (current / beatLength) % 16;
-    const beatIndex = Math.floor(beatPosition) % 16;
-    const beatFraction = beatPosition - Math.floor(beatPosition);
-    const accentPattern = [1.0, 0.34, 0.56, 0.30, 0.84, 0.36, 0.52, 0.28, 0.96, 0.32, 0.60, 0.30, 0.88, 0.40, 0.58, 0.34];
-    const attack = Math.max(0, 1 - (beatFraction / 0.16));
-    const decay = Math.max(0, 1 - ((beatFraction - 0.16) / 0.48));
-    const beatEnvelope = beatFraction < 0.16 ? attack : decay * 0.78;
-    const phrasePhase = (current / (beatLength * 8)) % 1;
-    const phraseLift = 0.18 + Math.sin(phrasePhase * Math.PI) * 0.32;
-    const shimmer = 0.08 + Math.abs(Math.sin(current * 5.8 + beatIndex * 0.9)) * 0.18;
-    const beatStrength = accentPattern[beatIndex] * beatEnvelope;
-    bass = 0.10 + phraseLift * 0.22 + beatStrength * 0.88;
-    mids = 0.08 + phraseLift * 0.18 + beatStrength * 0.56 + shimmer * 0.18;
-    treble = 0.06 + phraseLift * 0.10 + beatStrength * 0.24 + shimmer * 0.42;
+    bass = 0.06;
+    mids = 0.05;
+    treble = 0.04;
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
@@ -1488,7 +1474,7 @@ function drawVisualizerFrame() {
       const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
       return Math.abs((waveformSource[sourceIndex] - 128) / 128);
     }
-    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + progress * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
+    return 0.04;
   };
 
   const bandCount = 56;
@@ -1497,8 +1483,7 @@ function drawVisualizerFrame() {
     const progress = i / Math.max(1, bandCount - 1);
     const local = Math.max(0.02, Math.min(1, sampleWave(progress)));
     const bandBias = i < bandCount * 0.28 ? bass : (i < bandCount * 0.7 ? mids : treble);
-    const ripple = 0.88 + Math.sin((visualizerTick * 0.08) + (i * 0.65)) * 0.12;
-    bars.push(Math.max(0.08, Math.min(1, local * 0.78 + bandBias * 0.34)) * ripple);
+    bars.push(Math.max(0.06, Math.min(1, local * 0.82 + bandBias * 0.28)));
   }
 
   const barMaxLength = 38 + bass * 16 + mids * 10;
