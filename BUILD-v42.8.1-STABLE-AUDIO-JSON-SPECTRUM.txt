@@ -1,0 +1,13 @@
+Aineo Music
+Build: v42.8.1 — Stable Audio + JSON Spectrum Fix
+
+This pass restores the stable audio path from the earlier working build, removes the risky analyser hookup that regressed playback, and rebuilds the player visualizer as a JSON-driven split spectrum using each track's waveform_envelope.
+
+Included:
+- Restored stable audio loading path
+- Removed audio-player crossOrigin forcing added in later passes
+- Disabled fragile MediaElementSource analyser hookup
+- Spectrum bars now read from per-track waveform_envelope data
+- Split left/right spectrum is no longer generic mirrored motion
+- Artwork nudged slightly right for better centering
+- Runtime / app / service worker versions unified to v42.8.1

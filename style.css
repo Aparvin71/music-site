@@ -10164,7 +10164,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -14px -52px;
-  transform: translate3d(10px, -2px, 0);
+  transform: translate3d(8px, -2px, 0);
   display: block;
   pointer-events: none;
   z-index: 0;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(10px, -2px, 0);
+  transform: translate3d(8px, -2px, 0);
 }
 
 .player-cover-visualizer-glow {
@@ -10228,7 +10228,7 @@ button:active{
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
-  transform: translateX(10px);
+  transform: translateX(16px);
 }
 
 @media (max-width: 640px) {
@@ -10239,7 +10239,7 @@ button:active{
   .player-cover-visualizer-lane { gap: 3px; }
   .player-cover-visualizer-bar { flex-basis: 4px; width: 4px; }
   .player-sheet-cover,
-  .player-sheet-cover-placeholder { transform: translateX(6px); }
+  .player-sheet-cover-placeholder { transform: translateX(10px); }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */
