@@ -1,4 +1,4 @@
-/* v43.1.10 split-wing spectrum beat polish */
+/* v43.1.11 spectrum right-shift snap dynamics */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1446,13 +1446,14 @@ function drawVisualizerFrame() {
   const transient = spectrumState.transient || 0;
   const beatPulse = spectrumState.beatPulse || 0;
   const lineInset = Math.max(10, width * 0.065);
-  const coverGap = Math.max(104, Math.min(width * 0.42, height * 0.72));
-  const leftStart = lineInset;
-  const leftEnd = Math.max(leftStart + 36, centerX - (coverGap / 2));
-  const rightStart = Math.min(width - lineInset - 36, centerX + (coverGap / 2));
-  const rightEnd = width - lineInset;
+  const horizontalShift = Math.max(8, Math.min(18, width * 0.035));
+  const coverGap = Math.max(108, Math.min(width * 0.40, height * 0.70));
+  const leftStart = Math.min(width * 0.5 - 56, lineInset + horizontalShift);
+  const leftEnd = Math.max(leftStart + 36, centerX - (coverGap / 2) + horizontalShift);
+  const rightStart = Math.min(width - lineInset - 36, centerX + (coverGap / 2) + horizontalShift);
+  const rightEnd = Math.min(width - lineInset, (width - lineInset) + horizontalShift);
   const sideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
-  const maxHalfHeight = Math.max(28, height * 0.20 + bass * 18 + mids * 12 + beatPulse * 10);
+  const maxHalfHeight = Math.max(30, height * 0.215 + bass * 20 + mids * 12 + beatPulse * 14 + transient * 8);
 
   const outerGlow = ctx.createLinearGradient(lineInset, centerY, width - lineInset, centerY);
   outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.10 + bass * 0.10})`);
@@ -1507,16 +1508,18 @@ function drawVisualizerFrame() {
     const normalizedSide = sideBandCount <= 1 ? 0 : sideIndex / (sideBandCount - 1);
     const inwardBias = side === 'left' ? normalizedSide : (1 - normalizedSide);
     const outwardBias = 1 - inwardBias;
-    const beatAccent = beatPulse * (0.22 + inwardBias * 0.30) + transient * (0.18 + outwardBias * 0.14) + localEnergy * 0.08;
-    const liveValue = Math.max(0.04, Math.min(1, band * (1.02 + beatAccent * 0.28) + beatAccent));
+    const beatAccent = beatPulse * (0.34 + inwardBias * 0.36) + transient * (0.26 + outwardBias * 0.22) + localEnergy * 0.10;
+    const snapBoost = beatPulse * 0.34 + transient * 0.24;
+    const liveValue = Math.max(0.04, Math.min(1, band * (1.04 + beatAccent * 0.34) + beatAccent + snapBoost));
     const previousValue = visualizerRenderedBands[totalIndex] || 0;
     const smoothedValue = liveValue >= previousValue
-      ? (previousValue * 0.22) + (liveValue * 0.78)
-      : (previousValue * 0.76) + (liveValue * 0.24);
+      ? (previousValue * 0.10) + (liveValue * 0.90)
+      : (previousValue * 0.48) + (liveValue * 0.52);
     visualizerRenderedBands[totalIndex] = smoothedValue;
 
-    const spreadGain = 0.92 + inwardBias * 0.18 + beatPulse * 0.06;
-    const halfHeight = Math.max(6, smoothedValue * maxHalfHeight * spreadGain);
+    const spreadGain = 0.94 + inwardBias * 0.20 + beatPulse * 0.10 + transient * 0.05;
+    const bounceLift = 1 + beatPulse * (0.18 + inwardBias * 0.06) + transient * 0.08;
+    const halfHeight = Math.max(6, smoothedValue * maxHalfHeight * spreadGain * bounceLift);
     const barWidth = Math.max(2.5, Math.min(5, (side === 'left' ? leftStep : rightStep) * 0.34));
     const barGradient = ctx.createLinearGradient(x, centerY - halfHeight, x, centerY + halfHeight);
     barGradient.addColorStop(0, 'rgba(214, 232, 255, 0.99)');
@@ -1540,8 +1543,8 @@ function drawVisualizerFrame() {
     const barEl = visualizerBars[totalIndex];
     if (barEl) {
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.52 + smoothedValue * 0.40}`;
-      barEl.style.transform = 'translateY(0) scaleY(1)';
+      barEl.style.opacity = `${0.58 + smoothedValue * 0.38}`;
+      barEl.style.transform = `translateY(${Math.round((beatPulse * -5) + (transient * -2))}px) scaleY(${(1 + beatPulse * 0.08).toFixed(3)})`;
     }
   };
 

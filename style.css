@@ -5833,7 +5833,7 @@ body.orientation-guard-active {
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.18;
+  opacity: 0.16;
   filter: blur(22px) saturate(1.1);
   transform: scale(1.08);
 }
@@ -10163,7 +10163,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -34px;
-  transform: translate3d(0, -8px, 0) scale(0.996);
+  transform: translate3d(12px, -8px, 0) scale(0.996);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(0, -8px, 0) scale(1.02);
+  transform: translate3d(12px, -8px, 0) scale(1.02);
 }
 
 .player-cover-visualizer::before,
@@ -10240,7 +10240,7 @@ button:active{
   display: grid;
   align-items: center;
   pointer-events: none;
-  opacity: 0.18;
+  opacity: 0.16;
 }
 
 .player-cover-visualizer-bar {
@@ -10250,7 +10250,7 @@ button:active{
   background: linear-gradient(180deg, rgba(214, 230, 255, 0.98), rgba(118, 164, 255, 0.98) 26%, rgba(98, 106, 255, 0.96) 58%, rgba(166, 112, 255, 0.72));
   box-shadow: 0 0 18px rgba(106, 154, 255, 0.84), 0 0 32px rgba(132, 110, 255, 0.38);
   align-self: center;
-  transition: height 100ms linear, opacity 100ms linear, transform 100ms linear, filter 100ms linear;
+  transition: height 72ms linear, opacity 72ms linear, transform 72ms linear, filter 72ms linear;
   filter: saturate(1.18);
   mix-blend-mode: screen;
 }
@@ -10301,8 +10301,8 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -22px; transform: translate3d(0, -6px, 0) scale(0.994); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(0, -6px, 0) scale(1.014); }
+  .player-cover-visualizer { inset: -22px; transform: translate3d(8px, -6px, 0) scale(0.994); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(8px, -6px, 0) scale(1.014); }
   .player-cover-visualizer-bars { inset: 14px 0; }
   .player-cover-visualizer-bar { width: 2px; }
 }
@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.10 split-wing spectrum beat polish */
+/* v43.1.11 spectrum right-shift snap dynamics */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,4 +12397,4 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.10 spectrum split-wing beat polish */
+/* v43.1.11 spectrum right-shift snap dynamics */
