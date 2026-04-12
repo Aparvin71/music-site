@@ -1,4 +1,4 @@
-/* v42.4.2 background update detection */
+/* v43.0.0 spectrum visualizer pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -32,8 +32,6 @@ let previewHoldTimer = null;
 let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
-let visualizerLeftBars = [];
-let visualizerRightBars = [];
 let visualizerTick = 0;
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -931,7 +929,6 @@ function bindUI() {
     els.audioPlayer.addEventListener("timeupdate", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
-      drawVisualizerFrame();
       const current = getCurrentTrack();
       const now = Date.now();
       if (current && now - lastResumePersistAt > 2500) {
@@ -975,7 +972,6 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("ended", () => {
       stopLyricsSyncLoop();
-      stopVisualizerAnimation();
       handleTrackEnded();
       syncCurrentPlaybackHighlights();
     });
@@ -1262,7 +1258,6 @@ function initSmoothHashJumps() {
 function initMiniVisualizer() {
   const wrap = els.playerSheetCoverWrap;
   if (!wrap || wrap.querySelector('.player-cover-visualizer')) return;
-
   const visualizer = document.createElement('div');
   visualizer.className = 'player-cover-visualizer';
   visualizer.setAttribute('aria-hidden', 'true');
@@ -1270,40 +1265,47 @@ function initMiniVisualizer() {
   const glow = document.createElement('div');
   glow.className = 'player-cover-visualizer-glow';
 
+  const canvas = document.createElement('canvas');
+  canvas.className = 'player-cover-visualizer-canvas';
+  visualizerCanvas = canvas;
+  visualizerCtx = canvas.getContext('2d', { alpha: true });
+
   const bars = document.createElement('div');
   bars.className = 'player-cover-visualizer-bars';
-
-  const leftLane = document.createElement('div');
-  leftLane.className = 'player-cover-visualizer-lane is-left';
-  const rightLane = document.createElement('div');
-  rightLane.className = 'player-cover-visualizer-lane is-right';
-
-  const BAR_COUNT = 20;
-  for (let i = 0; i < BAR_COUNT; i += 1) {
-    const leftBar = document.createElement('span');
-    leftBar.className = 'player-cover-visualizer-bar';
-    leftBar.dataset.side = 'left';
-    leftBar.dataset.index = String(i);
-    leftLane.appendChild(leftBar);
-
-    const rightBar = document.createElement('span');
-    rightBar.className = 'player-cover-visualizer-bar';
-    rightBar.dataset.side = 'right';
-    rightBar.dataset.index = String(i);
-    rightLane.appendChild(rightBar);
+  const barCount = 16;
+  const barsPerSide = barCount / 2;
+  for (let i = 0; i < barCount; i += 1) {
+    const bar = document.createElement('span');
+    bar.className = 'player-cover-visualizer-bar';
+    const side = i < barsPerSide ? 'left' : 'right';
+    const index = i;
+    const sideIndex = side === 'left' ? i : (i - barsPerSide);
+    bar.dataset.side = side;
+    bar.dataset.index = String(index);
+    bar.dataset.sideIndex = String(sideIndex);
+    bar.style.gridColumn = String(i + 1);
+    bar.style.height = `${18 + ((index % barsPerSide) * 4)}px`;
+    bars.appendChild(bar);
   }
 
-  bars.append(leftLane, rightLane);
-  visualizer.append(glow, bars);
+  visualizer.append(glow, canvas, bars);
   wrap.prepend(visualizer);
-
-  visualizerLeftBars = [...leftLane.children];
-  visualizerRightBars = [...rightLane.children];
-  visualizerBars = [...visualizerLeftBars, ...visualizerRightBars];
+  visualizerBars = [...bars.children];
+  resizeMiniVisualizerCanvas();
+  window.addEventListener('resize', resizeMiniVisualizerCanvas, { passive: true });
 }
 
 function resizeMiniVisualizerCanvas() {
-  return;
+  if (!visualizerCanvas || !els.playerSheetCoverWrap) return;
+  const rect = els.playerSheetCoverWrap.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const width = Math.max(220, Math.round(rect.width));
+  const height = Math.max(220, Math.round(rect.height));
+  visualizerCanvas.width = Math.round(width * dpr);
+  visualizerCanvas.height = Math.round(height * dpr);
+  visualizerCanvas.style.width = `${width}px`;
+  visualizerCanvas.style.height = `${height}px`;
+  if (visualizerCtx) visualizerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
 function ensureVisualizerAudioSetup() {
@@ -1320,12 +1322,8 @@ function ensureVisualizerAudioSetup() {
 function setMiniVisualizerActive(active) {
   if (!els.playerSheetCoverWrap) return;
   els.playerSheetCoverWrap.classList.toggle('is-visualizer-active', Boolean(active));
-  if (active) {
-    drawVisualizerFrame();
-    startVisualizerAnimation();
-  } else {
-    stopVisualizerAnimation();
-  }
+  if (active) startVisualizerAnimation();
+  else stopVisualizerAnimation();
 }
 
 function getTrackWaveformEnvelope(track) {
@@ -1337,114 +1335,245 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
   const envelope = getTrackWaveformEnvelope(track);
   if (!envelope) return null;
   const clamped = Math.max(0, Math.min(1, normalizedPosition || 0));
-  if (envelope.length === 1) return Math.max(0, Math.min(1, (envelope[0] || 0) / 255));
+  if (envelope.length === 1) return (envelope[0] || 0) / 255;
   const pos = clamped * (envelope.length - 1);
   const left = Math.floor(pos);
   const right = Math.min(envelope.length - 1, left + 1);
   const frac = pos - left;
   const leftValue = (envelope[left] || 0) / 255;
   const rightValue = (envelope[right] || 0) / 255;
-  return Math.max(0, Math.min(1, leftValue + ((rightValue - leftValue) * frac)));
+  return leftValue + (rightValue - leftValue) * frac;
 }
 
-function buildJsonSpectrumSamples(track, progress, barCount, side) {
+function getPrerenderedVisualizerState(track, currentTime, durationSeconds) {
   const envelope = getTrackWaveformEnvelope(track);
-  if (!envelope || !envelope.length || !barCount) return [];
+  if (!envelope || !durationSeconds) return null;
 
-  const maxIndex = envelope.length - 1;
-  const centerIndex = Math.max(0, Math.min(maxIndex, Math.round(progress * maxIndex)));
-  const span = Math.max(barCount * 10, Math.round(envelope.length * 0.12));
-  const startIndex = side === 'left'
-    ? Math.max(0, centerIndex - span)
-    : Math.min(maxIndex, centerIndex + 1);
-  const endIndex = side === 'left'
-    ? Math.max(0, centerIndex - 1)
-    : Math.min(maxIndex, centerIndex + span);
-  const available = Math.max(1, endIndex - startIndex + 1);
-  const chunkSize = Math.max(1, Math.floor(available / barCount));
-  const samples = [];
+  const timelinePosition = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
+  const localEnergy = sampleTrackWaveformAt(track, timelinePosition) || 0;
+  const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy;
+  const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy;
+  const transient = Math.max(0, nextEnergy - previousEnergy);
+  const phraseLift = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy;
 
-  for (let i = 0; i < barCount; i += 1) {
-    const chunkStart = side === 'left'
-      ? Math.max(0, endIndex - ((i + 1) * chunkSize) + 1)
-      : Math.min(maxIndex, startIndex + (i * chunkSize));
-    const chunkEnd = Math.min(maxIndex, chunkStart + chunkSize - 1);
+  const bass = Math.min(1, 0.06 + localEnergy * 0.92 + transient * 0.50);
+  const mids = Math.min(1, 0.05 + localEnergy * 0.62 + phraseLift * 0.20 + transient * 0.22);
+  const treble = Math.min(1, 0.04 + localEnergy * 0.22 + transient * 0.65);
+  const ringWindow = 0.06 + bass * 0.08;
 
-    let peak = 0;
-    let sum = 0;
-    let count = 0;
-    let deltaSum = 0;
-    let previous = null;
-
-    for (let j = chunkStart; j <= chunkEnd; j += 1) {
-      const value = (envelope[j] || 0) / 255;
-      peak = Math.max(peak, value);
-      sum += value;
-      count += 1;
-      if (previous !== null) deltaSum += Math.abs(value - previous);
-      previous = value;
-    }
-
-    const mean = count ? (sum / count) : 0;
-    const texture = count > 1 ? Math.min(1, deltaSum / (count - 1) * 3.2) : 0;
-    const positionWeight = side === 'left'
-      ? (0.84 + ((barCount - 1 - i) / Math.max(1, barCount - 1)) * 0.22)
-      : (0.84 + (i / Math.max(1, barCount - 1)) * 0.22);
-    const value = Math.max(0.03, Math.min(1, ((peak * 0.62) + (mean * 0.28) + (texture * 0.10)) * positionWeight));
-    samples.push(value);
-  }
-
-  return samples;
-}
-
-function drawVisualizerFrame() {
-  const currentTrack = getCurrentTrack();
-  if (!currentTrack || !visualizerLeftBars.length || !visualizerRightBars.length) return;
-
-  const audio = els.audioPlayer;
-  const currentTime = audio?.currentTime || 0;
-  const durationSeconds = currentTrack?.duration_seconds || currentTrack?.durationSeconds || currentTrack?.duration || audio?.duration || 0;
-  const progress = durationSeconds > 0 ? Math.max(0, Math.min(0.9999, currentTime / durationSeconds)) : 0;
-
-  const leftSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerLeftBars.length, 'left');
-  const rightSamples = buildJsonSpectrumSamples(currentTrack, progress, visualizerRightBars.length, 'right');
-
-  const renderLane = (bars, samples, side) => {
-    for (let i = 0; i < bars.length; i += 1) {
-      const bar = bars[i];
-      const sample = samples[i] ?? 0.04;
-      const eased = Math.pow(Math.max(0, Math.min(1, sample)), 0.92);
-      const barHeight = 12 + (eased * 88);
-      const alpha = 0.24 + (eased * 0.72);
-      bar.style.height = `${barHeight}px`;
-      bar.style.opacity = `${alpha}`;
-      if (side === 'left') {
-        bar.style.background = `linear-gradient(180deg, rgba(229,243,255,${alpha}) 0%, rgba(98,164,255,${alpha}) 50%, rgba(54,86,218,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(84,144,255,${0.12 + eased * 0.28})`;
-      } else {
-        bar.style.background = `linear-gradient(180deg, rgba(244,231,255,${alpha}) 0%, rgba(184,112,255,${alpha}) 50%, rgba(102,66,226,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(170,104,255,${0.12 + eased * 0.28})`;
-      }
+  return {
+    bass,
+    mids,
+    treble,
+    sample(progress) {
+      const mirrored = progress <= 0.5 ? (progress * 2) : ((1 - progress) * 2);
+      const offset = (mirrored - 0.5) * ringWindow;
+      const scan = Math.max(0, Math.min(0.999999, timelinePosition + offset));
+      const value = sampleTrackWaveformAt(track, scan) || 0;
+      const edgeTaper = 0.80 + Math.sin(mirrored * Math.PI) * 0.20;
+      return Math.max(0.02, Math.min(1, value * edgeTaper + transient * 0.22));
     }
   };
+}
 
-  renderLane(visualizerLeftBars, leftSamples, 'left');
-  renderLane(visualizerRightBars, rightSamples, 'right');
+
+
+function drawVisualizerFrame() {
+  if (!visualizerCtx || !visualizerCanvas) return;
+  resizeMiniVisualizerCanvas();
+
+  const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
+  const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
+  const ctx = visualizerCtx;
+  ctx.clearRect(0, 0, width, height);
+
+  const centerX = (width / 2) + 11;
+  const centerY = (height / 2) - 10;
+  const coverRadius = Math.min(width, height) * 0.262;
+  const currentTrack = getCurrentTrack();
+  const currentTime = els.audioPlayer?.currentTime || 0;
+  const durationSeconds = currentTrack?.duration_seconds || els.audioPlayer?.duration || 0;
+  const prerenderedState = getPrerenderedVisualizerState(currentTrack, currentTime, durationSeconds);
+  const waveformSource = visualizerWaveData && !visualizerUseFallback ? visualizerWaveData : null;
+
+  let bass = 0.18;
+  let mids = 0.14;
+  let treble = 0.12;
+
+  if (prerenderedState) {
+    bass = prerenderedState.bass;
+    mids = prerenderedState.mids;
+    treble = prerenderedState.treble;
+  } else if (visualizerAnalyser && visualizerFreqData && visualizerWaveData && !visualizerUseFallback) {
+    visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
+    visualizerAnalyser.getByteTimeDomainData(visualizerWaveData);
+
+    const lowEnd = Math.max(1, Math.floor(visualizerFreqData.length * 0.08));
+    const midEnd = Math.max(lowEnd + 1, Math.floor(visualizerFreqData.length * 0.28));
+    const highEnd = Math.max(midEnd + 1, Math.floor(visualizerFreqData.length * 0.65));
+
+    const avg = (startBand, endBand) => {
+      let total = 0;
+      for (let i = startBand; i < endBand; i += 1) total += visualizerFreqData[i] || 0;
+      return total / Math.max(1, endBand - startBand) / 255;
+    };
+
+    bass = avg(0, lowEnd);
+    mids = avg(lowEnd, midEnd);
+    treble = avg(midEnd, highEnd);
+  } else {
+    const current = els.audioPlayer?.currentTime || 0;
+    const bpm = 92;
+    const beatLength = 60 / bpm;
+    const beatPosition = (current / beatLength) % 16;
+    const beatIndex = Math.floor(beatPosition) % 16;
+    const beatFraction = beatPosition - Math.floor(beatPosition);
+    const accentPattern = [1.0, 0.34, 0.56, 0.30, 0.84, 0.36, 0.52, 0.28, 0.96, 0.32, 0.60, 0.30, 0.88, 0.40, 0.58, 0.34];
+    const attack = Math.max(0, 1 - (beatFraction / 0.16));
+    const decay = Math.max(0, 1 - ((beatFraction - 0.16) / 0.48));
+    const beatEnvelope = beatFraction < 0.16 ? attack : decay * 0.78;
+    const phrasePhase = (current / (beatLength * 8)) % 1;
+    const phraseLift = 0.18 + Math.sin(phrasePhase * Math.PI) * 0.32;
+    const shimmer = 0.08 + Math.abs(Math.sin(current * 5.8 + beatIndex * 0.9)) * 0.18;
+    const beatStrength = accentPattern[beatIndex] * beatEnvelope;
+    bass = 0.10 + phraseLift * 0.22 + beatStrength * 0.88;
+    mids = 0.08 + phraseLift * 0.18 + beatStrength * 0.56 + shimmer * 0.18;
+    treble = 0.06 + phraseLift * 0.10 + beatStrength * 0.24 + shimmer * 0.42;
+  }
+
+  const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
+  const baseRadius = coverRadius + 34;
+  const haloOuterRadius = baseRadius + 62 + bass * 14;
+
+  const outerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.58, centerX, centerY, haloOuterRadius + 64);
+  outerGlow.addColorStop(0, "rgba(255,255,255,0)");
+  outerGlow.addColorStop(0.18, `rgba(178, 248, 255, ${0.08 + bass * 0.12})`);
+  outerGlow.addColorStop(0.34, `rgba(0, 234, 255, ${0.10 + bass * 0.16 + mids * 0.08})`);
+  outerGlow.addColorStop(0.58, `rgba(78, 122, 255, ${0.08 + mids * 0.12})`);
+  outerGlow.addColorStop(0.78, `rgba(160, 72, 255, ${0.08 + treble * 0.15 + mids * 0.06})`);
+  outerGlow.addColorStop(1, "rgba(8, 12, 28, 0)");
+  ctx.fillStyle = outerGlow;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, haloOuterRadius + 52, 0, Math.PI * 2);
+  ctx.fill();
+
+  const innerGlow = ctx.createRadialGradient(centerX, centerY, coverRadius * 0.72, centerX, centerY, baseRadius + 30);
+  innerGlow.addColorStop(0, "rgba(255,255,255,0)");
+  innerGlow.addColorStop(0.20, `rgba(255,255,255, ${0.04 + treble * 0.06})`);
+  innerGlow.addColorStop(0.38, `rgba(170, 246, 255, ${0.08 + bass * 0.10})`);
+  innerGlow.addColorStop(0.58, `rgba(0, 236, 255, ${0.10 + mids * 0.10})`);
+  innerGlow.addColorStop(0.78, `rgba(158, 72, 255, ${0.08 + treble * 0.10})`);
+  innerGlow.addColorStop(1, "rgba(14, 20, 38, 0)");
+  ctx.fillStyle = innerGlow;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, baseRadius + 34, 0, Math.PI * 2);
+  ctx.fill();
+
+  const sampleWave = (progress) => {
+    if (prerenderedState) return prerenderedState.sample(progress);
+    if (waveformSource) {
+      const sourceIndex = Math.min(waveformSource.length - 1, Math.floor(progress * (waveformSource.length - 1)));
+      return Math.abs((waveformSource[sourceIndex] - 128) / 128);
+    }
+    return 0.08 + Math.abs(Math.sin((visualizerTick / 10.5) + progress * Math.PI * 5 + currentTime * 1.4)) * (0.14 + mids * 0.10);
+  };
+
+  const bandCount = 56;
+  const bars = [];
+  for (let i = 0; i < bandCount; i += 1) {
+    const progress = i / Math.max(1, bandCount - 1);
+    const local = Math.max(0.02, Math.min(1, sampleWave(progress)));
+    const bandBias = i < bandCount * 0.28 ? bass : (i < bandCount * 0.7 ? mids : treble);
+    const ripple = 0.88 + Math.sin((visualizerTick * 0.08) + (i * 0.65)) * 0.12;
+    bars.push(Math.max(0.08, Math.min(1, local * 0.78 + bandBias * 0.34)) * ripple);
+  }
+
+  const arcStart = (-Math.PI * 0.86);
+  const arcEnd = (Math.PI * 0.86);
+  const angleRange = arcEnd - arcStart;
+  const arcRadius = baseRadius + 10;
+  const innerArcRadius = coverRadius + 12;
+  const barMaxLength = 44 + bass * 20 + mids * 12;
+  const barWidth = 4.2;
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.lineCap = 'round';
+
+  for (let i = 0; i < bandCount; i += 1) {
+    const value = bars[i];
+    const t = i / Math.max(1, bandCount - 1);
+    const angle = arcStart + angleRange * t;
+    const sin = Math.sin(angle);
+    const cos = Math.cos(angle);
+    const startRadius = arcRadius + (Math.abs(t - 0.5) * 5.5);
+    const length = 8 + value * barMaxLength;
+    const x1 = centerX + cos * startRadius;
+    const y1 = centerY + sin * startRadius;
+    const x2 = centerX + cos * (startRadius + length);
+    const y2 = centerY + sin * (startRadius + length);
+
+    const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+    if (t < 0.5) {
+      gradient.addColorStop(0, 'rgba(240, 251, 255, 0.92)');
+      gradient.addColorStop(0.32, 'rgba(112, 246, 255, 0.98)');
+      gradient.addColorStop(0.72, 'rgba(0, 236, 255, 0.96)');
+      gradient.addColorStop(1, 'rgba(74, 126, 255, 0.42)');
+      ctx.shadowColor = 'rgba(0, 236, 255, 0.7)';
+    } else {
+      gradient.addColorStop(0, 'rgba(255, 248, 255, 0.92)');
+      gradient.addColorStop(0.32, 'rgba(234, 158, 255, 0.98)');
+      gradient.addColorStop(0.72, 'rgba(164, 76, 255, 0.94)');
+      gradient.addColorStop(1, 'rgba(96, 62, 255, 0.42)');
+      ctx.shadowColor = 'rgba(190, 94, 255, 0.64)';
+    }
+
+    ctx.strokeStyle = gradient;
+    ctx.shadowBlur = 16 + value * 16;
+    ctx.globalAlpha = 0.78 + value * 0.18;
+    ctx.lineWidth = barWidth + value * 1.6;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+  }
+
+  const rimGradient = ctx.createLinearGradient(centerX - arcRadius, centerY, centerX + arcRadius, centerY);
+  rimGradient.addColorStop(0, 'rgba(118, 246, 255, 0.34)');
+  rimGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.16)');
+  rimGradient.addColorStop(1, 'rgba(180, 88, 255, 0.34)');
+  ctx.shadowBlur = 18;
+  ctx.shadowColor = 'rgba(118, 246, 255, 0.28)';
+  ctx.strokeStyle = rimGradient;
+  ctx.lineWidth = 1.5;
+  ctx.globalAlpha = 0.9;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, innerArcRadius, arcStart + 0.12, arcEnd - 0.12);
+  ctx.stroke();
+  ctx.restore();
+
+  visualizerBars.forEach((bar, index) => {
+    const t = index / Math.max(1, visualizerBars.length - 1);
+    const sampleIndex = Math.min(bars.length - 1, Math.round(t * (bars.length - 1)));
+    const value = bars[sampleIndex] || 0.1;
+    bar.style.height = `${16 + Math.round(value * 34)}px`;
+    bar.style.opacity = `${0.36 + value * 0.58}`;
+    bar.style.transform = `translateY(${Math.round((1 - value) * 4)}px) scaleY(${(0.88 + value * 0.24).toFixed(3)})`;
+  });
 }
 
 function startVisualizerAnimation() {
-  if (!visualizerBars.length) return;
+  if (visualizerFrame || !visualizerBars.length) return;
   ensureVisualizerAudioSetup();
-  drawVisualizerFrame();
-  if (visualizerFrame) return;
+  if (visualizerAudioContext && visualizerAudioContext.state === 'suspended') {
+    visualizerAudioContext.resume().catch(() => {});
+  }
 
   const animate = () => {
+    visualizerTick += 1;
     drawVisualizerFrame();
-    if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) {
-      visualizerFrame = window.requestAnimationFrame(animate);
-    } else {
-      visualizerFrame = 0;
-    }
+    if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) visualizerFrame = window.requestAnimationFrame(animate);
+    else visualizerFrame = 0;
   };
   visualizerFrame = window.requestAnimationFrame(animate);
 }
@@ -1455,10 +1584,16 @@ function stopVisualizerAnimation() {
     visualizerFrame = 0;
   }
 
+  if (visualizerCtx && visualizerCanvas) {
+    const width = parseFloat(visualizerCanvas.style.width) || visualizerCanvas.width;
+    const height = parseFloat(visualizerCanvas.style.height) || visualizerCanvas.height;
+    visualizerCtx.clearRect(0, 0, width, height);
+  }
+
   visualizerBars.forEach((bar, index) => {
-    const seed = 0.12 + ((index % 7) * 0.018);
-    bar.style.height = `${10 + seed * 42}px`;
-    bar.style.opacity = '0.34';
+    bar.style.height = `${18 + ((index % Math.max(1, visualizerBars.length / 2)) * 4)}px`;
+    bar.style.opacity = '';
+    bar.style.transform = '';
   });
 }
 

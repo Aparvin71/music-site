@@ -1,15 +1,12 @@
-const AINEO_APP_VERSION = "v42.8.2";
+const AINEO_APP_VERSION = "v43.0.0";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
-const INSTALL_SESSION_SEEN_KEY = "aineo_install_seen_session";
-const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
-const OFFLINE_HINT_SESSION_SEEN_KEY = "aineo_offline_hint_seen_session";
 let deferredInstallPrompt = null;
 
 const APP_FEEL_SETTINGS_KEY = "aineo_app_feel_settings";
 const APP_FEEL_DEFAULTS = {
   reducedMotionUi: false,
-  showInstallTips: false,
-  downloadHints: false
+  showInstallTips: true,
+  downloadHints: true
 };
 
 function loadAppFeelSettings() {
@@ -58,11 +55,11 @@ function ensureSettingsSurface() {
             <input type="checkbox" id="settingReducedMotionUi" />
           </label>
           <label class="app-feel-toggle">
-            <span>Auto-show install tips</span>
+            <span>Show install tips</span>
             <input type="checkbox" id="settingShowInstallTips" />
           </label>
           <label class="app-feel-toggle">
-            <span>Auto-show offline download hints</span>
+            <span>Show offline download hints</span>
             <input type="checkbox" id="settingDownloadHints" />
           </label>
         </section>
@@ -76,8 +73,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.8.2</span></p>
-          <p class="mission-statement mission-statement--summary">This build rebases the app onto the stable audio path, removes the risky analyser hookup from the player, and keeps the visualizer on a safer split JSON spectrum driven by each song's saved waveform envelope.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.0.0</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a glass-orb aurora halo visualizer with softer luminous bloom, drifting color depth, and richer premium motion around the artwork while preserving the stable playback path.</p>
         </section>
       </div>
     </div>
@@ -145,9 +142,7 @@ function shouldShowInstallUi() {
   const settings = loadAppFeelSettings();
   if (!settings.showInstallTips) return false;
   if (isStandalone()) return false;
-  if (!isPrimaryLandingPage()) return false;
   if (localStorage.getItem(INSTALL_DISMISSED_KEY) === AINEO_APP_VERSION) return false;
-  if (hasSessionSeen(INSTALL_SESSION_SEEN_KEY)) return false;
   return Boolean(deferredInstallPrompt || isIosSafari());
 }
 
@@ -170,18 +165,10 @@ function renderOfflineHintCard() {
       <button type="button" class="control-btn" data-dismiss-offline-hint aria-label="Dismiss offline tip">✕</button>
     `;
     document.body.appendChild(card);
-    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => {
-      try { localStorage.setItem(OFFLINE_HINT_DISMISSED_KEY, AINEO_APP_VERSION); } catch (error) {}
-      markSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
-      card.classList.add("hidden");
-    });
+    card.querySelector("[data-dismiss-offline-hint]")?.addEventListener("click", () => card.classList.add("hidden"));
   }
   const standalonePreferred = isStandalone() || isIosSafari();
-  const wasDismissed = localStorage.getItem(OFFLINE_HINT_DISMISSED_KEY) === AINEO_APP_VERSION;
-  const seenThisSession = hasSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
-  const shouldShow = settings.downloadHints && standalonePreferred && isPrimaryLandingPage() && !wasDismissed && !seenThisSession;
-  card.classList.toggle("hidden", !shouldShow);
-  if (shouldShow) markSessionSeen(OFFLINE_HINT_SESSION_SEEN_KEY);
+  card.classList.toggle("hidden", !standalonePreferred);
 }
 
 function initPageMotionHooks() {
@@ -318,7 +305,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v42.8.2";
+const APP_RUNTIME_VERSION = "v43.0.0";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;
@@ -426,7 +413,7 @@ async function computeTracksSignature(url = "./tracks.json") {
 
 
 function shouldAllowAutomaticRefresh() {
-  return false;
+  return !isStandalone();
 }
 
 function notePendingRefreshSession(reason = "") {
@@ -704,27 +691,9 @@ function isIosSafari() {
   const ua = navigator.userAgent || "";
   return /iPad|iPhone|iPod/.test(ua) && /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
 }
-function getCurrentPageName() {
-  const path = (window.location.pathname || "").split("/").pop() || "index.html";
-  return path || "index.html";
-}
-function isPrimaryLandingPage() {
-  const page = getCurrentPageName();
-  return page === "" || page === "index.html" || page === "home.html";
-}
-function markSessionSeen(key) {
-  try { sessionStorage.setItem(key, "1"); } catch (error) {}
-}
-function hasSessionSeen(key) {
-  try { return sessionStorage.getItem(key) === "1"; } catch (error) { return false; }
-}
 function shouldShowInstallUi() {
-  const settings = loadAppFeelSettings();
-  if (!settings.showInstallTips) return false;
   if (isStandalone()) return false;
-  if (!isPrimaryLandingPage()) return false;
   if (localStorage.getItem(INSTALL_DISMISSED_KEY) === AINEO_APP_VERSION) return false;
-  if (hasSessionSeen(INSTALL_SESSION_SEEN_KEY)) return false;
   return Boolean(deferredInstallPrompt || isIosSafari());
 }
 function ensureInstallUi() {
@@ -776,9 +745,7 @@ function renderInstallUi() {
   const banner = document.getElementById("installBanner");
   const steps = document.getElementById("installModalSteps");
   if (steps) steps.innerHTML = installStepsMarkup();
-  const shouldShow = shouldShowInstallUi();
-  if (banner) banner.classList.toggle("hidden", !shouldShow);
-  if (shouldShow) markSessionSeen(INSTALL_SESSION_SEEN_KEY);
+  if (banner) banner.classList.toggle("hidden", !shouldShowInstallUi());
   const confirmBtn = document.getElementById("confirmInstallBtn");
   if (confirmBtn) confirmBtn.textContent = deferredInstallPrompt ? "Install App" : (isIosSafari() ? "How to Install" : "Open Install Guide");
 }

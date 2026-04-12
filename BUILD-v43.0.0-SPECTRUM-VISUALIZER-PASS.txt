@@ -1,0 +1,9 @@
+Aineo Music
+Build: v43.0.0 — Spectrum Visualizer Pass
+
+Included in this build:
+- Bumped package version markers, runtime version, and cache version to v43.0.0
+- Replaced the circular waveform ring draw routine with a spectrum-style halo around the player artwork
+- Kept the same player-cover visualizer wiring and waveform-driven motion setup from the base package
+- Changed the small overlay bars to a wider split spectrum layout so they are no longer set up as a mirrored ring companion
+- Preserved the stable base package structure and existing pages/assets
