@@ -1,0 +1,13 @@
+v43.1.6 True Spectrum Data Sync Repair
+
+What was fixed:
+- Root cause 1: mixed versioning left pwa-init.js on v43.1.2 while pages/changelog reported later versions
+- Root cause 2: regenerated spectrum_frames only contained 120 frames per track, which made movement feel slow and generic
+- app.js now keeps the real spectrum-frame shape and uses waveform energy only to add sub-frame detail
+- tracks.json spectrum timing was densified from the regenerated JSON already supplied by the user
+- make_tracks.py and tools/make_tracks.py now default to a denser spectrum frame count for future rebuilds
+
+Notes:
+- audio and artwork repairs remain intact
+- service-worker cache version bumped
+- package markers aligned to v43.1.6

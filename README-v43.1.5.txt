@@ -1,4 +1,4 @@
-v43.1.5
+v43.1.6
 
 Root-cause spectrum repair release.
 
@@ -6,7 +6,7 @@ What changed:
 - preserve spectrum_frames, waveform_envelope, and waveform_ring_preview during track normalization
 - keep apostrophe/quote asset URL repairs from v43.1.3
 - keep regenerated tracks.json with precomputed spectrum data
-- package-wide version bump to v43.1.5
+- package-wide version bump to v43.1.6
 
 After deploying:
 1. Close all tabs for the site

@@ -1,4 +1,4 @@
-/* v43.1.5 true spectrum clean package */
+/* v43.1.6 true spectrum clean package */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1350,9 +1350,20 @@ function sampleTrackWaveformAt(track, normalizedPosition) {
 }
 
 function getSpectrumState(track, currentTime, durationSeconds) {
+  const envelope = getTrackWaveformEnvelope(track);
+  const timelinePosition = durationSeconds
+    ? Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)))
+    : 0;
+  const localEnergy = envelope ? (sampleTrackWaveformAt(track, timelinePosition) || 0) : 0;
+  const previousEnergy = envelope ? (sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy) : localEnergy;
+  const nextEnergy = envelope ? (sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy) : localEnergy;
+  const transient = Math.max(0, nextEnergy - previousEnergy);
+  const phraseLift = envelope ? (sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy) : localEnergy;
+
   const frames = getTrackSpectrumFrames(track);
   if (frames && frames.length && durationSeconds) {
-    const clamped = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
+    const frameDensity = frames.length / Math.max(1, durationSeconds);
+    const clamped = timelinePosition;
     const framePos = clamped * (frames.length - 1);
     const left = Math.floor(framePos);
     const right = Math.min(frames.length - 1, left + 1);
@@ -1362,7 +1373,15 @@ function getSpectrumState(track, currentTime, durationSeconds) {
       const bands = new Array(bandCount).fill(0).map((_, index) => {
         const a = ((frames[left][index] || 0) / 255);
         const b = ((frames[right][index] || 0) / 255);
-        return a + (b - a) * mix;
+        let value = a + (b - a) * mix;
+        if (envelope) {
+          const bandT = index / Math.max(1, bandCount - 1);
+          const energyBoost = 0.90 + localEnergy * 0.40;
+          const transientBoost = transient * (0.08 + bandT * 0.18);
+          const phraseBoost = phraseLift * (0.04 + (1 - Math.abs(bandT - 0.42) / 0.42) * 0.08);
+          value = Math.min(1, value * energyBoost + transientBoost + Math.max(0, phraseBoost || 0));
+        }
+        return Math.max(0.02, Math.min(1, value));
       });
       const bassSlice = bands.slice(0, Math.max(1, Math.floor(bands.length * 0.18)));
       const midSlice = bands.slice(Math.max(1, Math.floor(bands.length * 0.18)), Math.max(2, Math.floor(bands.length * 0.62)));
@@ -1374,18 +1393,12 @@ function getSpectrumState(track, currentTime, durationSeconds) {
         mids: avg(midSlice),
         treble: avg(highSlice),
         fromSpectrumFrames: true,
+        frameDensity,
       };
     }
   }
 
-  const envelope = getTrackWaveformEnvelope(track);
   if (!envelope || !durationSeconds) return null;
-  const timelinePosition = Math.max(0, Math.min(0.999999, (currentTime || 0) / Math.max(0.001, durationSeconds)));
-  const localEnergy = sampleTrackWaveformAt(track, timelinePosition) || 0;
-  const previousEnergy = sampleTrackWaveformAt(track, Math.max(0, timelinePosition - 0.012)) || localEnergy;
-  const nextEnergy = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.018)) || localEnergy;
-  const transient = Math.max(0, nextEnergy - previousEnergy);
-  const phraseLift = sampleTrackWaveformAt(track, Math.min(0.999999, timelinePosition + 0.08)) || localEnergy;
   const bass = Math.min(1, 0.04 + localEnergy * 0.86 + transient * 0.36);
   const mids = Math.min(1, 0.04 + localEnergy * 0.64 + phraseLift * 0.14 + transient * 0.14);
   const treble = Math.min(1, 0.02 + localEnergy * 0.24 + transient * 0.42);
@@ -1397,7 +1410,7 @@ function getSpectrumState(track, currentTime, durationSeconds) {
     const contour = 0.80 + Math.sin(progress * Math.PI) * 0.20;
     return Math.max(0.02, Math.min(1, value * contour + transient * 0.10));
   });
-  return { bands, bass, mids, treble, fromSpectrumFrames: false };
+  return { bands, bass, mids, treble, fromSpectrumFrames: false, frameDensity: 0 };
 }
 
 function drawVisualizerFrame() {
