@@ -1,4 +1,4 @@
-/* v43.1.2 true spectrum clean package */
+/* v43.1.3 true spectrum clean package */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1415,7 +1415,7 @@ function drawVisualizerFrame() {
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
-  const lineInset = Math.max(8, width * 0.06);
+  const lineInset = Math.max(6, width * 0.04);
   const usableWidth = Math.max(120, width - (lineInset * 2));
   const step = usableWidth / Math.max(1, spectrumState.bands.length - 1);
   const maxHalfHeight = Math.max(26, height * 0.19 + bass * 16 + mids * 10);

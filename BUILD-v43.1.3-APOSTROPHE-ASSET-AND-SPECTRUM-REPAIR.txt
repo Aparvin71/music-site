@@ -1,0 +1,5 @@
+v43.1.3 apostrophe asset and spectrum repair
+- fixed apostrophe/curly-quote asset regressions
+- preserved known-good remote src/cover values from stable base
+- patched generator audio URL handling and slug generation
+- bumped package markers and strengthened spectrum draw
