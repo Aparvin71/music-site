@@ -1278,7 +1278,7 @@ function initMiniVisualizer() {
   const rightLane = document.createElement('div');
   rightLane.className = 'player-cover-visualizer-lane is-right';
 
-  const BAR_COUNT = 28;
+  const BAR_COUNT = 20;
   for (let i = 0; i < BAR_COUNT; i += 1) {
     const leftBar = document.createElement('span');
     leftBar.className = 'player-cover-visualizer-bar';
@@ -1381,23 +1381,31 @@ function buildFallbackSpectrumSamples(track, progress, barCount, side) {
 
   const maxIndex = envelope.length - 1;
   const centerIndex = Math.max(0, Math.min(maxIndex, Math.round(progress * maxIndex)));
-  const span = Math.max(barCount * 3, Math.round(envelope.length * 0.05));
+  const span = Math.max(barCount * 6, Math.round(envelope.length * 0.085));
+  const chunkSize = Math.max(1, Math.floor(span / barCount));
   const samples = [];
 
   for (let i = 0; i < barCount; i += 1) {
-    const ratio = (i + 1) / barCount;
-    const curved = Math.pow(ratio, 1.35);
-    const distance = Math.max(1, Math.round(curved * span));
-    const sampleIndex = side === 'left'
-      ? Math.max(0, centerIndex - distance)
-      : Math.min(maxIndex, centerIndex + distance);
+    const chunkStart = side === 'left'
+      ? Math.max(0, centerIndex - span + (i * chunkSize))
+      : Math.min(maxIndex, centerIndex + (i * chunkSize));
+    const chunkEnd = side === 'left'
+      ? Math.min(maxIndex, chunkStart + chunkSize)
+      : Math.min(maxIndex, chunkStart + chunkSize);
 
-    const here = (envelope[sampleIndex] || 0) / 255;
-    const prev = (envelope[Math.max(0, sampleIndex - 1)] || envelope[sampleIndex] || 0) / 255;
-    const next = (envelope[Math.min(maxIndex, sampleIndex + 1)] || envelope[sampleIndex] || 0) / 255;
-    const localDelta = Math.abs(next - prev);
-    const shaped = Math.max(0.03, Math.min(1, (here * 0.72) + (localDelta * 1.15)));
-    samples.push(shaped);
+    let peak = 0;
+    let sum = 0;
+    let count = 0;
+    for (let j = chunkStart; j <= chunkEnd; j += 1) {
+      const value = (envelope[j] || 0) / 255;
+      peak = Math.max(peak, value);
+      sum += value;
+      count += 1;
+    }
+
+    const mean = count ? sum / count : 0;
+    const combined = Math.max(0.04, Math.min(1, (peak * 0.72) + (mean * 0.28)));
+    samples.push(combined);
   }
 
   return samples;
@@ -1408,10 +1416,13 @@ function buildAnalyserSpectrumSamples(barCount, side) {
 
   visualizerAnalyser.getByteFrequencyData(visualizerFreqData);
   const usableStart = 2;
-  const usableEnd = Math.max(usableStart + 8, Math.floor(visualizerFreqData.length * 0.78));
+  const usableEnd = Math.max(usableStart + 16, Math.floor(visualizerFreqData.length * 0.88));
   const usable = visualizerFreqData.slice(usableStart, usableEnd);
-  const half = Math.max(1, Math.floor(usable.length / 2));
-  const lane = side === 'left' ? usable.slice(0, half) : usable.slice(half);
+  const leftStart = 0;
+  const leftEnd = Math.max(leftStart + 10, Math.floor(usable.length * 0.46));
+  const rightStart = Math.max(leftEnd, Math.floor(usable.length * 0.28));
+  const rightEnd = usable.length;
+  const lane = side === 'left' ? usable.slice(leftStart, leftEnd) : usable.slice(rightStart, rightEnd);
   const chunkSize = Math.max(1, Math.floor(lane.length / barCount));
   const samples = [];
 
@@ -1428,14 +1439,14 @@ function buildAnalyserSpectrumSamples(barCount, side) {
       count += 1;
     }
     const mean = count ? avg / count : 0;
-    const raw = ((peak * 0.62) + (mean * 0.38)) / 255;
-    const emphasis = side === 'left'
-      ? 0.9 + ((barCount - i) / barCount) * 0.18
-      : 0.9 + (i / barCount) * 0.18;
-    samples.push(Math.max(0.035, Math.min(1, raw * emphasis)));
+    const raw = ((peak * 0.68) + (mean * 0.32)) / 255;
+    const edgeLift = side === 'left'
+      ? 0.94 + ((i / Math.max(1, barCount - 1)) * 0.12)
+      : 0.94 + (((barCount - 1 - i) / Math.max(1, barCount - 1)) * 0.12);
+    samples.push(Math.max(0.03, Math.min(1, raw * edgeLift)));
   }
 
-  return side === 'left' ? samples.reverse() : samples;
+  return samples;
 }
 
 function drawVisualizerFrame() {
@@ -1455,26 +1466,23 @@ function drawVisualizerFrame() {
   const leftSamples = !visualizerUseFallback ? buildAnalyserSpectrumSamples(laneCount, 'left') : buildFallbackSpectrumSamples(currentTrack, progress, laneCount, 'left');
   const rightSamples = !visualizerUseFallback ? buildAnalyserSpectrumSamples(laneCount, 'right') : buildFallbackSpectrumSamples(currentTrack, progress, laneCount, 'right');
 
-  const fallbackBeat = (Date.now() % 1800) / 1800;
-
   const renderLane = (bars, samples, side) => {
     for (let i = 0; i < bars.length; i += 1) {
       const bar = bars[i];
-      const synthetic = 0.08 + (0.08 * Math.sin((fallbackBeat * Math.PI * 2) + (i * 0.28) + (side === 'left' ? 0 : 0.85)));
-      const sample = samples[i] ?? synthetic;
+      const sample = samples[i] ?? 0.045;
       const energy = Math.max(0, Math.min(1, sample));
-      const eased = Math.pow(energy, 1.18);
-      const barHeight = 10 + (eased * 108);
-      const alpha = 0.26 + (eased * 0.72);
+      const eased = Math.pow(energy, 1.06);
+      const barHeight = 12 + (eased * 96);
+      const alpha = 0.28 + (eased * 0.68);
       bar.style.height = `${barHeight}px`;
       bar.style.opacity = `${alpha}`;
       bar.style.transform = `translateZ(0)`;
       if (side === 'left') {
-        bar.style.background = `linear-gradient(180deg, rgba(224,240,255,${alpha}) 0%, rgba(92,164,255,${alpha}) 58%, rgba(56,95,228,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(87,146,255,${0.16 + eased * 0.30})`;
+        bar.style.background = `linear-gradient(180deg, rgba(226,242,255,${alpha}) 0%, rgba(86,161,255,${alpha}) 56%, rgba(44,86,228,${Math.min(1, alpha * 0.98)}) 100%)`;
+        bar.style.boxShadow = `0 0 16px rgba(80,140,255,${0.18 + eased * 0.30})`;
       } else {
-        bar.style.background = `linear-gradient(180deg, rgba(240,225,255,${alpha}) 0%, rgba(177,109,255,${alpha}) 58%, rgba(95,73,224,${Math.min(1, alpha * 0.98)}) 100%)`;
-        bar.style.boxShadow = `0 0 14px rgba(168,105,255,${0.16 + eased * 0.30})`;
+        bar.style.background = `linear-gradient(180deg, rgba(240,226,255,${alpha}) 0%, rgba(176,100,255,${alpha}) 56%, rgba(92,66,224,${Math.min(1, alpha * 0.98)}) 100%)`;
+        bar.style.boxShadow = `0 0 16px rgba(168,101,255,${0.18 + eased * 0.30})`;
       }
     }
   };

@@ -10147,7 +10147,7 @@ button:active{
 }
 
 
-/* ===== v42.7.2 spectrum visualizer rescue pass ===== */
+/* ===== v42.8.0 full bump spectrum follow-through pass ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10163,8 +10163,8 @@ button:active{
 
 .player-cover-visualizer {
   position: absolute;
-  inset: -14px -56px;
-  transform: translate3d(8px, -2px, 0);
+  inset: -14px -52px;
+  transform: translate3d(10px, -2px, 0);
   display: block;
   pointer-events: none;
   z-index: 0;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(8px, -2px, 0);
+  transform: translate3d(10px, -2px, 0);
 }
 
 .player-cover-visualizer-glow {
@@ -10192,8 +10192,8 @@ button:active{
   position: absolute;
   inset: 6% 0;
   display: grid;
-  grid-template-columns: minmax(148px, 1fr) minmax(148px, 1fr);
-  column-gap: clamp(132px, 18vw, 176px);
+  grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr);
+  column-gap: clamp(138px, 18vw, 182px);
   align-items: center;
   height: 100%;
 }
@@ -10202,7 +10202,7 @@ button:active{
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .player-cover-visualizer-lane.is-left {
@@ -10214,10 +10214,10 @@ button:active{
 }
 
 .player-cover-visualizer-bar {
-  flex: 0 0 6px;
-  width: 6px;
-  min-height: 10px;
-  height: 18px;
+  flex: 0 0 7px;
+  width: 7px;
+  min-height: 12px;
+  height: 20px;
   border-radius: 999px;
   opacity: 0.34;
   will-change: height, opacity;
@@ -10228,18 +10228,18 @@ button:active{
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
-  transform: translateX(6px);
+  transform: translateX(10px);
 }
 
 @media (max-width: 640px) {
   .player-sheet-cover-wrap { transform: translate3d(0, -2px, 0); }
-  .player-cover-visualizer { inset: -12px -26px; transform: translate3d(4px, -2px, 0); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(4px, -2px, 0); }
-  .player-cover-visualizer-bars { column-gap: clamp(88px, 26vw, 118px); }
+  .player-cover-visualizer { inset: -12px -24px; transform: translate3d(5px, -2px, 0); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(5px, -2px, 0); }
+  .player-cover-visualizer-bars { column-gap: clamp(92px, 26vw, 120px); }
   .player-cover-visualizer-lane { gap: 3px; }
   .player-cover-visualizer-bar { flex-basis: 4px; width: 4px; }
   .player-sheet-cover,
-  .player-sheet-cover-placeholder { transform: translateX(4px); }
+  .player-sheet-cover-placeholder { transform: translateX(6px); }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */

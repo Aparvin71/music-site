@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v42.7.0-full-site-cleanup-working-wave-bars";
+const CACHE_VERSION = "v42.8.0-full-bump-spectrum-follow-through";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

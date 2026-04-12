@@ -1,0 +1,9 @@
+v42.8.0
+
+Aineo Music — Full bump spectrum follow-through pass
+
+Included in this build:
+- true version/runtime/cache bump to force a clean update
+- visualizer spectrum retune so the split lanes are less mirrored
+- artwork shifted slightly right for cleaner centering
+- package cleanup pass across main pages and release text
