@@ -10147,7 +10147,7 @@ button:active{
 }
 
 
-/* ===== v42.9.0 deep dive spectrum fix pass ===== */
+/* ===== v42.8.0 full bump spectrum follow-through pass ===== */
 .player-sheet-cover-wrap {
   position: relative;
   display: flex;
@@ -10164,7 +10164,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -14px -52px;
-  transform: translate3d(10px, -2px, 0);
+  transform: translate3d(8px, -2px, 0);
   display: block;
   pointer-events: none;
   z-index: 0;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(10px, -2px, 0);
+  transform: translate3d(8px, -2px, 0);
 }
 
 .player-cover-visualizer-glow {
@@ -10193,7 +10193,7 @@ button:active{
   inset: 6% 0;
   display: grid;
   grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr);
-  column-gap: clamp(144px, 19vw, 188px);
+  column-gap: clamp(138px, 18vw, 182px);
   align-items: center;
   height: 100%;
 }
@@ -10214,8 +10214,8 @@ button:active{
 }
 
 .player-cover-visualizer-bar {
-  flex: 0 0 6px;
-  width: 6px;
+  flex: 0 0 7px;
+  width: 7px;
   min-height: 12px;
   height: 20px;
   border-radius: 999px;
@@ -10228,18 +10228,18 @@ button:active{
 .player-sheet-cover-placeholder {
   position: relative;
   z-index: 1;
-  transform: translateX(22px);
+  transform: translateX(16px);
 }
 
 @media (max-width: 640px) {
   .player-sheet-cover-wrap { transform: translate3d(0, -2px, 0); }
-  .player-cover-visualizer { inset: -12px -24px; transform: translate3d(7px, -2px, 0); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -2px, 0); }
-  .player-cover-visualizer-bars { column-gap: clamp(96px, 27vw, 124px); }
+  .player-cover-visualizer { inset: -12px -24px; transform: translate3d(5px, -2px, 0); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(5px, -2px, 0); }
+  .player-cover-visualizer-bars { column-gap: clamp(92px, 26vw, 120px); }
   .player-cover-visualizer-lane { gap: 3px; }
   .player-cover-visualizer-bar { flex-basis: 4px; width: 4px; }
   .player-sheet-cover,
-  .player-sheet-cover-placeholder { transform: translateX(14px); }
+  .player-sheet-cover-placeholder { transform: translateX(10px); }
 }
 
 /* ===== v42.3.57 custom playlist column restore ===== */

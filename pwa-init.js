@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v42.9.0";
+const AINEO_APP_VERSION = "v42.8.2";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const INSTALL_SESSION_SEEN_KEY = "aineo_install_seen_session";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
@@ -76,8 +76,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v42.9.0</span></p>
-          <p class="mission-statement mission-statement--summary">This build is a full cleanup pass across the site and rebuilds the player visualizer into a simpler bar system that reads each song's saved waveform envelope, restores visible motion, and rebalances the artwork and bar lanes for a cleaner full-player layout.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v42.8.2</span></p>
+          <p class="mission-statement mission-statement--summary">This build rebases the app onto the stable audio path, removes the risky analyser hookup from the player, and keeps the visualizer on a safer split JSON spectrum driven by each song's saved waveform envelope.</p>
         </section>
       </div>
     </div>
@@ -318,7 +318,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v42.9.0";
+const APP_RUNTIME_VERSION = "v42.8.2";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

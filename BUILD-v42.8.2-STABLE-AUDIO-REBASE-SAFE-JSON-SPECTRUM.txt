@@ -1,0 +1,11 @@
+AINEO MUSIC
+Build: v42.8.2 — Stable Audio Rebase + Safe JSON Spectrum
+
+This pass rebases the package onto the stable audio path from v42.8.1 and keeps the visualizer on a safer JSON-driven split spectrum.
+
+Key updates
+- Removed the risky analyser hookup from the main player path
+- Preserved the split left/right spectrum visualizer using each track's waveform_envelope
+- Unified app/runtime/service worker versions to v42.8.2
+- Kept the quieter install/offline prompt behavior
+- Cleaned the package down to one current build note
