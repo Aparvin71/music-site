@@ -1,0 +1,11 @@
+Aineo Music — v43.0.2 Wider Span + Blue/Purple Bars Pass
+
+Changes in this build
+- widened the centered line spectrum so it extends farther left and right past the artwork
+- updated spectrum bar colors to a blue-to-purple palette with light-to-dark variation
+- preserved the existing glow treatment and centered line setup
+- kept the same cover-wrap visualizer structure and audio-reactive behavior
+
+Notes
+- this is a visual refinement pass on top of v43.0.1
+- no architecture swap was introduced in this pass

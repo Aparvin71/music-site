@@ -1,4 +1,4 @@
-/* v43.0.1 centered line spectrum pass */
+/* v43.0.2 wider centered spectrum + blue-purple bars pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1442,7 +1442,7 @@ function drawVisualizerFrame() {
   }
 
   const energy = Math.min(1, bass * 0.56 + mids * 0.30 + treble * 0.14);
-  const lineHalfWidth = Math.min(width, height) * 0.40;
+  const lineHalfWidth = Math.min(width * 0.56, Math.max(width, height) * 0.60);
   const lineY = centerY;
   const lineLeft = centerX - lineHalfWidth;
   const lineRight = centerX + lineHalfWidth;
@@ -1520,14 +1520,14 @@ function drawVisualizerFrame() {
     const y2 = lineY + length;
 
     const gradient = ctx.createLinearGradient(x, y1, x, y2);
-    gradient.addColorStop(0, t < 0.5 ? 'rgba(112, 246, 255, 0.18)' : 'rgba(234, 158, 255, 0.18)');
-    gradient.addColorStop(0.18, t < 0.5 ? 'rgba(112, 246, 255, 0.96)' : 'rgba(234, 158, 255, 0.96)');
-    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.98)');
-    gradient.addColorStop(0.82, t < 0.5 ? 'rgba(0, 236, 255, 0.96)' : 'rgba(164, 76, 255, 0.94)');
-    gradient.addColorStop(1, t < 0.5 ? 'rgba(74, 126, 255, 0.18)' : 'rgba(96, 62, 255, 0.18)');
+    gradient.addColorStop(0, t < 0.5 ? 'rgba(172, 220, 255, 0.22)' : 'rgba(222, 174, 255, 0.22)');
+    gradient.addColorStop(0.16, t < 0.5 ? 'rgba(146, 208, 255, 0.98)' : 'rgba(208, 156, 255, 0.98)');
+    gradient.addColorStop(0.5, t < 0.5 ? 'rgba(66, 146, 255, 0.98)' : 'rgba(126, 92, 255, 0.98)');
+    gradient.addColorStop(0.84, t < 0.5 ? 'rgba(22, 94, 224, 0.96)' : 'rgba(92, 48, 214, 0.96)');
+    gradient.addColorStop(1, t < 0.5 ? 'rgba(18, 52, 142, 0.22)' : 'rgba(64, 28, 152, 0.22)');
 
     ctx.strokeStyle = gradient;
-    ctx.shadowColor = t < 0.5 ? 'rgba(0, 236, 255, 0.64)' : 'rgba(190, 94, 255, 0.60)';
+    ctx.shadowColor = t < 0.5 ? 'rgba(72, 144, 255, 0.60)' : 'rgba(138, 84, 255, 0.58)';
     ctx.shadowBlur = 14 + value * 14;
     ctx.globalAlpha = 0.76 + value * 0.20;
     ctx.lineWidth = barWidth + value * 1.4;
