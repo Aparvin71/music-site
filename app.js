@@ -1,4 +1,4 @@
-/* v43.1.17 visualizer lift + left-wing alignment polish */
+/* v43.1.20 spectrum premium polish + clean package rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1454,8 +1454,8 @@ function drawVisualizerFrame() {
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
   const centerX = width / 2;
-  const activeCenterY = (height / 2) - Math.max(12, height * 0.05);
-  const backgroundCenterY = activeCenterY + Math.max(7, height * 0.029);
+  const activeCenterY = (height / 2) - Math.max(17, height * 0.068);
+  const backgroundCenterY = activeCenterY + Math.max(9, height * 0.038);
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
@@ -1463,19 +1463,19 @@ function drawVisualizerFrame() {
   const transient = spectrumState.transient || 0;
   const beatPulse = spectrumState.beatPulse || 0;
   const sourceSideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
-  const visibleSideBandCount = Math.max(12, Math.min(20, sourceSideBandCount));
+  const visibleSideBandCount = Math.max(12, Math.min(VISUALIZER_BAR_COUNT / 2, sourceSideBandCount));
 
   const outerInset = Math.max(30, width * 0.12);
   const coverGap = Math.max(136, Math.min(width * 0.34, height * 0.64));
-  const innerSafetyGap = Math.max(14, Math.min(24, width * 0.028));
+  const innerSafetyGap = Math.max(16, Math.min(26, width * 0.03));
   const availableWingWidth = Math.max(72, ((width - (outerInset * 2) - coverGap - (innerSafetyGap * 2)) / 2));
-  const wingWidth = Math.min(availableWingWidth, Math.max(92, width * 0.235));
-  const leftWingShift = Math.max(4, Math.min(8, width * 0.014));
+  const wingWidth = Math.min(availableWingWidth, Math.max(96, width * 0.24));
+  const leftWingShift = Math.max(6, Math.min(11, width * 0.018));
   const leftEnd = centerX - (coverGap / 2) - innerSafetyGap + leftWingShift;
   const leftStart = leftEnd - wingWidth;
   const rightStart = centerX + (coverGap / 2) + innerSafetyGap;
   const rightEnd = rightStart + wingWidth;
-  const maxHalfHeight = Math.max(22, Math.min(height * 0.145, 38 + bass * 16 + mids * 9 + beatPulse * 12 + transient * 8));
+  const maxHalfHeight = Math.max(20, Math.min(height * 0.128, 34 + bass * 14 + mids * 8 + beatPulse * 11 + transient * 8));
 
   const outerGlow = ctx.createLinearGradient(leftStart, backgroundCenterY, rightEnd, backgroundCenterY);
   outerGlow.addColorStop(0, `rgba(44, 86, 255, ${0.08 + bass * 0.08})`);
@@ -1541,41 +1541,46 @@ function drawVisualizerFrame() {
     const horizontalRatio = totalBarCount <= 1 ? 0 : totalIndex / (totalBarCount - 1);
     const nearArtwork = inwardBias;
     const outerArc = 1 - nearArtwork;
-    const shoulderLift = 0.96 + (outerArc * 0.18) + (Math.sin(outerArc * Math.PI * 0.92) * 0.05);
-    const widthBias = 0.94 + (Math.sin(outerArc * Math.PI) * 0.08) + (outerArc * 0.03);
-    const beatAccent = beatPulse * (0.60 + nearArtwork * 0.38) + transient * (0.52 + outerArc * 0.28) + localEnergy * 0.11;
-    const snapBoost = beatPulse * 0.66 + transient * 0.74;
-    const bounceBoost = beatPulse * (0.20 + nearArtwork * 0.12) + transient * 0.22;
-    const liveValue = Math.max(0.03, Math.min(1, band * (1.04 + beatAccent * 0.38) + beatAccent + snapBoost + bounceBoost));
+    const curveShape = 0.72 + (outerArc * 0.32);
+    const shoulderLift = 0.94 + (outerArc * 0.18) + (Math.sin(outerArc * Math.PI * 0.92) * 0.06);
+    const widthBias = 0.92 + (Math.sin(outerArc * Math.PI) * 0.10) + (outerArc * 0.04);
+    const beatAccent = beatPulse * (0.62 + nearArtwork * 0.40) + transient * (0.56 + outerArc * 0.32) + localEnergy * 0.13;
+    const snapBoost = beatPulse * 0.74 + transient * 0.88;
+    const bounceBoost = beatPulse * (0.24 + nearArtwork * 0.14) + transient * 0.28;
+    const liveValue = Math.max(0.03, Math.min(1, band * (1.06 + beatAccent * 0.40) + beatAccent + snapBoost + bounceBoost));
     const previousValue = visualizerRenderedBands[totalIndex] || 0;
     const smoothedValue = liveValue >= previousValue
-      ? (previousValue * 0.004) + (liveValue * 0.996)
-      : (previousValue * 0.03) + (liveValue * 0.97);
+      ? (previousValue * 0.0015) + (liveValue * 0.9985)
+      : (previousValue * 0.18) + (liveValue * 0.82);
     visualizerRenderedBands[totalIndex] = smoothedValue;
 
-    const spreadGain = 0.82 + nearArtwork * 0.10 + beatPulse * 0.19 + transient * 0.17;
-    const bounceLift = 1 + beatPulse * (0.32 + nearArtwork * 0.09) + transient * 0.22;
-    const halfHeight = Math.max(4, smoothedValue * maxHalfHeight * spreadGain * bounceLift * shoulderLift);
+    const t = performance.now() * 0.0024;
+    const microMotion = (Math.sin(t + (totalIndex * 0.6)) * 0.018) + (Math.sin(t * 1.85 + totalIndex) * 0.011);
+    const spreadGain = 0.80 + nearArtwork * 0.09 + beatPulse * 0.20 + transient * 0.18;
+    const bounceLift = 1 + beatPulse * (0.36 + nearArtwork * 0.10) + transient * 0.26;
+    const heightValue = Math.max(0.02, Math.min(1, smoothedValue + microMotion));
+    const halfHeight = Math.max(4, heightValue * maxHalfHeight * spreadGain * bounceLift * shoulderLift * curveShape);
     const step = side === 'left' ? leftStep : rightStep;
-    const barWidth = Math.max(1.55, Math.min(3.15, step * 0.21 * widthBias));
+    const barWidth = Math.max(1.45, Math.min(2.8, step * 0.19 * widthBias));
     const barGradient = ctx.createLinearGradient(x, activeCenterY + halfHeight, x, activeCenterY - halfHeight);
-    const topHue = 222 + (58 * horizontalRatio);
-    const midHue = 230 + (50 * horizontalRatio);
-    const bottomHue = 238 + (44 * horizontalRatio);
-    const topLight = 66 + smoothedValue * 10;
-    const midLight = 48 + smoothedValue * 7;
-    const bottomLight = 28 + smoothedValue * 4;
-    barGradient.addColorStop(0, `hsla(${bottomHue}, 88%, ${bottomLight}%, 0.92)`);
-    barGradient.addColorStop(0.45, `hsla(${midHue}, 92%, ${midLight}%, 0.96)`);
-    barGradient.addColorStop(1, `hsla(${topHue}, 96%, ${topLight}%, 0.98)`);
+    const topHue = 220 + (60 * horizontalRatio);
+    const midHue = 232 + (46 * horizontalRatio);
+    const bottomHue = 242 + (32 * horizontalRatio);
+    const topLight = 63 + heightValue * 11;
+    const midLight = 44 + heightValue * 8;
+    const bottomLight = 24 + heightValue * 4;
+    const isPeak = heightValue > 0.76;
+    barGradient.addColorStop(0, `hsla(${bottomHue}, 88%, ${bottomLight}%, 0.94)`);
+    barGradient.addColorStop(0.46, `hsla(${midHue}, 93%, ${midLight}%, 0.97)`);
+    barGradient.addColorStop(1, `hsla(${topHue}, 98%, ${topLight}%, 0.99)`);
 
     ctx.save();
     ctx.strokeStyle = barGradient;
     ctx.lineWidth = barWidth;
     ctx.lineCap = 'round';
-    ctx.globalAlpha = 0.96;
-    ctx.shadowBlur = 16 + smoothedValue * 9;
-    ctx.shadowColor = `hsla(${228 + (48 * horizontalRatio)}, 96%, 58%, ${0.52 + smoothedValue * 0.12})`;
+    ctx.globalAlpha = 0.98;
+    ctx.shadowBlur = isPeak ? (24 + heightValue * 14) : (13 + heightValue * 7);
+    ctx.shadowColor = `hsla(${224 + (52 * horizontalRatio)}, 98%, ${isPeak ? 66 : 56}%, ${isPeak ? 0.78 : 0.56})`;
     ctx.beginPath();
     ctx.moveTo(x, activeCenterY - halfHeight);
     ctx.lineTo(x, activeCenterY + halfHeight);
@@ -1584,11 +1589,15 @@ function drawVisualizerFrame() {
 
     const barEl = visualizerBars[totalIndex];
     if (barEl) {
-      const bounceY = Math.round((beatPulse * -7) + (transient * -5));
+      const bounceY = Math.round((beatPulse * -8) + (transient * -6));
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.30 + smoothedValue * 0.30}`;
-      barEl.style.transform = `translateY(${bounceY}px) scaleY(${(1 + beatPulse * 0.12 + transient * 0.07).toFixed(3)})`;
-      barEl.style.background = `linear-gradient(180deg, hsla(${222 + (58 * horizontalRatio)}, 96%, ${66 + smoothedValue * 10}%, 0.98) 0%, hsla(${230 + (50 * horizontalRatio)}, 92%, ${48 + smoothedValue * 7}%, 0.96) 52%, hsla(${238 + (44 * horizontalRatio)}, 88%, ${28 + smoothedValue * 4}%, 0.92) 100%)`;
+      barEl.style.opacity = `${0.28 + heightValue * 0.34}`;
+      barEl.style.transform = `translateY(${bounceY}px) scaleY(${(1 + beatPulse * 0.14 + transient * 0.08).toFixed(3)})`;
+      barEl.style.filter = isPeak ? 'saturate(1.38) brightness(1.16)' : 'saturate(1.2)';
+      barEl.style.background = `linear-gradient(180deg, hsla(${220 + (60 * horizontalRatio)}, 98%, ${63 + heightValue * 11}%, 0.99) 0%, hsla(${232 + (46 * horizontalRatio)}, 93%, ${44 + heightValue * 8}%, 0.97) 52%, hsla(${242 + (32 * horizontalRatio)}, 88%, ${24 + heightValue * 4}%, 0.94) 100%)`;
+      barEl.style.boxShadow = isPeak
+        ? `0 0 16px hsla(${224 + (52 * horizontalRatio)}, 98%, 66%, 0.52), 0 0 28px hsla(${248 + (28 * horizontalRatio)}, 96%, 56%, 0.34)`
+        : `0 0 10px hsla(${224 + (52 * horizontalRatio)}, 96%, 58%, 0.22)`;
     }
   };
 

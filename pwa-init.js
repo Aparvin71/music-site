@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.1.17";
+const AINEO_APP_VERSION = "v43.1.20";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -75,8 +75,8 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.17</span></p>
-          <p class="mission-statement mission-statement--summary">This build focuses on the current doubled split-spectrum bar density, lifted visualizer framing, a slight left-wing alignment correction, and the darker neon blue-to-purple gradient while keeping the working audio path stable.</p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.20</span></p>
+          <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
     </div>
@@ -327,7 +327,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.17";
+const APP_RUNTIME_VERSION = "v43.1.20";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

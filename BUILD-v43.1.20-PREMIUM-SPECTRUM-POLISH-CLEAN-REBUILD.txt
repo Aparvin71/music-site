@@ -1,0 +1,9 @@
+v43.1.20
+Premium Spectrum Polish + Clean Package Rebuild
+
+- Faster snap attack/release
+- Peak energy bloom
+- Wing-curve shaping
+- Micro-motion polish
+- Visualizer framing cleanup
+- Package note cleanup and version alignment

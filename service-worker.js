@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.17-visualizer-lift-left-wing-alignment-polish";
+const CACHE_VERSION = "v43.1.20-premium-spectrum-polish-clean-rebuild";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

@@ -5833,7 +5833,7 @@ body.orientation-guard-active {
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.05;
+  opacity: 0.04;
   filter: blur(22px) saturate(1.1);
   transform: scale(1.08);
 }
@@ -10163,26 +10163,26 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -16px;
-  transform: translate3d(10px, -11px, 0) scale(0.948);
+  transform: translate3d(10px, -16px, 0) scale(0.944);
   display: grid;
   place-items: center;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
   transition: opacity 180ms ease, transform 220ms ease, filter 220ms ease;
-  filter: saturate(1.75) contrast(1.24) brightness(1.08);
+  filter: saturate(1.82) contrast(1.28) brightness(1.04);
 }
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(10px, -11px, 0) scale(0.966);
+  transform: translate3d(10px, -16px, 0) scale(0.962);
 }
 
 .player-cover-visualizer::before,
 .player-cover-visualizer::after {
   content: "";
   position: absolute;
-  inset: 18%;
+  inset: 19%;
   border-radius: 999px;
   pointer-events: none;
 }
@@ -10198,30 +10198,30 @@ button:active{
       rgba(122, 62, 255, 0.24) 274deg,
       rgba(38, 78, 255, 0.00) 360deg);
   filter: blur(24px) saturate(1.35);
-  opacity: 0.54;
+  opacity: 0.48;
   mix-blend-mode: screen;
 }
 
 .player-cover-visualizer::after {
-  inset: 12%;
+  inset: 13%;
   background:
     radial-gradient(circle at 32% 28%, rgba(196, 212, 255, 0.20), rgba(255, 255, 255, 0) 22%),
     radial-gradient(circle at 66% 70%, rgba(44, 92, 255, 0.18), rgba(44, 92, 255, 0) 28%),
     radial-gradient(circle at 58% 44%, rgba(118, 58, 255, 0.22), rgba(118, 58, 255, 0) 30%),
     radial-gradient(circle at 50% 50%, rgba(64, 84, 218, 0.20), rgba(14, 20, 38, 0) 64%);
   filter: blur(18px);
-  opacity: 0.36;
+  opacity: 0.28;
 }
 
 .player-cover-visualizer-glow {
   position: absolute;
-  inset: 15%;
+  inset: 16%;
   border-radius: 999px;
   background:
     radial-gradient(circle at 50% 50%, rgba(216, 226, 255, 0.22), rgba(216, 226, 255, 0.08) 12%, rgba(84, 128, 255, 0.24) 24%, rgba(46, 82, 255, 0.20) 34%, rgba(106, 54, 255, 0.22) 50%, rgba(132, 72, 255, 0.14) 62%, rgba(16, 22, 40, 0) 77%),
     radial-gradient(circle at 35% 30%, rgba(86, 126, 255, 0.22), rgba(86, 126, 255, 0) 26%),
     radial-gradient(circle at 68% 72%, rgba(130, 74, 255, 0.20), rgba(130, 74, 255, 0) 28%);
-  filter: blur(22px) saturate(1.28);
+  filter: blur(20px) saturate(1.22);
 }
 
 .player-cover-visualizer-canvas {
@@ -10236,11 +10236,11 @@ button:active{
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 30px 38px;
+  inset: 28px 36px;
   display: grid;
   align-items: center;
   pointer-events: none;
-  opacity: 0.05;
+  opacity: 0.04;
 }
 
 .player-cover-visualizer-bar {
@@ -10250,7 +10250,7 @@ button:active{
   background: linear-gradient(180deg, rgba(188, 210, 255, 0.92), rgba(76, 124, 255, 0.94) 26%, rgba(62, 72, 232, 0.92) 58%, rgba(112, 68, 228, 0.68));
   box-shadow: 0 0 10px rgba(58, 112, 255, 0.34), 0 0 18px rgba(108, 82, 255, 0.18);
   align-self: center;
-  transition: height 72ms linear, opacity 72ms linear, transform 72ms linear, filter 72ms linear;
+  transition: height 56ms linear, opacity 56ms linear, transform 56ms linear, filter 56ms linear, box-shadow 56ms linear;
   filter: saturate(1.18);
   mix-blend-mode: screen;
 }
@@ -10301,8 +10301,8 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -7px, 0) scale(0.948); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -7px, 0) scale(0.964); }
+  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -10px, 0) scale(0.944); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -10px, 0) scale(0.96); }
   .player-cover-visualizer-bars { inset: 18px 18px; }
   .player-cover-visualizer-bar { width: 2px; }
 }
@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.17 visualizer lift + left-wing alignment polish */
+/* v43.1.20 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,7 +12397,7 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.17 visualizer lift + left-wing alignment polish */
+/* v43.1.20 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.17 visualizer lift + left-wing alignment polish */
+/* v43.1.20 visualizer lift + left-wing alignment polish */
