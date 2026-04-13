@@ -67,11 +67,17 @@
       search_keywords: normalizeStringArray(track.search_keywords || track.searchKeywords),
       has_lyrics: Boolean(track.has_lyrics || track.lyrics || track.lyrics_file),
       has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length),
+      analysis_file: String(track.analysis_file || "").trim(),
+      analysis_version: String(track.analysis_version || ""),
+      has_analysis: Boolean(track.has_analysis || track.analysis_file),
+      waveform_point_count: Number(track.waveform_point_count || 0) || 0,
       waveform_envelope: Array.isArray(track.waveform_envelope) ? track.waveform_envelope.map(v => Number(v) || 0) : [],
-      waveform_ring_preview: Array.isArray(track.waveform_ring_preview) ? track.waveform_ring_preview.map(v => Number(v) || 0) : [],
       spectrum_frames: Array.isArray(track.spectrum_frames)
         ? track.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
-        : []
+        : [],
+      spectrum_band_count: Number(track.spectrum_band_count || 0) || 0,
+      spectrum_frame_count: Number(track.spectrum_frame_count || 0) || 0,
+      analysis_loaded: Boolean((Array.isArray(track.waveform_envelope) && track.waveform_envelope.length) || (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length))
     };
   }
 

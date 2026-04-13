@@ -1,0 +1,15 @@
+
+BUILD v43.1.30 — GENERATOR POLISH PASS
+
+Included in this pass
+- clean rebuild of make_tracks.py
+- true CLI entry point with summary reporting
+- new / changed / reused track summary
+- generated / reused analysis summary
+- optional report file output
+- on-demand prebuild support for missing analysis only
+
+Intended workflow
+- Use changed mode for normal library growth
+- Use missing mode to backfill absent analysis JSON files
+- Use all mode only when you intentionally want a full analysis refresh

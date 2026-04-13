@@ -12,8 +12,8 @@
   };
 
   window.AineoConfig = {
-    version: "v43.1.28",
-    assetVersion: "43.1.28",
+    version: "v43.1.30",
+    assetVersion: "43.1.30",
     defaultArtist: "Allen Parvin",
     assetMode: "decoupled",
     assets: {
@@ -21,7 +21,7 @@
       coverBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers",
       lyricsBasePath: "lyrics",
       lyricsManifestPath: "lyrics/lrc-manifest.json",
-      lyricsVersionKey: "43.1.28",
+      lyricsVersionKey: "43.1.30",
       externalAudio: true,
       externalCovers: true,
       localLyricsOptional: true

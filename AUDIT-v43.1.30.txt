@@ -1,0 +1,11 @@
+
+AUDIT v43.1.30
+
+Validated package goals
+- tracks.json remains split from heavy visualizer payloads
+- /analysis directory present
+- waveform_ring_preview not generated
+- make_tracks.py replaced with a complete polished generator
+- tools/make_tracks.py remains a thin wrapper
+- no audio folder included
+- no covers folder included

@@ -1,0 +1,509 @@
+{
+  "analysis_version": "v1",
+  "tracks": {
+    "alpha-and-omega__holy-beyond-measure__24": {
+      "analysis_file": "analysis/alpha-and-omega-holy-beyond-measure-24.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__you-see-me__70": {
+      "analysis_file": "analysis/alpha-and-omega-you-see-me-70.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__genesis__20": {
+      "analysis_file": "analysis/alpha-and-omega-genesis-20.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__worth-it-all__69": {
+      "analysis_file": "analysis/alpha-and-omega-worth-it-all-69.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__moved-with-compassion__39": {
+      "analysis_file": "analysis/alpha-and-omega-moved-with-compassion-39.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__praise-the-lord-o-my-soul__45": {
+      "analysis_file": "analysis/alpha-and-omega-praise-the-lord-o-my-soul-45.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__every-breath-your-name__16": {
+      "analysis_file": "analysis/alpha-and-omega-every-breath-your-name-16.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "alpha-and-omega__you-spoke__71": {
+      "analysis_file": "analysis/alpha-and-omega-you-spoke-71.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "beautiful-things__alivia-play-with-me__4": {
+      "analysis_file": "analysis/beautiful-things-alivia-play-with-me-4.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "beautiful-things__at-work__5": {
+      "analysis_file": "analysis/beautiful-things-at-work-5.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "beautiful-things__watching-you-grow__65": {
+      "analysis_file": "analysis/beautiful-things-watching-you-grow-65.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "beautiful-things__please-stay-with-me-child__43": {
+      "analysis_file": "analysis/beautiful-things-please-stay-with-me-child-43.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "beautiful-things__please-stay-with-me-mom__44": {
+      "analysis_file": "analysis/beautiful-things-please-stay-with-me-mom-44.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__step-out-and-go__54": {
+      "analysis_file": "analysis/carry-the-light-step-out-and-go-54.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__wide-awake__68": {
+      "analysis_file": "analysis/carry-the-light-wide-awake-68.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__spiritual-gym-anthem__53": {
+      "analysis_file": "analysis/carry-the-light-spiritual-gym-anthem-53.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__shape-of-sacrifice__52": {
+      "analysis_file": "analysis/carry-the-light-shape-of-sacrifice-52.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__remove-the-log__49": {
+      "analysis_file": "analysis/carry-the-light-remove-the-log-49.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__same-mouth__50": {
+      "analysis_file": "analysis/carry-the-light-same-mouth-50.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__upon-the-holy-mount__63": {
+      "analysis_file": "analysis/carry-the-light-upon-the-holy-mount-63.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__turn-that-other-cheek__62": {
+      "analysis_file": "analysis/carry-the-light-turn-that-other-cheek-62.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__lead-me-home-good-shepherd__32": {
+      "analysis_file": "analysis/carry-the-light-lead-me-home-good-shepherd-32.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__make-me-a-faithful-tree__36": {
+      "analysis_file": "analysis/carry-the-light-make-me-a-faithful-tree-36.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__make-a-good-tree-in-me__35": {
+      "analysis_file": "analysis/carry-the-light-make-a-good-tree-in-me-35.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__same-sky__51": {
+      "analysis_file": "analysis/carry-the-light-same-sky-51.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__alive-in-me__3": {
+      "analysis_file": "analysis/carry-the-light-alive-in-me-3.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "carry-the-light__trash-in-trash-out__61": {
+      "analysis_file": "analysis/carry-the-light-trash-in-trash-out-61.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__chop-it-like-its-hot__12": {
+      "analysis_file": "analysis/fun-chop-it-like-its-hot-12.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__lake-house-weekend__30": {
+      "analysis_file": "analysis/fun-lake-house-weekend-30.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__deck-9-kind-of-love__13": {
+      "analysis_file": "analysis/fun-deck-9-kind-of-love-13.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__whos-driving-this-bus__67": {
+      "analysis_file": "analysis/fun-whos-driving-this-bus-67.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__card-drop__10": {
+      "analysis_file": "analysis/fun-card-drop-10.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__lake-house-chant__31": {
+      "analysis_file": "analysis/fun-lake-house-chant-31.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__don-t-drop-the-bar-bro__14": {
+      "analysis_file": "analysis/fun-don-t-drop-the-bar-bro-14.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "fun__iron-don-t-lie__26": {
+      "analysis_file": "analysis/fun-iron-don-t-lie-26.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "heartprints__forever-and-ever-gritty__19": {
+      "analysis_file": "analysis/heartprints-forever-and-ever-gritty-19.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "heartprints__its-you__27": {
+      "analysis_file": "analysis/heartprints-its-you-27.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "heartprints__mi-luna__37": {
+      "analysis_file": "analysis/heartprints-mi-luna-37.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "heartprints__rearview-memories__46": {
+      "analysis_file": "analysis/heartprints-rearview-memories-46.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "heartprints__haunting-blue__22": {
+      "analysis_file": "analysis/heartprints-haunting-blue-22.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__by-your-hands__9": {
+      "analysis_file": "analysis/home-by-your-hands-9.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__theres-always-enough__59": {
+      "analysis_file": "analysis/home-theres-always-enough-59.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__things-i-carry__60": {
+      "analysis_file": "analysis/home-things-i-carry-60.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__my-son__40": {
+      "analysis_file": "analysis/home-my-son-40.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__higher-aim__23": {
+      "analysis_file": "analysis/home-higher-aim-23.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__keeper-of-the-pines__29": {
+      "analysis_file": "analysis/home-keeper-of-the-pines-29.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__remington-the-pump-truck-guy__48": {
+      "analysis_file": "analysis/home-remington-the-pump-truck-guy-48.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__the-table__58": {
+      "analysis_file": "analysis/home-the-table-58.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__mother-of-two__38": {
+      "analysis_file": "analysis/home-mother-of-two-38.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__little-brother__34": {
+      "analysis_file": "analysis/home-little-brother-34.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__a-man-like-him__1": {
+      "analysis_file": "analysis/home-a-man-like-him-1.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "home__before-anyone-else__6": {
+      "analysis_file": "analysis/home-before-anyone-else-6.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__foot-of-the-cross__18": {
+      "analysis_file": "analysis/mercy-and-grace-foot-of-the-cross-18.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__on-my-body__41": {
+      "analysis_file": "analysis/mercy-and-grace-on-my-body-41.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__where-the-worm-does-not-die__66": {
+      "analysis_file": "analysis/mercy-and-grace-where-the-worm-does-not-die-66.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__remember-me__47": {
+      "analysis_file": "analysis/mercy-and-grace-remember-me-47.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__don-t-remember-me__15": {
+      "analysis_file": "analysis/mercy-and-grace-don-t-remember-me-15.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__changed__11": {
+      "analysis_file": "analysis/mercy-and-grace-changed-11.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__stones-don-t-become-bread__55": {
+      "analysis_file": "analysis/mercy-and-grace-stones-don-t-become-bread-55.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__agape-love__2": {
+      "analysis_file": "analysis/mercy-and-grace-agape-love-2.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__out-of-ashes__42": {
+      "analysis_file": "analysis/mercy-and-grace-out-of-ashes-42.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "mercy-and-grace__finally-let-you-in__17": {
+      "analysis_file": "analysis/mercy-and-grace-finally-let-you-in-17.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__sugar-and-grace__56": {
+      "analysis_file": "analysis/real-people-sugar-and-grace-56.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__wait-hold-up__64": {
+      "analysis_file": "analysis/real-people-wait-hold-up-64.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__youre-done__72": {
+      "analysis_file": "analysis/real-people-youre-done-72.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__just-strollin-through__28": {
+      "analysis_file": "analysis/real-people-just-strollin-through-28.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__let-it-all-hang-out__33": {
+      "analysis_file": "analysis/real-people-let-it-all-hang-out-33.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__thats-just-how-she-is__57": {
+      "analysis_file": "analysis/real-people-thats-just-how-she-is-57.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "real-people__hands-of-a-man__21": {
+      "analysis_file": "analysis/real-people-hands-of-a-man-21.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "trauma__bent-my-mind__7": {
+      "analysis_file": "analysis/trauma-bent-my-mind-7.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "trauma__breathe__8": {
+      "analysis_file": "analysis/trauma-breathe-8.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    },
+    "trauma__i-m-still-here__25": {
+      "analysis_file": "analysis/trauma-i-m-still-here-25.json",
+      "analysis_version": "v1",
+      "waveform_point_count": 2048,
+      "spectrum_frame_count": 120,
+      "spectrum_band_count": 24
+    }
+  }
+}
