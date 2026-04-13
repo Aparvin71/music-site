@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.1.25";
+const AINEO_APP_VERSION = "v43.1.26";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -75,7 +75,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.25</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.26</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -307,6 +307,12 @@ function maybeShowStandaloneWelcome() {
 
 
 async function registerStandaloneServiceWorker() {
+  const didReset = await performTargetedShellResetIfNeeded();
+  if (didReset) {
+    window.location.reload();
+    return;
+  }
+
   if (!("serviceWorker" in navigator)) return;
   try {
     const swRegistrationUrl = new URL(`./service-worker.js?v=${encodeURIComponent(AINEO_APP_VERSION.replace(/^v/, ""))}`, window.location.href);
@@ -354,7 +360,65 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.25";
+const APP_RUNTIME_VERSION = "v43.1.26";
+
+const APP_SHELL_RESET_VERSION_KEY = "aineo_app_shell_reset_version";
+const APP_SHELL_RESET_TARGET = "v43.1.26";
+const PRESERVED_STORAGE_KEYS = new Set([
+  "aineo_favorites",
+  "aineo_recently_played",
+  "aineo_resume",
+  "aineo_custom_playlists",
+  "aineo_downloaded_tracks",
+  "aineo_last_queue",
+  "aineo_play_stats",
+  "aineo_app_feel_settings"
+]);
+
+async function performTargetedShellResetIfNeeded() {
+  let currentVersion = "";
+  try { currentVersion = localStorage.getItem(APP_SHELL_RESET_VERSION_KEY) || ""; } catch (error) {}
+  if (currentVersion === APP_SHELL_RESET_TARGET) return false;
+
+  try {
+    const keysToRemove = [
+      "aineo_tracks_cache",
+      "aineo_tracks_signature",
+      "aineo_app_update_announced_version",
+      "aineo_app_update_session_flag",
+      "aineo_offline_banner_dismissed",
+      "aineo_install_dismissed",
+      "aineo_offline_hint_dismissed",
+      "aineo_standalone_welcome_dismissed"
+    ];
+
+    keysToRemove.forEach((key) => {
+      try { localStorage.removeItem(key); } catch (error) {}
+      try { sessionStorage.removeItem(key); } catch (error) {}
+    });
+
+    if ("caches" in window) {
+      const cacheKeys = await caches.keys();
+      await Promise.all(cacheKeys.map((key) => {
+        if (key === "aineo-user-offline-audio" || key === "aineo-user-offline-assets") return Promise.resolve(false);
+        return caches.delete(key);
+      }));
+    }
+
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+    }
+
+    try { localStorage.setItem(APP_SHELL_RESET_VERSION_KEY, APP_SHELL_RESET_TARGET); } catch (error) {}
+    return true;
+  } catch (error) {
+    console.warn("Targeted shell reset failed:", error);
+    try { localStorage.setItem(APP_SHELL_RESET_VERSION_KEY, APP_SHELL_RESET_TARGET); } catch (storageError) {}
+    return false;
+  }
+}
+
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;

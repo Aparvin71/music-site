@@ -1,0 +1,9 @@
+AUDIT v43.1.26
+
+Validated goals:
+- no audio folder
+- no covers folder
+- no lyrics folder
+- internal version bumped to v43.1.26
+- targeted shell reset present in pwa-init.js
+- tracks.json remains decoupled with remote src and cover URLs

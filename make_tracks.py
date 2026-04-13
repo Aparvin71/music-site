@@ -11,7 +11,7 @@ from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 import numpy as np
 
-# v43.1.25 asset decoupling defaults:
+# v43.1.24 asset decoupling defaults:
 # - app core ships separately from audio/covers
 # - generated tracks.json points at remote audio and cover URLs
 # - local lyrics remain optional
@@ -815,7 +815,7 @@ def main() -> None:
     if not AUDIO_DIR.exists():
         raise SystemExit(
             f"Missing audio folder: {AUDIO_DIR}\n"
-            "This v43.1.25 generator expects a decoupled core app plus a separate audio folder when rebuilding tracks."
+            "This v43.1.24 generator expects a decoupled core app plus a separate audio folder when rebuilding tracks."
         )
 
     COVERS_DIR.mkdir(parents=True, exist_ok=True)

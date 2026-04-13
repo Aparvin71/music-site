@@ -1,0 +1,10 @@
+BUILD v43.1.26 — TARGETED IPHONE RESET PASS
+
+This pass replaces the destructive all-storage reset from v43.1.25 with a targeted shell reset.
+
+Key behavior:
+- removes stale app-shell caches
+- removes stale update-tracking keys
+- unregisters old workers
+- reloads once
+- preserves user/content state needed for remote song and cover links

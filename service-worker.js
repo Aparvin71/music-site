@@ -1,24 +1,5 @@
-
-// v43.1.25 hard reset
-const APP_VERSION = "43.1.25";
-try {
-  const stored = localStorage.getItem("app_version");
-  if (stored !== APP_VERSION) {
-    localStorage.clear();
-    sessionStorage.clear();
-    if (window.indexedDB) {
-      indexedDB.databases && indexedDB.databases().then(dbs => {
-        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-      });
-    }
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-    localStorage.setItem("app_version", APP_VERSION);
-    window.location.reload(true);
-  }
-} catch(e) {}
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.25-iphone-web-app-update-flow";
+const CACHE_VERSION = "v43.1.26-iphone-web-app-update-flow";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
