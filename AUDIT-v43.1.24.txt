@@ -1,0 +1,6 @@
+Aineo Music v43.1.25 audit
+
+Summary
+- Internal version references bumped to v43.1.25
+- Service worker update flow strengthened for installed iPhone web app behavior
+- Core package confirmed to exclude audio, covers, and lyrics directories

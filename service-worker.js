@@ -1,8 +1,28 @@
+
+// v43.1.25 hard reset
+const APP_VERSION = "43.1.25";
+try {
+  const stored = localStorage.getItem("app_version");
+  if (stored !== APP_VERSION) {
+    localStorage.clear();
+    sessionStorage.clear();
+    if (window.indexedDB) {
+      indexedDB.databases && indexedDB.databases().then(dbs => {
+        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
+      });
+    }
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    localStorage.setItem("app_version", APP_VERSION);
+    window.location.reload(true);
+  }
+} catch(e) {}
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.20-premium-spectrum-polish-clean-rebuild";
+const CACHE_VERSION = "v43.1.25-iphone-web-app-update-flow";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
+const KEEP_CACHES = new Set([STATIC_CACHE, RUNTIME_CACHE, AUDIO_CACHE, 'aineo-user-offline-audio', 'aineo-user-offline-assets']);
 
 // ===== APP SHELL FILES =====
 const APP_SHELL = [
@@ -56,13 +76,14 @@ const APP_SHELL = [
 
 function normalizeRequest(input) {
   const request = input instanceof Request ? input : new Request(input, { mode: 'cors' });
-  const url = new URL(request.url);
+  const url = new URL(request.url, self.location.origin);
   url.search = '';
   const sameOrigin = url.origin === self.location.origin;
   return new Request(url.toString(), {
     method: 'GET',
     mode: request.mode === 'navigate' ? 'same-origin' : (sameOrigin ? 'same-origin' : 'no-cors'),
-    credentials: 'omit'
+    credentials: 'omit',
+    cache: 'no-store'
   });
 }
 
@@ -84,7 +105,8 @@ async function fetchForCache(url) {
   const noCorsRequest = new Request(new URL(url, self.location.origin).toString(), {
     method: 'GET',
     mode: 'no-cors',
-    credentials: 'omit'
+    credentials: 'omit',
+    cache: 'no-store'
   });
   const response = await fetch(noCorsRequest);
   return { request: normalizeRequest(noCorsRequest), response };
@@ -155,17 +177,45 @@ function createPartialResponse(response, rangeHeader) {
   });
 }
 
+function isCoreLiveAsset(request, url) {
+  if (request.mode === 'navigate') return true;
+  if (['style', 'script'].includes(request.destination)) return true;
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname.endsWith('.webmanifest')) return true;
+  if (['/tracks.json', '/albums.json'].includes(url.pathname) || url.pathname.endsWith('/tracks.json') || url.pathname.endsWith('/albums.json')) return true;
+  return false;
+}
+
+async function updateStaticShell() {
+  const cache = await caches.open(STATIC_CACHE);
+  await Promise.all(APP_SHELL.map(async (url) => {
+    try {
+      const fetched = await fetchForCache(url);
+      if (responseCanBeCached(fetched.response)) {
+        await cache.put(fetched.request, fetched.response.clone());
+      }
+    } catch (error) {
+      console.warn('Failed to warm shell URL:', url, error);
+    }
+  }));
+}
+
+async function announceActivation() {
+  const clientsList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  await Promise.all(clientsList.map((client) => client.postMessage({ type: 'SW_ACTIVATED', version: CACHE_VERSION })));
+}
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(caches.open(STATIC_CACHE).then((cache) => Promise.all(APP_SHELL.map((url) => cache.add(url).catch(() => console.warn('Failed to cache:', url))))));
+  event.waitUntil(updateStaticShell());
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((key) => {
-    if (![STATIC_CACHE, RUNTIME_CACHE, AUDIO_CACHE, 'aineo-user-offline-audio', 'aineo-user-offline-assets'].includes(key)) return caches.delete(key);
-    return undefined;
-  }))));
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((key) => KEEP_CACHES.has(key) ? undefined : caches.delete(key)));
+    await self.clients.claim();
+    await announceActivation();
+  })());
 });
 
 self.addEventListener('message', (event) => {
@@ -216,7 +266,7 @@ self.addEventListener('fetch', (event) => {
       const cached = await findCachedResponse(req);
       if (cached) return cached;
       try {
-        const res = await fetch(req);
+        const res = await fetch(req, { cache: 'no-store' });
         if (res && res.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(normalizeRequest(req), res.clone()));
         return res;
       } catch (error) {
@@ -226,23 +276,20 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (['/tracks.json', '/albums.json'].includes(url.pathname) || url.pathname.endsWith('/tracks.json') || url.pathname.endsWith('/albums.json')) {
+  if (isCoreLiveAsset(req, url)) {
     event.respondWith((async () => {
       const cached = await findCachedResponse(req);
-      const networkFetch = fetch(req).then((res) => {
-        if (res && res.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(normalizeRequest(req), res.clone()));
+      try {
+        const res = await fetch(req, { cache: 'no-store' });
+        if (res && res.ok) {
+          const targetCache = req.mode === 'navigate' ? RUNTIME_CACHE : STATIC_CACHE;
+          caches.open(targetCache).then((cache) => cache.put(normalizeRequest(req), res.clone()));
+        }
         return res;
-      }).catch(() => cached);
-      return cached || networkFetch;
+      } catch (error) {
+        return cached || caches.match('/index.html') || caches.match('/music.html');
+      }
     })());
-    return;
-  }
-
-  if (req.mode === 'navigate') {
-    event.respondWith(fetch(req).then((res) => {
-      if (res && res.ok) caches.open(RUNTIME_CACHE).then((cache) => cache.put(normalizeRequest(req), res.clone()));
-      return res;
-    }).catch(() => findCachedResponse(req).then((cached) => cached || caches.match('/index.html') || caches.match('/music.html'))));
     return;
   }
 

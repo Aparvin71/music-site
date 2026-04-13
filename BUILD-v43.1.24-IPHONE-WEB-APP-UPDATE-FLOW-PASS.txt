@@ -1,0 +1,20 @@
+Aineo Music v43.1.25 — iPhone Web App Update Flow Pass
+
+Purpose
+- Fix installed iPhone home-screen app sticking on an old version after deploys.
+
+Changes
+- Bumped all internal version references to v43.1.25.
+- Service worker now uses a stronger immediate-activation flow.
+- Added clients.claim() during activate and client notification after activation.
+- Added network-first handling for core live assets: HTML, CSS, JS, webmanifest, tracks.json, albums.json.
+- Added stronger cache cleanup for old cache namespaces.
+- Service worker registration now uses updateViaCache: "none".
+- Added controllerchange auto-reload guard so the app refreshes when the new worker takes over.
+- Added registration.update() checks on load, focus, and visibility return.
+
+Package notes
+- Core-only package.
+- No audio folder.
+- No covers folder.
+- No lyrics folder.

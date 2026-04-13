@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.1.20";
+const AINEO_APP_VERSION = "v43.1.25";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -75,7 +75,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.20</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.25</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -309,14 +309,41 @@ function maybeShowStandaloneWelcome() {
 async function registerStandaloneServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   try {
-    const swUrl = new URL("./service-worker.js", window.location.href).pathname;
-    const registration = await navigator.serviceWorker.register(swUrl);
+    const swRegistrationUrl = new URL(`./service-worker.js?v=${encodeURIComponent(AINEO_APP_VERSION.replace(/^v/, ""))}`, window.location.href);
+    const swUrl = swRegistrationUrl.pathname + swRegistrationUrl.search;
+    let didControllerReload = false;
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (didControllerReload) return;
+      didControllerReload = true;
+      rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
+      window.location.reload();
+    });
+
+    navigator.serviceWorker.addEventListener("message", (event) => {
+      const data = event.data || {};
+      if (data.type === "SW_ACTIVATED" && isStandalone() && !hasRecentManualRefresh()) {
+        window.setTimeout(() => performAppRefresh({ immediate: true, source: "sw-activated" }), 250);
+      }
+    });
+
+    const registration = await navigator.serviceWorker.register(swUrl, { updateViaCache: "none" });
+    if (typeof registration.update === "function") {
+      window.setTimeout(() => registration.update().catch(() => {}), 1200);
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") registration.update().catch(() => {});
+      });
+      window.addEventListener("focus", () => registration.update().catch(() => {}), { passive: true });
+    }
+
     if (registration.waiting) registration.waiting.postMessage({ type: "SKIP_WAITING" });
+    if (registration.installing) registration.installing.postMessage?.({ type: "SKIP_WAITING" });
+
     registration.addEventListener("updatefound", () => {
       const worker = registration.installing;
       if (!worker) return;
       worker.addEventListener("statechange", () => {
-        if (worker.state === "installed" && navigator.serviceWorker.controller) worker.postMessage({ type: "SKIP_WAITING" });
+        if (worker.state === "installed") worker.postMessage({ type: "SKIP_WAITING" });
       });
     });
   } catch (error) {
@@ -327,7 +354,7 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.20";
+const APP_RUNTIME_VERSION = "v43.1.25";
 const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
 let tracksUpdateTimer = null;
 let lastKnownTracksSignature = null;
