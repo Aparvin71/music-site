@@ -10163,7 +10163,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -16px;
-  transform: translate3d(10px, -8px, 0) scale(0.948);
+  transform: translate3d(10px, -11px, 0) scale(0.948);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(10px, -8px, 0) scale(0.966);
+  transform: translate3d(10px, -11px, 0) scale(0.966);
 }
 
 .player-cover-visualizer::before,
@@ -10301,8 +10301,8 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -5px, 0) scale(0.948); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -5px, 0) scale(0.964); }
+  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -7px, 0) scale(0.948); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -7px, 0) scale(0.964); }
   .player-cover-visualizer-bars { inset: 18px 18px; }
   .player-cover-visualizer-bar { width: 2px; }
 }
@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.16 spectrum recenter + neon palette + fast snap */
+/* v43.1.17 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,7 +12397,7 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.16 spectrum recenter + neon palette + fast snap */
+/* v43.1.17 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.16 spectrum recenter + neon palette + fast snap */
+/* v43.1.17 visualizer lift + left-wing alignment polish */

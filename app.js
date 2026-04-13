@@ -1,4 +1,4 @@
-/* v43.1.16 spectrum shape + balance polish */
+/* v43.1.17 visualizer lift + left-wing alignment polish */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1454,7 +1454,7 @@ function drawVisualizerFrame() {
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
   const centerX = width / 2;
-  const activeCenterY = (height / 2) - Math.max(8, height * 0.036);
+  const activeCenterY = (height / 2) - Math.max(12, height * 0.05);
   const backgroundCenterY = activeCenterY + Math.max(7, height * 0.029);
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
@@ -1470,7 +1470,8 @@ function drawVisualizerFrame() {
   const innerSafetyGap = Math.max(14, Math.min(24, width * 0.028));
   const availableWingWidth = Math.max(72, ((width - (outerInset * 2) - coverGap - (innerSafetyGap * 2)) / 2));
   const wingWidth = Math.min(availableWingWidth, Math.max(92, width * 0.235));
-  const leftEnd = centerX - (coverGap / 2) - innerSafetyGap;
+  const leftWingShift = Math.max(4, Math.min(8, width * 0.014));
+  const leftEnd = centerX - (coverGap / 2) - innerSafetyGap + leftWingShift;
   const leftStart = leftEnd - wingWidth;
   const rightStart = centerX + (coverGap / 2) + innerSafetyGap;
   const rightEnd = rightStart + wingWidth;

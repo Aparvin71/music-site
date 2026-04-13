@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.16-double-bars-dual-axis-neon-gradient";
+const CACHE_VERSION = "v43.1.17-visualizer-lift-left-wing-alignment-polish";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
