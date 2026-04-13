@@ -1,4 +1,4 @@
-/* v43.1.27 asset decoupling pass */
+/* v43.1.28 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -413,7 +413,15 @@ const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
         src: track.src || track.url || track.audio || "",
         cover: track.cover || track.artwork || track.image || "",
         lyrics: track.lyrics || "",
-        lyrics_file: track.lyrics_file || track.lyricsFile || "",
+        lyrics_file: (() => {
+          const raw = String(track.lyrics_file || track.lyricsFile || "").trim();
+          if (!raw) return "";
+          if (/^https?:\/\//i.test(raw)) return raw;
+          const basePath = String(window.AineoConfig?.app?.assets?.lyricsBasePath || "lyrics").replace(/\/$/, "");
+          if (raw.startsWith("lyrics/")) return raw;
+          if (basePath && !raw.startsWith(basePath + "/")) return `${basePath}/${raw.replace(/^\/+/, "")}`;
+          return raw;
+        })(),
         lyrics_offset: Number(track.lyrics_offset ?? track.lyricsOffset ?? 0) || 0,
         syncedLyrics: [],
         tags,

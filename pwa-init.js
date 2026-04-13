@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.1.27";
+const AINEO_APP_VERSION = "v43.1.28";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -75,7 +75,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.27</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.28</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -308,6 +308,7 @@ function maybeShowStandaloneWelcome() {
 
 async function registerStandaloneServiceWorker() {
   const migratedStorage = migratePersistentStorageIfNeeded();
+  const migratedLyricsLibrary = migrateLyricsLibraryIfNeeded();
   const didReset = await performTargetedShellResetIfNeeded();
   if (didReset) {
     markBuildRefreshed();
@@ -376,16 +377,18 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.27";
+const APP_RUNTIME_VERSION = "v43.1.28";
 
 
 const APP_SHELL_RESET_VERSION_KEY = "aineo_app_shell_reset_version";
-const APP_SHELL_RESET_TARGET = "v43.1.27";
+const APP_SHELL_RESET_TARGET = "v43.1.28";
 const APP_PERSIST_SCHEMA_KEY = "aineo_persist_schema_version";
 const APP_PERSIST_SCHEMA_VERSION = 2;
 const APP_LAST_SEEN_BUILD_KEY = "aineo_last_seen_build";
 const APP_LAST_REFRESHED_BUILD_KEY = "aineo_last_refreshed_build";
 const APP_UPDATE_CHANNEL_KEY = "aineo_update_channel_state";
+const LYRICS_LIBRARY_VERSION_KEY = "aineo_lyrics_library_version";
+const LYRICS_LIBRARY_VERSION = "43.1.28";
 
 const PRESERVED_STORAGE_KEYS = new Set([
   "aineo_favorites",
@@ -408,6 +411,8 @@ const PRESERVED_STORAGE_KEYS = new Set([
 const TRANSIENT_STORAGE_KEYS = [
   "aineo_tracks_cache",
   "aineo_tracks_signature",
+  "aineo_lyrics_manifest_cache",
+  "aineo_lyrics_manifest_version",
   "aineo_app_update_announced_version",
   "aineo_app_update_session_flag",
   "aineo_offline_banner_dismissed",
@@ -442,6 +447,28 @@ function persistCurrentBuildInfo() {
 function markBuildRefreshed() {
   try { localStorage.setItem(APP_LAST_REFRESHED_BUILD_KEY, APP_RUNTIME_VERSION); } catch (error) {}
   saveUpdateChannelState({ lastRefreshedBuild: APP_RUNTIME_VERSION });
+}
+
+
+function migrateLyricsLibraryIfNeeded() {
+  let currentVersion = "";
+  try { currentVersion = localStorage.getItem(LYRICS_LIBRARY_VERSION_KEY) || ""; } catch (error) {}
+  if (currentVersion === LYRICS_LIBRARY_VERSION) return false;
+
+  try {
+    localStorage.removeItem("aineo_tracks_cache");
+    localStorage.removeItem("aineo_lyrics_manifest_cache");
+    localStorage.removeItem("aineo_lyrics_manifest_version");
+    sessionStorage.removeItem("aineo_tracks_cache");
+    sessionStorage.removeItem("aineo_lyrics_manifest_cache");
+    sessionStorage.removeItem("aineo_lyrics_manifest_version");
+  } catch (error) {}
+
+  try {
+    localStorage.setItem(LYRICS_LIBRARY_VERSION_KEY, LYRICS_LIBRARY_VERSION);
+  } catch (error) {}
+
+  return true;
 }
 
 function cleanupTransientUpdateState() {

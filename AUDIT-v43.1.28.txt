@@ -1,0 +1,13 @@
+AUDIT v43.1.28
+
+Tracks in library: 72
+Lyrics files included: 72
+Lyrics manifest entries: 72
+Unmatched lyric references after rebuild: 0
+
+Validated goals:
+- internal version bumped to v43.1.28
+- /lyrics included and aligned to tracks.json
+- /audio not included
+- /covers not included
+- lyrics library invalidation added

@@ -1,6 +1,6 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.27-safe-persistent-update-system";
-const BUILD_VERSION = "v43.1.27";
+const CACHE_VERSION = "v43.1.28-safe-persistent-update-system";
+const BUILD_VERSION = "v43.1.28";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -162,7 +162,8 @@ function createPartialResponse(response, rangeHeader) {
 function isCoreLiveAsset(request, url) {
   if (request.mode === 'navigate') return true;
   if (['style', 'script'].includes(request.destination)) return true;
-  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname.endsWith('.webmanifest')) return true;
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname.endsWith('.webmanifest') || url.pathname.endsWith('.lrc')) return true;
+  if (url.pathname.includes('/lyrics/') || url.pathname.endsWith('.lrc')) return true;
   if (['/tracks.json', '/albums.json'].includes(url.pathname) || url.pathname.endsWith('/tracks.json') || url.pathname.endsWith('/albums.json')) return true;
   return false;
 }

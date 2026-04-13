@@ -14,7 +14,7 @@ import numpy as np
 # v43.1.24 asset decoupling defaults:
 # - app core ships separately from audio/covers
 # - generated tracks.json points at remote audio and cover URLs
-# - local lyrics remain optional
+# - local lyrics remain optional, but when present use the uploaded lyrics library and manifest first
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
 ALBUM_ZIP_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/albums"

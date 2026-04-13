@@ -1,0 +1,9 @@
+BUILD v43.1.28 — LYRICS SYSTEM FIX PASS
+
+This pass fixes the lyrics library by aligning the app shell, tracks.json, and uploaded .lrc files.
+
+Key behavior:
+- current uploaded lyrics files are included in /lyrics
+- tracks.json lyrics_file values now point to the actual uploaded filenames
+- lyrics cache/state is invalidated once with a dedicated version key
+- stale .lrc responses are less likely because the service worker treats lyrics as live assets

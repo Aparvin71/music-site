@@ -11,6 +11,18 @@
     return `${track.title || "track"}__${track.album || "album"}__${index}`;
   }
 
+
+  function resolveLyricsFilePath(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const config = window.AineoConfig?.app?.assets || {};
+    const basePath = String(config.lyricsBasePath || "lyrics").replace(/\/$/, "");
+    if (raw.startsWith("lyrics/")) return raw;
+    if (basePath && !raw.startsWith(basePath + "/")) return `${basePath}/${raw.replace(/^\/+/, "")}`;
+    return raw;
+  }
+
   function normalizeTrack(track, index) {
     const tags = normalizeStringArray(track.tags);
     const playlists = normalizeStringArray(track.playlists || track.playlist);
@@ -33,7 +45,7 @@
       audio: track.audio || track.src || track.url || "",
       cover: track.cover || track.artwork || track.image || "",
       lyrics: track.lyrics || "",
-      lyrics_file: track.lyrics_file || track.lyricsFile || "",
+      lyrics_file: resolveLyricsFilePath(track.lyrics_file || track.lyricsFile || ""),
       lyrics_offset: Number(track.lyrics_offset ?? track.lyricsOffset ?? 0) || 0,
       syncedLyrics: [],
       tags,
