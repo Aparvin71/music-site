@@ -1,4 +1,4 @@
-v43.1.14 — Spectrum Centering + Balanced Wings Cleanup
+v43.1.14 — Spectrum Recenter + Neon Palette + Fast Snap
 
 Changes in this build:
 - removed the extra shadowed background-line feel behind the artwork
