@@ -1,0 +1,8 @@
+v43.1.15 — Double Bars + Dual-Axis Neon Gradient
+
+Changes in this build
+- doubled the split spectrum bar density for a richer and smoother beat-reactive visualizer
+- applied a darker neon blue-to-purple gradient that flows left-to-right across the wings and bottom-to-top within each bar
+- tightened attack and release so bars snap open and close faster with stronger transient bounce
+- preserved the separated active/background spectrum layers and the centered artwork-safe layout
+- aligned page, runtime, config, and cache version markers to v43.1.15

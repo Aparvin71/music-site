@@ -1,4 +1,4 @@
-v43.1.14 — Spectrum Recenter + Neon Palette + Fast Snap
+v43.1.15 — Spectrum Recenter + Neon Palette + Fast Snap
 
 Changes in this build:
 - removed the extra shadowed background-line feel behind the artwork
@@ -6,4 +6,4 @@ Changes in this build:
 - narrowed and shortened the spectrum so it no longer pushes into the title area
 - forced left and right wings to use the same width math for true visual balance
 - kept the faster attack and fall so the motion still feels lively
-- aligned page, runtime, config, and cache version markers to v43.1.14
+- aligned page, runtime, config, and cache version markers to v43.1.15

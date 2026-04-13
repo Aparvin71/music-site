@@ -1,4 +1,4 @@
-/* v43.1.14 spectrum recenter + neon palette + fast snap */
+/* v43.1.15 double bars + dual-axis neon gradient */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -33,7 +33,7 @@ let suppressPreviewClickUntil = 0;
 let visualizerFrame = 0;
 let visualizerBars = [];
 let visualizerTick = 0;
-const VISUALIZER_BAR_COUNT = 24;
+const VISUALIZER_BAR_COUNT = 48;
 let visualizerRenderedBands = [];
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -1454,8 +1454,8 @@ function drawVisualizerFrame() {
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
   const centerX = width / 2;
-  const activeCenterY = (height / 2) - Math.max(10, height * 0.048);
-  const backgroundCenterY = activeCenterY + Math.max(6, height * 0.022);
+  const activeCenterY = (height / 2) - Math.max(8, height * 0.038);
+  const backgroundCenterY = activeCenterY + Math.max(7, height * 0.028);
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
@@ -1463,13 +1463,13 @@ function drawVisualizerFrame() {
   const transient = spectrumState.transient || 0;
   const beatPulse = spectrumState.beatPulse || 0;
   const sourceSideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
-  const visibleSideBandCount = Math.min(10, Math.max(8, sourceSideBandCount));
+  const visibleSideBandCount = Math.max(12, Math.min(20, sourceSideBandCount));
 
-  const outerInset = Math.max(32, width * 0.13);
+  const outerInset = Math.max(30, width * 0.12);
   const coverGap = Math.max(136, Math.min(width * 0.34, height * 0.64));
-  const innerSafetyGap = Math.max(10, Math.min(18, width * 0.022));
-  const availableWingWidth = Math.max(48, ((width - (outerInset * 2) - coverGap - (innerSafetyGap * 2)) / 2));
-  const wingWidth = Math.min(availableWingWidth, Math.max(70, width * 0.19));
+  const innerSafetyGap = Math.max(14, Math.min(24, width * 0.028));
+  const availableWingWidth = Math.max(72, ((width - (outerInset * 2) - coverGap - (innerSafetyGap * 2)) / 2));
+  const wingWidth = Math.min(availableWingWidth, Math.max(92, width * 0.235));
   const leftEnd = centerX - (coverGap / 2) - innerSafetyGap;
   const leftStart = leftEnd - wingWidth;
   const rightStart = centerX + (coverGap / 2) + innerSafetyGap;
@@ -1477,10 +1477,10 @@ function drawVisualizerFrame() {
   const maxHalfHeight = Math.max(22, Math.min(height * 0.145, 38 + bass * 16 + mids * 9 + beatPulse * 12 + transient * 8));
 
   const outerGlow = ctx.createLinearGradient(leftStart, backgroundCenterY, rightEnd, backgroundCenterY);
-  outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.07 + bass * 0.08})`);
-  outerGlow.addColorStop(0.35, `rgba(142, 188, 255, ${0.10 + mids * 0.08})`);
-  outerGlow.addColorStop(0.7, `rgba(172, 120, 255, ${0.10 + treble * 0.08})`);
-  outerGlow.addColorStop(1, `rgba(108, 82, 255, ${0.08 + treble * 0.08})`);
+  outerGlow.addColorStop(0, `rgba(44, 86, 255, ${0.08 + bass * 0.08})`);
+  outerGlow.addColorStop(0.35, `rgba(72, 108, 255, ${0.10 + mids * 0.08})`);
+  outerGlow.addColorStop(0.7, `rgba(106, 72, 255, ${0.11 + treble * 0.08})`);
+  outerGlow.addColorStop(1, `rgba(140, 58, 255, ${0.09 + treble * 0.08})`);
   ctx.save();
   ctx.strokeStyle = outerGlow;
   ctx.lineWidth = maxHalfHeight * 1.12;
@@ -1497,8 +1497,8 @@ function drawVisualizerFrame() {
   ctx.restore();
 
   const lineGradientLeft = ctx.createLinearGradient(leftStart, backgroundCenterY, leftEnd, backgroundCenterY);
-  lineGradientLeft.addColorStop(0, 'rgba(186, 214, 255, 0.78)');
-  lineGradientLeft.addColorStop(1, 'rgba(126, 110, 255, 0.90)');
+  lineGradientLeft.addColorStop(0, 'rgba(82, 132, 255, 0.70)');
+  lineGradientLeft.addColorStop(1, 'rgba(112, 72, 255, 0.90)');
   ctx.save();
   ctx.strokeStyle = lineGradientLeft;
   ctx.lineWidth = 1.1;
@@ -1510,8 +1510,8 @@ function drawVisualizerFrame() {
   ctx.restore();
 
   const lineGradientRight = ctx.createLinearGradient(rightStart, backgroundCenterY, rightEnd, backgroundCenterY);
-  lineGradientRight.addColorStop(0, 'rgba(126, 110, 255, 0.90)');
-  lineGradientRight.addColorStop(1, 'rgba(198, 134, 255, 0.80)');
+  lineGradientRight.addColorStop(0, 'rgba(112, 72, 255, 0.90)');
+  lineGradientRight.addColorStop(1, 'rgba(156, 82, 255, 0.82)');
   ctx.save();
   ctx.strokeStyle = lineGradientRight;
   ctx.lineWidth = 1.1;
@@ -1537,34 +1537,40 @@ function drawVisualizerFrame() {
     const normalizedSide = visibleSideBandCount <= 1 ? 0 : sideIndex / (visibleSideBandCount - 1);
     const inwardBias = side === 'left' ? normalizedSide : (1 - normalizedSide);
     const outwardBias = 1 - inwardBias;
-    const beatAccent = beatPulse * (0.50 + inwardBias * 0.42) + transient * (0.42 + outwardBias * 0.24) + localEnergy * 0.10;
-    const snapBoost = beatPulse * 0.50 + transient * 0.50;
-    const bounceBoost = beatPulse * (0.18 + inwardBias * 0.10) + transient * 0.16;
-    const liveValue = Math.max(0.04, Math.min(1, band * (1.10 + beatAccent * 0.38) + beatAccent + snapBoost + bounceBoost));
+    const horizontalRatio = totalBarCount <= 1 ? 0 : totalIndex / (totalBarCount - 1);
+    const beatAccent = beatPulse * (0.62 + inwardBias * 0.46) + transient * (0.54 + outwardBias * 0.30) + localEnergy * 0.11;
+    const snapBoost = beatPulse * 0.68 + transient * 0.72;
+    const bounceBoost = beatPulse * (0.22 + inwardBias * 0.14) + transient * 0.24;
+    const liveValue = Math.max(0.03, Math.min(1, band * (1.05 + beatAccent * 0.42) + beatAccent + snapBoost + bounceBoost));
     const previousValue = visualizerRenderedBands[totalIndex] || 0;
     const smoothedValue = liveValue >= previousValue
-      ? (previousValue * 0.015) + (liveValue * 0.985)
-      : (previousValue * 0.08) + (liveValue * 0.92);
+      ? (previousValue * 0.004) + (liveValue * 0.996)
+      : (previousValue * 0.03) + (liveValue * 0.97);
     visualizerRenderedBands[totalIndex] = smoothedValue;
 
-    const spreadGain = 0.88 + inwardBias * 0.14 + beatPulse * 0.18 + transient * 0.14;
-    const bounceLift = 1 + beatPulse * (0.28 + inwardBias * 0.08) + transient * 0.20;
-    const halfHeight = Math.max(5, smoothedValue * maxHalfHeight * spreadGain * bounceLift);
+    const spreadGain = 0.84 + inwardBias * 0.12 + beatPulse * 0.20 + transient * 0.18;
+    const bounceLift = 1 + beatPulse * (0.34 + inwardBias * 0.10) + transient * 0.24;
+    const halfHeight = Math.max(4, smoothedValue * maxHalfHeight * spreadGain * bounceLift);
     const step = side === 'left' ? leftStep : rightStep;
-    const barWidth = Math.max(2.2, Math.min(4.2, step * 0.24));
-    const barGradient = ctx.createLinearGradient(x, activeCenterY - halfHeight, x, activeCenterY + halfHeight);
-    barGradient.addColorStop(0, 'rgba(180, 206, 255, 0.94)');
-    barGradient.addColorStop(0.18, 'rgba(82, 132, 255, 0.96)');
-    barGradient.addColorStop(0.55, 'rgba(70, 82, 255, 0.95)');
-    barGradient.addColorStop(1, 'rgba(132, 72, 255, 0.90)');
+    const barWidth = Math.max(1.6, Math.min(3.2, step * 0.22));
+    const barGradient = ctx.createLinearGradient(x, activeCenterY + halfHeight, x, activeCenterY - halfHeight);
+    const topHue = 222 + (58 * horizontalRatio);
+    const midHue = 230 + (50 * horizontalRatio);
+    const bottomHue = 238 + (44 * horizontalRatio);
+    const topLight = 66 + smoothedValue * 10;
+    const midLight = 48 + smoothedValue * 7;
+    const bottomLight = 28 + smoothedValue * 4;
+    barGradient.addColorStop(0, `hsla(${bottomHue}, 88%, ${bottomLight}%, 0.92)`);
+    barGradient.addColorStop(0.45, `hsla(${midHue}, 92%, ${midLight}%, 0.96)`);
+    barGradient.addColorStop(1, `hsla(${topHue}, 96%, ${topLight}%, 0.98)`);
 
     ctx.save();
     ctx.strokeStyle = barGradient;
     ctx.lineWidth = barWidth;
     ctx.lineCap = 'round';
     ctx.globalAlpha = 0.96;
-    ctx.shadowBlur = 14 + smoothedValue * 7;
-    ctx.shadowColor = sideIndex % 2 === 0 ? 'rgba(58, 112, 255, 0.60)' : 'rgba(116, 74, 255, 0.58)';
+    ctx.shadowBlur = 16 + smoothedValue * 9;
+    ctx.shadowColor = `hsla(${228 + (48 * horizontalRatio)}, 96%, 58%, ${0.52 + smoothedValue * 0.12})`;
     ctx.beginPath();
     ctx.moveTo(x, activeCenterY - halfHeight);
     ctx.lineTo(x, activeCenterY + halfHeight);
@@ -1573,9 +1579,11 @@ function drawVisualizerFrame() {
 
     const barEl = visualizerBars[totalIndex];
     if (barEl) {
+      const bounceY = Math.round((beatPulse * -7) + (transient * -5));
       barEl.style.height = `${Math.round(halfHeight * 2)}px`;
-      barEl.style.opacity = `${0.34 + smoothedValue * 0.24}`;
-      barEl.style.transform = `translateY(${Math.round((beatPulse * -6) + (transient * -3))}px) scaleY(${(1 + beatPulse * 0.09 + transient * 0.04).toFixed(3)})`;
+      barEl.style.opacity = `${0.30 + smoothedValue * 0.30}`;
+      barEl.style.transform = `translateY(${bounceY}px) scaleY(${(1 + beatPulse * 0.12 + transient * 0.07).toFixed(3)})`;
+      barEl.style.background = `linear-gradient(180deg, hsla(${222 + (58 * horizontalRatio)}, 96%, ${66 + smoothedValue * 10}%, 0.98) 0%, hsla(${230 + (50 * horizontalRatio)}, 92%, ${48 + smoothedValue * 7}%, 0.96) 52%, hsla(${238 + (44 * horizontalRatio)}, 88%, ${28 + smoothedValue * 4}%, 0.92) 100%)`;
     }
   };
 
