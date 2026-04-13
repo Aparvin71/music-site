@@ -1,5 +1,5 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.12-spectrum-centering-balanced-wings-cleanup";
+const CACHE_VERSION = "v43.1.13-spectrum-centering-balanced-wings-cleanup";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;

@@ -1,4 +1,4 @@
-/* v43.1.12 spectrum centering + balanced wings cleanup */
+/* v43.1.13 spectrum visible-count balance + snap dynamics */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1422,6 +1422,22 @@ function getSpectrumState(track, currentTime, durationSeconds) {
   return { bands, bass, mids, treble, localEnergy, transient, beatPulse, phraseLift, fromSpectrumFrames: false, frameDensity: 0 };
 }
 
+
+function mapBandsForVisualizerSide(sideBands, targetCount) {
+  if (!Array.isArray(sideBands) || !sideBands.length || targetCount <= 0) return [];
+  if (sideBands.length === targetCount) return sideBands.slice();
+  if (targetCount === 1) return [sideBands[Math.floor(sideBands.length / 2)] || 0];
+  return new Array(targetCount).fill(0).map((_, index) => {
+    const position = (index / Math.max(1, targetCount - 1)) * Math.max(0, sideBands.length - 1);
+    const left = Math.floor(position);
+    const right = Math.min(sideBands.length - 1, left + 1);
+    const mix = position - left;
+    const a = sideBands[left] || 0;
+    const b = sideBands[right] || 0;
+    return a + (b - a) * mix;
+  });
+}
+
 function drawVisualizerFrame() {
   if (!visualizerCtx || !visualizerCanvas) return;
   resizeMiniVisualizerCanvas();
@@ -1438,24 +1454,26 @@ function drawVisualizerFrame() {
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
   const centerX = width / 2;
-  const centerY = (height / 2) - Math.max(10, height * 0.075);
+  const centerY = (height / 2) - Math.max(6, height * 0.035);
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
   const localEnergy = spectrumState.localEnergy || 0;
   const transient = spectrumState.transient || 0;
   const beatPulse = spectrumState.beatPulse || 0;
-  const sideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
+  const sourceSideBandCount = Math.max(1, Math.floor(spectrumState.bands.length / 2));
+  const visibleSideBandCount = Math.min(10, Math.max(8, sourceSideBandCount));
 
-  const outerInset = Math.max(28, width * 0.12);
-  const coverGap = Math.max(118, Math.min(width * 0.30, height * 0.58));
-  const availableWingWidth = Math.max(52, ((width - (outerInset * 2) - coverGap) / 2));
-  const wingWidth = Math.min(availableWingWidth, Math.max(74, width * 0.205));
-  const leftEnd = centerX - (coverGap / 2);
+  const outerInset = Math.max(32, width * 0.13);
+  const coverGap = Math.max(136, Math.min(width * 0.34, height * 0.64));
+  const innerSafetyGap = Math.max(10, Math.min(18, width * 0.022));
+  const availableWingWidth = Math.max(48, ((width - (outerInset * 2) - coverGap - (innerSafetyGap * 2)) / 2));
+  const wingWidth = Math.min(availableWingWidth, Math.max(70, width * 0.19));
+  const leftEnd = centerX - (coverGap / 2) - innerSafetyGap;
   const leftStart = leftEnd - wingWidth;
-  const rightStart = centerX + (coverGap / 2);
+  const rightStart = centerX + (coverGap / 2) + innerSafetyGap;
   const rightEnd = rightStart + wingWidth;
-  const maxHalfHeight = Math.max(24, Math.min(height * 0.17, 42 + bass * 14 + mids * 8 + beatPulse * 10 + transient * 6));
+  const maxHalfHeight = Math.max(22, Math.min(height * 0.145, 38 + bass * 16 + mids * 9 + beatPulse * 12 + transient * 8));
 
   const outerGlow = ctx.createLinearGradient(leftStart, centerY, rightEnd, centerY);
   outerGlow.addColorStop(0, `rgba(90, 132, 255, ${0.07 + bass * 0.08})`);
@@ -1503,30 +1521,33 @@ function drawVisualizerFrame() {
   ctx.stroke();
   ctx.restore();
 
-  const leftBands = spectrumState.bands.slice(0, sideBandCount);
-  const rightBands = spectrumState.bands.slice(spectrumState.bands.length - sideBandCount);
-  const leftStep = wingWidth / Math.max(1, sideBandCount - 1);
-  const rightStep = wingWidth / Math.max(1, sideBandCount - 1);
-  const totalBarCount = sideBandCount * 2;
+  const rawLeftBands = spectrumState.bands.slice(0, sourceSideBandCount);
+  const rawRightBands = spectrumState.bands.slice(spectrumState.bands.length - sourceSideBandCount);
+  const leftBands = mapBandsForVisualizerSide(rawLeftBands, visibleSideBandCount);
+  const rightBands = mapBandsForVisualizerSide(rawRightBands, visibleSideBandCount);
+  const leftStep = wingWidth / Math.max(1, visibleSideBandCount - 1);
+  const rightStep = wingWidth / Math.max(1, visibleSideBandCount - 1);
+  const totalBarCount = visibleSideBandCount * 2;
   if (!visualizerRenderedBands.length || visualizerRenderedBands.length !== totalBarCount) {
     visualizerRenderedBands = new Array(totalBarCount).fill(0);
   }
 
   const drawSideBand = (band, sideIndex, side, x, totalIndex) => {
-    const normalizedSide = sideBandCount <= 1 ? 0 : sideIndex / (sideBandCount - 1);
+    const normalizedSide = visibleSideBandCount <= 1 ? 0 : sideIndex / (visibleSideBandCount - 1);
     const inwardBias = side === 'left' ? normalizedSide : (1 - normalizedSide);
     const outwardBias = 1 - inwardBias;
-    const beatAccent = beatPulse * (0.36 + inwardBias * 0.36) + transient * (0.28 + outwardBias * 0.18) + localEnergy * 0.10;
-    const snapBoost = beatPulse * 0.32 + transient * 0.28;
-    const liveValue = Math.max(0.04, Math.min(1, band * (1.04 + beatAccent * 0.28) + beatAccent + snapBoost));
+    const beatAccent = beatPulse * (0.42 + inwardBias * 0.40) + transient * (0.34 + outwardBias * 0.22) + localEnergy * 0.12;
+    const snapBoost = beatPulse * 0.40 + transient * 0.38;
+    const bounceBoost = beatPulse * (0.12 + inwardBias * 0.08) + transient * 0.10;
+    const liveValue = Math.max(0.04, Math.min(1, band * (1.08 + beatAccent * 0.34) + beatAccent + snapBoost + bounceBoost));
     const previousValue = visualizerRenderedBands[totalIndex] || 0;
     const smoothedValue = liveValue >= previousValue
-      ? (previousValue * 0.08) + (liveValue * 0.92)
-      : (previousValue * 0.34) + (liveValue * 0.66);
+      ? (previousValue * 0.04) + (liveValue * 0.96)
+      : (previousValue * 0.20) + (liveValue * 0.80);
     visualizerRenderedBands[totalIndex] = smoothedValue;
 
-    const spreadGain = 0.88 + inwardBias * 0.14 + beatPulse * 0.10 + transient * 0.06;
-    const bounceLift = 1 + beatPulse * (0.16 + inwardBias * 0.05) + transient * 0.10;
+    const spreadGain = 0.90 + inwardBias * 0.16 + beatPulse * 0.14 + transient * 0.10;
+    const bounceLift = 1 + beatPulse * (0.20 + inwardBias * 0.07) + transient * 0.14;
     const halfHeight = Math.max(5, smoothedValue * maxHalfHeight * spreadGain * bounceLift);
     const step = side === 'left' ? leftStep : rightStep;
     const barWidth = Math.max(2.2, Math.min(4.2, step * 0.24));
@@ -1563,7 +1584,7 @@ function drawVisualizerFrame() {
   });
   rightBands.forEach((band, sideIndex) => {
     const x = rightStart + (rightStep * sideIndex);
-    drawSideBand(band, sideIndex, 'right', x, sideBandCount + sideIndex);
+    drawSideBand(band, sideIndex, 'right', x, visibleSideBandCount + sideIndex);
   });
 
   for (let index = totalBarCount; index < visualizerBars.length; index += 1) {
