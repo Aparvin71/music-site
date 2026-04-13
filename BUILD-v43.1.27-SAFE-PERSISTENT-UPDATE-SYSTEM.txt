@@ -1,0 +1,9 @@
+BUILD v43.1.27 — SAFE PERSISTENT UPDATE SYSTEM
+
+This pass replaces one-off iPhone rescue logic with a durable update model:
+- migrate persistent storage by schema version
+- preserve user/content state
+- clear transient update keys only
+- perform targeted shell reset only when required
+- warm the fresh app shell during service-worker activate
+- version manifest start_url and shortcuts for better installed-app refresh behavior

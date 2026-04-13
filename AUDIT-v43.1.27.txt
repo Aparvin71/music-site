@@ -1,0 +1,10 @@
+AUDIT v43.1.27
+
+Validated goals
+- internal version bumped to v43.1.27
+- no audio folder
+- no covers folder
+- no lyrics folder
+- pwa-init.js includes persistent schema migration and targeted shell reset
+- service-worker.js exposes build version and refreshes shell on activate
+- manifest.webmanifest start_url and shortcut URLs use v=43.1.27

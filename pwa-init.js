@@ -1,4 +1,4 @@
-const AINEO_APP_VERSION = "v43.1.26";
+const AINEO_APP_VERSION = "v43.1.27";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -75,7 +75,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.26</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.27</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -307,13 +307,18 @@ function maybeShowStandaloneWelcome() {
 
 
 async function registerStandaloneServiceWorker() {
+  const migratedStorage = migratePersistentStorageIfNeeded();
   const didReset = await performTargetedShellResetIfNeeded();
   if (didReset) {
+    markBuildRefreshed();
     window.location.reload();
     return;
   }
 
-  if (!("serviceWorker" in navigator)) return;
+  if (!("serviceWorker" in navigator)) {
+    persistCurrentBuildInfo();
+    return;
+  }
   try {
     const swRegistrationUrl = new URL(`./service-worker.js?v=${encodeURIComponent(AINEO_APP_VERSION.replace(/^v/, ""))}`, window.location.href);
     const swUrl = swRegistrationUrl.pathname + swRegistrationUrl.search;
@@ -323,13 +328,20 @@ async function registerStandaloneServiceWorker() {
       if (didControllerReload) return;
       didControllerReload = true;
       rememberAnnouncedAppVersion(APP_RUNTIME_VERSION);
+      markBuildRefreshed();
       window.location.reload();
     });
 
     navigator.serviceWorker.addEventListener("message", (event) => {
       const data = event.data || {};
-      if (data.type === "SW_ACTIVATED" && isStandalone() && !hasRecentManualRefresh()) {
-        window.setTimeout(() => performAppRefresh({ immediate: true, source: "sw-activated" }), 250);
+      if (data.type === "SW_ACTIVATED") {
+        saveUpdateChannelState({ activatedWorkerVersion: data.version || APP_RUNTIME_VERSION });
+        if (isStandalone() && !hasRecentManualRefresh()) {
+          window.setTimeout(() => {
+            markBuildRefreshed();
+            performAppRefresh({ immediate: true, source: "sw-activated" });
+          }, 250);
+        }
       }
     });
 
@@ -346,12 +358,16 @@ async function registerStandaloneServiceWorker() {
     if (registration.installing) registration.installing.postMessage?.({ type: "SKIP_WAITING" });
 
     registration.addEventListener("updatefound", () => {
+      saveUpdateChannelState({ updateFoundFor: APP_RUNTIME_VERSION });
       const worker = registration.installing;
       if (!worker) return;
       worker.addEventListener("statechange", () => {
         if (worker.state === "installed") worker.postMessage({ type: "SKIP_WAITING" });
       });
     });
+
+    persistCurrentBuildInfo();
+    if (migratedStorage) markBuildRefreshed();
   } catch (error) {
     console.warn("Service worker registration failed:", error);
   }
@@ -360,10 +376,17 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.26";
+const APP_RUNTIME_VERSION = "v43.1.27";
+
 
 const APP_SHELL_RESET_VERSION_KEY = "aineo_app_shell_reset_version";
-const APP_SHELL_RESET_TARGET = "v43.1.26";
+const APP_SHELL_RESET_TARGET = "v43.1.27";
+const APP_PERSIST_SCHEMA_KEY = "aineo_persist_schema_version";
+const APP_PERSIST_SCHEMA_VERSION = 2;
+const APP_LAST_SEEN_BUILD_KEY = "aineo_last_seen_build";
+const APP_LAST_REFRESHED_BUILD_KEY = "aineo_last_refreshed_build";
+const APP_UPDATE_CHANNEL_KEY = "aineo_update_channel_state";
+
 const PRESERVED_STORAGE_KEYS = new Set([
   "aineo_favorites",
   "aineo_recently_played",
@@ -372,35 +395,104 @@ const PRESERVED_STORAGE_KEYS = new Set([
   "aineo_downloaded_tracks",
   "aineo_last_queue",
   "aineo_play_stats",
-  "aineo_app_feel_settings"
+  "aineo_app_feel_settings",
+  "aineo_playback_modes",
+  "aineo_player_state",
+  APP_PERSIST_SCHEMA_KEY,
+  APP_LAST_SEEN_BUILD_KEY,
+  APP_LAST_REFRESHED_BUILD_KEY,
+  APP_UPDATE_CHANNEL_KEY,
+  APP_SHELL_RESET_VERSION_KEY
 ]);
+
+const TRANSIENT_STORAGE_KEYS = [
+  "aineo_tracks_cache",
+  "aineo_tracks_signature",
+  "aineo_app_update_announced_version",
+  "aineo_app_update_session_flag",
+  "aineo_offline_banner_dismissed",
+  "aineo_install_dismissed",
+  "aineo_offline_hint_dismissed",
+  "aineo_standalone_welcome_dismissed"
+];
+
+function loadUpdateChannelState() {
+  try {
+    return JSON.parse(localStorage.getItem(APP_UPDATE_CHANNEL_KEY) || "{}");
+  } catch (error) {
+    return {};
+  }
+}
+
+function saveUpdateChannelState(nextState) {
+  try {
+    localStorage.setItem(APP_UPDATE_CHANNEL_KEY, JSON.stringify({
+      ...loadUpdateChannelState(),
+      ...nextState,
+      version: APP_RUNTIME_VERSION,
+      updatedAt: new Date().toISOString()
+    }));
+  } catch (error) {}
+}
+
+function persistCurrentBuildInfo() {
+  try { localStorage.setItem(APP_LAST_SEEN_BUILD_KEY, APP_RUNTIME_VERSION); } catch (error) {}
+}
+
+function markBuildRefreshed() {
+  try { localStorage.setItem(APP_LAST_REFRESHED_BUILD_KEY, APP_RUNTIME_VERSION); } catch (error) {}
+  saveUpdateChannelState({ lastRefreshedBuild: APP_RUNTIME_VERSION });
+}
+
+function cleanupTransientUpdateState() {
+  TRANSIENT_STORAGE_KEYS.forEach((key) => {
+    try { localStorage.removeItem(key); } catch (error) {}
+    try { sessionStorage.removeItem(key); } catch (error) {}
+  });
+}
+
+function migratePersistentStorageIfNeeded() {
+  let currentSchema = 0;
+  try { currentSchema = Number(localStorage.getItem(APP_PERSIST_SCHEMA_KEY) || "0"); } catch (error) {}
+
+  if (currentSchema >= APP_PERSIST_SCHEMA_VERSION) {
+    persistCurrentBuildInfo();
+    return false;
+  }
+
+  cleanupTransientUpdateState();
+
+  try {
+    localStorage.setItem(APP_PERSIST_SCHEMA_KEY, String(APP_PERSIST_SCHEMA_VERSION));
+  } catch (error) {}
+
+  persistCurrentBuildInfo();
+  saveUpdateChannelState({ migratedSchemaTo: APP_PERSIST_SCHEMA_VERSION });
+  return true;
+}
 
 async function performTargetedShellResetIfNeeded() {
   let currentVersion = "";
   try { currentVersion = localStorage.getItem(APP_SHELL_RESET_VERSION_KEY) || ""; } catch (error) {}
-  if (currentVersion === APP_SHELL_RESET_TARGET) return false;
+
+  const needsShellReset = currentVersion !== APP_SHELL_RESET_TARGET;
+
+  if (!needsShellReset) {
+    persistCurrentBuildInfo();
+    return false;
+  }
 
   try {
-    const keysToRemove = [
-      "aineo_tracks_cache",
-      "aineo_tracks_signature",
-      "aineo_app_update_announced_version",
-      "aineo_app_update_session_flag",
-      "aineo_offline_banner_dismissed",
-      "aineo_install_dismissed",
-      "aineo_offline_hint_dismissed",
-      "aineo_standalone_welcome_dismissed"
-    ];
-
-    keysToRemove.forEach((key) => {
-      try { localStorage.removeItem(key); } catch (error) {}
-      try { sessionStorage.removeItem(key); } catch (error) {}
-    });
+    cleanupTransientUpdateState();
 
     if ("caches" in window) {
       const cacheKeys = await caches.keys();
       await Promise.all(cacheKeys.map((key) => {
-        if (key === "aineo-user-offline-audio" || key === "aineo-user-offline-assets") return Promise.resolve(false);
+        if (
+          key === "aineo-user-offline-audio" ||
+          key === "aineo-user-offline-assets" ||
+          key.startsWith("audio-")
+        ) return Promise.resolve(false);
         return caches.delete(key);
       }));
     }
@@ -411,154 +503,14 @@ async function performTargetedShellResetIfNeeded() {
     }
 
     try { localStorage.setItem(APP_SHELL_RESET_VERSION_KEY, APP_SHELL_RESET_TARGET); } catch (error) {}
+    persistCurrentBuildInfo();
+    saveUpdateChannelState({ shellResetTo: APP_SHELL_RESET_TARGET });
     return true;
   } catch (error) {
     console.warn("Targeted shell reset failed:", error);
     try { localStorage.setItem(APP_SHELL_RESET_VERSION_KEY, APP_SHELL_RESET_TARGET); } catch (storageError) {}
+    persistCurrentBuildInfo();
     return false;
-  }
-}
-
-const TRACKS_UPDATE_CHECK_INTERVAL = 4 * 60 * 1000;
-let tracksUpdateTimer = null;
-let lastKnownTracksSignature = null;
-let lastKnownTracksUrl = null;
-let appRefreshPending = false;
-let appRefreshReason = "";
-
-function getCurrentAudioPlayer() {
-  return document.getElementById("audioPlayer");
-}
-
-function isPlaybackActive() {
-  const audio = getCurrentAudioPlayer();
-  return Boolean(audio && !audio.paused && !audio.ended && audio.readyState > 2);
-}
-
-function canAutoRefreshNow() {
-  return document.visibilityState === "visible" && navigator.onLine !== false && !isPlaybackActive();
-}
-
-function simpleStringHash(input) {
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = ((hash << 5) - hash) + input.charCodeAt(i);
-    hash |= 0;
-  }
-  return String(hash >>> 0);
-}
-
-function ensureAppUpdateToast() {
-  let mount = document.getElementById("appUpdateToast");
-  if (mount) return mount;
-
-  mount = document.createElement("section");
-  mount.id = "appUpdateToast";
-  mount.className = "app-update-toast hidden";
-  mount.setAttribute("aria-live", "polite");
-  mount.innerHTML = `
-    <div class="app-update-toast__card">
-      <div class="app-update-toast__copy">
-        <p class="eyebrow app-update-toast__eyebrow">Update Ready</p>
-        <h2 id="appUpdateToastTitle">Fresh music is available</h2>
-        <p id="appUpdateToastBody">The library changed in the background. Refresh to pull in the latest songs and updates.</p>
-      </div>
-      <div class="app-update-toast__actions">
-        <button type="button" class="action-btn primary-btn small-action-btn" data-app-update-refresh>Refresh now</button>
-        <button type="button" class="action-btn secondary-btn small-action-btn" data-app-update-dismiss>Later</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(mount);
-
-  mount.querySelector("[data-app-update-refresh]")?.addEventListener("click", () => {
-    performAppRefresh({ immediate: true });
-  });
-
-  mount.querySelector("[data-app-update-dismiss]")?.addEventListener("click", () => {
-    appRefreshPending = false;
-    mount.classList.add("hidden");
-  });
-
-  return mount;
-}
-
-function showAppUpdateToast({ title, body, primaryLabel = "Refresh now", secondaryLabel = "Later" } = {}) {
-  const mount = ensureAppUpdateToast();
-  const titleEl = mount.querySelector("#appUpdateToastTitle");
-  const bodyEl = mount.querySelector("#appUpdateToastBody");
-  const primary = mount.querySelector("[data-app-update-refresh]");
-  const secondary = mount.querySelector("[data-app-update-dismiss]");
-
-  if (titleEl && title) titleEl.textContent = title;
-  if (bodyEl && body) bodyEl.textContent = body;
-  if (primary) primary.textContent = primaryLabel;
-  if (secondary) secondary.textContent = secondaryLabel;
-  mount.classList.remove("hidden");
-}
-
-function hideAppUpdateToast() {
-  const mount = document.getElementById("appUpdateToast");
-  if (mount) mount.classList.add("hidden");
-}
-
-function rememberTracksSignature(signature, url = "./tracks.json") {
-  if (!signature) return;
-  lastKnownTracksSignature = signature;
-  lastKnownTracksUrl = url;
-  try {
-    localStorage.setItem(TRACKS_UPDATE_SIGNATURE_KEY, signature);
-  } catch (error) {}
-}
-
-async function computeTracksSignature(url = "./tracks.json") {
-  const requestUrl = new URL(url, window.location.href);
-  requestUrl.searchParams.set("updateCheck", String(Date.now()));
-  const response = await fetch(requestUrl.toString(), { cache: "no-store", headers: { "cache-control": "no-cache" } });
-  if (!response.ok) throw new Error(`tracks.json check failed: ${response.status}`);
-  const text = await response.text();
-  try {
-    return simpleStringHash(JSON.stringify(JSON.parse(text)));
-  } catch (error) {
-    return simpleStringHash(text);
-  }
-}
-
-
-function shouldAllowAutomaticRefresh() {
-  return !isStandalone();
-}
-
-function notePendingRefreshSession(reason = "") {
-  try {
-    sessionStorage.setItem("aineo_pending_refresh_reason", String(reason || "updates"));
-    sessionStorage.setItem("aineo_pending_refresh_at", String(Date.now()));
-  } catch (error) {}
-}
-
-function hasRecentManualRefresh() {
-  try {
-    const raw = sessionStorage.getItem("aineo_manual_refresh_at");
-    if (!raw) return false;
-    const at = Number(raw);
-    if (!Number.isFinite(at)) return false;
-    return (Date.now() - at) < 15000;
-  } catch (error) {
-    return false;
-  }
-}
-
-function rememberManualRefresh() {
-  try {
-    sessionStorage.setItem("aineo_manual_refresh_at", String(Date.now()));
-  } catch (error) {}
-}
-
-function getLastAnnouncedAppVersion() {
-  try {
-    return localStorage.getItem(APP_UPDATE_ANNOUNCED_VERSION_KEY) || "";
-  } catch (error) {
-    return "";
   }
 }
 

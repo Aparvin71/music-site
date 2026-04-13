@@ -12,8 +12,8 @@
   };
 
   window.AineoConfig = {
-    version: "v43.1.26",
-    assetVersion: "43.1.26",
+    version: "v43.1.27",
+    assetVersion: "43.1.27",
     defaultArtist: "Allen Parvin",
     assetMode: "decoupled",
     assets: {

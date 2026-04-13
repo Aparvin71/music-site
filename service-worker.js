@@ -1,5 +1,6 @@
 // ===== VERSION =====
-const CACHE_VERSION = "v43.1.26-iphone-web-app-update-flow";
+const CACHE_VERSION = "v43.1.27-safe-persistent-update-system";
+const BUILD_VERSION = "v43.1.27";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`;
 const AUDIO_CACHE = `audio-${CACHE_VERSION}`;
@@ -195,6 +196,7 @@ self.addEventListener('activate', (event) => {
     const keys = await caches.keys();
     await Promise.all(keys.map((key) => KEEP_CACHES.has(key) ? undefined : caches.delete(key)));
     await self.clients.claim();
+    await updateStaticShell();
     await announceActivation();
   })());
 });
@@ -202,6 +204,10 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', (event) => {
   const data = event.data || {};
   if (data.type === 'SKIP_WAITING') { self.skipWaiting(); return; }
+  if (data.type === 'GET_BUILD_VERSION') {
+    event.source?.postMessage?.({ type: 'BUILD_VERSION', version: BUILD_VERSION, cacheVersion: CACHE_VERSION });
+    return;
+  }
   if (data.type === 'CACHE_AUDIO_URLS' && Array.isArray(data.urls)) { event.waitUntil(cacheUrls(AUDIO_CACHE, data.urls)); return; }
   if (data.type === 'REMOVE_AUDIO_URLS' && Array.isArray(data.urls)) { event.waitUntil(removeUrls(AUDIO_CACHE, data.urls)); return; }
   if (data.type === 'CACHE_URLS' && Array.isArray(data.urls)) { event.waitUntil(cacheUrls(RUNTIME_CACHE, data.urls)); return; }
