@@ -1,4 +1,4 @@
-/* v43.1.15 double bars + dual-axis neon gradient */
+/* v43.1.16 spectrum shape + balance polish */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -1454,8 +1454,8 @@ function drawVisualizerFrame() {
   if (!spectrumState || !Array.isArray(spectrumState.bands) || !spectrumState.bands.length) return;
 
   const centerX = width / 2;
-  const activeCenterY = (height / 2) - Math.max(8, height * 0.038);
-  const backgroundCenterY = activeCenterY + Math.max(7, height * 0.028);
+  const activeCenterY = (height / 2) - Math.max(8, height * 0.036);
+  const backgroundCenterY = activeCenterY + Math.max(7, height * 0.029);
   const bass = spectrumState.bass || 0;
   const mids = spectrumState.mids || 0;
   const treble = spectrumState.treble || 0;
@@ -1538,21 +1538,25 @@ function drawVisualizerFrame() {
     const inwardBias = side === 'left' ? normalizedSide : (1 - normalizedSide);
     const outwardBias = 1 - inwardBias;
     const horizontalRatio = totalBarCount <= 1 ? 0 : totalIndex / (totalBarCount - 1);
-    const beatAccent = beatPulse * (0.62 + inwardBias * 0.46) + transient * (0.54 + outwardBias * 0.30) + localEnergy * 0.11;
-    const snapBoost = beatPulse * 0.68 + transient * 0.72;
-    const bounceBoost = beatPulse * (0.22 + inwardBias * 0.14) + transient * 0.24;
-    const liveValue = Math.max(0.03, Math.min(1, band * (1.05 + beatAccent * 0.42) + beatAccent + snapBoost + bounceBoost));
+    const nearArtwork = inwardBias;
+    const outerArc = 1 - nearArtwork;
+    const shoulderLift = 0.96 + (outerArc * 0.18) + (Math.sin(outerArc * Math.PI * 0.92) * 0.05);
+    const widthBias = 0.94 + (Math.sin(outerArc * Math.PI) * 0.08) + (outerArc * 0.03);
+    const beatAccent = beatPulse * (0.60 + nearArtwork * 0.38) + transient * (0.52 + outerArc * 0.28) + localEnergy * 0.11;
+    const snapBoost = beatPulse * 0.66 + transient * 0.74;
+    const bounceBoost = beatPulse * (0.20 + nearArtwork * 0.12) + transient * 0.22;
+    const liveValue = Math.max(0.03, Math.min(1, band * (1.04 + beatAccent * 0.38) + beatAccent + snapBoost + bounceBoost));
     const previousValue = visualizerRenderedBands[totalIndex] || 0;
     const smoothedValue = liveValue >= previousValue
       ? (previousValue * 0.004) + (liveValue * 0.996)
       : (previousValue * 0.03) + (liveValue * 0.97);
     visualizerRenderedBands[totalIndex] = smoothedValue;
 
-    const spreadGain = 0.84 + inwardBias * 0.12 + beatPulse * 0.20 + transient * 0.18;
-    const bounceLift = 1 + beatPulse * (0.34 + inwardBias * 0.10) + transient * 0.24;
-    const halfHeight = Math.max(4, smoothedValue * maxHalfHeight * spreadGain * bounceLift);
+    const spreadGain = 0.82 + nearArtwork * 0.10 + beatPulse * 0.19 + transient * 0.17;
+    const bounceLift = 1 + beatPulse * (0.32 + nearArtwork * 0.09) + transient * 0.22;
+    const halfHeight = Math.max(4, smoothedValue * maxHalfHeight * spreadGain * bounceLift * shoulderLift);
     const step = side === 'left' ? leftStep : rightStep;
-    const barWidth = Math.max(1.6, Math.min(3.2, step * 0.22));
+    const barWidth = Math.max(1.55, Math.min(3.15, step * 0.21 * widthBias));
     const barGradient = ctx.createLinearGradient(x, activeCenterY + halfHeight, x, activeCenterY - halfHeight);
     const topHue = 222 + (58 * horizontalRatio);
     const midHue = 230 + (50 * horizontalRatio);

@@ -10163,7 +10163,7 @@ button:active{
 .player-cover-visualizer {
   position: absolute;
   inset: -16px;
-  transform: translate3d(10px, -9px, 0) scale(0.944);
+  transform: translate3d(10px, -8px, 0) scale(0.948);
   display: grid;
   place-items: center;
   pointer-events: none;
@@ -10175,7 +10175,7 @@ button:active{
 
 .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer {
   opacity: 1;
-  transform: translate3d(10px, -9px, 0) scale(0.960);
+  transform: translate3d(10px, -8px, 0) scale(0.966);
 }
 
 .player-cover-visualizer::before,
@@ -10210,7 +10210,7 @@ button:active{
     radial-gradient(circle at 58% 44%, rgba(118, 58, 255, 0.22), rgba(118, 58, 255, 0) 30%),
     radial-gradient(circle at 50% 50%, rgba(64, 84, 218, 0.20), rgba(14, 20, 38, 0) 64%);
   filter: blur(18px);
-  opacity: 0.40;
+  opacity: 0.36;
 }
 
 .player-cover-visualizer-glow {
@@ -10236,7 +10236,7 @@ button:active{
 
 .player-cover-visualizer-bars {
   position: absolute;
-  inset: 31px 40px;
+  inset: 30px 38px;
   display: grid;
   align-items: center;
   pointer-events: none;
@@ -10301,8 +10301,8 @@ button:active{
 }
 
 @media (max-width: 640px) {
-  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -6px, 0) scale(0.944); }
-  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -6px, 0) scale(0.958); }
+  .player-cover-visualizer { inset: -11px; transform: translate3d(7px, -5px, 0) scale(0.948); }
+  .player-sheet-cover-wrap.is-visualizer-active .player-cover-visualizer { transform: translate3d(7px, -5px, 0) scale(0.964); }
   .player-cover-visualizer-bars { inset: 18px 18px; }
   .player-cover-visualizer-bar { width: 2px; }
 }
@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.15 spectrum recenter + neon palette + fast snap */
+/* v43.1.16 spectrum recenter + neon palette + fast snap */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,7 +12397,7 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.15 spectrum recenter + neon palette + fast snap */
+/* v43.1.16 spectrum recenter + neon palette + fast snap */
 
 
-/* v43.1.15 spectrum recenter + neon palette + fast snap */
+/* v43.1.16 spectrum recenter + neon palette + fast snap */
