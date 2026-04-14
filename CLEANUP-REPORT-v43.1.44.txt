@@ -1,0 +1,13 @@
+Aineo v43.1.44 cleanup + asset sync report
+
+Tracks checked: 72
+Lyrics manifest entries: 72
+
+Confirmed: all tracks now have matching audio, cover, and lyrics references against the uploaded bundles.
+
+Fixed in this pass:
+- Synced Chop it like it's hot! lyrics-manifest MP3 name to the exact uploaded audio filename.
+- Kept Iron Don#U2019t Lie and Stones Don#U2019t Become Bread aligned to the uploaded R2 object names.
+- Bundled lyrics/lrc-manifest.json into the site package and included all 72 .lrc files in /lyrics.
+- Updated make_tracks.py and tools/make_tracks.py to regenerate lrc-manifest from exact track audio basenames.
+- Enriched fullscreen player starfield with more lights and stronger bright/dim twinkle animation.

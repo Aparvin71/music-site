@@ -8,7 +8,7 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 import numpy as np
 from mutagen.id3 import ID3
@@ -530,6 +530,27 @@ def write_analysis_file(track: dict[str, Any], waveform_envelope: list[int], spe
     return rel_path
 
 
+
+
+def write_lrc_manifest_from_tracks(tracks: list[dict[str, Any]]) -> None:
+    entries = []
+    for track in tracks:
+        lyrics_file = normalize_text(str(track.get("lyrics_file") or ""))
+        if not lyrics_file:
+            continue
+        audio_url = normalize_text(str(track.get("audio") or track.get("src") or ""))
+        mp3_name = unquote(audio_url.rsplit("/", 1)[-1]) if audio_url else ""
+        entries.append({
+            "title": normalize_text(str(track.get("title") or clean_title(mp3_name))),
+            "slug": normalize_text(str(track.get("slug") or slugify(track.get("title") or mp3_name))),
+            "mp3": quote(mp3_name.replace("\", "/"), safe="") if mp3_name else "",
+            "lyrics_file": lyrics_file,
+        })
+    entries.sort(key=lambda item: (normalize_text(item.get("slug") or ""), normalize_text(item.get("title") or "")))
+    save_json_file(LRC_MANIFEST_FILE, entries)
+    lyrics_manifest_path = LYRICS_DIR / LRC_MANIFEST_NAME
+    save_json_file(lyrics_manifest_path, entries)
+
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build tracks.json and split analysis files incrementally.")
     parser.add_argument("--analysis-mode", choices=["changed", "missing", "all"], default="changed", help="How aggressively to generate analysis files.")
@@ -736,6 +757,7 @@ def main() -> int:
     report["tracks_written"] = len(tracks_out)
 
     save_json_file(OUTPUT_FILE, tracks_out)
+    write_lrc_manifest_from_tracks(tracks_out)
     save_json_file(TRACK_BUILD_CACHE_FILE, new_track_cache)
     save_json_file(ANALYSIS_BUILD_CACHE_FILE, new_analysis_cache)
     save_json_file(ANALYSIS_MANIFEST_FILE, analysis_manifest_out)
