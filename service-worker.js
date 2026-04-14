@@ -1,6 +1,6 @@
-// v43.1.39 Navigation Redirect Fix + Service Worker Strategy Cleanup
+// v43.1.40 Navigation Redirect Fix + Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.39";
+const CACHE_VERSION = "v43.1.40";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;\n\n// Navigation requests are handled by the browser directly.\n// This avoids redirected document responses being served by the service worker.\n
@@ -19,29 +19,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/styles.css?v=43.1.39",
-  "/app.js?v=43.1.39",
-  "/nav.js?v=43.1.39",
-  "/pwa-init.js?v=43.1.39",
-  "/manifest.webmanifest?v=43.1.39",
-  "/aineo-album-page.js?v=43.1.39",
-  "/aineo-config.js?v=43.1.39",
-  "/aineo-data.js?v=43.1.39",
-  "/aineo-featured.js?v=43.1.39",
-  "/aineo-library.js?v=43.1.39",
-  "/aineo-lyrics.js?v=43.1.39",
-  "/aineo-media-session.js?v=43.1.39",
-  "/aineo-offline.js?v=43.1.39",
-  "/aineo-player-sheet.js?v=43.1.39",
-  "/aineo-playlists.js?v=43.1.39",
-  "/aineo-queue.js?v=43.1.39",
-  "/aineo-shared.js?v=43.1.39",
-  "/aineo-ui.js?v=43.1.39",
-  "/album-page.js?v=43.1.39",
-  "/albums-page.js?v=43.1.39",
-  "/artist-page.js?v=43.1.39",
-  "/artists-page.js?v=43.1.39",
-  "/contact.js?v=43.1.39"
+  "/style.css?v=43.1.40",
+  "/app.js?v=43.1.40",
+  "/nav.js?v=43.1.40",
+  "/pwa-init.js?v=43.1.40",
+  "/manifest.webmanifest?v=43.1.40",
+  "/aineo-album-page.js?v=43.1.40",
+  "/aineo-config.js?v=43.1.40",
+  "/aineo-data.js?v=43.1.40",
+  "/aineo-featured.js?v=43.1.40",
+  "/aineo-library.js?v=43.1.40",
+  "/aineo-lyrics.js?v=43.1.40",
+  "/aineo-media-session.js?v=43.1.40",
+  "/aineo-offline.js?v=43.1.40",
+  "/aineo-player-sheet.js?v=43.1.40",
+  "/aineo-playlists.js?v=43.1.40",
+  "/aineo-queue.js?v=43.1.40",
+  "/aineo-shared.js?v=43.1.40",
+  "/aineo-ui.js?v=43.1.40",
+  "/album-page.js?v=43.1.40",
+  "/albums-page.js?v=43.1.40",
+  "/artist-page.js?v=43.1.40",
+  "/artists-page.js?v=43.1.40",
+  "/contact.js?v=43.1.40"
 ];
 
 async function safeWarmStaticCache() {

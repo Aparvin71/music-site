@@ -1,0 +1,5 @@
+BUILD v43.1.40 — CSS PATH REPAIR
+
+Key fix:
+- page templates now point to /style.css?v=43.1.40
+- service worker static asset list now also points to /style.css

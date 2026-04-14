@@ -1,0 +1,7 @@
+AUDIT v43.1.40
+
+Validated:
+- package rebuilt from v43.1.39 base
+- CSS file present: style.css
+- home/about/mission/install/feedback/music/index now reference /style.css?v=43.1.40
+- service worker still bypasses document navigations
