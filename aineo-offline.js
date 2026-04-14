@@ -1,370 +1,307 @@
-(function () {
+window.AineoOffline = (() => {
+  const DIRECT_AUDIO_CACHE = 'aineo-user-offline-audio';
+  const DIRECT_ASSET_CACHE = 'aineo-user-offline-assets';
 
-  function getLyricsAssetVersion() {
-    return String(
-      window.AineoConfig?.app?.assets?.lyricsVersionKey
-      || window.AineoConfig?.app?.assetVersion
-      || window.AineoConfig?.app?.version
-      || "1"
-    );
+  function uniq(values) {
+    return [...new Set((values || []).filter(Boolean))];
   }
 
-  function buildLyricsAssetUrl(path) {
-    const raw = String(path || "").trim();
-    if (!raw) return "";
-    const version = encodeURIComponent(getLyricsAssetVersion());
-    const sep = raw.includes("?") ? "&" : "?";
-    return `${raw}${sep}v=${version}`;
+  function isDownloaded({ track, downloadedTracks }) {
+    return Boolean(track && Array.isArray(downloadedTracks) && downloadedTracks.includes(track.id));
   }
 
-  const LYRICS_FALLBACK_MIN_LINE_SECONDS = 2.4;
-  const LYRICS_FALLBACK_MAX_LINE_SECONDS = 6;
-  const MANUAL_SCROLL_HOLD_MS = 2200;
-  const META_TAG_PATTERN = /^\[(ar|ti|al|by|re|ve|offset|length):.*\]$/i;
-
-  function slugify(text) {
-    return String(text || "")
-      .toLowerCase()
-      .trim()
-      .replace(/^\d+[-_.\s]*/, "")
-      .replace(/&/g, " and ")
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+  function isCollectionDownloaded({ tracks, downloadedTracks }) {
+    const list = Array.isArray(tracks) ? tracks.filter(Boolean) : [];
+    if (!list.length) return false;
+    return list.every(track => downloadedTracks.includes(track.id));
   }
 
-  function getTrackDurationSeconds(track) {
-    if (!track) return 0;
-    if (Number.isFinite(track.duration_seconds) && track.duration_seconds > 0) return Number(track.duration_seconds);
-
-    const durationLabel = String(track.duration || "").trim();
-    const match = durationLabel.match(/^(\d+):(\d{2})(?::(\d{2}))?$/);
-    if (!match) return 0;
-
-    if (match[3] != null) {
-      return (Number(match[1]) * 3600) + (Number(match[2]) * 60) + Number(match[3]);
-    }
-
-    return (Number(match[1]) * 60) + Number(match[2]);
+  function getTrackOfflineUiState({ track, downloadedTracks }) {
+    const downloaded = isDownloaded({ track, downloadedTracks });
+    const offline = navigator.onLine === false;
+    return {
+      downloaded,
+      offline,
+      canSaveNow: !offline,
+      canPlayNow: !offline || downloaded,
+      buttonLabel: downloaded
+        ? 'Saved Offline ✓'
+        : (offline ? 'Needs Internet' : 'Save Offline ⬇'),
+      actionLabel: downloaded ? 'Remove Offline' : (offline ? 'Needs Internet' : 'Save Offline'),
+      disabled: !downloaded && offline
+    };
   }
 
-  function getPlainLyricsLines(track) {
-    return String(track?.lyrics || "")
-      .replace(/\r\n?/g, "\n")
-      .split("\n")
-      .map(line => line.trim())
-      .filter(Boolean);
+  function applyOfflineButtonState(button, state) {
+    if (!button) return;
+    button.textContent = state.buttonLabel;
+    button.disabled = Boolean(state.disabled);
+    button.dataset.offlineState = state.downloaded ? 'saved' : (state.offline ? 'offline-unavailable' : 'ready');
+    button.classList.toggle('is-saved-offline', state.downloaded);
+    button.classList.toggle('is-offline-disabled', state.disabled);
+    button.title = state.downloaded
+      ? 'This song is saved and can play offline.'
+      : (state.disabled ? 'Reconnect to save this song for offline playback.' : 'Save this song for offline playback.');
+    button.setAttribute('aria-disabled', state.disabled ? 'true' : 'false');
   }
 
-  function buildEstimatedLyricsFromPlainText(track) {
-    if (!track) return [];
-    const lines = getPlainLyricsLines(track);
-    if (!lines.length) return [];
-
-    if (Array.isArray(track.estimatedSyncedLyrics) && track.estimatedSyncedLyrics.length) {
-      return track.estimatedSyncedLyrics;
-    }
-
-    const duration = getTrackDurationSeconds(track);
-    const safeDuration = duration > 0
-      ? duration
-      : Math.min(lines.length * LYRICS_FALLBACK_MAX_LINE_SECONDS, Math.max(lines.length * LYRICS_FALLBACK_MIN_LINE_SECONDS, 180));
-
-    const step = lines.length > 1
-      ? Math.max(LYRICS_FALLBACK_MIN_LINE_SECONDS, Math.min(LYRICS_FALLBACK_MAX_LINE_SECONDS, safeDuration / Math.max(lines.length, 1)))
-      : safeDuration;
-
-    track.estimatedSyncedLyrics = lines.map((line, index) => ({
-      time: Number((index * step).toFixed(3)),
-      text: line
-    }));
-
-    return track.estimatedSyncedLyrics;
+  function updateButtons({ track, downloadedTracks, els }) {
+    const state = getTrackOfflineUiState({ track, downloadedTracks });
+    applyOfflineButtonState(els.saveOfflineBtn, state);
+    applyOfflineButtonState(els.playerSheetSaveOfflineBtn, state);
   }
 
-  function getRenderableLyricsLines(track) {
-    if (Array.isArray(track?.syncedLyrics) && track.syncedLyrics.length) {
-      return track.syncedLyrics;
-    }
-
-    return buildEstimatedLyricsFromPlainText(track);
+  function postServiceWorkerMessage(message) {
+    if (!("serviceWorker" in navigator) || !navigator.serviceWorker.controller) return;
+    navigator.serviceWorker.controller.postMessage(message);
   }
 
-  function isLikelyMetadataLine(text) {
-    const value = String(text || "").trim();
-    if (!value) return true;
-    if (META_TAG_PATTERN.test(value)) return true;
-    if (/^(verse|chorus|bridge|pre-chorus|intro|outro|tag)\s*\d*:?$/i.test(value)) return true;
-    if (/^(instrumental|music|\.{2,}|-{2,})$/i.test(value)) return true;
-    return false;
+  function buildCacheRequest(url, preferNoCors = false) {
+    return new Request(url, {
+      method: 'GET',
+      mode: preferNoCors ? 'no-cors' : 'cors',
+      credentials: 'omit',
+      cache: 'no-cache'
+    });
   }
 
-  function normalizeParsedLyrics(lines, track = null) {
-    if (!Array.isArray(lines) || !lines.length) return [];
-
-    const titleSlug = slugify(track?.title || "");
-    const normalized = [];
-    let lastKey = "";
-
-    lines
-      .slice()
-      .sort((a, b) => a.time - b.time)
-      .forEach((line) => {
-        const text = String(line?.text || "").replace(/\s+/g, " ").trim();
-        const time = Number(line?.time);
-        if (!text || !Number.isFinite(time)) return;
-        if (isLikelyMetadataLine(text)) return;
-        if (titleSlug && slugify(text) === titleSlug) return;
-
-        const key = `${Math.round(time * 1000)}::${text.toLowerCase()}`;
-        if (key === lastKey) return;
-        lastKey = key;
-
-        normalized.push({
-          time: Number(time.toFixed(3)),
-          text
-        });
-      });
-
-    return normalized;
+  function responseCanBeCached(response) {
+    return Boolean(response && (response.ok || response.type === 'opaque'));
   }
 
-  function parseLrcText(lrcText, track = null) {
-    let fileOffsetSeconds = 0;
-    const parsedLines = [];
-
-    String(lrcText || "")
-      .replace(/\r\n?/g, "\n")
-      .split("\n")
-      .forEach(rawLine => {
-        const line = rawLine.trim();
-        if (!line) return;
-
-        const offsetMatch = line.match(/^\[offset:([+-]?\d+)\]$/i);
-        if (offsetMatch) {
-          fileOffsetSeconds = (Number(offsetMatch[1]) || 0) / 1000;
-          return;
+  async function cacheUrlsDirect(cacheName, urls) {
+    if (!('caches' in window)) return { cached: [], failed: urls || [] };
+    const cache = await caches.open(cacheName);
+    const cached = [];
+    const failed = [];
+    for (const url of uniq(urls)) {
+      try {
+        const existing = await cache.match(url, { ignoreSearch: true });
+        if (existing) {
+          cached.push(url);
+          continue;
         }
 
-        if (META_TAG_PATTERN.test(line)) return;
+        let response = null;
+        try {
+          response = await fetch(buildCacheRequest(url, false));
+        } catch (error) {
+          response = null;
+        }
 
-        const timeMatches = [...line.matchAll(/\[(\d{1,2}):(\d{2}(?:\.\d{1,3})?)\]/g)];
-        if (!timeMatches.length) return;
+        if (!responseCanBeCached(response)) {
+          response = await fetch(buildCacheRequest(url, true));
+        }
 
-        const textOnly = line.replace(/\[(\d{1,2}):(\d{2}(?:\.\d{1,3})?)\]/g, "").trim();
-        if (!textOnly) return;
+        if (!responseCanBeCached(response)) {
+          throw new Error(`HTTP ${response?.status || 'fetch-failed'}`);
+        }
 
-        timeMatches.forEach(match => {
-          const minutes = Number(match[1]);
-          const seconds = Number(match[2]);
-          const baseTime = (minutes * 60) + seconds;
-          const finalTime = Math.max(0, baseTime + fileOffsetSeconds);
-          if (Number.isFinite(finalTime)) {
-            parsedLines.push({
-              time: Number(finalTime.toFixed(3)),
-              text: textOnly
-            });
-          }
-        });
-      });
-
-    return normalizeParsedLyrics(parsedLines, track);
-  }
-
-  function findActiveLyricIndex(lines, currentTime) {
-    if (!Array.isArray(lines) || !lines.length) return -1;
-
-    let low = 0;
-    let high = lines.length - 1;
-    let best = -1;
-
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2);
-      if (currentTime >= lines[mid].time) {
-        best = mid;
-        low = mid + 1;
-      } else {
-        high = mid - 1;
+        await cache.put(url, response.clone());
+        cached.push(url);
+      } catch (error) {
+        failed.push(url);
       }
     }
-
-    return best;
+    return { cached, failed };
   }
 
-  function buildLyricsMarkup(track, emptyMessage = "No lyrics available.", helpers = {}) {
-    const { escapeHtml = String, escapeHtmlAttr = String, nl2br = String } = helpers;
-    if (!track) {
-      return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
+  async function removeUrlsDirect(cacheName, urls) {
+    if (!('caches' in window)) return;
+    const cache = await caches.open(cacheName);
+    await Promise.all(uniq(urls).map(url => cache.delete(url, { ignoreSearch: true })));
+  }
+
+  function getTrackAssetUrls(track) {
+    return {
+      audio: [track?.src].filter(Boolean),
+      assets: [track?.cover, track?.lyrics_file].filter(Boolean)
+    };
+  }
+
+  async function cacheTrackAssets(track) {
+    const { audio, assets } = getTrackAssetUrls(track);
+    const audioResult = await cacheUrlsDirect(DIRECT_AUDIO_CACHE, audio);
+    const assetResult = await cacheUrlsDirect(DIRECT_ASSET_CACHE, assets);
+    postServiceWorkerMessage({ type: 'CACHE_AUDIO_URLS', urls: audio });
+    postServiceWorkerMessage({ type: 'CACHE_URLS', urls: assets });
+    return {
+      ok: audio.length ? audioResult.cached.length === audio.length : true,
+      audio: audioResult,
+      assets: assetResult
+    };
+  }
+
+  async function saveTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks,
+    saveDownloadedTracks,
+    els,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons,
+    flashButtonText
+  }) {
+    if (!track?.src) return false;
+
+    const cacheResult = await cacheTrackAssets(track);
+    if (!cacheResult.ok) {
+      if (flashButtonText && els?.saveOfflineBtn && !document.hidden) flashButtonText(els.saveOfflineBtn, 'Offline Failed');
+      return false;
     }
 
-    const lyricsLines = getRenderableLyricsLines(track);
-    if (lyricsLines.length) {
-      return `
-        <div class="synced-lyrics" data-track-id="${escapeHtmlAttr(track.id)}">
-          ${lyricsLines.map((line, index) => `
-            <div class="lyric-line" data-lyric-index="${index}" data-track-id="${escapeHtmlAttr(track.id)}">${escapeHtml(line.text)}</div>
-          `).join("")}
+    if (!downloadedTracks.includes(track.id)) {
+      setDownloadedTracks([track.id, ...downloadedTracks]);
+      saveDownloadedTracks();
+    }
+
+    updateButtons(track);
+    renderDownloadedSongs();
+    renderFeaturedTrackList();
+    if (flashButtonText && els?.saveOfflineBtn && !document.hidden) {
+      flashButtonText(els.saveOfflineBtn, 'Saved');
+    }
+    return true;
+  }
+
+  async function removeTrackOffline({
+    track,
+    downloadedTracks,
+    setDownloadedTracks,
+    saveDownloadedTracks,
+    renderDownloadedSongs,
+    renderFeaturedTrackList,
+    updateButtons,
+    els,
+    flashButtonText
+  }) {
+    if (!track) return false;
+
+    setDownloadedTracks(downloadedTracks.filter(id => id !== track.id));
+    saveDownloadedTracks();
+    const { audio, assets } = getTrackAssetUrls(track);
+    postServiceWorkerMessage({ type: 'REMOVE_AUDIO_URLS', urls: audio });
+    postServiceWorkerMessage({ type: 'REMOVE_URLS', urls: assets });
+    await removeUrlsDirect(DIRECT_AUDIO_CACHE, audio);
+    await removeUrlsDirect(DIRECT_ASSET_CACHE, assets);
+
+    updateButtons(track);
+    renderDownloadedSongs();
+    renderFeaturedTrackList();
+    if (flashButtonText && els?.saveOfflineBtn && !document.hidden) {
+      flashButtonText(els.saveOfflineBtn, 'Removed');
+    }
+    return true;
+  }
+
+  async function toggleTrackOffline(args) {
+    const downloaded = isDownloaded({ track: args.track, downloadedTracks: args.downloadedTracks });
+    if (downloaded) return removeTrackOffline(args);
+    return saveTrackOffline(args);
+  }
+
+  async function saveCollectionOffline(args) {
+    const tracks = (args.tracks || []).filter(track => track?.src);
+    let successCount = 0;
+    for (const track of tracks) {
+      const ok = await saveTrackOffline({ ...args, track });
+      if (ok) successCount += 1;
+      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
+    }
+    return successCount;
+  }
+
+  async function removeCollectionOffline(args) {
+    const tracks = (args.tracks || []).filter(Boolean);
+    let removedCount = 0;
+    for (const track of tracks) {
+      const ok = await removeTrackOffline({ ...args, track });
+      if (ok) removedCount += 1;
+      args.downloadedTracks = JSON.parse(localStorage.getItem('aineo_downloaded_tracks') || '[]');
+    }
+    return removedCount;
+  }
+
+  async function toggleCollectionOffline(args) {
+    const allSaved = isCollectionDownloaded({ tracks: args.tracks || [], downloadedTracks: args.downloadedTracks || [] });
+    if (allSaved) return removeCollectionOffline(args);
+    return saveCollectionOffline(args);
+  }
+
+  function renderDownloadedSongs({
+    els,
+    downloadedTracks,
+    tracks,
+    escapeHtml,
+    escapeHtmlAttr,
+    startPlaybackFromList,
+    removeTrackOffline,
+    getCurrentTrack
+  }) {
+    if (!els.downloadedList) return;
+
+    const savedTracks = downloadedTracks
+      .map(id => tracks.find(track => track.id === id))
+      .filter(Boolean)
+      .slice(0, 12);
+
+    if (!savedTracks.length) {
+      els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
+      return;
+    }
+
+    const currentTrack = getCurrentTrack?.();
+
+    els.downloadedList.innerHTML = savedTracks.map((track, index) => `
+      <article class="offline-card${currentTrack?.id === track.id ? ' is-current' : ''}" data-offline-index="${index}">
+        <button class="offline-card-main" data-offline-play="${index}" type="button">
+          ${track.cover
+            ? `<img src="${escapeHtmlAttr(track.cover)}" alt="${escapeHtmlAttr(track.title)} cover" class="offline-card-cover" loading="lazy" decoding="async" fetchpriority="low" />`
+            : `<div class="offline-card-cover offline-card-placeholder">No Cover</div>`}
+          <div class="offline-card-meta">
+            <strong>${escapeHtml(track.title)}</strong>
+            <span>${escapeHtml(track.album)}</span>
+            <small class="offline-card-status">Saved offline ✓</small>
+          </div>
+        </button>
+        <div class="offline-card-actions">
+          <button class="mini-action-btn" data-offline-remove="${index}" type="button">Remove</button>
         </div>
-      `;
-    }
+      </article>
+    `).join('');
 
-    if (track.lyrics) {
-      return `<div class="lyrics-block">${nl2br(escapeHtml(track.lyrics))}</div>`;
-    }
-
-    return `<p class="empty-message">${escapeHtml(emptyMessage)}</p>`;
-  }
-
-  function getLyricsScrollContainer(container) {
-    if (!container) return null;
-
-    return container.closest(".lyrics-content, .lyrics-modal-body, .player-tab-panel, .modal-body")
-      || container.parentElement
-      || container;
-  }
-
-  function getManualScrollHoldUntil(scrollContainer) {
-    return Number(scrollContainer?.dataset?.manualScrollHoldUntil || 0) || 0;
-  }
-
-  function setManualScrollHold(scrollContainer, holdMs = MANUAL_SCROLL_HOLD_MS) {
-    if (!scrollContainer) return;
-    scrollContainer.dataset.manualScrollHoldUntil = String(Date.now() + holdMs);
-  }
-
-  function bindManualScrollPause(container) {
-    const scrollContainer = getLyricsScrollContainer(container);
-    if (!scrollContainer || scrollContainer.dataset.lyricsScrollBound === "1") return;
-
-    let ignoreProgrammaticScroll = false;
-    let ignoreTimer = 0;
-    const markUserScroll = () => {
-      if (ignoreProgrammaticScroll) return;
-      setManualScrollHold(scrollContainer);
-    };
-
-    scrollContainer.addEventListener("wheel", markUserScroll, { passive: true });
-    scrollContainer.addEventListener("touchmove", markUserScroll, { passive: true });
-    scrollContainer.addEventListener("pointerdown", () => setManualScrollHold(scrollContainer, 1200), { passive: true });
-    scrollContainer.addEventListener("scroll", markUserScroll, { passive: true });
-
-    scrollContainer._aineoSetProgrammaticScrollGuard = () => {
-      ignoreProgrammaticScroll = true;
-      window.clearTimeout(ignoreTimer);
-      ignoreTimer = window.setTimeout(() => {
-        ignoreProgrammaticScroll = false;
-      }, 260);
-    };
-
-    scrollContainer.dataset.lyricsScrollBound = "1";
-  }
-
-  function scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled) {
-    const scrollContainer = getLyricsScrollContainer(container);
-    if (!scrollContainer || !activeLine || scrollContainer.offsetParent === null) return;
-    if (!autoScrollEnabled) return;
-    if (Date.now() < getManualScrollHoldUntil(scrollContainer)) return;
-
-    const containerRect = scrollContainer.getBoundingClientRect();
-    const lineRect = activeLine.getBoundingClientRect();
-    const lineTop = lineRect.top - containerRect.top + scrollContainer.scrollTop;
-    const targetScrollTop = Math.max(0, lineTop - (scrollContainer.clientHeight * 0.42) + (activeLine.clientHeight / 2));
-    const delta = Math.abs(targetScrollTop - scrollContainer.scrollTop);
-
-    if (delta < 6) return;
-
-    scrollContainer._aineoSetProgrammaticScrollGuard?.();
-    scrollContainer.scrollTo({
-      top: targetScrollTop,
-      behavior: delta > 36 ? "smooth" : "auto"
-    });
-  }
-
-  function preloadSyncedLyrics(track) {
-    if (!track || !track.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) {
-      return Promise.resolve(getRenderableLyricsLines(track));
-    }
-
-    track._syncedLyricsLoading = true;
-    const lyricsUrl = buildLyricsAssetUrl(track.lyrics_file);
-    return fetch(lyricsUrl, { cache: "no-store", headers: { "cache-control": "no-cache" } })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then(text => {
-        track.syncedLyrics = parseLrcText(text, track);
-        track._syncedLyricsLoaded = true;
-        return getRenderableLyricsLines(track);
-      })
-      .catch(error => {
-        console.warn(`Could not load synced lyrics for ${track.title}:`, error);
-        track.syncedLyrics = [];
-        track._syncedLyricsLoaded = true;
-        return getRenderableLyricsLines(track);
-      })
-      .finally(() => {
-        track._syncedLyricsLoading = false;
+    els.downloadedList.querySelectorAll('[data-offline-play]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const index = Number(btn.dataset.offlinePlay);
+        const track = savedTracks[index];
+        if (!track) return;
+        startPlaybackFromList([track], false, 0);
       });
-  }
+    });
 
-  function renderLyricsInto({ container, track, emptyMessage, requestToken, onRendered, escapeHtml, escapeHtmlAttr, nl2br }) {
-    if (!container) return;
-
-    container.dataset.trackId = track?.id || "";
-    container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
-    bindManualScrollPause(container);
-    onRendered?.();
-
-    if (!track?.lyrics_file || track._syncedLyricsLoaded || track._syncedLyricsLoading) return;
-
-    preloadSyncedLyrics(track).finally(() => {
-      if (container.dataset.trackId === track.id) {
-        container.innerHTML = buildLyricsMarkup(track, emptyMessage, { escapeHtml, escapeHtmlAttr, nl2br });
-        bindManualScrollPause(container);
-        onRendered?.(requestToken);
-      }
+    els.downloadedList.querySelectorAll('[data-offline-remove]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const index = Number(btn.dataset.offlineRemove);
+        const track = savedTracks[index];
+        if (!track) return;
+        removeTrackOffline(track);
+      });
     });
   }
 
-  function updateProgress({ track, currentTime, autoScrollEnabled }) {
-    const activeIndex = findActiveLyricIndex(getRenderableLyricsLines(track), currentTime);
-
-    document.querySelectorAll(".synced-lyrics").forEach(container => {
-      const isCurrentTrack = Boolean(track && container.dataset.trackId === track.id);
-      const lineEls = container.querySelectorAll(".lyric-line");
-
-      if (!isCurrentTrack || activeIndex < 0) {
-        container.dataset.activeIndex = "";
-        lineEls.forEach(lineEl => lineEl.classList.remove("active", "is-past", "is-upcoming"));
-        return;
-      }
-
-      // v42.3.75b: keep lyric following/centering, but remove per-line state styling
-      // so imperfect sync does not visually highlight the wrong line.
-      lineEls.forEach(lineEl => lineEl.classList.remove("active", "is-past", "is-upcoming"));
-
-      const activeLine = lineEls[activeIndex];
-      if (!activeLine) return;
-      if (container.dataset.activeIndex === String(activeIndex)) {
-        if (autoScrollEnabled) scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled);
-        return;
-      }
-
-      container.dataset.activeIndex = String(activeIndex);
-      scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled);
-    });
-  }
-
-  window.AineoLyricsEngine = {
-    parseLrcText,
-    findActiveLyricIndex,
-    getRenderableLyricsLines,
-    buildLyricsMarkup,
-    renderLyricsInto,
-    updateProgress,
-    normalizeParsedLyrics,
-    preloadSyncedLyrics
+  return {
+    isDownloaded,
+    isCollectionDownloaded,
+    getTrackOfflineUiState,
+    updateButtons,
+    saveTrackOffline,
+    removeTrackOffline,
+    toggleTrackOffline,
+    saveCollectionOffline,
+    removeCollectionOffline,
+    toggleCollectionOffline,
+    renderDownloadedSongs
   };
 })();

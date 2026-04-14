@@ -1,31 +1,155 @@
-document.addEventListener("DOMContentLoaded", () => {
-  window.AineoShared?.initSecondaryPageNav?.();
-  window.initBasicMobileNav?.();
-  ensureAlbumPageMobileNavFallback();
-  window.AineoAlbumPage?.init?.();
-});
-function ensureAlbumPageMobileNavFallback() {
-  const toggle = document.getElementById("mobileNavToggle");
-  const nav = document.getElementById("siteNavLinks");
-  if (!toggle || !nav) return;
-  if (toggle.dataset.navBound === "true") return;
-  toggle.dataset.navBound = "true";
-  ["pointerdown", "touchstart"].forEach(eventName => {
-    toggle.addEventListener(eventName, event => {
-      event.stopPropagation();
-    }, { passive: true });
-  });
-  toggle.addEventListener("click", event => {
-    event.preventDefault();
-    event.stopPropagation();
-    const open = nav.classList.toggle("nav-open");
-    toggle.setAttribute("aria-expanded", open ? "true" : "false");
-    toggle.textContent = open ? "✕" : "☰";
-  });
-  nav.querySelectorAll("a").forEach(link => link.addEventListener("click", () => {
-    nav.classList.remove("nav-open");
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.textContent = "☰";
-  }));
-}
-
+[
+  {
+    "title": "Beautiful Things",
+    "slug": "beautiful-things",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/alivia-play-with-me.jpg",
+    "description": "Childhood wonder, daughters, imagination, and the little moments you want to hold onto forever.",
+    "theme": "Children / Family / Wonder",
+    "story": "Beautiful Things is an album about childhood, imagination, and the small moments that become the biggest memories. It holds onto princess dresses, LEGO towers, bedtime wonder, laughter in the living room, and the kind of love that makes home feel safe. These songs were written to slow time down for a moment and remember the beauty of growing up surrounded by love.",
+    "badges": [
+      "childhood",
+      "wonder",
+      "family"
+    ],
+    "track_count": 5,
+    "album_zip": ""
+  },
+  {
+    "title": "Fun",
+    "slug": "fun",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/chop-it-like-its-hot.jpg",
+    "description": "Laughter, road stories, card games, lake days, gym chaos, and the moments that become inside jokes for years.",
+    "theme": "Fun / Story Songs / Good Times",
+    "story": "Fun is the album about laughter, stories, road trips, lake weekends, game nights, gym jokes, and the kind of memories that get better every time they\u2019re retold. It is a reminder that joy matters, that friendship matters, and that some of the best songs come from the loudest, funniest, most ordinary moments of life.",
+    "badges": [
+      "country",
+      "fun",
+      "story"
+    ],
+    "track_count": 8,
+    "album_zip": ""
+  },
+  {
+    "title": "Home",
+    "slug": "home",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/by-your-hands.jpg",
+    "description": "Dinner tables, family prayers, marriage, children, and the everyday places where love learns how to stay.",
+    "theme": "Home / Family / Everyday Grace",
+    "story": "Home is about the place and the people that shape who we become. It is dinner tables, porch lights, long talks, prayers over meals, laughter in the hallway, and love that keeps showing up. These songs are about family, marriage, raising children, and the everyday moments that quietly build a life.",
+    "badges": [
+      "family",
+      "home",
+      "heart"
+    ],
+    "track_count": 12,
+    "album_zip": ""
+  },
+  {
+    "title": "Real People",
+    "slug": "real-people",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/sugar-and-grace.jpg",
+    "description": "Songs about ordinary people living meaningful lives \u2014 workers, parents, friends, and everyday heroes.",
+    "theme": "People / Story Songs / Ordinary Saints",
+    "story": "Real People is a collection of songs about ordinary people living meaningful lives. These songs are about fathers, mothers, workers, friends, and people who quietly make the world better without asking for attention. It is an album of gratitude for the people who raised us, stood by us, and showed us what kind of lives are worth living.",
+    "badges": [
+      "people",
+      "story",
+      "americana"
+    ],
+    "track_count": 7,
+    "album_zip": ""
+  },
+  {
+    "title": "Alpha & Omega",
+    "slug": "alpha-and-omega",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/holy-beyond-measure.jpg",
+    "description": "Worship songs about the holiness, majesty, creation, and eternal greatness of God.",
+    "theme": "Worship / Majesty / Creation",
+    "story": "Alpha & Omega is a worship album about who God is \u2014 holy, eternal, unmatched, Creator, Savior, and Lord over all time and creation. These songs look at the heavens, the breath in our lungs, the beginning of all things, and the greatness of the God who still knows our names. It is an album of awe, reverence, wonder, and praise.",
+    "badges": [
+      "worship",
+      "holy",
+      "creation"
+    ],
+    "track_count": 8,
+    "album_zip": ""
+  },
+  {
+    "title": "Carry the Light",
+    "slug": "carry-the-light",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/step-out-and-go.jpg",
+    "description": "A discipleship album about faith, obedience, witness, growth, and living like Christ in the world.",
+    "theme": "Christian Life / Discipleship / Mission",
+    "story": "Carry the Light is about what it means to follow Christ and live differently in the world. These songs are about faith, obedience, courage, watchfulness, bearing fruit, speaking with grace, and stepping out even when you are afraid. It is an album about the Christian walk \u2014 not just believing, but living, serving, growing, and carrying the light into dark places.",
+    "badges": [
+      "faith",
+      "mission",
+      "growth"
+    ],
+    "track_count": 12,
+    "album_zip": ""
+  },
+  {
+    "title": "Heartprints",
+    "slug": "heartprints",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/forever-and-ever-gritty.jpg",
+    "description": "Love, marriage, gratitude, and the people who leave marks on your life that never fade.",
+    "theme": "Love / Marriage / Lasting Connection",
+    "story": "Heartprints is an album about the people who leave marks on our lives that never fade. It is about love, marriage, friendship, family, and the people who shape who we become simply by being part of our story. Some people leave footprints, but some leave heartprints \u2014 permanent reminders of love, joy, covenant, and home.",
+    "badges": [
+      "love",
+      "marriage",
+      "heart"
+    ],
+    "track_count": 5,
+    "album_zip": ""
+  },
+  {
+    "title": "Mercy & Grace",
+    "slug": "mercy-and-grace",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/foot-of-the-cross.jpg",
+    "description": "Songs of repentance, redemption, the cross, and the mercy of God that saves sinners.",
+    "theme": "Salvation / Cross / Redemption",
+    "story": "Mercy & Grace tells the story of sin, repentance, forgiveness, and redemption. These songs are about the cross, about failure and surrender, about being lost and found, and about the mercy of God that reaches where nothing else can. It is the story of what grace does to broken people \u2014 it saves, restores, and makes them new.",
+    "badges": [
+      "grace",
+      "cross",
+      "redemption"
+    ],
+    "track_count": 10,
+    "album_zip": ""
+  },
+  {
+    "title": "Trauma",
+    "slug": "trauma",
+    "year": 2026,
+    "artist": "Allen Parvin",
+    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/bent-my-mind.jpg",
+    "description": "An honest collection about fear, memory, survival, pain, and the slow work of healing.",
+    "theme": "Pain / Survival / Healing",
+    "story": "Trauma is an honest album about pain, memory, fear, survival, and healing. These songs sit inside the battles people fight in silence \u2014 the weight they carry, the memories that linger, and the slow process of learning to live again. It is not an album about pretending to be fine. It is about telling the truth, surviving the dark, and finding hope one breath at a time.",
+    "badges": [
+      "healing",
+      "honest",
+      "survival"
+    ],
+    "track_count": 3,
+    "album_zip": ""
+  }
+]

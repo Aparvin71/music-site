@@ -1,0 +1,7 @@
+BUILD v43.1.42 — SELF-CONTAINED ASSET REPAIR
+
+Key changes
+- built from v43.1.41 base
+- integrated uploaded audio(3).zip, covers.zip, lyrics.zip
+- repaired local asset mapping for tracks.json
+- cleaned older note files from package

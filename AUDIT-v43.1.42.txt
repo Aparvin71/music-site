@@ -1,0 +1,14 @@
+AUDIT v43.1.42
+
+Tracks: 72
+Audio files bundled: 72
+Cover files bundled: 83
+Lyrics files bundled: 72
+
+Audio repaired: 72
+Cover repaired: 72
+Lyrics repaired: 0
+
+Audio missing after repair: 0
+Cover missing after repair: 0
+Lyrics missing after repair: 0
