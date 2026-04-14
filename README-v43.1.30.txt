@@ -1,5 +1,5 @@
 
-Aineo Music v43.1.37 — Generator Polish Pass
+Aineo Music v43.1.38 — Generator Polish Pass
 
 What this pass does
 - Keeps split visualizer data in /analysis/*.json

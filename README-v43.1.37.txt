@@ -1,4 +1,4 @@
-Aineo Music v43.1.37 — Ultra Smooth Playback
+Aineo Music v43.1.38 — Ultra Smooth Playback
 
 What changed
 - Smart playback neighborhood warming for current, next, previous, and predictive next tracks

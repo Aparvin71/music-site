@@ -1,6 +1,6 @@
-// v43.1.37 Service Worker Strategy Cleanup
+// v43.1.38 Navigation Redirect Fix + Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.37";
+const CACHE_VERSION = "v43.1.38";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;
@@ -19,38 +19,39 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css",
-  "/app.js",
-  "/nav.js",
-  "/pwa-init.js",
-  "/manifest.webmanifest",
-  "/aineo-album-page.js",
-  "/aineo-config.js",
-  "/aineo-data.js",
-  "/aineo-featured.js",
-  "/aineo-library.js",
-  "/aineo-lyrics.js",
-  "/aineo-media-session.js",
-  "/aineo-offline.js",
-  "/aineo-player-sheet.js",
-  "/aineo-playlists.js",
-  "/aineo-queue.js",
-  "/aineo-shared.js",
-  "/aineo-ui.js",
-  "/album-page.js",
-  "/albums-page.js",
-  "/artist-page.js",
-  "/artists-page.js",
-  "/contact.js"
+  "/style.css?v=43.1.38",
+  "/app.js?v=43.1.38",
+  "/nav.js?v=43.1.38",
+  "/pwa-init.js?v=43.1.38",
+  "/manifest.webmanifest?v=43.1.38",
+  "/aineo-album-page.js?v=43.1.38",
+  "/aineo-config.js?v=43.1.38",
+  "/aineo-data.js?v=43.1.38",
+  "/aineo-featured.js?v=43.1.38",
+  "/aineo-library.js?v=43.1.38",
+  "/aineo-lyrics.js?v=43.1.38",
+  "/aineo-media-session.js?v=43.1.38",
+  "/aineo-offline.js?v=43.1.38",
+  "/aineo-player-sheet.js?v=43.1.38",
+  "/aineo-playlists.js?v=43.1.38",
+  "/aineo-queue.js?v=43.1.38",
+  "/aineo-shared.js?v=43.1.38",
+  "/aineo-ui.js?v=43.1.38",
+  "/album-page.js?v=43.1.38",
+  "/albums-page.js?v=43.1.38",
+  "/artist-page.js?v=43.1.38",
+  "/artists-page.js?v=43.1.38",
+  "/contact.js?v=43.1.38"
 ];
 
 async function safeWarmStaticCache() {
   const cache = await caches.open(STATIC_CACHE);
   await Promise.all(STATIC_ASSETS.map(async (url) => {
     try {
-      const response = await fetch(url, { cache: "no-cache" });
-      if (response && response.ok) {
-        await cache.put(url, response.clone());
+      const request = new Request(url, { cache: "reload" });
+      const response = await fetch(request);
+      if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
+        await cache.put(request, response.clone());
       }
     } catch (error) {}
   }));
@@ -74,26 +75,27 @@ self.addEventListener("activate", (event) => {
   })());
 });
 
-async function networkFirst(request, cacheName) {
+async function networkFirst(request, cacheName, { cacheRedirects = false } = {}) {
   const cache = await caches.open(cacheName);
   try {
     const response = await fetch(request);
-    if (response && response.ok) {
+    if (response && response.ok && (!response.redirected || cacheRedirects) && response.type !== "opaqueredirect") {
       await cache.put(request, response.clone());
     }
     return response;
   } catch (error) {
-    const cached = await cache.match(request);
+    const cached = await cache.match(request, { ignoreSearch: false });
     if (cached) return cached;
     throw error;
   }
 }
 
+
 async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
+  const cached = await cache.match(request, { ignoreSearch: false });
   const fetchPromise = fetch(request).then((response) => {
-    if (response && response.ok) {
+    if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
       cache.put(request, response.clone());
     }
     return response;
@@ -103,10 +105,10 @@ async function staleWhileRevalidate(request, cacheName) {
 
 async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
+  const cached = await cache.match(request, { ignoreSearch: false });
   if (cached) return cached;
   const response = await fetch(request);
-  if (response && response.ok) {
+  if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
     await cache.put(request, response.clone());
   }
   return response;
@@ -115,11 +117,33 @@ async function cacheFirst(request, cacheName) {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
-  const url = new URL(req.url);
 
+  const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.includes("/lyrics/") || url.pathname.endsWith("tracks.json") || url.pathname.endsWith("albums.json")) {
+  if (req.mode === "navigate" || (req.destination === "document")) {
+    event.respondWith((async () => {
+      try {
+        const response = await fetch(req, { redirect: "follow" });
+        // Never cache redirected document responses; just return the final network result.
+        if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
+          const cache = await caches.open(STATIC_CACHE);
+          await cache.put(req, response.clone());
+        }
+        return response;
+      } catch (error) {
+        const cache = await caches.open(STATIC_CACHE);
+        return (
+          await cache.match(req, { ignoreSearch: false }) ||
+          await cache.match(url.pathname, { ignoreSearch: false }) ||
+          await cache.match("/index.html")
+        );
+      }
+    })());
+    return;
+  }
+
+  if (url.pathname.includes("/lyrics/") || url.pathname.endsWith("tracks.json") || url.pathname.endsWith("albums.json") || url.pathname.endsWith("lrc-manifest.json")) {
     event.respondWith(networkFirst(req, DYNAMIC_CACHE));
     return;
   }
@@ -129,7 +153,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.endsWith(".js") || url.pathname.endsWith(".css") || url.pathname.endsWith(".html") || url.pathname === "/" || url.pathname.endsWith(".webmanifest")) {
+  if (url.pathname.endsWith(".js") || url.pathname.endsWith(".css") || url.pathname === "/" || url.pathname.endsWith(".webmanifest") || url.pathname.endsWith(".png") || url.pathname.endsWith(".ico")) {
     event.respondWith(cacheFirst(req, STATIC_CACHE));
     return;
   }
