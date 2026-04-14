@@ -171,14 +171,12 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 1000;
-  overflow: visible;
   background: rgba(15, 17, 21, 0.96);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid #252a34;
 }
 
 .navbar {
-  position: relative;
   max-width: 1400px;
   margin: 0 auto;
   padding: 14px 22px;
@@ -1822,8 +1820,6 @@ a:hover {
 
   .nav-links.nav-open {
     display: flex;
-    position: relative;
-    z-index: 12;
   }
 
   .nav-links li {
@@ -12372,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.21 visualizer lift + left-wing alignment polish */
+/* v43.1.25 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12401,7 +12397,7 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.21 visualizer lift + left-wing alignment polish */
+/* v43.1.25 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.21 visualizer lift + left-wing alignment polish */
+/* v43.1.25 visualizer lift + left-wing alignment polish */

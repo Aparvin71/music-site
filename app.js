@@ -1,4 +1,23 @@
-/* v43.1.21 spectrum premium polish + clean package rebuild */
+
+// v43.1.25 hard reset
+const APP_VERSION = "43.1.25";
+try {
+  const stored = localStorage.getItem("app_version");
+  if (stored !== APP_VERSION) {
+    localStorage.clear();
+    sessionStorage.clear();
+    if (window.indexedDB) {
+      indexedDB.databases && indexedDB.databases().then(dbs => {
+        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
+      });
+    }
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+    localStorage.setItem("app_version", APP_VERSION);
+    window.location.reload(true);
+  }
+} catch(e) {}
+/* v43.1.25 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];

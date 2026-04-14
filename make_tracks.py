@@ -11,6 +11,10 @@ from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 import numpy as np
 
+# v43.1.25 asset decoupling defaults:
+# - app core ships separately from audio/covers
+# - generated tracks.json points at remote audio and cover URLs
+# - local lyrics remain optional
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
 COVER_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers"
 ALBUM_ZIP_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/albums"
@@ -22,12 +26,13 @@ DEFAULT_PLAYLIST = "Music"
 DEFAULT_COLLECTION = "All Songs"
 LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
+INCLUDE_WAVEFORM_RING_PREVIEW = False
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 AUDIO_EXTENSIONS = {".mp3"}
 WAVEFORM_ENVELOPE_POINTS = 2048
 WAVEFORM_FFMPEG_SAMPLE_RATE = 400
 WAVEFORM_MIN_SAMPLES = 256
-SPECTRUM_FRAME_COUNT = 360
+SPECTRUM_FRAME_COUNT = 120
 SPECTRUM_BAND_COUNT = 24
 SPECTRUM_SAMPLE_RATE = 11025
 SPECTRUM_MIN_HZ = 40.0
@@ -35,9 +40,9 @@ SPECTRUM_MAX_HZ = 5200.0
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
-if not (SITE_DIR / "audio").exists() and len(SCRIPT_PATH.parents) > 1:
+if not (SITE_DIR / "tracks.json").exists() and len(SCRIPT_PATH.parents) > 1:
     parent_candidate = SCRIPT_PATH.parents[1]
-    if (parent_candidate / "audio").exists():
+    if (parent_candidate / "tracks.json").exists():
         SITE_DIR = parent_candidate
 
 AUDIO_DIR = SITE_DIR / "audio"
@@ -348,10 +353,12 @@ def get_reusable_waveform_data(
     cache_data = build_cache.get(cache_entry.file_name, {})
 
     envelope_ok = isinstance(existing_envelope, list) and len(existing_envelope) >= WAVEFORM_MIN_SAMPLES
-    ring_ok = isinstance(existing_ring, list) and len(existing_ring) > 0
+    ring_ok = (not INCLUDE_WAVEFORM_RING_PREVIEW) or (isinstance(existing_ring, list) and len(existing_ring) > 0)
 
     if envelope_ok and ring_ok and source_cache_matches(cache_data, cache_entry):
-        return ([int(round(v)) for v in existing_envelope], [int(round(v)) for v in existing_ring], True)
+        reusable_envelope = [int(round(v)) for v in existing_envelope]
+        reusable_ring = [int(round(v)) for v in existing_ring] if INCLUDE_WAVEFORM_RING_PREVIEW and isinstance(existing_ring, list) else []
+        return (reusable_envelope, reusable_ring, True)
 
     return ([], [], False)
 
@@ -806,7 +813,10 @@ def main() -> None:
     print("======================")
 
     if not AUDIO_DIR.exists():
-        raise SystemExit(f"Missing audio folder: {AUDIO_DIR}")
+        raise SystemExit(
+            f"Missing audio folder: {AUDIO_DIR}\n"
+            "This v43.1.25 generator expects a decoupled core app plus a separate audio folder when rebuilding tracks."
+        )
 
     COVERS_DIR.mkdir(parents=True, exist_ok=True)
     lrc_map = load_lrc_manifest()
@@ -849,7 +859,7 @@ def main() -> None:
             reused_waveforms += 1
         else:
             waveform_envelope = extract_waveform_envelope(file, duration_seconds)
-            waveform_ring = build_waveform_ring_preview(waveform_envelope)
+            waveform_ring = build_waveform_ring_preview(waveform_envelope) if INCLUDE_WAVEFORM_RING_PREVIEW else []
             if waveform_envelope:
                 regenerated_waveforms += 1
         spectrum_frames = extract_spectrum_frames(file)
