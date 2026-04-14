@@ -1,4 +1,4 @@
-/* v43.1.30 asset decoupling pass */
+/* v43.1.21 spectrum premium polish + clean package rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -286,62 +286,6 @@ function loadTracksCache() {
   }
 }
 
-const ANALYSIS_CACHE = new Map();
-const ANALYSIS_IN_FLIGHT = new Map();
-const ANALYSIS_DATA_VERSION = "v1";
-
-function mergeTrackAnalysis(track, analysisData) {
-  if (!track || !analysisData || typeof analysisData !== "object") return track;
-  const waveform = Array.isArray(analysisData.waveform_envelope) ? analysisData.waveform_envelope.map(v => Number(v) || 0) : [];
-  const spectrum = Array.isArray(analysisData.spectrum_frames)
-    ? analysisData.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
-    : [];
-  track.waveform_envelope = waveform;
-  track.spectrum_frames = spectrum;
-  track.spectrum_band_count = Number(analysisData.spectrum_band_count || track.spectrum_band_count || (spectrum[0]?.length || 0)) || 0;
-  track.spectrum_frame_count = Number(analysisData.spectrum_frame_count || track.spectrum_frame_count || spectrum.length) || 0;
-  track.analysis_loaded = Boolean(waveform.length || spectrum.length);
-  return track;
-}
-
-async function ensureTrackAnalysisLoaded(track) {
-  if (!track || !track.analysis_file) return null;
-  if (track.analysis_loaded && ((Array.isArray(track.waveform_envelope) && track.waveform_envelope.length) || (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length))) {
-    return track;
-  }
-  const cacheKey = `${track.analysis_file}|${track.analysis_version || ANALYSIS_DATA_VERSION}`;
-  if (ANALYSIS_CACHE.has(cacheKey)) {
-    mergeTrackAnalysis(track, ANALYSIS_CACHE.get(cacheKey));
-    return track;
-  }
-  if (ANALYSIS_IN_FLIGHT.has(cacheKey)) {
-    const data = await ANALYSIS_IN_FLIGHT.get(cacheKey);
-    mergeTrackAnalysis(track, data);
-    return track;
-  }
-  const request = (window.AineoShared?.fetchJson
-    ? window.AineoShared.fetchJson(`${track.analysis_file}?v=${encodeURIComponent(track.analysis_version || ANALYSIS_DATA_VERSION)}`, null)
-    : fetch(`${track.analysis_file}?v=${encodeURIComponent(track.analysis_version || ANALYSIS_DATA_VERSION)}`, { cache: "no-cache" }).then(res => res.ok ? res.json() : null)
-  ).then((data) => {
-    if (data && typeof data === "object") ANALYSIS_CACHE.set(cacheKey, data);
-    return data;
-  }).catch((error) => {
-    console.warn("Could not load analysis for track:", track?.title || track?.id || "track", error);
-    return null;
-  }).finally(() => {
-    ANALYSIS_IN_FLIGHT.delete(cacheKey);
-  });
-  ANALYSIS_IN_FLIGHT.set(cacheKey, request);
-  const data = await request;
-  mergeTrackAnalysis(track, data);
-  return track;
-}
-
-function prefetchTrackAnalysis(track) {
-  if (!track || !track.analysis_file) return;
-  ensureTrackAnalysisLoaded(track).catch(() => {});
-}
-
 function ensureOfflineStatusMount() {
   if (els.offlineStatusMount) return els.offlineStatusMount;
   const main = document.getElementById("mainContent");
@@ -411,11 +355,9 @@ function ensureOfflineAssetsReady() {
   const audioUrls = savedTracks.map(track => track.src).filter(Boolean);
   const artworkUrls = savedTracks.map(track => track.cover).filter(Boolean);
   const lyricUrls = savedTracks.map(track => track.lyrics_file).filter(Boolean);
-  const analysisUrls = savedTracks.map(track => track.analysis_file).filter(Boolean);
   if (audioUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_AUDIO_URLS', urls: audioUrls });
   if (artworkUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: artworkUrls });
   if (lyricUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: lyricUrls });
-  if (analysisUrls.length) navigator.serviceWorker.controller.postMessage({ type: 'CACHE_URLS', urls: analysisUrls });
 }
 
 /* =========================
@@ -471,15 +413,7 @@ const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
         src: track.src || track.url || track.audio || "",
         cover: track.cover || track.artwork || track.image || "",
         lyrics: track.lyrics || "",
-        lyrics_file: (() => {
-          const raw = String(track.lyrics_file || track.lyricsFile || "").trim();
-          if (!raw) return "";
-          if (/^https?:\/\//i.test(raw)) return raw;
-          const basePath = String(window.AineoConfig?.app?.assets?.lyricsBasePath || "lyrics").replace(/\/$/, "");
-          if (raw.startsWith("lyrics/")) return raw;
-          if (basePath && !raw.startsWith(basePath + "/")) return `${basePath}/${raw.replace(/^\/+/, "")}`;
-          return raw;
-        })(),
+        lyrics_file: track.lyrics_file || track.lyricsFile || "",
         lyrics_offset: Number(track.lyrics_offset ?? track.lyricsOffset ?? 0) || 0,
         syncedLyrics: [],
         tags,
@@ -488,17 +422,11 @@ const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
         trackNumber: track.trackNumber || track.track || "",
         description: track.description || "",
         album_zip: track.album_zip || "",
-        analysis_file: String(track.analysis_file || "").trim(),
-        analysis_version: String(track.analysis_version || ""),
-        has_analysis: Boolean(track.has_analysis || track.analysis_file),
-        waveform_point_count: Number(track.waveform_point_count || 0) || 0,
         waveform_envelope: Array.isArray(track.waveform_envelope) ? track.waveform_envelope.map(v => Number(v) || 0) : [],
+        waveform_ring_preview: Array.isArray(track.waveform_ring_preview) ? track.waveform_ring_preview.map(v => Number(v) || 0) : [],
         spectrum_frames: Array.isArray(track.spectrum_frames)
           ? track.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
-          : [],
-        spectrum_band_count: Number(track.spectrum_band_count || 0) || 0,
-        spectrum_frame_count: Number(track.spectrum_frame_count || 0) || 0,
-        analysis_loaded: Boolean((Array.isArray(track.waveform_envelope) && track.waveform_envelope.length) || (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length))
+          : []
       };
     };
 
@@ -1399,17 +1327,13 @@ function setMiniVisualizerActive(active) {
 }
 
 function getTrackWaveformEnvelope(track) {
-  if (!track) return null;
-  if (Array.isArray(track.waveform_envelope) && track.waveform_envelope.length) return track.waveform_envelope;
-  if (track.analysis_file && !track.analysis_loaded) prefetchTrackAnalysis(track);
-  return null;
+  if (!track || !Array.isArray(track.waveform_envelope) || !track.waveform_envelope.length) return null;
+  return track.waveform_envelope;
 }
 
 function getTrackSpectrumFrames(track) {
-  if (!track) return null;
-  if (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length) return track.spectrum_frames;
-  if (track.analysis_file && !track.analysis_loaded) prefetchTrackAnalysis(track);
-  return null;
+  if (!track || !Array.isArray(track.spectrum_frames) || !track.spectrum_frames.length) return null;
+  return track.spectrum_frames;
 }
 
 function sampleTrackWaveformAt(track, normalizedPosition) {

@@ -1,0 +1,4 @@
+v43.1.21
+- Fixed shared hamburger navigation on home/about/mission/install/request and other secondary pages
+- Added dedicated mobile nav fallback
+- Cleaned package notes and aligned version markers

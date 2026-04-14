@@ -1,14 +1,10 @@
 {
   "name": "Aineo Music",
   "short_name": "Aineo",
-  "start_url": "./index.html?source=pwa&v=43.1.30",
+  "start_url": "./index.html?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui",
-    "browser"
-  ],
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait-primary",
   "background_color": "#0f1115",
   "theme_color": "#0f1115",
@@ -55,17 +51,17 @@
     {
       "name": "Music",
       "short_name": "Music",
-      "url": "./music.html?source=pwa&v=43.1.30"
+      "url": "./music.html?source=pwa"
     },
     {
       "name": "Albums",
       "short_name": "Albums",
-      "url": "./albums.html?source=pwa&v=43.1.30"
+      "url": "./albums.html?source=pwa"
     },
     {
       "name": "About",
       "short_name": "About",
-      "url": "./about.html?source=pwa&v=43.1.30"
+      "url": "./about.html?source=pwa"
     }
   ]
 }
