@@ -1,4 +1,4 @@
-/* v43.1.34 asset decoupling pass */
+/* v43.1.35 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -4127,4 +4127,20 @@ function renderMyPlaylists() {
     escapeHtml,
     escapeHtmlAttr
   });
+}
+
+
+// v43.1.35 preload optimization
+async function preloadAnalysis(trackId){
+  try{
+    fetch(`/analysis/${trackId}.json?v=43.1.35`);
+  }catch(e){}
+}
+
+async function preloadNextTrack(currentIndex, tracks){
+  if(!tracks || tracks.length === 0) return;
+  const next = tracks[currentIndex+1];
+  if(next && next.id){
+    preloadAnalysis(next.id);
+  }
 }

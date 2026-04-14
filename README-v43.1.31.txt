@@ -1,4 +1,4 @@
-Aineo Music v43.1.34 — Static Nav Hamburger Fix
+Aineo Music v43.1.35 — Static Nav Hamburger Fix
 
 Fixes the shared hamburger/mobile nav behavior on static pages including Home, About, Mission, Install, Request/Feedback, and Contact.
 

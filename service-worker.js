@@ -1,7 +1,7 @@
 
-// v43.1.34 Service Worker Strategy Cleanup
+// v43.1.35 Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.34";
+const CACHE_VERSION = "v43.1.35";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
