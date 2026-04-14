@@ -1,0 +1,8 @@
+AUDIT v43.1.37
+
+Validated:
+- internal version bumped to v43.1.37
+- nav.js retained
+- service-worker.js rewritten with safe warming
+- app.js includes ultra smooth playback helpers
+- package remains core/full-site zip without audio or covers

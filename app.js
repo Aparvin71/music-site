@@ -1,4 +1,4 @@
-/* v43.1.36 asset decoupling pass */
+/* v43.1.37 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -2554,33 +2554,64 @@ function renderFeaturedTrackList() {
 let prefetchedTrackSrc = "";
 let prefetchedAudio = null;
 
-function prefetchTrackMedia(track) {
-  if (!track?.src || prefetchedTrackSrc === track.src) return;
-  prefetchedTrackSrc = track.src;
 
-  try {
-    prefetchedAudio = new Audio();
-    prefetchedAudio.preload = "auto";
-    prefetchedAudio.src = track.src;
-    prefetchedAudio.load();
-  } catch (error) {
-    prefetchedAudio = null;
+function prefetchTrackMedia(track, options = {}) {
+  if (!track?.src) return;
+  const allowAudio = options.audio !== false;
+  const allowCover = options.cover !== false;
+  const allowAnalysis = options.analysis !== false;
+
+  if (allowAudio && prefetchedTrackSrc !== track.src) {
+    prefetchedTrackSrc = track.src;
+    try {
+      prefetchedAudio = new Audio();
+      prefetchedAudio.preload = "auto";
+      prefetchedAudio.src = track.src;
+      prefetchedAudio.load();
+    } catch (error) {
+      prefetchedAudio = null;
+    }
   }
 
-  if (track.cover) {
+  if (allowCover && track.cover) {
     const img = new Image();
     img.decoding = "async";
     img.loading = "eager";
     img.src = track.cover;
   }
+
+  if (allowAnalysis) {
+    warmTrackAnalysis(track);
+  }
+}
+
+function prefetchPlaybackNeighborhood(index = currentQueueIndex, queue = currentQueue) {
+  if (!Array.isArray(queue) || !queue.length) return;
+  const normalizedIndex = Math.max(0, Math.min(Number(index) || 0, queue.length - 1));
+  const current = queue[normalizedIndex];
+  const prev = queue[normalizedIndex - 1] || null;
+  const next = queue[normalizedIndex + 1] || queue[0] || null;
+  const nextTwo = queue[normalizedIndex + 2] || null;
+  const candidates = [current, next, prev];
+
+  if (shouldUsePredictivePreload()) {
+    candidates.push(nextTwo);
+  }
+
+  const seen = new Set();
+  candidates.forEach((track) => {
+    if (!track?.id || seen.has(track.id)) return;
+    seen.add(track.id);
+    prefetchTrackMedia(track, { audio: track !== current, cover: true, analysis: true });
+  });
+
+  backgroundWarmupQueue(normalizedIndex, queue);
 }
 
 function prefetchUpcomingTrack() {
-  if (!Array.isArray(currentQueue) || !currentQueue.length) return;
-  const nextIndex = currentQueueIndex >= 0 && currentQueueIndex < currentQueue.length - 1 ? currentQueueIndex + 1 : 0;
-  const nextTrack = currentQueue[nextIndex];
-  if (nextTrack) prefetchTrackMedia(nextTrack);
+  prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue);
 }
+
 
 function setQueue(trackList, shuffle = false) {
   currentQueue = shuffle ? shuffleArray([...trackList]) : [...trackList];
@@ -2649,14 +2680,15 @@ function playTrack(track) {
   renderFeaturedTrackList();
   updateUrlForTrack(track);
   ensureSmartQueueSuggestion(track);
-  window.requestIdleCallback ? window.requestIdleCallback(() => prefetchUpcomingTrack(), { timeout: 700 }) : window.setTimeout(prefetchUpcomingTrack, 250);
+  window.requestIdleCallback ? window.requestIdleCallback(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), { timeout: 700 }) : window.setTimeout(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), 250);
 }
+
 
 function playFromQueueIndex(index) {
   if (index < 0 || index >= currentQueue.length) return;
   currentQueueIndex = index;
   saveQueueState();
-  playTrack(currentQueue[index]);
+  smoothPlayTrack(currentQueue[index], { crossfade: false, reason: "queue" });
 }
 
 function playPreviousTrack() {
@@ -2672,7 +2704,7 @@ function playPreviousTrack() {
   } else {
     currentQueueIndex = currentQueueIndex <= 0 ? currentQueue.length - 1 : currentQueueIndex - 1;
   }
-  playTrack(currentQueue[currentQueueIndex]);
+  smoothPlayTrack(currentQueue[currentQueueIndex], { crossfade: true, reason: "navigation" });
 }
 
 function playNextTrack() {
@@ -2684,7 +2716,7 @@ function playNextTrack() {
   if (!currentQueue.length) return;
 
   if (repeatMode === "one") {
-    playTrack(currentQueue[currentQueueIndex]);
+    smoothPlayTrack(currentQueue[currentQueueIndex], { crossfade: true, reason: "navigation" });
     return;
   }
 
@@ -4130,10 +4162,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.36 preload optimization
+// v43.1.37 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.36`);
+    fetch(`/analysis/${trackId}.json?v=43.1.37`);
   }catch(e){}
 }
 
@@ -4146,7 +4178,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.36 Smart Playback Engine
+// v43.1.37 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4158,12 +4190,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      fetch(`/analysis/${t.id}.json?v=43.1.36`).catch(()=>{});
+      fetch(`/analysis/${t.id}.json?v=43.1.37`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    fetch(`/analysis/${next.id}.json?v=43.1.36`).catch(()=>{});
+    fetch(`/analysis/${next.id}.json?v=43.1.37`).catch(()=>{});
   }
 }
 
@@ -4174,6 +4206,184 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    await fetch(`/analysis/${trackId}.json?v=43.1.36`);
+    await fetch(`/analysis/${trackId}.json?v=43.1.37`);
   }catch(e){}
+}
+
+
+
+/* =========================
+   v43.1.37 ULTRA SMOOTH PLAYBACK
+========================= */
+
+const SMART_PLAYBACK_VERSION = "43.1.37";
+const SMART_PLAYBACK_KEYS = {
+  instantPlay: "aineo_instant_play_mode",
+  skipHistory: "aineo_skip_history"
+};
+
+const SMART_PLAYBACK = {
+  baseCrossfadeMs: 260,
+  maxCrossfadeMs: 420,
+  fastSkipWindowMs: 20000,
+  fastSkipThreshold: 3,
+  backgroundQueueDepth: 4
+};
+
+let smartSkipTimestamps = [];
+
+function isInstantPlayModeEnabled() {
+  try {
+    const stored = localStorage.getItem(SMART_PLAYBACK_KEYS.instantPlay);
+    return stored == null ? true : stored !== "0";
+  } catch (error) {
+    return true;
+  }
+}
+
+function setInstantPlayModeEnabled(nextValue) {
+  try {
+    localStorage.setItem(SMART_PLAYBACK_KEYS.instantPlay, nextValue ? "1" : "0");
+  } catch (error) {}
+  return Boolean(nextValue);
+}
+
+window.AineoPlayback = Object.assign({}, window.AineoPlayback || {}, {
+  isInstantPlayModeEnabled,
+  setInstantPlayModeEnabled
+});
+
+function noteTrackSkip() {
+  const now = Date.now();
+  smartSkipTimestamps = smartSkipTimestamps.filter((value) => now - value <= SMART_PLAYBACK.fastSkipWindowMs);
+  smartSkipTimestamps.push(now);
+  try {
+    localStorage.setItem(SMART_PLAYBACK_KEYS.skipHistory, JSON.stringify(smartSkipTimestamps.slice(-12)));
+  } catch (error) {}
+}
+
+(function restoreSkipHistory() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(SMART_PLAYBACK_KEYS.skipHistory) || "[]");
+    if (Array.isArray(raw)) smartSkipTimestamps = raw.filter((value) => Number.isFinite(value));
+  } catch (error) {
+    smartSkipTimestamps = [];
+  }
+})();
+
+function shouldUsePredictivePreload() {
+  const now = Date.now();
+  smartSkipTimestamps = smartSkipTimestamps.filter((value) => now - value <= SMART_PLAYBACK.fastSkipWindowMs);
+  return smartSkipTimestamps.length >= SMART_PLAYBACK.fastSkipThreshold;
+}
+
+function getDynamicCrossfadeMs() {
+  return shouldUsePredictivePreload() ? SMART_PLAYBACK.baseCrossfadeMs : SMART_PLAYBACK.maxCrossfadeMs;
+}
+
+function getTrackAnalysisUrl(track) {
+  if (!track) return "";
+  if (track.analysis_file) {
+    return `${track.analysis_file}?v=${encodeURIComponent(track.analysis_version || ANALYSIS_DATA_VERSION || SMART_PLAYBACK_VERSION)}`;
+  }
+  if (track.id) {
+    return `/analysis/${track.id}.json?v=${encodeURIComponent(track.analysis_version || ANALYSIS_DATA_VERSION || SMART_PLAYBACK_VERSION)}`;
+  }
+  return "";
+}
+
+function warmTrackAnalysis(track) {
+  if (!track) return Promise.resolve(null);
+  const url = getTrackAnalysisUrl(track);
+  if (!url) return Promise.resolve(null);
+  return ensureTrackAnalysisLoaded(track)
+    .catch(() => null)
+    .then(() => fetch(url, { cache: "force-cache" }).catch(() => null));
+}
+
+function backgroundWarmupQueue(index = currentQueueIndex, queue = currentQueue) {
+  if (!Array.isArray(queue) || !queue.length) return;
+  const normalizedIndex = Math.max(0, Math.min(Number(index) || 0, queue.length - 1));
+  const candidates = [];
+  for (let offset = 1; offset <= SMART_PLAYBACK.backgroundQueueDepth; offset += 1) {
+    const track = queue[normalizedIndex + offset];
+    if (track) candidates.push(track);
+  }
+  const warm = () => {
+    candidates.forEach((track, candidateIndex) => {
+      window.setTimeout(() => {
+        prefetchTrackMedia(track, { audio: true, cover: candidateIndex < 2, analysis: true });
+      }, candidateIndex * 160);
+    });
+  };
+  if (window.requestIdleCallback) {
+    window.requestIdleCallback(warm, { timeout: 1200 });
+  } else {
+    window.setTimeout(warm, 240);
+  }
+}
+
+function fadeAudioVolume(audio, fromVolume, toVolume, durationMs) {
+  if (!audio) return Promise.resolve();
+  const safeFrom = Number.isFinite(fromVolume) ? fromVolume : 1;
+  const safeTo = Number.isFinite(toVolume) ? toVolume : 1;
+  const duration = Math.max(0, Number(durationMs) || 0);
+  if (!duration) {
+    audio.volume = safeTo;
+    return Promise.resolve();
+  }
+
+  const steps = Math.max(6, Math.round(duration / 40));
+  const stepDuration = duration / steps;
+  let stepIndex = 0;
+  audio.volume = safeFrom;
+
+  return new Promise((resolve) => {
+    const timer = window.setInterval(() => {
+      stepIndex += 1;
+      const progress = Math.min(1, stepIndex / steps);
+      audio.volume = safeFrom + ((safeTo - safeFrom) * progress);
+      if (progress >= 1) {
+        window.clearInterval(timer);
+        audio.volume = safeTo;
+        resolve();
+      }
+    }, stepDuration);
+  });
+}
+
+async function smoothPlayTrack(track, options = {}) {
+  if (!track || !track.src || !els.audioPlayer) return;
+  const audio = els.audioPlayer;
+  const current = getCurrentTrack();
+  const hasActiveTrack = Boolean(audio.src && !audio.paused && current?.id && current.id !== track.id);
+  const useCrossfade = options.crossfade !== false && hasActiveTrack;
+  const targetFadeMs = getDynamicCrossfadeMs();
+
+  if (isInstantPlayModeEnabled()) {
+    prefetchTrackMedia(track, { audio: true, cover: true, analysis: true });
+    try {
+      await Promise.race([
+        ensureTrackAnalysisLoaded(track),
+        new Promise((resolve) => window.setTimeout(resolve, 180))
+      ]);
+    } catch (error) {}
+  }
+
+  if (useCrossfade) {
+    try {
+      await fadeAudioVolume(audio, Number.isFinite(audio.volume) ? audio.volume : 1, 0.05, targetFadeMs);
+    } catch (error) {}
+  }
+
+  playTrack(track);
+
+  if (useCrossfade) {
+    try {
+      audio.volume = 0.05;
+      await fadeAudioVolume(audio, 0.05, 1, targetFadeMs + 120);
+    } catch (error) {
+      audio.volume = 1;
+    }
+  }
 }

@@ -1,4 +1,4 @@
-AUDIT v43.1.36
-- internal version strings bumped to v43.1.36
+AUDIT v43.1.37
+- internal version strings bumped to v43.1.37
 - pwa-init.js nav binding hardened
 - static-page hamburger fallback added

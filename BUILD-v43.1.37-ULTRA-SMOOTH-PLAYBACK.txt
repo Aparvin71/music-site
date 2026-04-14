@@ -1,0 +1,7 @@
+BUILD v43.1.37 — ULTRA SMOOTH PLAYBACK
+
+Included:
+- crossfade-style track transitions
+- predictive preload based on recent skip behavior
+- background warm-up queue for upcoming tracks
+- safe service worker static warming without addAll
