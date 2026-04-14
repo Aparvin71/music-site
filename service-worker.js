@@ -1,9 +1,13 @@
-// v43.1.46 Navigation Redirect Fix + Service Worker Strategy Cleanup
+// v43.1.47 Navigation Redirect Fix + Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.46";
+const CACHE_VERSION = "v43.1.47";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
-const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;\n\n// Navigation requests are handled by the browser directly.\n// This avoids redirected document responses being served by the service worker.\n
+const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;
+
+// Navigation requests are handled by the browser directly.
+// This avoids redirected document responses being served by the service worker.
+
 
 const STATIC_ASSETS = [
   "/",
@@ -19,29 +23,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.46",
-  "/app.js?v=43.1.46",
-  "/nav.js?v=43.1.46",
-  "/pwa-init.js?v=43.1.46",
-  "/manifest.webmanifest?v=43.1.46",
-  "/aineo-album-page.js?v=43.1.46",
-  "/aineo-config.js?v=43.1.46",
-  "/aineo-data.js?v=43.1.46",
-  "/aineo-featured.js?v=43.1.46",
-  "/aineo-library.js?v=43.1.46",
-  "/aineo-lyrics.js?v=43.1.46",
-  "/aineo-media-session.js?v=43.1.46",
-  "/aineo-offline.js?v=43.1.46",
-  "/aineo-player-sheet.js?v=43.1.46",
-  "/aineo-playlists.js?v=43.1.46",
-  "/aineo-queue.js?v=43.1.46",
-  "/aineo-shared.js?v=43.1.46",
-  "/aineo-ui.js?v=43.1.46",
-  "/album-page.js?v=43.1.46",
-  "/albums-page.js?v=43.1.46",
-  "/artist-page.js?v=43.1.46",
-  "/artists-page.js?v=43.1.46",
-  "/contact.js?v=43.1.46"
+  "/style.css?v=43.1.47",
+  "/app.js?v=43.1.47",
+  "/nav.js?v=43.1.47",
+  "/pwa-init.js?v=43.1.47",
+  "/manifest.webmanifest?v=43.1.47",
+  "/aineo-album-page.js?v=43.1.47",
+  "/aineo-config.js?v=43.1.47",
+  "/aineo-data.js?v=43.1.47",
+  "/aineo-featured.js?v=43.1.47",
+  "/aineo-library.js?v=43.1.47",
+  "/aineo-lyrics.js?v=43.1.47",
+  "/aineo-media-session.js?v=43.1.47",
+  "/aineo-offline.js?v=43.1.47",
+  "/aineo-player-sheet.js?v=43.1.47",
+  "/aineo-playlists.js?v=43.1.47",
+  "/aineo-queue.js?v=43.1.47",
+  "/aineo-shared.js?v=43.1.47",
+  "/aineo-ui.js?v=43.1.47",
+  "/album-page.js?v=43.1.47",
+  "/albums-page.js?v=43.1.47",
+  "/artist-page.js?v=43.1.47",
+  "/artists-page.js?v=43.1.47",
+  "/contact.js?v=43.1.47"
 ];
 
 async function safeWarmStaticCache() {

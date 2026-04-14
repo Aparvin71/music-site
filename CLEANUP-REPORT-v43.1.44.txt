@@ -1,4 +1,4 @@
-Aineo v43.1.46 cleanup + asset sync report
+Aineo v43.1.47 cleanup + asset sync report
 
 Tracks checked: 72
 Lyrics manifest entries: 72
