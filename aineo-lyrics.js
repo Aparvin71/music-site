@@ -1,23 +1,22 @@
-
-// v43.1.25 hard reset
-const APP_VERSION = "43.1.25";
-try {
-  const stored = localStorage.getItem("app_version");
-  if (stored !== APP_VERSION) {
-    localStorage.clear();
-    sessionStorage.clear();
-    if (window.indexedDB) {
-      indexedDB.databases && indexedDB.databases().then(dbs => {
-        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-      });
-    }
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-    localStorage.setItem("app_version", APP_VERSION);
-    window.location.reload(true);
-  }
-} catch(e) {}
 (function () {
+
+  function getLyricsAssetVersion() {
+    return String(
+      window.AineoConfig?.app?.assets?.lyricsVersionKey
+      || window.AineoConfig?.app?.assetVersion
+      || window.AineoConfig?.app?.version
+      || "1"
+    );
+  }
+
+  function buildLyricsAssetUrl(path) {
+    const raw = String(path || "").trim();
+    if (!raw) return "";
+    const version = encodeURIComponent(getLyricsAssetVersion());
+    const sep = raw.includes("?") ? "&" : "?";
+    return `${raw}${sep}v=${version}`;
+  }
+
   const LYRICS_FALLBACK_MIN_LINE_SECONDS = 2.4;
   const LYRICS_FALLBACK_MAX_LINE_SECONDS = 6;
   const MANUAL_SCROLL_HOLD_MS = 2200;
@@ -288,8 +287,8 @@ try {
     }
 
     track._syncedLyricsLoading = true;
-    const lyricsAssetVersion = window.AineoConfig?.app?.assetVersion || window.AineoConfig?.app?.version || "1";
-    return fetch(`${track.lyrics_file}?v=${encodeURIComponent(lyricsAssetVersion)}`, { cache: "no-store" })
+    const lyricsUrl = buildLyricsAssetUrl(track.lyrics_file);
+    return fetch(lyricsUrl, { cache: "no-store", headers: { "cache-control": "no-cache" } })
       .then(res => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.text();

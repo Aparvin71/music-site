@@ -1,22 +1,3 @@
-
-// v43.1.25 hard reset
-const APP_VERSION = "43.1.25";
-try {
-  const stored = localStorage.getItem("app_version");
-  if (stored !== APP_VERSION) {
-    localStorage.clear();
-    sessionStorage.clear();
-    if (window.indexedDB) {
-      indexedDB.databases && indexedDB.databases().then(dbs => {
-        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-      });
-    }
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-    localStorage.setItem("app_version", APP_VERSION);
-    window.location.reload(true);
-  }
-} catch(e) {}
 (function () {
   const config = window.AineoConfig || {};
 
@@ -28,6 +9,18 @@ try {
 
   function makeTrackId(track, index) {
     return `${track.title || "track"}__${track.album || "album"}__${index}`;
+  }
+
+
+  function resolveLyricsFilePath(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const config = window.AineoConfig?.app?.assets || {};
+    const basePath = String(config.lyricsBasePath || "lyrics").replace(/\/$/, "");
+    if (raw.startsWith("lyrics/")) return raw;
+    if (basePath && !raw.startsWith(basePath + "/")) return `${basePath}/${raw.replace(/^\/+/, "")}`;
+    return raw;
   }
 
   function normalizeTrack(track, index) {
@@ -52,7 +45,7 @@ try {
       audio: track.audio || track.src || track.url || "",
       cover: track.cover || track.artwork || track.image || "",
       lyrics: track.lyrics || "",
-      lyrics_file: track.lyrics_file || track.lyricsFile || "",
+      lyrics_file: resolveLyricsFilePath(track.lyrics_file || track.lyricsFile || ""),
       lyrics_offset: Number(track.lyrics_offset ?? track.lyricsOffset ?? 0) || 0,
       syncedLyrics: [],
       tags,
@@ -74,11 +67,17 @@ try {
       search_keywords: normalizeStringArray(track.search_keywords || track.searchKeywords),
       has_lyrics: Boolean(track.has_lyrics || track.lyrics || track.lyrics_file),
       has_scripture_refs: Boolean(track.has_scripture_refs || scriptureRefs.length),
+      analysis_file: String(track.analysis_file || "").trim(),
+      analysis_version: String(track.analysis_version || ""),
+      has_analysis: Boolean(track.has_analysis || track.analysis_file),
+      waveform_point_count: Number(track.waveform_point_count || 0) || 0,
       waveform_envelope: Array.isArray(track.waveform_envelope) ? track.waveform_envelope.map(v => Number(v) || 0) : [],
-      waveform_ring_preview: Array.isArray(track.waveform_ring_preview) ? track.waveform_ring_preview.map(v => Number(v) || 0) : [],
       spectrum_frames: Array.isArray(track.spectrum_frames)
         ? track.spectrum_frames.map(frame => Array.isArray(frame) ? frame.map(v => Number(v) || 0) : []).filter(frame => frame.length)
-        : []
+        : [],
+      spectrum_band_count: Number(track.spectrum_band_count || 0) || 0,
+      spectrum_frame_count: Number(track.spectrum_frame_count || 0) || 0,
+      analysis_loaded: Boolean((Array.isArray(track.waveform_envelope) && track.waveform_envelope.length) || (Array.isArray(track.spectrum_frames) && track.spectrum_frames.length))
     };
   }
 

@@ -1,22 +1,3 @@
-
-// v43.1.25 hard reset
-const APP_VERSION = "43.1.25";
-try {
-  const stored = localStorage.getItem("app_version");
-  if (stored !== APP_VERSION) {
-    localStorage.clear();
-    sessionStorage.clear();
-    if (window.indexedDB) {
-      indexedDB.databases && indexedDB.databases().then(dbs => {
-        dbs.forEach(db => indexedDB.deleteDatabase(db.name));
-      });
-    }
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-    navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-    localStorage.setItem("app_version", APP_VERSION);
-    window.location.reload(true);
-  }
-} catch(e) {}
 (function () {
   const STORAGE_KEYS = {
     favorites: "aineo_favorites",
@@ -31,14 +12,16 @@ try {
   };
 
   window.AineoConfig = {
-    version: "v43.1.25",
-    assetVersion: "43.1.25",
+    version: "v43.1.31",
+    assetVersion: "43.1.31",
     defaultArtist: "Allen Parvin",
     assetMode: "decoupled",
     assets: {
       audioBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio",
       coverBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers",
       lyricsBasePath: "lyrics",
+      lyricsManifestPath: "lyrics/lrc-manifest.json",
+      lyricsVersionKey: "43.1.31",
       externalAudio: true,
       externalCovers: true,
       localLyricsOptional: true
