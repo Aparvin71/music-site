@@ -1,114 +1,267 @@
+
 (function () {
-  let handlersBound = false;
-
-  function isSupported() {
-    return "mediaSession" in navigator;
+  function resetNamedFilters(filters) {
+    filters.selectedAlbum = null;
+    filters.selectedPlaylist = null;
+    filters.selectedTag = null;
+    filters.selectedSmartPlaylist = null;
+    filters.selectedCustomPlaylist = null;
   }
 
-  function buildArtwork(track) {
-    if (!track?.cover) return [];
-    return [96, 128, 192, 256, 384, 512].map(size => ({
-      src: track.cover,
-      sizes: `${size}x${size}`,
-      type: "image/jpeg"
-    }));
+  function clearSearch(searchInput, filters) {
+    filters.searchTerm = "";
+    if (searchInput) searchInput.value = "";
   }
 
-  function bindHandlers({ togglePlayPause, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
-    if (handlersBound || !isSupported()) return;
+  function applyNamedFilter({ filters, searchInput, type, value, onAfterChange }) {
+    resetNamedFilters(filters);
 
-    const safeAudio = () => getAudio?.() || null;
+    if (type === "search") {
+      filters.searchTerm = String(value || "").trim();
+      if (searchInput) searchInput.value = filters.searchTerm;
+    } else {
+      clearSearch(searchInput, filters);
+      if (type === "album") filters.selectedAlbum = value;
+      if (type === "playlist") filters.selectedPlaylist = value;
+      if (type === "tag") filters.selectedTag = value;
+      if (type === "smart-playlist") filters.selectedSmartPlaylist = value;
+      if (type === "custom-playlist") filters.selectedCustomPlaylist = value;
+    }
 
-    const handlers = {
-      play: () => togglePlayPause?.(),
-      pause: () => togglePlayPause?.(),
-      previoustrack: () => playPreviousTrack?.(),
-      nexttrack: () => playNextTrack?.(),
-      stop: () => {
-        const audio = safeAudio();
-        if (!audio) return;
-        audio.pause();
-        audio.currentTime = 0;
-        onStateChange?.();
-      },
-      seekbackward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        audio.currentTime = Math.max(0, (audio.currentTime || 0) - seekOffset);
-        onStateChange?.();
-      },
-      seekforward: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio) return;
-        const seekOffset = Number(details.seekOffset || 10);
-        const duration = Number.isFinite(audio.duration) ? audio.duration : (audio.currentTime || 0) + seekOffset;
-        audio.currentTime = Math.min(duration, (audio.currentTime || 0) + seekOffset);
-        onStateChange?.();
-      },
-      seekto: (details = {}) => {
-        const audio = safeAudio();
-        if (!audio || !Number.isFinite(details.seekTime)) return;
-        audio.currentTime = details.seekTime;
-        onStateChange?.();
-      }
+    onAfterChange?.();
+  }
+
+  function clearFilters({ filters, searchInput, onAfterChange }) {
+    resetNamedFilters(filters);
+    clearSearch(searchInput, filters);
+    filters.searchScope = 'all';
+    onAfterChange?.();
+  }
+
+  function buildSearchHaystack(track, scope = "all") {
+    const fields = {
+      titles: [track.title, track.artist],
+      albums: [track.album, track.album_description, track.album_theme, track.album_story],
+      lyrics: [track.lyrics],
+      scripture: [...(track.scripture_references || [])],
+      tags: [...(track.tags || []), ...(track.search_keywords || [])],
+      playlists: [...(track.playlists || []), track.collection]
     };
 
-    Object.entries(handlers).forEach(([action, handler]) => {
-      try {
-        navigator.mediaSession.setActionHandler(action, handler);
-      } catch (error) {
-        console.warn(`Media Session action not supported: ${action}`, error);
-      }
+    const allParts = [
+      ...fields.titles,
+      ...fields.albums,
+      ...fields.lyrics,
+      ...fields.scripture,
+      ...fields.tags,
+      ...fields.playlists,
+      track.genre,
+      track.description
+    ];
+
+    const list = scope === "all" ? allParts : (fields[scope] || allParts);
+    return list.join(" ").toLowerCase();
+  }
+
+  function getTrackDateValue(track) {
+    const raw = String(track?.date_added || track?.last_played || "").trim();
+    if (!raw) return 0;
+    const time = Date.parse(raw);
+    if (Number.isFinite(time)) return time;
+    const year = Number(raw);
+    return Number.isFinite(year) ? Date.parse(`${year}-01-01`) : 0;
+  }
+
+  function getSmartPlaylistDefinitions({ tracks, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {} }) {
+    const byId = new Map((tracks || []).map(track => [track.id, track]));
+    const mapIds = ids => ids.map(id => byId.get(id)).filter(Boolean);
+    const uniqueTracks = list => {
+      const seen = new Set();
+      return list.filter(track => track && !seen.has(track.id) && seen.add(track.id));
+    };
+
+    const favoriteTracks = uniqueTracks(mapIds(favorites));
+    const recentTracks = uniqueTracks(mapIds(recentlyPlayed));
+    const downloaded = uniqueTracks(mapIds(downloadedTracks));
+    const mostPlayed = uniqueTracks(
+      [...(tracks || [])]
+        .map(track => ({ track, score: Number(playStats?.[track.id]?.count || track.play_count || 0) }))
+        .filter(item => item.score > 0)
+        .sort((a, b) => b.score - a.score || a.track.title.localeCompare(b.track.title))
+        .slice(0, 24)
+        .map(item => item.track)
+    );
+    const recentlyAdded = uniqueTracks(
+      [...(tracks || [])]
+        .filter(track => getTrackDateValue(track) > 0)
+        .sort((a, b) => getTrackDateValue(b) - getTrackDateValue(a))
+        .slice(0, 24)
+    );
+    const scriptureSongs = uniqueTracks((tracks || []).filter(track => (track.scripture_references || []).length));
+    const worshipSongs = uniqueTracks((tracks || []).filter(track => {
+      const haystack = [...(track.tags || []), ...(track.playlists || []), track.genre || "", track.collection || ""].join(' ').toLowerCase();
+      return haystack.includes('worship') || haystack.includes('gospel') || haystack.includes('scripture');
+    }));
+
+    return [
+      { key: 'favorites', name: 'Favorites', icon: '★', tracks: favoriteTracks },
+      { key: 'recent', name: 'Recent', icon: '🕘', tracks: recentTracks },
+      { key: 'downloaded', name: 'Offline', icon: '⬇', tracks: downloaded },
+      { key: 'most-played', name: 'Most Played', icon: '🔥', tracks: mostPlayed },
+      { key: 'recently-added', name: 'New', icon: '✨', tracks: recentlyAdded },
+      { key: 'scripture', name: 'Scripture', icon: '✝', tracks: scriptureSongs },
+      { key: 'worship', name: 'Worship', icon: '♪', tracks: worshipSongs }
+    ].filter(item => item.tracks.length);
+  }
+
+  function getFilteredTracks({ tracks, filters, favorites = [], recentlyPlayed = [], downloadedTracks = [], playStats = {}, customPlaylists = {} }) {
+    let result = Array.isArray(tracks) ? [...tracks] : [];
+
+    if (filters.selectedAlbum) result = result.filter(track => track.album === filters.selectedAlbum);
+    if (filters.selectedPlaylist) result = result.filter(track => (track.playlists || []).includes(filters.selectedPlaylist));
+    if (filters.selectedCustomPlaylist) {
+      const playlistIds = new Set(customPlaylists?.[filters.selectedCustomPlaylist] || []);
+      result = result.filter(track => playlistIds.has(track.id));
+    }
+    if (filters.selectedTag) result = result.filter(track => (track.tags || []).includes(filters.selectedTag));
+    if (filters.selectedSmartPlaylist) {
+      const smart = getSmartPlaylistDefinitions({ tracks: result, favorites, recentlyPlayed, downloadedTracks, playStats })
+        .find(item => item.key === filters.selectedSmartPlaylist);
+      result = smart ? [...smart.tracks] : [];
+    }
+    if (filters.searchTerm) {
+      const q = String(filters.searchTerm).toLowerCase();
+      const scope = filters.searchScope || 'all';
+      result = result.filter(track => buildSearchHaystack(track, scope).includes(q));
+    }
+
+    return result;
+  }
+
+  function renderPlaylists({ container, trackList, allTracks, filters, hasActiveFilter, onClearAll, onSetPlaylistFilter, onSetSmartPlaylistFilter, favorites, recentlyPlayed, downloadedTracks, playStats, escapeHtml, escapeHtmlAttr }) {
+    if (!container) return;
+
+    const map = new Map();
+    (trackList || []).forEach(track => {
+      (track.playlists || []).forEach(playlist => {
+        map.set(playlist, (map.get(playlist) || 0) + 1);
+      });
     });
 
-    handlersBound = true;
-  }
+    const smartNameMap = {
+      favorites: 'Favorites',
+      recent: 'Recent',
+      downloaded: 'Offline',
+      'most-played': 'Most Played',
+      'recently-added': 'New',
+      scripture: 'Scripture',
+      worship: 'Worship'
+    };
 
-  function updatePlaybackState(audio) {
-    if (!isSupported()) return;
-    navigator.mediaSession.playbackState = audio && !audio.paused ? "playing" : "paused";
-  }
+    const smartPlaylists = getSmartPlaylistDefinitions({ tracks: allTracks || [], favorites, recentlyPlayed, downloadedTracks, playStats })
+      .map(item => ({ ...item, shortName: smartNameMap[item.key] || item.name }));
+    const playlists = [{ name: 'All Songs', count: Array.isArray(allTracks) ? allTracks.length : 0 }]
+      .concat([...map.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name)));
 
-  function updateMetadata(track, audio) {
-    if (!isSupported() || !track) return;
+    const quickFilterIcons = {
+      favorites: '★',
+      recent: '🕘',
+      downloaded: '⬇',
+      'most-played': '🔥',
+      'recently-added': '✨',
+      scripture: '✝',
+      worship: '♪'
+    };
 
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: track.title || "Untitled",
-        artist: track.artist || "Allen Parvin",
-        album: track.album || "Singles",
-        artwork: buildArtwork(track)
+    const hasSelectionFocus = Boolean(filters.selectedPlaylist || filters.selectedSmartPlaylist || filters.selectedCustomPlaylist);
+    const visibleSmartPlaylists = filters.selectedSmartPlaylist
+      ? smartPlaylists.filter(item => item.key === filters.selectedSmartPlaylist)
+      : (hasSelectionFocus ? [] : smartPlaylists);
+    const visiblePlaylists = filters.selectedPlaylist
+      ? playlists.filter(item => item.name === filters.selectedPlaylist)
+      : (hasSelectionFocus ? [] : playlists);
+
+    const quickFiltersMarkup = visibleSmartPlaylists.map(item => `
+      <button class="filter-chip quick-filter-icon-chip ${filters.selectedSmartPlaylist === item.key ? 'active' : ''}" data-smart-playlist="${escapeHtmlAttr(item.key)}" type="button" title="${escapeHtmlAttr(item.name)}" aria-label="${escapeHtmlAttr(item.name)}">
+        <span class="quick-filter-icon" aria-hidden="true">${quickFilterIcons[item.key] || item.icon || '•'}</span>
+      </button>
+    `).join('');
+
+    const playlistMarkup = visiblePlaylists.map(playlist => {
+      const isAllSongs = playlist.name === 'All Songs';
+      const active = ((isAllSongs && !hasActiveFilter()) || filters.selectedPlaylist === playlist.name) ? 'active' : '';
+      const label = isAllSongs ? 'All Songs' : playlist.name;
+      return `
+        <button class="filter-chip playlist-card-pill ${active}" data-playlist="${escapeHtmlAttr(playlist.name)}" type="button" title="${escapeHtmlAttr(label)}">
+          <span class="playlist-card-pill__title">${escapeHtml(label)}</span>
+          <span class="playlist-card-pill__meta">${playlist.count} song${playlist.count === 1 ? '' : 's'}</span>
+        </button>
+      `;
+    }).join('');
+
+    const quickFiltersSection = quickFiltersMarkup ? `
+        <div class="playlist-filter-block">
+          <p class="playlist-filter-heading">Quick Filters</p>
+          <div class="quick-filter-grid">${quickFiltersMarkup}</div>
+        </div>
+    ` : '';
+
+    const playlistsSection = playlistMarkup ? `
+        <div class="playlist-filter-block playlist-filter-block--playlists">
+          <p class="playlist-filter-heading">Playlists</p>
+          <div class="playlist-pill-grid">${playlistMarkup}</div>
+        </div>
+    ` : '';
+
+    container.innerHTML = `
+      <div class="playlist-filter-sections">
+        ${quickFiltersSection}
+        ${playlistsSection}
+      </div>
+    `;
+
+    container.querySelectorAll('[data-playlist]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.dataset.playlist === 'All Songs') onClearAll?.();
+        else onSetPlaylistFilter?.(btn.dataset.playlist);
       });
-    } catch (error) {
-      console.warn("Media Session metadata could not be updated:", error);
+    });
+    container.querySelectorAll('[data-smart-playlist]').forEach(btn => {
+      btn.addEventListener('click', () => onSetSmartPlaylistFilter?.(btn.dataset.smartPlaylist));
+    });
+  }
+
+  function renderTags({ container, trackList, filters, windowWidth, onSetTagFilter, escapeHtml, escapeHtmlAttr, getVisibleTags }) {
+    if (!container) return;
+
+    let tags = getVisibleTags(trackList || []);
+    if (windowWidth <= 640) tags = tags.sort((a, b) => b.count - a.count).slice(0, 12);
+
+    if (!tags.length) {
+      container.innerHTML = `<p class="empty-message">No tags found.</p>`;
+      return;
     }
 
-    updatePlaybackState(audio);
+    container.innerHTML = tags.map(tag => {
+      const active = filters.selectedTag === tag.name ? "active" : "";
+      return `
+        <button class="filter-chip ${active}" data-tag="${escapeHtmlAttr(tag.name)}" type="button">
+          #${escapeHtml(tag.name)} <span class="chip-count">(${tag.count})</span>
+        </button>
+      `;
+    }).join("");
+
+    container.querySelectorAll("[data-tag]").forEach(btn => {
+      btn.addEventListener("click", () => onSetTagFilter?.(btn.dataset.tag));
+    });
   }
 
-  function updatePositionState(audio) {
-    if (!isSupported() || !audio || typeof navigator.mediaSession.setPositionState !== "function") return;
-
-    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
-    const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
-    if (!duration || duration <= 0) return;
-
-    try {
-      navigator.mediaSession.setPositionState({
-        duration,
-        playbackRate: audio.playbackRate || 1,
-        position: Math.min(position, duration)
-      });
-    } catch (error) {
-      console.warn("Media Session position state could not be updated:", error);
-    }
-  }
-
-  window.AineoMediaSession = {
-    bindHandlers,
-    updatePlaybackState,
-    updateMetadata,
-    updatePositionState
+  window.AineoLibrary = {
+    applyNamedFilter,
+    clearFilters,
+    getFilteredTracks,
+    renderPlaylists,
+    renderTags,
+    getSmartPlaylistDefinitions
   };
 })();

@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.40 visualizer lift + left-wing alignment polish */
+/* v43.1.41 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,7 +12397,183 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.40 visualizer lift + left-wing alignment polish */
+/* v43.1.41 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.40 visualizer lift + left-wing alignment polish */
+/* v43.1.41 visualizer lift + left-wing alignment polish */
+
+
+/* v43.1.41 mobile mini-player reduction + centered spectrum line + outerspace stars */
+@media (max-width: 640px) {
+  .sticky-player {
+    gap: 8px !important;
+    padding: 8px 12px calc(10px + var(--safe-bottom)) !important;
+  }
+
+  .sticky-player-left {
+    gap: 9px !important;
+  }
+
+  .now-cover,
+  #nowCover {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+  }
+
+  #nowArtist,
+  #nowScripture {
+    display: none !important;
+  }
+
+  .now-meta .label {
+    margin-bottom: 2px !important;
+    font-size: 9px !important;
+  }
+
+  .now-meta h3 {
+    margin-bottom: 2px !important;
+    font-size: 13px !important;
+  }
+
+  .now-meta p,
+  .scripture-line {
+    margin-bottom: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.1 !important;
+  }
+
+  .transport {
+    margin-bottom: 4px !important;
+    gap: 8px !important;
+  }
+
+  .control-btn {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 14px !important;
+  }
+
+  .play-btn {
+    width: 40px !important;
+    height: 40px !important;
+    font-size: 17px !important;
+  }
+
+  .progress-wrap {
+    grid-template-columns: 34px 1fr 34px !important;
+    gap: 5px !important;
+  }
+
+  .progress-wrap span {
+    font-size: 9px !important;
+  }
+
+  .compact-actions {
+    gap: 6px !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .compact-actions > .action-btn,
+  .mobile-actions-drawer .action-btn {
+    min-height: 29px !important;
+    height: 29px !important;
+    padding: 4px 7px !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+    border-radius: 999px !important;
+  }
+
+  .mobile-more-btn {
+    min-height: 29px !important;
+    height: 29px !important;
+  }
+
+  .mobile-actions-drawer {
+    bottom: calc(100% + 6px) !important;
+    gap: 6px !important;
+    padding: 8px !important;
+  }
+
+  body.ios-standalone .sticky-player {
+    bottom: max(5px, calc(5px + var(--safe-bottom))) !important;
+  }
+}
+
+.player-cover-visualizer {
+  overflow: hidden;
+}
+
+.player-cover-visualizer::before {
+  background:
+    radial-gradient(circle at 18% 24%, rgba(240, 247, 255, 0.06), rgba(240, 247, 255, 0) 12%),
+    radial-gradient(circle at 80% 22%, rgba(120, 170, 255, 0.07), rgba(120, 170, 255, 0) 18%),
+    radial-gradient(circle at 68% 76%, rgba(126, 78, 255, 0.08), rgba(126, 78, 255, 0) 20%),
+    radial-gradient(circle at 35% 70%, rgba(72, 116, 255, 0.07), rgba(72, 116, 255, 0) 18%),
+    conic-gradient(from 210deg,
+      rgba(38, 78, 255, 0.00) 0deg,
+      rgba(38, 78, 255, 0.18) 34deg,
+      rgba(52, 94, 255, 0.18) 88deg,
+      rgba(86, 42, 255, 0.24) 148deg,
+      rgba(64, 36, 214, 0.17) 204deg,
+      rgba(122, 62, 255, 0.2) 274deg,
+      rgba(38, 78, 255, 0.00) 360deg);
+  filter: blur(24px) saturate(1.35);
+  opacity: 0.54;
+  mix-blend-mode: screen;
+}
+
+.player-cover-visualizer-stars {
+  position: absolute;
+  inset: 8%;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.9;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.95) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 22% 68%, rgba(201,225,255,0.85) 0 1.2px, transparent 2px),
+    radial-gradient(circle at 30% 32%, rgba(255,255,255,0.9) 0 1px, transparent 1.9px),
+    radial-gradient(circle at 41% 14%, rgba(173,209,255,0.82) 0 1.2px, transparent 2.1px),
+    radial-gradient(circle at 52% 74%, rgba(255,255,255,0.95) 0 1.1px, transparent 2px),
+    radial-gradient(circle at 63% 25%, rgba(188,161,255,0.82) 0 1.4px, transparent 2.3px),
+    radial-gradient(circle at 72% 56%, rgba(255,255,255,0.86) 0 1px, transparent 1.9px),
+    radial-gradient(circle at 80% 18%, rgba(160,198,255,0.8) 0 1.1px, transparent 2px),
+    radial-gradient(circle at 88% 70%, rgba(255,255,255,0.92) 0 1.2px, transparent 2.2px);
+  filter: drop-shadow(0 0 5px rgba(190,220,255,0.22));
+  animation: aineoTwinkleDrift 6.8s ease-in-out infinite alternate;
+}
+
+.player-cover-visualizer-stars::before,
+.player-cover-visualizer-stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 16% 52%, rgba(255,255,255,0.84) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 37% 84%, rgba(142,188,255,0.76) 0 1.1px, transparent 2px),
+    radial-gradient(circle at 58% 18%, rgba(255,255,255,0.9) 0 1px, transparent 1.9px),
+    radial-gradient(circle at 69% 84%, rgba(194,169,255,0.74) 0 1.3px, transparent 2.2px),
+    radial-gradient(circle at 84% 42%, rgba(255,255,255,0.8) 0 1px, transparent 1.9px);
+  opacity: 0.58;
+}
+
+.player-cover-visualizer-stars::before {
+  animation: aineoTwinklePulse 2.9s ease-in-out infinite alternate;
+}
+
+.player-cover-visualizer-stars::after {
+  animation: aineoTwinklePulse 4.2s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes aineoTwinkleDrift {
+  0% { transform: translate3d(-2px, 0, 0) scale(0.995); opacity: 0.72; }
+  50% { transform: translate3d(2px, -1px, 0) scale(1.01); opacity: 0.96; }
+  100% { transform: translate3d(3px, -2px, 0) scale(1.015); opacity: 0.82; }
+}
+
+@keyframes aineoTwinklePulse {
+  0% { opacity: 0.34; filter: blur(0px); }
+  50% { opacity: 0.82; filter: blur(0.2px); }
+  100% { opacity: 0.46; filter: blur(0px); }
+}

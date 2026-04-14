@@ -1,83 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Send feedback, bug reports, and feature suggestions for Aineo Music." />
-  <meta name="theme-color" content="#0f1115" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
-  <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.40" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
-  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <title>Feedback - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.40" />
-  <script src="/pwa-init.js?v=43.1.40" defer></script>
-</head><body>
-  <header class="site-header">
-    <nav class="navbar" aria-label="Main navigation">
-      <div class="nav-top-row">
-        <div class="logo">Aineo Music</div>
-        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
-      </div>
-      <ul id="siteNavLinks" class="nav-links">
-  <li><a href="/home.html">Home</a></li>
-  <li><a href="/index.html">Music</a></li>
-  <li><a href="/albums.html">Albums</a></li>
-  <li><a href="/about.html">About</a></li>
-  <li><a href="/mission.html">Mission</a></li>
-  <li><a href="/install.html">Install</a></li>
-  <li><a href="/contact.html">Request a Song</a></li>
-</ul>
-    </nav>
-  </header>
-  <main class="page">
-    <section class="page-card">
-      <p class="eyebrow">Feedback</p><h1>Send Feedback</h1><p class="page-lead">Have a bug report, feature idea, testimony, or encouragement? Send a note below.</p>
-      <form class="request-form" id="feedbackForm" novalidate>
-        <input type="hidden" name="accessKey" value="sf_587f45c8128caab3e591b597"><input type="hidden" name="subject" value="New Feedback - Aineo Music"><input type="hidden" name="replyTo" value="@email"><input type="hidden" name="botcheck" value="" tabindex="-1" autocomplete="off">
-        <div class="form-row"><div class="form-group"><label for="fbName">Your Name</label><input id="fbName" name="name" type="text" placeholder="Your name" required></div><div class="form-group"><label for="fbEmail">Your Email</label><input id="fbEmail" name="email" type="email" placeholder="you@example.com" required></div></div>
-        <div class="form-group"><label for="fbType">Feedback Type</label><select id="fbType" name="feedbackType"><option>General feedback</option><option>Bug report</option><option>Feature request</option><option>Testimony</option></select></div>
-        <div class="form-group"><label for="fbMessage">Your Message</label><textarea id="fbMessage" name="message" rows="8" placeholder="Share your feedback..." required></textarea></div>
-        <div id="feedbackMessage" class="form-message"></div>
-        <button type="submit" class="btn-submit">Send Feedback</button>
-      </form>
-      <div class="card-actions"><a class="action-btn secondary-btn" href="/contact.html">Need a song instead? Request one here</a></div>
-    </section>
-  </main>
-    <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.40</span></p>
-    <p class="footer-links footer-links--admin">
-      <a href="/changelog.html">Changelog</a>
-      <a href="/feedback.html">Feedback</a>
-      <a href="/lyrics-editor.html">Lyrics Editor</a>
-      <a href="/admin-upload.html">Admin Upload</a>
-    </p>
-  </footer>
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById("feedbackForm");
-    const msg = document.getElementById("feedbackMessage");
-    if (!form || !msg) return;
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      msg.textContent = "Sending feedback...";
-      msg.className = "form-message";
-      try {
-        const res = await fetch("https://api.staticforms.xyz/submit", { method: "POST", body: new FormData(form) });
-        if (res.ok) { msg.textContent = "Thanks for the feedback!"; msg.className = "form-message success"; form.reset(); }
-        else { msg.textContent = "There was a problem sending your feedback."; msg.className = "form-message error"; }
-      } catch (err) { msg.textContent = "Network error. Please try again."; msg.className = "form-message error"; }
-    });
+document.addEventListener("DOMContentLoaded", function () {
+  const contactForm = document.getElementById("contactForm");
+  const formMessage = document.getElementById("formMessage");
+
+  if (!contactForm || !formMessage) return;
+
+  contactForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    formMessage.textContent = "Sending request...";
+    formMessage.className = "form-message";
+
+    const formData = new FormData(contactForm);
+
+    try {
+      const response = await fetch("https://api.staticforms.xyz/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        formMessage.textContent = "Your song request has been sent!";
+        formMessage.className = "form-message success";
+        contactForm.reset();
+      } else {
+        formMessage.textContent = "There was a problem sending your request.";
+        formMessage.className = "form-message error";
+      }
+    } catch (error) {
+      formMessage.textContent = "Network error. Please try again.";
+      formMessage.className = "form-message error";
+    }
   });
-  </script>
-<script src="/nav.js?v=43.1.40"></script>
-</body></html>
+});

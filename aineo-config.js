@@ -1,53 +1,84 @@
-(function () {
-  const STORAGE_KEYS = {
-    favorites: "aineo_favorites",
-    recentlyPlayed: "aineo_recently_played",
-    resume: "aineo_resume",
-    customPlaylists: "aineo_custom_playlists",
-    downloadedTracks: "aineo_downloaded_tracks",
-    lastQueue: "aineo_last_queue",
-    tracksCache: "aineo_tracks_cache",
-    offlineBannerDismissed: "aineo_offline_banner_dismissed",
-      playStats: "aineo_play_stats"
-  };
-
-  window.AineoConfig = {
-    version: "v43.1.40",
-    assetVersion: "43.1.40",
-    defaultArtist: "Allen Parvin",
-    assetMode: "decoupled",
-    assets: {
-      audioBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio",
-      coverBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers",
-      lyricsBasePath: "lyrics",
-      lyricsManifestPath: "lyrics/lrc-manifest.json",
-      lyricsVersionKey: "43.1.40",
-      externalAudio: true,
-      externalCovers: true,
-      localLyricsOptional: true
-    },
-    defaultAlbum: "Singles",
-    defaultCollectionLabel: "All Songs",
-    defaultCollectionKey: "all-songs",
-    maxLibraryMiniCards: 12,
-    storageKeys: STORAGE_KEYS,
-    ui: {
-      artwork: {
-        featured: 120,
-        album: 150,
-        mini: 150
-      },
-      topMobileTagLimit: 12,
-      smartPlaylistLimit: 12,
-      searchDebounceMs: 120
-    },
-    searchScopes: ["all", "titles", "albums", "lyrics", "scripture", "tags", "playlists"],
-    trackDefaults: {
-      collection: "All Songs",
-      featured: false,
-      favorite: false,
-      play_count: 0,
-      last_played: ""
-    }
-  };
-})();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Prepare metadata for new songs and tracks.json entries in a decoupled asset workflow." />
+  <meta name="theme-color" content="#0f1115" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.41" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <title>Admin Upload - Aineo Music</title>
+  <link rel="stylesheet" href="/style.css?v=43.1.41" />
+  <script src="/pwa-init.js?v=43.1.41" defer></script>
+</head><body>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <div class="logo">Aineo Music</div>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Toggle navigation">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="/home.html">Home</a></li>
+  <li><a href="/index.html">Music</a></li>
+  <li><a href="/albums.html">Albums</a></li>
+  <li><a href="/about.html">About</a></li>
+  <li><a href="/mission.html">Mission</a></li>
+  <li><a href="/install.html">Install</a></li>
+  <li><a href="/contact.html">Request a Song</a></li>
+</ul>
+    </nav>
+  </header>
+  <main class="page">
+    <section class="page-card page-hero-card"><p class="eyebrow">Admin Helper</p><h1>Upload Workflow Helper</h1><p class="page-lead">This page helps you prepare metadata for new songs before uploading files to your site.</p></section>
+    <section class="utility-grid utility-grid--two">
+      <article class="page-card utility-card">
+        <h2>Track Metadata Builder</h2>
+        <div class="form-group"><label for="trackTitle">Song Title</label><input id="trackTitle" type="text" placeholder="Song title"></div>
+        <div class="form-group"><label for="trackArtist">Artist</label><input id="trackArtist" type="text" value="Allen Parvin"></div>
+        <div class="form-group"><label for="trackAlbum">Album</label><input id="trackAlbum" type="text" placeholder="Album name"></div>
+        <div class="form-group"><label for="trackTags">Tags</label><input id="trackTags" type="text" placeholder="worship, scripture, hope"></div>
+        <div class="form-group"><label for="trackRefs">Scripture References</label><input id="trackRefs" type="text" placeholder="Matthew 28:19-20; Mark 16:15"></div>
+        <div class="form-group"><label for="trackLyricsFile">Lyrics file</label><input id="trackLyricsFile" type="text" placeholder="lyrics/song-title.lrc"></div>
+        <div class="card-actions"><button id="buildTrackJsonBtn" class="action-btn" type="button">Build JSON Snippet</button><button id="copyTrackJsonBtn" class="action-btn secondary-btn" type="button">Copy Snippet</button></div>
+      </article>
+      <article class="page-card utility-card"><h2>Generated Snippet</h2><pre id="trackJsonOutput" class="code-output">Fill out the form and generate a tracks.json snippet.</pre><p class="helper-text">This helper runs entirely in your browser and does not upload files automatically.</p></article>
+    </section>
+    <section class="page-card utility-card"><h2>Suggested Upload Checklist</h2><ol class="utility-list"><li>Upload the MP3 to your audio folder or R2 bucket.</li><li>Upload the cover image to your covers folder.</li><li>Upload the matching <code>.lrc</code> file into the <code>lyrics/</code> folder.</li><li>Append the generated JSON snippet to <code>tracks.json</code>.</li><li>Refresh the site and verify the song appears with lyrics and scripture links.</li></ol></section>
+  </main>
+    <footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.41</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="/changelog.html">Changelog</a>
+      <a href="/feedback.html">Feedback</a>
+      <a href="/lyrics-editor.html">Lyrics Editor</a>
+      <a href="/admin-upload.html">Admin Upload</a>
+    </p>
+  </footer>
+  <script>
+  const out = document.getElementById("trackJsonOutput");
+  function slugify(text) { return String(text || "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function buildSnippet() {
+    const title = document.getElementById("trackTitle").value.trim();
+    const artist = document.getElementById("trackArtist").value.trim() || "Allen Parvin";
+    const album = document.getElementById("trackAlbum").value.trim() || "Singles";
+    const tags = document.getElementById("trackTags").value.split(",").map(v => v.trim()).filter(Boolean);
+    const refs = document.getElementById("trackRefs").value.split(/[;,]+/).map(v => v.trim()).filter(Boolean);
+    const lyricsFile = document.getElementById("trackLyricsFile").value.trim() || `lyrics/${slugify(title)}.lrc`;
+    out.textContent = JSON.stringify({ title, slug: slugify(title), artist, album, tags, scripture_references: refs, lyrics_file: lyricsFile }, null, 2);
+  }
+  document.getElementById("buildTrackJsonBtn").addEventListener("click", buildSnippet);
+  document.getElementById("copyTrackJsonBtn").addEventListener("click", async () => { try { await navigator.clipboard.writeText(out.textContent); document.getElementById("copyTrackJsonBtn").textContent = "Copied!"; setTimeout(() => document.getElementById("copyTrackJsonBtn").textContent = "Copy Snippet", 1200); } catch {} });
+  </script>
+<script src="/nav.js?v=43.1.41"></script>
+</body></html>
