@@ -1,5 +1,5 @@
 
-AUDIT v43.1.31
+AUDIT v43.1.32
 
 Validated package goals
 - tracks.json remains split from heavy visualizer payloads
