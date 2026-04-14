@@ -1,0 +1,8 @@
+AUDIT v43.1.39
+
+Validated:
+- package rebuilt from v43.1.38 base
+- old readme/build/audit files removed
+- only current README/BUILD/AUDIT files remain
+- service worker bypasses page navigations
+- asset and data caching remain active

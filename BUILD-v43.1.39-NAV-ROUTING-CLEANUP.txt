@@ -1,0 +1,7 @@
+BUILD v43.1.39 — NAV ROUTING CLEANUP
+
+Key fix:
+- bypass service worker handling for req.mode === "navigate" and document requests
+
+Reason:
+- prevents 'response served by service worker has redirections' during hamburger-based page transitions

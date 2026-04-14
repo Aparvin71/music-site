@@ -1,5 +1,5 @@
 function rememberTracksSignature(signature){try{localStorage.setItem('aineo_tracks_signature',signature);}catch(e){}}
-const AINEO_APP_VERSION = "v43.1.38";
+const AINEO_APP_VERSION = "v43.1.39";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -76,7 +76,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.38</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.39</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -378,18 +378,18 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.38";
+const APP_RUNTIME_VERSION = "v43.1.39";
 
 
 const APP_SHELL_RESET_VERSION_KEY = "aineo_app_shell_reset_version";
-const APP_SHELL_RESET_TARGET = "v43.1.38";
+const APP_SHELL_RESET_TARGET = "v43.1.39";
 const APP_PERSIST_SCHEMA_KEY = "aineo_persist_schema_version";
 const APP_PERSIST_SCHEMA_VERSION = 2;
 const APP_LAST_SEEN_BUILD_KEY = "aineo_last_seen_build";
 const APP_LAST_REFRESHED_BUILD_KEY = "aineo_last_refreshed_build";
 const APP_UPDATE_CHANNEL_KEY = "aineo_update_channel_state";
 const LYRICS_LIBRARY_VERSION_KEY = "aineo_lyrics_library_version";
-const LYRICS_LIBRARY_VERSION = "43.1.38";
+const LYRICS_LIBRARY_VERSION = "43.1.39";
 
 const PRESERVED_STORAGE_KEYS = new Set([
   "aineo_favorites",

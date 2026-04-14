@@ -1,9 +1,9 @@
-// v43.1.38 Navigation Redirect Fix + Service Worker Strategy Cleanup
+// v43.1.39 Navigation Redirect Fix + Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.38";
+const CACHE_VERSION = "v43.1.39";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
-const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;
+const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;\n\n// Navigation requests are handled by the browser directly.\n// This avoids redirected document responses being served by the service worker.\n
 
 const STATIC_ASSETS = [
   "/",
@@ -19,29 +19,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.38",
-  "/app.js?v=43.1.38",
-  "/nav.js?v=43.1.38",
-  "/pwa-init.js?v=43.1.38",
-  "/manifest.webmanifest?v=43.1.38",
-  "/aineo-album-page.js?v=43.1.38",
-  "/aineo-config.js?v=43.1.38",
-  "/aineo-data.js?v=43.1.38",
-  "/aineo-featured.js?v=43.1.38",
-  "/aineo-library.js?v=43.1.38",
-  "/aineo-lyrics.js?v=43.1.38",
-  "/aineo-media-session.js?v=43.1.38",
-  "/aineo-offline.js?v=43.1.38",
-  "/aineo-player-sheet.js?v=43.1.38",
-  "/aineo-playlists.js?v=43.1.38",
-  "/aineo-queue.js?v=43.1.38",
-  "/aineo-shared.js?v=43.1.38",
-  "/aineo-ui.js?v=43.1.38",
-  "/album-page.js?v=43.1.38",
-  "/albums-page.js?v=43.1.38",
-  "/artist-page.js?v=43.1.38",
-  "/artists-page.js?v=43.1.38",
-  "/contact.js?v=43.1.38"
+  "/styles.css?v=43.1.39",
+  "/app.js?v=43.1.39",
+  "/nav.js?v=43.1.39",
+  "/pwa-init.js?v=43.1.39",
+  "/manifest.webmanifest?v=43.1.39",
+  "/aineo-album-page.js?v=43.1.39",
+  "/aineo-config.js?v=43.1.39",
+  "/aineo-data.js?v=43.1.39",
+  "/aineo-featured.js?v=43.1.39",
+  "/aineo-library.js?v=43.1.39",
+  "/aineo-lyrics.js?v=43.1.39",
+  "/aineo-media-session.js?v=43.1.39",
+  "/aineo-offline.js?v=43.1.39",
+  "/aineo-player-sheet.js?v=43.1.39",
+  "/aineo-playlists.js?v=43.1.39",
+  "/aineo-queue.js?v=43.1.39",
+  "/aineo-shared.js?v=43.1.39",
+  "/aineo-ui.js?v=43.1.39",
+  "/album-page.js?v=43.1.39",
+  "/albums-page.js?v=43.1.39",
+  "/artist-page.js?v=43.1.39",
+  "/artists-page.js?v=43.1.39",
+  "/contact.js?v=43.1.39"
 ];
 
 async function safeWarmStaticCache() {
@@ -121,25 +121,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  if (req.mode === "navigate" || (req.destination === "document")) {
-    event.respondWith((async () => {
-      try {
-        const response = await fetch(req, { redirect: "follow" });
-        // Never cache redirected document responses; just return the final network result.
-        if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
-          const cache = await caches.open(STATIC_CACHE);
-          await cache.put(req, response.clone());
-        }
-        return response;
-      } catch (error) {
-        const cache = await caches.open(STATIC_CACHE);
-        return (
-          await cache.match(req, { ignoreSearch: false }) ||
-          await cache.match(url.pathname, { ignoreSearch: false }) ||
-          await cache.match("/index.html")
-        );
-      }
-    })());
+  if (req.mode === "navigate" || req.destination === "document") {
     return;
   }
 
