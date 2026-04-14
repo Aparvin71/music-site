@@ -1,0 +1,11 @@
+Aineo v43.1.45 track-name and audio wiring audit
+
+Audio URL fixes applied: 2
+- Iron Don't Lie: Iron Don#U2019t Lie.mp3 -> Iron Don’t Lie.mp3
+- Stones Don't Become Bread: Stones Don#U2019t Become Bread.mp3 -> Stones Don’t Become Bread.mp3
+
+Display title vs uploaded audio basename differences kept intentionally: 2
+- JSON title: Alivia - Play with Me | uploaded audio basename: Play with Me
+- JSON title: Forever and Ever (Gritty) | uploaded audio basename: Forever and Ever
+
+Added more forgiving ?song= lookup in app.js so links can resolve by title, slug, or audio basename.

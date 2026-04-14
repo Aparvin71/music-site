@@ -3708,12 +3708,30 @@ function updatePlayerSheet() {
    URL / STATE HELPERS
 ========================= */
 
+function normalizeSongLookupValue(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[’']/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 function handleSongQueryParam() {
   const params = new URLSearchParams(window.location.search);
   const song = params.get("song");
   if (!song) return;
 
-  const track = tracks.find(t => t.title.toLowerCase() === song.toLowerCase());
+  const normalizedSong = normalizeSongLookupValue(song);
+  const track = tracks.find(t => {
+    const title = normalizeSongLookupValue(t.title);
+    const slug = normalizeSongLookupValue(t.slug);
+    const audioName = normalizeSongLookupValue(decodeURIComponent(String(t.audio || t.src || '').split('/').pop() || '').replace(/\.mp3$/i, ''));
+    return title === normalizedSong || slug === normalizedSong || audioName === normalizedSong;
+  });
   if (!track) return;
 
   setQueue([track], false);
