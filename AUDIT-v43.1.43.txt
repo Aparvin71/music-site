@@ -1,0 +1,10 @@
+AUDIT v43.1.43
+
+Tracks: 72
+Album entries: 9
+
+Audio base:
+https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio
+
+Cover base:
+https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers
