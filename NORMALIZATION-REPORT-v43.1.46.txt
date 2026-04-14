@@ -1,0 +1,22 @@
+Aineo v43.1.46 — Full Title Normalization + Asset Consistency Pass
+
+Changed track titles:
+- Praise the Lord, O My Soul  ->  Praise the Lord O My Soul  [praise-the-lord-o-my-soul]  (Praise the Lord O My Soul.mp3)
+- Every Breath, Your Name  ->  EVERY BREATH YOUR NAME  [every-breath-your-name]  (EVERY BREATH YOUR NAME.mp3)
+- Alivia - Play with Me  ->  Play with Me  [alivia-play-with-me]  (Play with Me.mp3)
+- Chop it like it's hot!  ->  Chop it like it's hot  [chop-it-like-its-hot]  (Chop it like it's hot.mp3)
+- Lake house! (Chant)  ->  Lake house (Chant)  [lake-house-chant]  (Lake house (Chant).mp3)
+- Iron Don't Lie  ->  Iron Don’t Lie  [iron-dont-lie]  (Iron Don’t Lie.mp3)
+- Forever and Ever (Gritty)  ->  Forever and Ever  [forever-and-ever-gritty]  (Forever and Ever.mp3)
+- Stones Don't Become Bread  ->  Stones Don’t Become Bread  [stones-dont-become-bread]  (Stones Don’t Become Bread.mp3)
+- You're Done!  ->  You're Done  [youre-done]  (You're Done.mp3)
+
+Updated track-build-cache filenames:
+- Make Me a Faithful Tree (1).mp3  ->  Make Me a Faithful Tree.mp3
+
+Notes:
+- tracks.json, lrc-manifest.json, lyrics/lrc-manifest.json synced to uploaded audio basenames.
+- Added track-metadata.json to preserve normalized titles with existing slugs on future rebuilds.
+- Updated make_tracks.py and tools/make_tracks.py to support slug overrides and bumped generator version to v43.1.46.
+- app.js now writes ?song= using track slug and still resolves legacy titles via title_aliases.
+- Fullscreen player star field increased in density and brightness fade range.

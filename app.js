@@ -1,4 +1,4 @@
-/* v43.1.44 asset decoupling pass */
+/* v43.1.46 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -3600,7 +3600,7 @@ function shareCurrentSong() {
   if (!track) return;
 
   const url = new URL(window.location.href);
-  url.searchParams.set("song", track.title);
+  url.searchParams.set("song", track.slug || track.title);
 
   if (navigator.share) {
     navigator.share({
@@ -3730,7 +3730,8 @@ function handleSongQueryParam() {
     const title = normalizeSongLookupValue(t.title);
     const slug = normalizeSongLookupValue(t.slug);
     const audioName = normalizeSongLookupValue(decodeURIComponent(String(t.audio || t.src || '').split('/').pop() || '').replace(/\.mp3$/i, ''));
-    return title === normalizedSong || slug === normalizedSong || audioName === normalizedSong;
+    const aliases = Array.isArray(t.title_aliases) ? t.title_aliases.map(value => normalizeSongLookupValue(value)) : [];
+    return title === normalizedSong || slug === normalizedSong || audioName === normalizedSong || aliases.includes(normalizedSong);
   });
   if (!track) return;
 
@@ -3747,7 +3748,7 @@ function updateUrlForTrack(track) {
   if (!track) return;
 
   const url = new URL(window.location.href);
-  url.searchParams.set("song", track.title);
+  url.searchParams.set("song", track.slug || track.title);
   window.history.replaceState({}, "", url);
 }
 
@@ -4183,10 +4184,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.44 preload optimization
+// v43.1.46 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.44`);
+    fetch(`/analysis/${trackId}.json?v=43.1.46`);
   }catch(e){}
 }
 
@@ -4199,7 +4200,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.44 Smart Playback Engine
+// v43.1.46 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4211,12 +4212,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      fetch(`/analysis/${t.id}.json?v=43.1.44`).catch(()=>{});
+      fetch(`/analysis/${t.id}.json?v=43.1.46`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    fetch(`/analysis/${next.id}.json?v=43.1.44`).catch(()=>{});
+    fetch(`/analysis/${next.id}.json?v=43.1.46`).catch(()=>{});
   }
 }
 
@@ -4227,17 +4228,17 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    await fetch(`/analysis/${trackId}.json?v=43.1.44`);
+    await fetch(`/analysis/${trackId}.json?v=43.1.46`);
   }catch(e){}
 }
 
 
 
 /* =========================
-   v43.1.44 ULTRA SMOOTH PLAYBACK
+   v43.1.46 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.44";
+const SMART_PLAYBACK_VERSION = "43.1.46";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

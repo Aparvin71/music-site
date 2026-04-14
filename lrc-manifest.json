@@ -30,13 +30,13 @@
     "lyrics_file": "lyrics/moved-with-compassion.lrc"
   },
   {
-    "title": "Praise the Lord, O My Soul",
+    "title": "Praise the Lord O My Soul",
     "slug": "praise-the-lord-o-my-soul",
     "mp3": "Praise%20the%20Lord%20O%20My%20Soul.mp3",
     "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc"
   },
   {
-    "title": "Every Breath, Your Name",
+    "title": "EVERY BREATH YOUR NAME",
     "slug": "every-breath-your-name",
     "mp3": "EVERY%20BREATH%20YOUR%20NAME.mp3",
     "lyrics_file": "lyrics/every-breath-your-name.lrc"
@@ -48,7 +48,7 @@
     "lyrics_file": "lyrics/you-spoke.lrc"
   },
   {
-    "title": "Alivia - Play with Me",
+    "title": "Play with Me",
     "slug": "alivia-play-with-me",
     "mp3": "Play%20with%20Me.mp3",
     "lyrics_file": "lyrics/alivia-play-with-me.lrc"
@@ -162,7 +162,7 @@
     "lyrics_file": "lyrics/trash-in-trash-out.lrc"
   },
   {
-    "title": "Chop it like it's hot!",
+    "title": "Chop it like it's hot",
     "slug": "chop-it-like-its-hot",
     "mp3": "Chop%20it%20like%20it%27s%20hot.mp3",
     "lyrics_file": "lyrics/chop-it-like-its-hot.lrc"
@@ -192,7 +192,7 @@
     "lyrics_file": "lyrics/card-drop.lrc"
   },
   {
-    "title": "Lake house! (Chant)",
+    "title": "Lake house (Chant)",
     "slug": "lake-house-chant",
     "mp3": "Lake%20house%20%28Chant%29.mp3",
     "lyrics_file": "lyrics/lake-house-chant.lrc"
@@ -204,13 +204,13 @@
     "lyrics_file": "lyrics/dont-drop-the-bar-bro.lrc"
   },
   {
-    "title": "Iron Don't Lie",
+    "title": "Iron Don#U2019t Lie",
     "slug": "iron-dont-lie",
     "mp3": "Iron%20Don%23U2019t%20Lie.mp3",
     "lyrics_file": "lyrics/iron-dont-lie.lrc"
   },
   {
-    "title": "Forever and Ever (Gritty)",
+    "title": "Forever and Ever",
     "slug": "forever-and-ever-gritty",
     "mp3": "Forever%20and%20Ever.mp3",
     "lyrics_file": "lyrics/forever-and-ever-gritty.lrc"
@@ -348,7 +348,7 @@
     "lyrics_file": "lyrics/changed.lrc"
   },
   {
-    "title": "Stones Don't Become Bread",
+    "title": "Stones Don#U2019t Become Bread",
     "slug": "stones-dont-become-bread",
     "mp3": "Stones%20Don%23U2019t%20Become%20Bread.mp3",
     "lyrics_file": "lyrics/stones-dont-become-bread.lrc"
@@ -384,7 +384,7 @@
     "lyrics_file": "lyrics/wait-hold-up.lrc"
   },
   {
-    "title": "You're Done!",
+    "title": "You're Done",
     "slug": "youre-done",
     "mp3": "You%27re%20Done.mp3",
     "lyrics_file": "lyrics/youre-done.lrc"

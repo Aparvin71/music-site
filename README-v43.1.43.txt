@@ -1,4 +1,4 @@
-Aineo Music v43.1.44 — R2 Asset Wiring Fix
+Aineo Music v43.1.46 — R2 Asset Wiring Fix
 
 Purpose
 - Make the core-only package point music and cover artwork to the correct R2 bucket.

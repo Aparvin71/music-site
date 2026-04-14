@@ -239,7 +239,7 @@
   },
   {
     "id": "alpha-and-omega__praise-the-lord-o-my-soul__45",
-    "title": "Praise the Lord, O My Soul",
+    "title": "Praise the Lord O My Soul",
     "slug": "praise-the-lord-o-my-soul",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -283,11 +283,14 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Praise the Lord, O My Soul"
+    ]
   },
   {
     "id": "alpha-and-omega__every-breath-your-name__16",
-    "title": "Every Breath, Your Name",
+    "title": "EVERY BREATH YOUR NAME",
     "slug": "every-breath-your-name",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -330,7 +333,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Every Breath, Your Name"
+    ]
   },
   {
     "id": "alpha-and-omega__you-spoke__71",
@@ -381,7 +387,7 @@
   },
   {
     "id": "beautiful-things__alivia-play-with-me__4",
-    "title": "Alivia - Play with Me",
+    "title": "Play with Me",
     "slug": "alivia-play-with-me",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -416,7 +422,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Alivia - Play with Me"
+    ]
   },
   {
     "id": "beautiful-things__at-work__5",
@@ -1247,7 +1256,7 @@
   },
   {
     "id": "fun__chop-it-like-its-hot__12",
-    "title": "Chop it like it's hot!",
+    "title": "Chop it like it's hot",
     "slug": "chop-it-like-its-hot",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -1285,7 +1294,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Chop it like it's hot!"
+    ]
   },
   {
     "id": "fun__lake-house-weekend__30",
@@ -1448,7 +1460,7 @@
   },
   {
     "id": "fun__lake-house-chant__31",
-    "title": "Lake house! (Chant)",
+    "title": "Lake house (Chant)",
     "slug": "lake-house-chant",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -1484,7 +1496,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Lake house! (Chant)"
+    ]
   },
   {
     "id": "fun__don-t-drop-the-bar-bro__14",
@@ -1529,7 +1544,7 @@
   },
   {
     "id": "fun__iron-don-t-lie__26",
-    "title": "Iron Don't Lie",
+    "title": "Iron Don’t Lie",
     "slug": "iron-dont-lie",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -1565,11 +1580,14 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Iron Don't Lie"
+    ]
   },
   {
     "id": "heartprints__forever-and-ever-gritty__19",
-    "title": "Forever and Ever (Gritty)",
+    "title": "Forever and Ever",
     "slug": "forever-and-ever-gritty",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -1613,7 +1631,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Forever and Ever (Gritty)"
+    ]
   },
   {
     "id": "heartprints__its-you__27",
@@ -2605,7 +2626,7 @@
   },
   {
     "id": "mercy-and-grace__stones-don-t-become-bread__55",
-    "title": "Stones Don't Become Bread",
+    "title": "Stones Don’t Become Bread",
     "slug": "stones-dont-become-bread",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -2650,7 +2671,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "Stones Don't Become Bread"
+    ]
   },
   {
     "id": "mercy-and-grace__agape-love__2",
@@ -2884,7 +2908,7 @@
   },
   {
     "id": "real-people__youre-done__72",
-    "title": "You're Done!",
+    "title": "You're Done",
     "slug": "youre-done",
     "artist": "Allen Parvin",
     "artist_slug": "allen-parvin",
@@ -2920,7 +2944,10 @@
     "has_analysis": true,
     "waveform_point_count": 2048,
     "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "spectrum_frame_count": 120,
+    "title_aliases": [
+      "You're Done!"
+    ]
   },
   {
     "id": "real-people__just-strollin-through__28",

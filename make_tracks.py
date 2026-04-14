@@ -31,7 +31,7 @@ ANALYSIS_MANIFEST_NAME = "analysis-manifest.json"
 ANALYSIS_BUILD_CACHE_NAME = "analysis-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
 ANALYSIS_VERSION = "v1"
-GENERATOR_VERSION = "v43.1.30"
+GENERATOR_VERSION = "v43.1.46"
 AUDIO_EXTENSIONS = {".mp3"}
 WAVEFORM_ENVELOPE_POINTS = 2048
 WAVEFORM_FFMPEG_SAMPLE_RATE = 400
@@ -627,7 +627,7 @@ def main() -> int:
         artist = normalize_text(str(override.get("artist") or artist or DEFAULT_ARTIST))
         album = normalize_text(str(override.get("album") or album or DEFAULT_ALBUM))
         genre = normalize_text(str(override.get("genre") or genre))
-        slug = slugify(title)
+        slug = normalize_text(str(override.get("slug") or slugify(title)))
         track_id = str(override.get("id") or existing_track.get("id") or make_track_id(title, album, index))
         collection = normalize_text(str(override.get("collection") or existing_track.get("collection") or DEFAULT_COLLECTION))
         featured = bool(override.get("featured", existing_track.get("featured", False)))
