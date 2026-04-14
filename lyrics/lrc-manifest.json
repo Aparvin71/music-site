@@ -1,0 +1,434 @@
+[
+  {
+    "title": "Holy Beyond Measure",
+    "slug": "holy-beyond-measure",
+    "mp3": "Holy%20Beyond%20Measure.mp3",
+    "lyrics_file": "lyrics/holy-beyond-measure.lrc"
+  },
+  {
+    "title": "You See Me",
+    "slug": "you-see-me",
+    "mp3": "You%20See%20Me.mp3",
+    "lyrics_file": "lyrics/you-see-me.lrc"
+  },
+  {
+    "title": "Genesis",
+    "slug": "genesis",
+    "mp3": "Genesis.mp3",
+    "lyrics_file": "lyrics/genesis.lrc"
+  },
+  {
+    "title": "Worth It All",
+    "slug": "worth-it-all",
+    "mp3": "Worth%20It%20All.mp3",
+    "lyrics_file": "lyrics/worth-it-all.lrc"
+  },
+  {
+    "title": "Moved with Compassion",
+    "slug": "moved-with-compassion",
+    "mp3": "Moved%20with%20Compassion.mp3",
+    "lyrics_file": "lyrics/moved-with-compassion.lrc"
+  },
+  {
+    "title": "Praise the Lord, O My Soul",
+    "slug": "praise-the-lord-o-my-soul",
+    "mp3": "Praise%20the%20Lord%2C%20O%20My%20Soul.mp3",
+    "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc"
+  },
+  {
+    "title": "Every Breath, Your Name",
+    "slug": "every-breath-your-name",
+    "mp3": "EVERY%20BREATH%2C%20YOUR%20NAME%20%281%29.mp3",
+    "lyrics_file": "lyrics/every-breath-your-name.lrc"
+  },
+  {
+    "title": "You Spoke",
+    "slug": "you-spoke",
+    "mp3": "You%20Spoke.mp3",
+    "lyrics_file": "lyrics/you-spoke.lrc"
+  },
+  {
+    "title": "Alivia - Play with Me",
+    "slug": "alivia-play-with-me",
+    "mp3": "Alivia%20-%20Play%20with%20Me.mp3",
+    "lyrics_file": "lyrics/alivia-play-with-me.lrc"
+  },
+  {
+    "title": "At Work",
+    "slug": "at-work",
+    "mp3": "At%20Work.mp3",
+    "lyrics_file": "lyrics/at-work.lrc"
+  },
+  {
+    "title": "Watching you Grow",
+    "slug": "watching-you-grow",
+    "mp3": "Watching%20you%20Grow.mp3",
+    "lyrics_file": "lyrics/watching-you-grow.lrc"
+  },
+  {
+    "title": "Please Stay With Me (Child)",
+    "slug": "please-stay-with-me-child",
+    "mp3": "Please%20Stay%20With%20Me%20%28Child%29.mp3",
+    "lyrics_file": "lyrics/please-stay-with-me-child.lrc"
+  },
+  {
+    "title": "Please Stay With Me (Mom)",
+    "slug": "please-stay-with-me-mom",
+    "mp3": "Please%20Stay%20With%20Me%20%28Mom%29.mp3",
+    "lyrics_file": "lyrics/please-stay-with-me-mom.lrc"
+  },
+  {
+    "title": "Step Out and Go",
+    "slug": "step-out-and-go",
+    "mp3": "Step%20Out%20and%20Go.mp3",
+    "lyrics_file": "lyrics/step-out-and-go.lrc"
+  },
+  {
+    "title": "Wide Awake",
+    "slug": "wide-awake",
+    "mp3": "Wide%20Awake.mp3",
+    "lyrics_file": "lyrics/wide-awake.lrc"
+  },
+  {
+    "title": "Spiritual Gym Anthem",
+    "slug": "spiritual-gym-anthem",
+    "mp3": "Spiritual%20Gym%20Anthem.mp3",
+    "lyrics_file": "lyrics/spiritual-gym-anthem.lrc"
+  },
+  {
+    "title": "Shape of Sacrifice",
+    "slug": "shape-of-sacrifice",
+    "mp3": "Shape%20of%20Sacrifice.mp3",
+    "lyrics_file": "lyrics/shape-of-sacrifice.lrc"
+  },
+  {
+    "title": "Remove the Log",
+    "slug": "remove-the-log",
+    "mp3": "Remove%20the%20Log.mp3",
+    "lyrics_file": "lyrics/remove-the-log.lrc"
+  },
+  {
+    "title": "Same Mouth",
+    "slug": "same-mouth",
+    "mp3": "Same%20Mouth.mp3",
+    "lyrics_file": "lyrics/same-mouth.lrc"
+  },
+  {
+    "title": "Upon the Holy Mount",
+    "slug": "upon-the-holy-mount",
+    "mp3": "Upon%20the%20Holy%20Mount.mp3",
+    "lyrics_file": "lyrics/upon-the-holy-mount.lrc"
+  },
+  {
+    "title": "Turn That Other Cheek",
+    "slug": "turn-that-other-cheek",
+    "mp3": "Turn%20That%20Other%20Cheek.mp3",
+    "lyrics_file": "lyrics/turn-that-other-cheek.lrc"
+  },
+  {
+    "title": "Lead Me Home, Good Shepherd",
+    "slug": "lead-me-home-good-shepherd",
+    "mp3": "Lead%20Me%20Home%2C%20Good%20Shepherd.mp3",
+    "lyrics_file": "lyrics/lead-me-home-good-shepherd.lrc"
+  },
+  {
+    "title": "Make Me a Faithful Tree",
+    "slug": "make-me-a-faithful-tree",
+    "mp3": "Make%20Me%20a%20Faithful%20Tree%20%281%29.mp3",
+    "lyrics_file": "lyrics/make-me-a-faithful-tree.lrc"
+  },
+  {
+    "title": "Make a Good Tree in Me",
+    "slug": "make-a-good-tree-in-me",
+    "mp3": "Make%20a%20Good%20Tree%20in%20Me.mp3",
+    "lyrics_file": "lyrics/make-a-good-tree-in-me.lrc"
+  },
+  {
+    "title": "Same Sky",
+    "slug": "same-sky",
+    "mp3": "Same%20Sky.mp3",
+    "lyrics_file": "lyrics/same-sky.lrc"
+  },
+  {
+    "title": "Alive in Me",
+    "slug": "alive-in-me",
+    "mp3": "Alive%20in%20Me.mp3",
+    "lyrics_file": "lyrics/alive-in-me.lrc"
+  },
+  {
+    "title": "Trash In Trash Out",
+    "slug": "trash-in-trash-out",
+    "mp3": "Trash%20In%20Trash%20Out.mp3",
+    "lyrics_file": "lyrics/trash-in-trash-out.lrc"
+  },
+  {
+    "title": "Chop it like it's hot!",
+    "slug": "chop-it-like-its-hot",
+    "mp3": "Chop%20it%20like%20it%E2%80%99s%20hot%21.mp3",
+    "lyrics_file": "lyrics/chop-it-like-its-hot.lrc"
+  },
+  {
+    "title": "Lake House Weekend",
+    "slug": "lake-house-weekend",
+    "mp3": "Lake%20House%20Weekend.mp3",
+    "lyrics_file": "lyrics/lake-house-weekend.lrc"
+  },
+  {
+    "title": "Deck 9 Kind of Love",
+    "slug": "deck-9-kind-of-love",
+    "mp3": "Deck%209%20Kind%20of%20Love.mp3",
+    "lyrics_file": "lyrics/deck-9-kind-of-love.lrc"
+  },
+  {
+    "title": "Who's Driving this Bus",
+    "slug": "whos-driving-this-bus",
+    "mp3": "Who%27s%20Driving%20this%20Bus.mp3",
+    "lyrics_file": "lyrics/whos-driving-this-bus.lrc"
+  },
+  {
+    "title": "Card Drop",
+    "slug": "card-drop",
+    "mp3": "Card%20Drop.mp3",
+    "lyrics_file": "lyrics/card-drop.lrc"
+  },
+  {
+    "title": "Lake house! (Chant)",
+    "slug": "lake-house-chant",
+    "mp3": "Lake%20house%21%20%28Chant%29.mp3",
+    "lyrics_file": "lyrics/lake-house-chant.lrc"
+  },
+  {
+    "title": "Don't Drop the Bar Bro",
+    "slug": "dont-drop-the-bar-bro",
+    "mp3": "Don%27t%20Drop%20the%20Bar%20Bro.mp3",
+    "lyrics_file": "lyrics/dont-drop-the-bar-bro.lrc"
+  },
+  {
+    "title": "Iron Don't Lie",
+    "slug": "iron-dont-lie",
+    "mp3": "Iron%20Don%E2%80%99t%20Lie.mp3",
+    "lyrics_file": "lyrics/iron-dont-lie.lrc"
+  },
+  {
+    "title": "Forever and Ever (Gritty)",
+    "slug": "forever-and-ever-gritty",
+    "mp3": "Forever%20and%20Ever%20%28Gritty%29.mp3",
+    "lyrics_file": "lyrics/forever-and-ever-gritty.lrc"
+  },
+  {
+    "title": "It's You",
+    "slug": "its-you",
+    "mp3": "It%27s%20You.mp3",
+    "lyrics_file": "lyrics/its-you.lrc"
+  },
+  {
+    "title": "Mi Luna",
+    "slug": "mi-luna",
+    "mp3": "Mi%20Luna.mp3",
+    "lyrics_file": "lyrics/mi-luna.lrc"
+  },
+  {
+    "title": "Rearview Memories",
+    "slug": "rearview-memories",
+    "mp3": "Rearview%20Memories.mp3",
+    "lyrics_file": "lyrics/rearview-memories.lrc"
+  },
+  {
+    "title": "Haunting Blue",
+    "slug": "haunting-blue",
+    "mp3": "Haunting%20Blue.mp3",
+    "lyrics_file": "lyrics/haunting-blue.lrc"
+  },
+  {
+    "title": "By Your Hands",
+    "slug": "by-your-hands",
+    "mp3": "By%20Your%20Hands.mp3",
+    "lyrics_file": "lyrics/by-your-hands.lrc"
+  },
+  {
+    "title": "Theres Always Enough",
+    "slug": "theres-always-enough",
+    "mp3": "Theres%20Always%20Enough.mp3",
+    "lyrics_file": "lyrics/theres-always-enough.lrc"
+  },
+  {
+    "title": "Things I Carry",
+    "slug": "things-i-carry",
+    "mp3": "Things%20I%20Carry.mp3",
+    "lyrics_file": "lyrics/things-i-carry.lrc"
+  },
+  {
+    "title": "My Son",
+    "slug": "my-son",
+    "mp3": "My%20Son.mp3",
+    "lyrics_file": "lyrics/my-son.lrc"
+  },
+  {
+    "title": "Higher Aim",
+    "slug": "higher-aim",
+    "mp3": "Higher%20Aim.mp3",
+    "lyrics_file": "lyrics/higher-aim.lrc"
+  },
+  {
+    "title": "Keeper of the Pines",
+    "slug": "keeper-of-the-pines",
+    "mp3": "Keeper%20of%20the%20Pines.mp3",
+    "lyrics_file": "lyrics/keeper-of-the-pines.lrc"
+  },
+  {
+    "title": "Remington the Pump Truck Guy",
+    "slug": "remington-the-pump-truck-guy",
+    "mp3": "Remington%20the%20Pump%20Truck%20Guy.mp3",
+    "lyrics_file": "lyrics/remington-the-pump-truck-guy.lrc"
+  },
+  {
+    "title": "The Table",
+    "slug": "the-table",
+    "mp3": "The%20Table.mp3",
+    "lyrics_file": "lyrics/the-table.lrc"
+  },
+  {
+    "title": "Mother of Two",
+    "slug": "mother-of-two",
+    "mp3": "Mother%20of%20Two.mp3",
+    "lyrics_file": "lyrics/mother-of-two.lrc"
+  },
+  {
+    "title": "Little Brother",
+    "slug": "little-brother",
+    "mp3": "Little%20Brother.mp3",
+    "lyrics_file": "lyrics/little-brother.lrc"
+  },
+  {
+    "title": "A Man Like Him",
+    "slug": "a-man-like-him",
+    "mp3": "A%20Man%20Like%20Him.mp3",
+    "lyrics_file": "lyrics/a-man-like-him.lrc"
+  },
+  {
+    "title": "Before Anyone Else",
+    "slug": "before-anyone-else",
+    "mp3": "Before%20Anyone%20Else.mp3",
+    "lyrics_file": "lyrics/before-anyone-else.lrc"
+  },
+  {
+    "title": "Foot of the Cross",
+    "slug": "foot-of-the-cross",
+    "mp3": "Foot%20of%20the%20Cross.mp3",
+    "lyrics_file": "lyrics/foot-of-the-cross.lrc"
+  },
+  {
+    "title": "On My Body",
+    "slug": "on-my-body",
+    "mp3": "On%20My%20Body.mp3",
+    "lyrics_file": "lyrics/on-my-body.lrc"
+  },
+  {
+    "title": "Where the Worm Does not Die",
+    "slug": "where-the-worm-does-not-die",
+    "mp3": "Where%20the%20Worm%20Does%20not%20Die.mp3",
+    "lyrics_file": "lyrics/where-the-worm-does-not-die.lrc"
+  },
+  {
+    "title": "Remember Me",
+    "slug": "remember-me",
+    "mp3": "Remember%20Me.mp3",
+    "lyrics_file": "lyrics/remember-me.lrc"
+  },
+  {
+    "title": "Don't Remember Me",
+    "slug": "dont-remember-me",
+    "mp3": "Don%27t%20Remember%20Me.mp3",
+    "lyrics_file": "lyrics/dont-remember-me.lrc"
+  },
+  {
+    "title": "Changed",
+    "slug": "changed",
+    "mp3": "Changed.mp3",
+    "lyrics_file": "lyrics/changed.lrc"
+  },
+  {
+    "title": "Stones Don't Become Bread",
+    "slug": "stones-dont-become-bread",
+    "mp3": "Stones%20Don%E2%80%99t%20Become%20Bread.mp3",
+    "lyrics_file": "lyrics/stones-dont-become-bread.lrc"
+  },
+  {
+    "title": "Agape Love",
+    "slug": "agape-love",
+    "mp3": "Agape%20Love.mp3",
+    "lyrics_file": "lyrics/agape-love.lrc"
+  },
+  {
+    "title": "Out of Ashes",
+    "slug": "out-of-ashes",
+    "mp3": "Out%20of%20Ashes.mp3",
+    "lyrics_file": "lyrics/out-of-ashes.lrc"
+  },
+  {
+    "title": "Finally Let You In",
+    "slug": "finally-let-you-in",
+    "mp3": "Finally%20Let%20You%20In.mp3",
+    "lyrics_file": "lyrics/finally-let-you-in.lrc"
+  },
+  {
+    "title": "Sugar and Grace",
+    "slug": "sugar-and-grace",
+    "mp3": "Sugar%20and%20Grace.mp3",
+    "lyrics_file": "lyrics/sugar-and-grace.lrc"
+  },
+  {
+    "title": "Wait Hold Up",
+    "slug": "wait-hold-up",
+    "mp3": "Wait%20Hold%20Up.mp3",
+    "lyrics_file": "lyrics/wait-hold-up.lrc"
+  },
+  {
+    "title": "You're Done!",
+    "slug": "youre-done",
+    "mp3": "You%27re%20Done%21.mp3",
+    "lyrics_file": "lyrics/youre-done.lrc"
+  },
+  {
+    "title": "Just Strollin Through",
+    "slug": "just-strollin-through",
+    "mp3": "Just%20Strollin%20Through.mp3",
+    "lyrics_file": "lyrics/just-strollin-through.lrc"
+  },
+  {
+    "title": "Let it All Hang Out",
+    "slug": "let-it-all-hang-out",
+    "mp3": "Let%20it%20All%20Hang%20Out.mp3",
+    "lyrics_file": "lyrics/let-it-all-hang-out.lrc"
+  },
+  {
+    "title": "That's Just How She Is",
+    "slug": "thats-just-how-she-is",
+    "mp3": "That%27s%20Just%20How%20She%20Is.mp3",
+    "lyrics_file": "lyrics/thats-just-how-she-is.lrc"
+  },
+  {
+    "title": "Hands of a Man",
+    "slug": "hands-of-a-man",
+    "mp3": "Hands%20of%20a%20Man.mp3",
+    "lyrics_file": "lyrics/hands-of-a-man.lrc"
+  },
+  {
+    "title": "Bent My Mind",
+    "slug": "bent-my-mind",
+    "mp3": "Bent%20My%20Mind.mp3",
+    "lyrics_file": "lyrics/bent-my-mind.lrc"
+  },
+  {
+    "title": "Breathe",
+    "slug": "breathe",
+    "mp3": "Breathe.mp3",
+    "lyrics_file": "lyrics/breathe.lrc"
+  },
+  {
+    "title": "I'm Still Here",
+    "slug": "im-still-here",
+    "mp3": "I%27m%20Still%20Here.mp3",
+    "lyrics_file": "lyrics/im-still-here.lrc"
+  }
+]
