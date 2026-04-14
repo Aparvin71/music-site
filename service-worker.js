@@ -1,7 +1,7 @@
 
-// v43.1.35 Service Worker Strategy Cleanup
+// v43.1.36 Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.35";
+const CACHE_VERSION = "v43.1.36";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
 const STATIC_ASSETS = [
@@ -15,7 +15,15 @@ const STATIC_ASSETS = [
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(STATIC_CACHE).then(cache => 
+Promise.all(STATIC_ASSETS.map(url =>
+  fetch(url).then(res => {
+    if(res.ok){
+      return cache.put(url, res.clone());
+    }
+  }).catch(()=>{})
+))
+)
   );
 });
 

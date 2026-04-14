@@ -1,4 +1,4 @@
-/* v43.1.35 asset decoupling pass */
+/* v43.1.36 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -4130,10 +4130,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.35 preload optimization
+// v43.1.36 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.35`);
+    fetch(`/analysis/${trackId}.json?v=43.1.36`);
   }catch(e){}
 }
 
@@ -4143,4 +4143,37 @@ async function preloadNextTrack(currentIndex, tracks){
   if(next && next.id){
     preloadAnalysis(next.id);
   }
+}
+
+
+// v43.1.36 Smart Playback Engine
+let userSkipCount = 0;
+
+function smartPreloadEngine(currentIndex, tracks){
+  if(!tracks || tracks.length === 0) return;
+
+  const current = tracks[currentIndex];
+  const next = tracks[currentIndex+1];
+  const prev = tracks[currentIndex-1];
+
+  [current, next, prev].forEach(t => {
+    if(t && t.id){
+      fetch(`/analysis/${t.id}.json?v=43.1.36`).catch(()=>{});
+    }
+  });
+
+  if(userSkipCount > 3 && next && next.id){
+    fetch(`/analysis/${next.id}.json?v=43.1.36`).catch(()=>{});
+  }
+}
+
+function trackSkipped(){
+  userSkipCount++;
+}
+
+// optional instant play
+async function instantPlay(trackId){
+  try{
+    await fetch(`/analysis/${trackId}.json?v=43.1.36`);
+  }catch(e){}
 }
