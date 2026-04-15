@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.47 visualizer lift + left-wing alignment polish */
+/* v43.1.48 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,13 +12397,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.47 visualizer lift + left-wing alignment polish */
+/* v43.1.48 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.47 visualizer lift + left-wing alignment polish */
+/* v43.1.48 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.47 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.48 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;

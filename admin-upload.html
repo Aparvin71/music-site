@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.47" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.48" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -19,8 +19,8 @@
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <title>Admin Upload - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.47" />
-  <script src="/pwa-init.js?v=43.1.47" defer></script>
+  <link rel="stylesheet" href="/style.css?v=43.1.48" />
+  <script src="/pwa-init.js?v=43.1.48" defer></script>
 </head><body>
   <header class="site-header">
     <nav class="navbar" aria-label="Main navigation">
@@ -57,7 +57,7 @@
     <section class="page-card utility-card"><h2>Suggested Upload Checklist</h2><ol class="utility-list"><li>Upload the MP3 to your audio folder or R2 bucket.</li><li>Upload the cover image to your covers folder.</li><li>Upload the matching <code>.lrc</code> file into the <code>lyrics/</code> folder.</li><li>Append the generated JSON snippet to <code>tracks.json</code>.</li><li>Refresh the site and verify the song appears with lyrics and scripture links.</li></ol></section>
   </main>
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.47</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.48</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/changelog.html">Changelog</a>
       <a href="/feedback.html">Feedback</a>
@@ -80,5 +80,5 @@
   document.getElementById("buildTrackJsonBtn").addEventListener("click", buildSnippet);
   document.getElementById("copyTrackJsonBtn").addEventListener("click", async () => { try { await navigator.clipboard.writeText(out.textContent); document.getElementById("copyTrackJsonBtn").textContent = "Copied!"; setTimeout(() => document.getElementById("copyTrackJsonBtn").textContent = "Copy Snippet", 1200); } catch {} });
   </script>
-<script src="/nav.js?v=43.1.47"></script>
+<script src="/nav.js?v=43.1.48"></script>
 </body></html>

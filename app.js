@@ -1,4 +1,4 @@
-/* v43.1.47 asset decoupling pass */
+/* v43.1.48 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -702,6 +702,94 @@ function saveFavorites() {
 
 function saveRecentlyPlayed() {
   localStorage.setItem(STORAGE_KEYS.recentlyPlayed, JSON.stringify(recentlyPlayed));
+}
+
+function showToast(message, duration = 2200) {
+  if (!message) return;
+  try {
+    if (typeof window !== 'undefined' && typeof window.showToast === 'function' && window.showToast !== showToast) {
+      window.showToast(message, duration);
+      return;
+    }
+    let toast = document.getElementById('aineo-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'aineo-toast';
+      toast.setAttribute('aria-live', 'polite');
+      toast.style.cssText = 'position:fixed;left:50%;bottom:92px;transform:translateX(-50%);max-width:min(80vw,420px);padding:10px 14px;border-radius:999px;background:rgba(10,14,24,0.88);color:#fff;font-size:13px;line-height:1.3;box-shadow:0 12px 30px rgba(0,0,0,0.35);z-index:99999;opacity:0;pointer-events:none;transition:opacity 180ms ease';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => {
+      if (toast) toast.style.opacity = '0';
+    }, duration);
+  } catch (_) {}
+}
+
+function buildTrackAudioCandidates(track) {
+  const raw = [track?.audio, track?.src].filter(Boolean);
+  const seen = new Set();
+  const out = [];
+  const push = (value) => {
+    if (!value || seen.has(value)) return;
+    seen.add(value);
+    out.push(value);
+  };
+  for (const value of raw) {
+    push(value);
+    try { push(decodeURIComponent(value)); } catch (_) {}
+    push(value.replace('/audio/', '/audio/'));
+    push(value.replace(/%27/g, "'"));
+    push(value.replace(/Don't/g, 'Don%E2%80%99t'));
+    push(value.replace(/Don%E2%80%99t/g, 'Don%23U2019t'));
+    push(value.replace(/%23U2019/g, '%E2%80%99'));
+  }
+  const base = raw[0] || '';
+  if (base.includes('/audio/')) {
+    push(base.replace('/audio/', '/'));
+    try { push(decodeURIComponent(base).replace('/audio/', '/')); } catch (_) {}
+  }
+  return out;
+}
+
+async function setAudioSourceWithFallback(track) {
+  const candidates = buildTrackAudioCandidates(track);
+  let lastError = null;
+  for (const candidate of candidates) {
+    try {
+      audioEl.pause();
+      audioEl.removeAttribute('src');
+      audioEl.load();
+      audioEl.src = candidate;
+      audioEl.load();
+      await new Promise((resolve, reject) => {
+        const onReady = () => { cleanup(); resolve(); };
+        const onError = () => {
+          cleanup();
+          const mediaError = audioEl.error;
+          reject(mediaError ? new Error(mediaError.message || `Media error code ${mediaError.code}`) : new Error('Audio source failed to load'));
+        };
+        const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out loading audio source')); }, 4500);
+        function cleanup() {
+          clearTimeout(timer);
+          audioEl.removeEventListener('canplay', onReady);
+          audioEl.removeEventListener('loadedmetadata', onReady);
+          audioEl.removeEventListener('error', onError);
+        }
+        audioEl.addEventListener('canplay', onReady, { once: true });
+        audioEl.addEventListener('loadedmetadata', onReady, { once: true });
+        audioEl.addEventListener('error', onError, { once: true });
+      });
+      track.audio = candidate;
+      track.src = candidate;
+      return candidate;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError || new Error('No supported audio source found for this track');
 }
 
 function savePlayStats() {
@@ -4188,10 +4276,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.47 preload optimization
+// v43.1.48 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.47`);
+    fetch(`/analysis/${trackId}.json?v=43.1.48`);
   }catch(e){}
 }
 
@@ -4204,7 +4292,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.47 Smart Playback Engine
+// v43.1.48 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4216,12 +4304,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      fetch(`/analysis/${t.id}.json?v=43.1.47`).catch(()=>{});
+      fetch(`/analysis/${t.id}.json?v=43.1.48`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    fetch(`/analysis/${next.id}.json?v=43.1.47`).catch(()=>{});
+    fetch(`/analysis/${next.id}.json?v=43.1.48`).catch(()=>{});
   }
 }
 
@@ -4232,17 +4320,17 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    await fetch(`/analysis/${trackId}.json?v=43.1.47`);
+    await fetch(`/analysis/${trackId}.json?v=43.1.48`);
   }catch(e){}
 }
 
 
 
 /* =========================
-   v43.1.47 ULTRA SMOOTH PLAYBACK
+   v43.1.48 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.47";
+const SMART_PLAYBACK_VERSION = "43.1.48";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
