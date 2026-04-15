@@ -1,6 +1,6 @@
-// v43.1.48 Navigation Redirect Fix + Service Worker Strategy Cleanup
+// v43.1.51 Navigation Redirect Fix + Service Worker Strategy Cleanup
 
-const CACHE_VERSION = "v43.1.48";
+const CACHE_VERSION = "v43.1.51";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;
@@ -23,29 +23,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.48",
-  "/app.js?v=43.1.48",
-  "/nav.js?v=43.1.48",
-  "/pwa-init.js?v=43.1.48",
-  "/manifest.webmanifest?v=43.1.48",
-  "/aineo-album-page.js?v=43.1.48",
-  "/aineo-config.js?v=43.1.48",
-  "/aineo-data.js?v=43.1.48",
-  "/aineo-featured.js?v=43.1.48",
-  "/aineo-library.js?v=43.1.48",
-  "/aineo-lyrics.js?v=43.1.48",
-  "/aineo-media-session.js?v=43.1.48",
-  "/aineo-offline.js?v=43.1.48",
-  "/aineo-player-sheet.js?v=43.1.48",
-  "/aineo-playlists.js?v=43.1.48",
-  "/aineo-queue.js?v=43.1.48",
-  "/aineo-shared.js?v=43.1.48",
-  "/aineo-ui.js?v=43.1.48",
-  "/album-page.js?v=43.1.48",
-  "/albums-page.js?v=43.1.48",
-  "/artist-page.js?v=43.1.48",
-  "/artists-page.js?v=43.1.48",
-  "/contact.js?v=43.1.48"
+  "/style.css?v=43.1.51",
+  "/app.js?v=43.1.51",
+  "/nav.js?v=43.1.51",
+  "/pwa-init.js?v=43.1.51",
+  "/manifest.webmanifest?v=43.1.51",
+  "/aineo-album-page.js?v=43.1.51",
+  "/aineo-config.js?v=43.1.51",
+  "/aineo-data.js?v=43.1.51",
+  "/aineo-featured.js?v=43.1.51",
+  "/aineo-library.js?v=43.1.51",
+  "/aineo-lyrics.js?v=43.1.51",
+  "/aineo-media-session.js?v=43.1.51",
+  "/aineo-offline.js?v=43.1.51",
+  "/aineo-player-sheet.js?v=43.1.51",
+  "/aineo-playlists.js?v=43.1.51",
+  "/aineo-queue.js?v=43.1.51",
+  "/aineo-shared.js?v=43.1.51",
+  "/aineo-ui.js?v=43.1.51",
+  "/album-page.js?v=43.1.51",
+  "/albums-page.js?v=43.1.51",
+  "/artist-page.js?v=43.1.51",
+  "/artists-page.js?v=43.1.51",
+  "/contact.js?v=43.1.51"
 ];
 
 async function safeWarmStaticCache() {
@@ -111,11 +111,15 @@ async function cacheFirst(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request, { ignoreSearch: false });
   if (cached) return cached;
-  const response = await fetch(request);
-  if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
-    await cache.put(request, response.clone());
+  try {
+    const response = await fetch(request);
+    if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    return cached || Response.error();
   }
-  return response;
 }
 
 self.addEventListener("fetch", (event) => {

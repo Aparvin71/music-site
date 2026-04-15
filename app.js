@@ -1,4 +1,4 @@
-/* v43.1.48 asset decoupling pass */
+/* v43.1.51 asset decoupling pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -737,20 +737,28 @@ function buildTrackAudioCandidates(track) {
     seen.add(value);
     out.push(value);
   };
+
   for (const value of raw) {
     push(value);
     try { push(decodeURIComponent(value)); } catch (_) {}
-    push(value.replace('/audio/', '/audio/'));
     push(value.replace(/%27/g, "'"));
+    push(value.replace(/'/g, '%27'));
     push(value.replace(/Don't/g, 'Don%E2%80%99t'));
     push(value.replace(/Don%E2%80%99t/g, 'Don%23U2019t'));
     push(value.replace(/%23U2019/g, '%E2%80%99'));
   }
-  const base = raw[0] || '';
-  if (base.includes('/audio/')) {
-    push(base.replace('/audio/', '/'));
-    try { push(decodeURIComponent(base).replace('/audio/', '/')); } catch (_) {}
+
+  const audioBaseUrl = window.AineoConfig?.assets?.audioBaseUrl || '';
+  const names = [track?.title, ...(track?.title_aliases || [])].filter(Boolean);
+  if (audioBaseUrl && names.length) {
+    for (const name of names) {
+      const baseName = `${name}.mp3`;
+      push(`${audioBaseUrl}/${encodeURIComponent(baseName).replace(/%2F/g, '/')}`);
+      push(`${audioBaseUrl}/${baseName}`);
+      push(`${audioBaseUrl}/${baseName.replace(/'/g, '%27')}`);
+    }
   }
+
   return out;
 }
 
@@ -787,9 +795,12 @@ async function setAudioSourceWithFallback(track) {
       return candidate;
     } catch (error) {
       lastError = error;
+      console.warn('Audio candidate failed', { title: track?.title, candidate, error: String(error?.message || error) });
     }
   }
-  throw lastError || new Error('No supported audio source found for this track');
+  const finalError = lastError || new Error('No supported audio source found for this track');
+  console.error('All audio candidates failed', { title: track?.title, candidates, error: String(finalError?.message || finalError) });
+  throw finalError;
 }
 
 function savePlayStats() {
@@ -4276,10 +4287,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.48 preload optimization
+// v43.1.51 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.48`);
+    fetch(`/analysis/${trackId}.json?v=43.1.51`);
   }catch(e){}
 }
 
@@ -4292,7 +4303,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.48 Smart Playback Engine
+// v43.1.51 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4304,12 +4315,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      fetch(`/analysis/${t.id}.json?v=43.1.48`).catch(()=>{});
+      fetch(`/analysis/${t.id}.json?v=43.1.51`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    fetch(`/analysis/${next.id}.json?v=43.1.48`).catch(()=>{});
+    fetch(`/analysis/${next.id}.json?v=43.1.51`).catch(()=>{});
   }
 }
 
@@ -4320,17 +4331,17 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    await fetch(`/analysis/${trackId}.json?v=43.1.48`);
+    await fetch(`/analysis/${trackId}.json?v=43.1.51`);
   }catch(e){}
 }
 
 
 
 /* =========================
-   v43.1.48 ULTRA SMOOTH PLAYBACK
+   v43.1.51 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.48";
+const SMART_PLAYBACK_VERSION = "43.1.51";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
