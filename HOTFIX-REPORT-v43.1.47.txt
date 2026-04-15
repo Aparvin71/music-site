@@ -1,4 +1,4 @@
-v43.1.51 hotfixes
+v43.1.52 hotfixes
 - fixed service-worker.js syntax error caused by literal escaped newline tokens
 - restored missing savePlayStats() in app.js
 - corrected audio URLs for Iron Don’t Lie and Stones Don’t Become Bread to exact uploaded R2 filenames with #U2019 pattern

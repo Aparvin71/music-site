@@ -1,0 +1,11 @@
+Aineo v43.1.52 — mobile mini-player + fullscreen player polish
+
+Changes included:
+- Reduced extra bottom padding under mini-player action buttons on mobile.
+- Shifted the mini-player closer to the bottom edge on mobile / iOS standalone.
+- Nudged fullscreen player header controls downward slightly on mobile.
+- Expanded fullscreen lyrics panel closer to the bottom of the screen.
+- Doubled the visual star/light density in the spectrum background.
+- Added more small stars so about half the field reads at half-size.
+- Increased twinkle contrast for brighter/darker fade cycling.
+- Bumped cache-busting/version references to v43.1.52 across the package.

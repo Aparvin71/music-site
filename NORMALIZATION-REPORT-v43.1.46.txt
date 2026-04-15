@@ -1,4 +1,4 @@
-Aineo v43.1.51 — Full Title Normalization + Asset Consistency Pass
+Aineo v43.1.52 — Full Title Normalization + Asset Consistency Pass
 
 Changed track titles:
 - Praise the Lord, O My Soul  ->  Praise the Lord O My Soul  [praise-the-lord-o-my-soul]  (Praise the Lord O My Soul.mp3)
@@ -17,6 +17,6 @@ Updated track-build-cache filenames:
 Notes:
 - tracks.json, lrc-manifest.json, lyrics/lrc-manifest.json synced to uploaded audio basenames.
 - Added track-metadata.json to preserve normalized titles with existing slugs on future rebuilds.
-- Updated make_tracks.py and tools/make_tracks.py to support slug overrides and bumped generator version to v43.1.51.
+- Updated make_tracks.py and tools/make_tracks.py to support slug overrides and bumped generator version to v43.1.52.
 - app.js now writes ?song= using track slug and still resolves legacy titles via title_aliases.
 - Fullscreen player star field increased in density and brightness fade range.

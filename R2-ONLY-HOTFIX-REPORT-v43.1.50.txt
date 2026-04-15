@@ -1,11 +1,11 @@
-Aineo v43.1.51 — R2-only hotfix
+Aineo v43.1.52 — R2-only hotfix
 
 What changed
 - No audio files bundled in package
 - Audio remains served from configured R2 bucket only
 - Added lightweight candidate retry logic for apostrophe/title alias variants
 - Added clearer console logging for failed audio candidates
-- Bumped version strings to v43.1.51 across package
+- Bumped version strings to v43.1.52 across package
 
 Notes
 - This package stays small and free-tier friendly.
