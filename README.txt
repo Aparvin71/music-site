@@ -1,32 +1,23 @@
-Aineo Music - Mobile/PWA Navigation Fix Bundle
+Aineo Music — v43.1.54
 
-Files replaced:
-- index.html
-- about.html
-- contact.html
-- album.html
-- manifest.webmanifest
-- pwa-init.js
-- service-worker.js
+Overview
+- Static music site/PWA with audio served from Cloudflare R2.
+- Covers served from Cloudflare R2.
+- Lyrics served locally from /lyrics.
+- Media Session metadata is enabled for lock screen / external media controls where the browser supports it.
 
-What was cleaned up:
-- Unified all internal page links to portable relative paths (./index.html, ./about.html, ./contact.html)
-- Fixed album page nav/back links to use the same path strategy
-- Removed forced JavaScript navigation interception from pwa-init.js
-- Kept mobile nav open/close behavior, but let normal anchor navigation handle page changes
-- Made the service worker scope-aware so it works better whether the site is hosted at the domain root or inside a subfolder
-- Added album.html and album-page.js to app-shell caching
-- Updated manifest start_url and scope to portable relative values
-- Bumped service-worker cache version to v15.03
+Asset paths
+- Audio base: https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio
+- Cover base: https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers
+- Lyrics path: /lyrics
 
-Why this fix was needed:
-- Your files were mixing root-relative links, document-relative links, and forced JavaScript navigation.
-- album.html was still using older relative nav links while the other pages had already changed.
-- The manifest and service worker were still locked to root paths, which can break installed PWA navigation if the site is not deployed at the domain root.
+What was cleaned in this package
+- Removed legacy patch reports and replaced them with this single README.
+- Sanity-checked JS syntax across shipped scripts.
+- Kept the package R2-only with no bundled audio files.
+- Tightened Media Session metadata fallback behavior for artwork and album values.
+- Updated document title during playback for clearer external media context.
 
-After upload:
-1. Replace these files on the server.
-2. Hard refresh the site in the browser.
-3. Unregister the old service worker once.
-4. Delete the previously installed home-screen app.
-5. Reinstall the PWA so the new manifest scope/start_url are used.
+Car/lock-screen note
+- This web build can publish now playing metadata through the Media Session API.
+- Full native CarPlay app integration requires Apple-native app entitlements and frameworks, which are outside the scope of a website-only build.

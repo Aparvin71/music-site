@@ -1,0 +1,19 @@
+Aineo Music v43.1.54 sanity check
+
+Completed
+- JS syntax check passed for all root JavaScript files.
+- No bundled audio directory included in package.
+- tracks.json remains wired to external R2 audio and cover URLs.
+- Media Session code present and called from app.js on playback changes.
+- PWA manifest, apple-touch-icon, theme-color, and viewport-fit metadata present across main pages.
+
+Media metadata path
+- title: track.title
+- artist: track.artist or Allen Parvin fallback
+- album: track.album or collection fallback
+- artwork: track.cover with size variants for Media Session
+- playback actions bound: play, pause, previous, next, stop, seek backward, seek forward, seek to
+
+Important limitation
+- This package can improve browser / OS now-playing metadata.
+- A full CarPlay browsing app experience requires a native app with Apple CarPlay entitlement and native media frameworks.

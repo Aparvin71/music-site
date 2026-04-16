@@ -5,12 +5,21 @@
     return "mediaSession" in navigator;
   }
 
+  function inferArtworkType(src) {
+    const value = String(src || "").toLowerCase();
+    if (value.endsWith(".png")) return "image/png";
+    if (value.endsWith(".webp")) return "image/webp";
+    return "image/jpeg";
+  }
+
   function buildArtwork(track) {
-    if (!track?.cover) return [];
+    const src = track?.cover || track?.artwork || "/icons/icon-512.png";
+    if (!src) return [];
+    const type = inferArtworkType(src);
     return [96, 128, 192, 256, 384, 512].map(size => ({
-      src: track.cover,
+      src,
       sizes: `${size}x${size}`,
-      type: "image/jpeg"
+      type
     }));
   }
 
@@ -77,7 +86,7 @@
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title || "Untitled",
         artist: track.artist || "Allen Parvin",
-        album: track.album || "Singles",
+        album: track.album || track.collection || "Singles",
         artwork: buildArtwork(track)
       });
     } catch (error) {
