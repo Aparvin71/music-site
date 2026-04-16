@@ -1,0 +1,8 @@
+Aineo v43.1.53 — mini-player further tighten (R2-only package)
+
+Changes in this pass:
+- Reduced mobile mini-player bottom padding further.
+- Tightened control row gaps and button heights.
+- Shifted the mini-player closer to the bottom edge again.
+- Preserved R2-only audio strategy; no audio files are included in this package.
+- Bumped visible and cache-busting version strings to v43.1.53 across the package.

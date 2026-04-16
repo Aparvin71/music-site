@@ -1,4 +1,4 @@
-Aineo v43.1.52 — mobile mini-player + fullscreen player polish
+Aineo v43.1.53 — mobile mini-player + fullscreen player polish
 
 Changes included:
 - Reduced extra bottom padding under mini-player action buttons on mobile.
@@ -8,4 +8,4 @@ Changes included:
 - Doubled the visual star/light density in the spectrum background.
 - Added more small stars so about half the field reads at half-size.
 - Increased twinkle contrast for brighter/darker fade cycling.
-- Bumped cache-busting/version references to v43.1.52 across the package.
+- Bumped cache-busting/version references to v43.1.53 across the package.
