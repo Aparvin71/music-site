@@ -1,0 +1,18 @@
+Aineo Music v43.1.55 — Mobile Mini Player Icon-Only Compact Pass
+
+Base: v43.1.54 sanity-check clean package
+
+Changes made:
+- Mobile mini player action row converted to icon-only layout
+- Removed mini-player Play Next button on mobile
+- Forced compact actions onto one row (5 icons)
+- Reduced mini-player padding and gaps again
+- Shifted mini-player closer to the bottom edge on mobile
+- Slightly reduced cover and transport sizing to shrink player height further
+- Kept package R2-only (no audio files included)
+
+Files touched:
+- index.html
+- style.css
+- changelog.html
+- version references across package

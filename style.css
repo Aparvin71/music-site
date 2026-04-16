@@ -12368,7 +12368,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.54 visualizer lift + left-wing alignment polish */
+/* v43.1.55 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12397,13 +12397,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.54 visualizer lift + left-wing alignment polish */
+/* v43.1.55 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.54 visualizer lift + left-wing alignment polish */
+/* v43.1.55 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.54 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.55 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12605,7 +12605,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.54 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.55 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12764,7 +12764,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.54 mobile mini-player final tighten */
+/* v43.1.55 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12825,5 +12825,124 @@ body.ios-standalone .player-sheet-header::before {
 
   .transport {
     margin-bottom: 2px !important;
+  }
+}
+
+
+/* v43.1.55 mobile mini-player icon-only compact row */
+@media (max-width: 640px) {
+  .music-page-layout .sticky-player,
+  .sticky-player {
+    gap: 5px !important;
+    padding-top: 6px !important;
+    padding-right: 8px !important;
+    padding-left: 8px !important;
+    padding-bottom: calc(1px + var(--safe-bottom)) !important;
+    border-radius: 18px !important;
+  }
+
+  .music-page-layout .sticky-player {
+    bottom: max(1px, calc(1px + var(--safe-bottom) * 0.5)) !important;
+  }
+
+  body.ios-standalone .sticky-player,
+  body.ios-standalone .music-page-layout .sticky-player {
+    bottom: max(0px, calc(var(--safe-bottom) * 0.72)) !important;
+  }
+
+  .sticky-player-left,
+  .sticky-player-center,
+  .sticky-player-right,
+  .music-page-layout .sticky-player-left,
+  .music-page-layout .sticky-player-center,
+  .music-page-layout .sticky-player-right {
+    gap: 5px !important;
+  }
+
+  .now-cover,
+  #nowCover {
+    width: 44px !important;
+    height: 44px !important;
+    max-width: 44px !important;
+  }
+
+  .now-meta .label {
+    font-size: 8px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .now-meta h3 {
+    font-size: 12px !important;
+    margin-bottom: 1px !important;
+  }
+
+  .transport {
+    margin-bottom: 1px !important;
+    gap: 6px !important;
+  }
+
+  .control-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 13px !important;
+  }
+
+  .play-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 16px !important;
+  }
+
+  .progress-wrap {
+    gap: 4px !important;
+  }
+
+  .compact-actions,
+  .music-page-layout .compact-actions {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #playNextBtn {
+    display: none !important;
+  }
+
+  .compact-actions > .action-btn,
+  .music-page-layout .compact-actions > .action-btn,
+  .mobile-more-btn {
+    min-width: 0 !important;
+    min-height: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 0 !important;
+    line-height: 1 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+  }
+
+  .compact-actions > .action-btn::before,
+  .mobile-more-btn::before {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    font-size: 13px;
+    line-height: 1;
+  }
+
+  #favoriteSongBtn::before { content: "☆"; }
+  #addToPlaylistBtn::before { content: "+"; font-size: 16px; }
+  #saveOfflineBtn::before { content: "↓"; }
+  #openPlayerSheetBtn::before { content: "⤢"; font-size: 12px; }
+  #moreActionsBtn::before { content: "⋯"; font-size: 16px; }
+
+  .mobile-more-btn .label,
+  .compact-actions > .action-btn .label {
+    display: none !important;
   }
 }

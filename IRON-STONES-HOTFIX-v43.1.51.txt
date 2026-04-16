@@ -1,11 +1,11 @@
-Aineo v43.1.54 fix notes
+Aineo v43.1.55 fix notes
 
 - Corrected the two remaining broken R2 audio URLs:
   - Iron Don’t Lie
   - Stones Don’t Become Bread
 - Synced those filenames in tracks.json, lrc-manifest.json, lyrics/lrc-manifest.json, and track-build-cache.json.
 - Hardened service-worker cacheFirst() so failed fetches do not throw uncaught promise rejections.
-- Bumped version references from v43.1.50 to v43.1.54 across text assets.
+- Bumped version references from v43.1.50 to v43.1.55 across text assets.
 
 Important deploy note:
 If the browser still shows service-worker.js or app.js at v43.1.48 after deploy,
