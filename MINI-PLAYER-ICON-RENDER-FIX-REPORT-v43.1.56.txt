@@ -1,4 +1,4 @@
-v43.1.57
+v43.1.58
 - Fixed mobile mini-player icon-only buttons so icons render visibly
 - Increased button size slightly
 - Changed button shape to rounded rectangles

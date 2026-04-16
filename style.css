@@ -12829,7 +12829,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.57 mobile mini-player icon-only render fix + spacing polish */
+/* v43.1.58 mobile mini-player icon-only render fix + spacing polish */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12962,7 +12962,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.57 mini-player real SVG icon patch */
+/* v43.1.58 mini-player real SVG icon patch */
 .mini-btn-icon {
   display: inline-flex;
   align-items: center;
@@ -13033,5 +13033,82 @@ body.ios-standalone .player-sheet-header::before {
 
   .sticky-player .progress-wrap {
     margin-bottom: 6px !important;
+  }
+}
+
+
+/* v43.1.58 mini-player all-icon render hardening */
+@media (max-width: 640px) {
+  .compact-actions > .action-btn::before,
+  .mobile-more-btn::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  .compact-actions > .action-btn,
+  .music-page-layout .compact-actions > .action-btn,
+  .mobile-more-btn,
+  .mini-icon-btn {
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.10) !important;
+    min-height: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+    padding: 0 8px !important;
+    overflow: hidden !important;
+  }
+
+  .sticky-player-right,
+  .music-page-layout .sticky-player-right {
+    padding-top: 14px !important;
+  }
+
+  .compact-actions,
+  .music-page-layout .compact-actions {
+    margin-top: 10px !important;
+    gap: 8px !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-icon,
+  .music-page-layout .compact-actions > .action-btn .mini-btn-icon,
+  .mobile-more-btn .mini-btn-icon,
+  .mini-icon-btn .mini-btn-icon {
+    display: inline-flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    font-size: initial !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-icon svg,
+  .music-page-layout .compact-actions > .action-btn .mini-btn-icon svg,
+  .mobile-more-btn .mini-btn-icon svg,
+  .mini-icon-btn .mini-btn-icon svg {
+    display: block !important;
+    width: 19px !important;
+    height: 19px !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
+    fill: #ffffff !important;
+    stroke: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+
+  #favoriteSongBtn .mini-btn-icon svg,
+  #saveOfflineBtn .mini-btn-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-label,
+  .music-page-layout .compact-actions > .action-btn .mini-btn-label,
+  .mobile-more-btn .mini-btn-label {
+    display: none !important;
   }
 }

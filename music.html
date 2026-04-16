@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.57" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.58" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -21,20 +21,20 @@
   <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
   <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
   <title>Music - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.57" />
-  <script src="/pwa-init.js?v=43.1.57" defer></script>
-  <script src="/aineo-config.js?v=43.1.57" defer></script>
-  <script src="/aineo-data.js?v=43.1.57" defer></script>
-  <script src="/aineo-ui.js?v=43.1.57" defer></script>
-  <script src="/aineo-lyrics.js?v=43.1.57" defer></script>
-  <script src="/aineo-media-session.js?v=43.1.57" defer></script>
-  <script src="/aineo-library.js?v=43.1.57" defer></script>
-  <script src="/aineo-queue.js?v=43.1.57" defer></script>
-  <script src="/aineo-featured.js?v=43.1.57" defer></script>
-  <script src="/aineo-playlists.js?v=43.1.57" defer></script>
-  <script src="/aineo-player-sheet.js?v=43.1.57" defer></script>
-  <script src="/aineo-offline.js?v=43.1.57" defer></script>
-  <script src="/app.js?v=43.1.57" defer></script>
+  <link rel="stylesheet" href="/style.css?v=43.1.58" />
+  <script src="/pwa-init.js?v=43.1.58" defer></script>
+  <script src="/aineo-config.js?v=43.1.58" defer></script>
+  <script src="/aineo-data.js?v=43.1.58" defer></script>
+  <script src="/aineo-ui.js?v=43.1.58" defer></script>
+  <script src="/aineo-lyrics.js?v=43.1.58" defer></script>
+  <script src="/aineo-media-session.js?v=43.1.58" defer></script>
+  <script src="/aineo-library.js?v=43.1.58" defer></script>
+  <script src="/aineo-queue.js?v=43.1.58" defer></script>
+  <script src="/aineo-featured.js?v=43.1.58" defer></script>
+  <script src="/aineo-playlists.js?v=43.1.58" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.1.58" defer></script>
+  <script src="/aineo-offline.js?v=43.1.58" defer></script>
+  <script src="/app.js?v=43.1.58" defer></script>
 </head>
 <body class="music-page-layout">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -280,15 +280,15 @@
 
     <div class="sticky-player-right">
       <div class="track-actions compact-actions">
-        <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span><span class="mini-btn-label">Favorite</span></button>
-        <button id="addToPlaylistBtn" class="action-btn secondary-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span><span class="mini-btn-label">Playlist</span></button>
-        <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20h14v-2H5zm7-18-5.5 5.5h4v6h3v-6h4z"/></svg></span><span class="mini-btn-label">Offline</span></button>
+        <button id="favoriteSongBtn" class="action-btn secondary-btn mini-icon-btn" type="button" aria-label="Favorite" title="Favorite"><span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span><span class="mini-btn-label">Favorite</span></button>
+        <button id="addToPlaylistBtn" class="action-btn secondary-btn mini-icon-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span><span class="mini-btn-label">Playlist</span></button>
+        <button id="saveOfflineBtn" class="action-btn secondary-btn mini-icon-btn" type="button" aria-label="Save offline" title="Save offline"><span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v9.17l3.59-3.58L17 10l-5 5-5-5 1.41-1.41L11 12.17V3zM5 19h14v2H5z"/></svg></span><span class="mini-btn-label">Offline</span></button>
         <button id="playNextBtn" class="action-btn secondary-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg></span><span class="mini-btn-label">Play Next</span></button>
-        <button id="openPlayerSheetBtn" class="action-btn secondary-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H5v5zm10 7h-3v2h5v-5h-2zm0-12V5h-3v2h3v3h2V5z"/></svg></span><span class="mini-btn-label">Open Player</span></button>
+        <button id="openPlayerSheetBtn" class="action-btn secondary-btn mini-icon-btn" type="button"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H5v5zm10 7h-3v2h5v-5h-2zm0-12V5h-3v2h3v3h2V5z"/></svg></span><span class="mini-btn-label">Open Player</span></button>
 
         <button
           id="moreActionsBtn"
-          class="action-btn secondary-btn mobile-more-btn"
+          class="action-btn secondary-btn mobile-more-btn mini-icon-btn"
           type="button"
           aria-expanded="false"
           aria-controls="mobileActionsDrawer"
@@ -464,7 +464,7 @@
   </div>
 
     <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.57</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.58</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/changelog.html">Changelog</a>
       <a href="/feedback.html">Feedback</a>
@@ -472,6 +472,6 @@
       <a href="/admin-upload.html">Admin Upload</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.1.57"></script>
+<script src="/nav.js?v=43.1.58"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+Aineo v43.1.58 mini-player icon hardening report
+
+Changes:
+- Disabled legacy mobile pseudo-icon ::before rendering in mini-player controls
+- Forced mini-player controls to use inline SVG icons only
+- Replaced favorite/offline icon markup with hardened inline SVG
+- Added stronger mobile CSS for icon visibility and spacing
+- Moved icon row slightly farther down from the progress/time bar
+- Kept package R2-only (no audio files included)
