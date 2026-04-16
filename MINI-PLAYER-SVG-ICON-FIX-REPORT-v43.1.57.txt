@@ -1,0 +1,5 @@
+Built from v43.1.56
+- Replaced mini player mobile button icons with inline SVG markup in index.html, music.html, and album.html
+- Increased button size slightly and moved row further down on mobile
+- Kept package R2-only; no audio files added
+- Version bumped to v43.1.57

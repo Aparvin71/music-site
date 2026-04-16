@@ -12829,7 +12829,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.56 mobile mini-player icon-only render fix + spacing polish */
+/* v43.1.57 mobile mini-player icon-only render fix + spacing polish */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12958,5 +12958,80 @@ body.ios-standalone .player-sheet-header::before {
   .mobile-more-btn .label,
   .compact-actions > .action-btn .label {
     display: none !important;
+  }
+}
+
+
+/* v43.1.57 mini-player real SVG icon patch */
+.mini-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.mini-btn-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: currentColor;
+}
+
+.mini-btn-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .sticky-player-right,
+  .music-page-layout .sticky-player-right {
+    padding-top: 12px !important;
+  }
+
+  .compact-actions,
+  .music-page-layout .compact-actions {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+    padding-top: 2px !important;
+    align-items: center !important;
+  }
+
+  #playNextBtn {
+    display: none !important;
+  }
+
+  .compact-actions > .action-btn,
+  .music-page-layout .compact-actions > .action-btn,
+  .mobile-more-btn {
+    min-height: 32px !important;
+    height: 32px !important;
+    padding: 0 8px !important;
+    border-radius: 11px !important;
+    font-size: 0 !important;
+    line-height: 1 !important;
+    color: #ffffff !important;
+    gap: 0 !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-icon,
+  .mobile-more-btn .mini-btn-icon {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-icon svg,
+  .mobile-more-btn .mini-btn-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .compact-actions > .action-btn .mini-btn-label,
+  .mobile-more-btn .mini-btn-label {
+    display: none !important;
+  }
+
+  .sticky-player .progress-wrap {
+    margin-bottom: 6px !important;
   }
 }
