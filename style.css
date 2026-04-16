@@ -12829,7 +12829,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.55 mobile mini-player icon-only compact row */
+/* v43.1.56 mobile mini-player icon-only render fix + spacing polish */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12897,11 +12897,17 @@ body.ios-standalone .player-sheet-header::before {
     gap: 4px !important;
   }
 
+  .sticky-player-right,
+  .music-page-layout .sticky-player-right {
+    align-self: stretch !important;
+    padding-top: 6px !important;
+  }
+
   .compact-actions,
   .music-page-layout .compact-actions {
     display: grid !important;
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-    gap: 3px !important;
+    gap: 6px !important;
     align-items: center !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -12914,32 +12920,40 @@ body.ios-standalone .player-sheet-header::before {
   .compact-actions > .action-btn,
   .music-page-layout .compact-actions > .action-btn,
   .mobile-more-btn {
-    min-width: 0 !important;
-    min-height: 24px !important;
-    height: 24px !important;
-    padding: 0 !important;
-    border-radius: 999px !important;
-    font-size: 0 !important;
-    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
     justify-content: center !important;
+    min-width: 0 !important;
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 2px !important;
+    border-radius: 10px !important;
+    font-size: 0 !important;
+    color: transparent !important;
+    line-height: 1 !important;
     gap: 0 !important;
+    overflow: hidden !important;
   }
 
   .compact-actions > .action-btn::before,
   .mobile-more-btn::before {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    font-size: 13px;
-    line-height: 1;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    color: #ffffff !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-indent: 0 !important;
   }
 
   #favoriteSongBtn::before { content: "☆"; }
-  #addToPlaylistBtn::before { content: "+"; font-size: 16px; }
+  #addToPlaylistBtn::before { content: "+"; font-size: 17px !important; }
   #saveOfflineBtn::before { content: "↓"; }
-  #openPlayerSheetBtn::before { content: "⤢"; font-size: 12px; }
-  #moreActionsBtn::before { content: "⋯"; font-size: 16px; }
+  #openPlayerSheetBtn::before { content: "⤢"; font-size: 13px !important; }
+  #moreActionsBtn::before { content: "⋯"; font-size: 17px !important; }
 
   .mobile-more-btn .label,
   .compact-actions > .action-btn .label {

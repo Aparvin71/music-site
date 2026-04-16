@@ -1,0 +1,6 @@
+v43.1.56
+- Fixed mobile mini-player icon-only buttons so icons render visibly
+- Increased button size slightly
+- Changed button shape to rounded rectangles
+- Added more vertical separation between progress/time bar and action row
+- Kept package R2-only with no bundled audio
