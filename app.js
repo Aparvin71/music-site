@@ -1,4 +1,4 @@
-/* v43.1.58 asset decoupling pass */
+/* v43.1.61 performance + low-power hardening */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -23,7 +23,7 @@ let playlistPickerTrackId = null;
 let playerSheetTab = "lyrics";
 let queueDragIndex = null;
 let syncedLyricsRequestToken = 0;
-let autoScrollEnabled = loadAutoScrollEnabled();
+const autoScrollEnabled = false;
 let actionSheetTrackId = "";
 let actionSheetTriggerEl = null;
 let previewAudio = null;
@@ -47,6 +47,63 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
+const BATTERY_OPTIMIZATION_VERSION = "43.1.61";
+const BATTERY_OPTIMIZATION_KEYS = {
+  lowPowerMode: "aineo_low_power_mode"
+};
+let lowPowerModeEnabled = false;
+let lastProgressUiUpdateAt = 0;
+
+function devicePrefersLowPowerMode() {
+  try {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+    if (window.matchMedia && window.matchMedia('(max-width: 900px)').matches) return true;
+    if (navigator.connection && navigator.connection.saveData) return true;
+  } catch (error) {}
+  return false;
+}
+
+function loadLowPowerModeEnabled() {
+  try {
+    const stored = localStorage.getItem(BATTERY_OPTIMIZATION_KEYS.lowPowerMode);
+    if (stored == null) return devicePrefersLowPowerMode();
+    return stored !== '0';
+  } catch (error) {
+    return devicePrefersLowPowerMode();
+  }
+}
+
+function applyLowPowerModeClass() {
+  document.body.classList.toggle('aineo-low-power', Boolean(lowPowerModeEnabled));
+}
+
+function setLowPowerModeEnabled(nextValue) {
+  lowPowerModeEnabled = Boolean(nextValue);
+  try {
+    localStorage.setItem(BATTERY_OPTIMIZATION_KEYS.lowPowerMode, lowPowerModeEnabled ? '1' : '0');
+  } catch (error) {}
+  applyLowPowerModeClass();
+  if (!shouldRunVisualizer()) stopVisualizerAnimation();
+  else startVisualizerAnimation();
+  return lowPowerModeEnabled;
+}
+
+function isPlayerSheetOpen() {
+  return Boolean(els.playerSheet && !els.playerSheet.classList.contains('hidden') && els.playerSheet.classList.contains('is-open'));
+}
+
+function shouldRunVisualizer() {
+  return Boolean(
+    els.audioPlayer &&
+    !els.audioPlayer.paused &&
+    els.audioPlayer.src &&
+    !document.hidden &&
+    isPlayerSheetOpen() &&
+    !lowPowerModeEnabled
+  );
+}
+
+lowPowerModeEnabled = loadLowPowerModeEnabled();
 
 const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   favorites: "aineo_favorites",
@@ -556,19 +613,11 @@ function getRenderableLyricsLines(track) {
 }
 
 function saveAutoScrollEnabled(value) {
-  try {
-    localStorage.setItem("autoScrollEnabled", value ? "1" : "0");
-  } catch (error) {
-    console.warn("Could not save auto-scroll preference:", error);
-  }
+  return false;
 }
 
 function loadAutoScrollEnabled() {
-  try {
-    return localStorage.getItem("autoScrollEnabled") !== "0";
-  } catch (error) {
-    return true;
-  }
+  return false;
 }
 
 function getGlobalLyricsOffset() {
@@ -595,41 +644,26 @@ function getEffectiveLyricsTime(track, currentTime) {
 function stopLyricsSyncLoop() {
   if (lyricsSyncFrame) {
     window.cancelAnimationFrame(lyricsSyncFrame);
-    lyricsSyncFrame = null;
+    lyricsSyncFrame = 0;
   }
 }
 
 function runLyricsSyncLoop() {
-  const audio = els.audioPlayer;
-  if (!audio || audio.paused || audio.ended) {
-    stopLyricsSyncLoop();
-    return;
-  }
-
-  updateSyncedLyricsProgress();
-  lyricsSyncFrame = window.requestAnimationFrame(runLyricsSyncLoop);
+  stopLyricsSyncLoop();
 }
 
 function startLyricsSyncLoop() {
   stopLyricsSyncLoop();
-  if (!els.audioPlayer || els.audioPlayer.paused) return;
-  lyricsSyncFrame = window.requestAnimationFrame(runLyricsSyncLoop);
 }
 
 function updateAutoScrollToggleUI() {
   if (!els.playerSheetAutoScrollBtn) return;
-  els.playerSheetAutoScrollBtn.textContent = autoScrollEnabled ? "Auto-Scroll On" : "Auto-Scroll Off";
-  els.playerSheetAutoScrollBtn.title = autoScrollEnabled ? "Turn auto-scroll off" : "Turn auto-scroll on";
-  els.playerSheetAutoScrollBtn.classList.toggle("is-on", autoScrollEnabled);
-  els.playerSheetAutoScrollBtn.classList.toggle("is-off", !autoScrollEnabled);
-  els.playerSheetAutoScrollBtn.setAttribute("aria-pressed", autoScrollEnabled ? "true" : "false");
+  els.playerSheetAutoScrollBtn.remove();
+  els.playerSheetAutoScrollBtn = null;
 }
 
 function toggleAutoScroll() {
-  autoScrollEnabled = !autoScrollEnabled;
-  saveAutoScrollEnabled(autoScrollEnabled);
-  updateAutoScrollToggleUI();
-  updateSyncedLyricsProgress();
+  return false;
 }
 
 function buildLyricsMarkup(track, emptyMessage = "No lyrics available.") {
@@ -1109,11 +1143,14 @@ function bindUI() {
 
   if (els.audioPlayer) {
     els.audioPlayer.addEventListener("timeupdate", () => {
-      updateProgressUI();
-      updateSyncedLyricsProgress();
-      const current = getCurrentTrack();
       const now = Date.now();
-      if (current && now - lastResumePersistAt > 2500) {
+      if (now - lastProgressUiUpdateAt >= (lowPowerModeEnabled ? 500 : 250)) {
+        updateProgressUI();
+        updateSyncedLyricsProgress();
+        lastProgressUiUpdateAt = now;
+      }
+      const current = getCurrentTrack();
+      if (current && now - lastResumePersistAt > 4000) {
         saveResume(current);
         lastResumePersistAt = now;
       }
@@ -1447,9 +1484,6 @@ function initMiniVisualizer() {
   const glow = document.createElement('div');
   glow.className = 'player-cover-visualizer-glow';
 
-  const stars = document.createElement('div');
-  stars.className = 'player-cover-visualizer-stars';
-
   const canvas = document.createElement('canvas');
   canvas.className = 'player-cover-visualizer-canvas';
   visualizerCanvas = canvas;
@@ -1466,7 +1500,7 @@ function initMiniVisualizer() {
     bars.appendChild(bar);
   }
 
-  visualizer.append(glow, stars, canvas, bars);
+  visualizer.append(glow, canvas, bars);
   wrap.prepend(visualizer);
   visualizerBars = [...bars.children];
   resizeMiniVisualizerCanvas();
@@ -1499,8 +1533,9 @@ function ensureVisualizerAudioSetup() {
 
 function setMiniVisualizerActive(active) {
   if (!els.playerSheetCoverWrap) return;
-  els.playerSheetCoverWrap.classList.toggle('is-visualizer-active', Boolean(active));
-  if (active) startVisualizerAnimation();
+  const shouldActivate = Boolean(active) && shouldRunVisualizer();
+  els.playerSheetCoverWrap.classList.toggle('is-visualizer-active', shouldActivate);
+  if (shouldActivate) startVisualizerAnimation();
   else stopVisualizerAnimation();
 }
 
@@ -1809,11 +1844,20 @@ function startVisualizerAnimation() {
     visualizerAudioContext.resume().catch(() => {});
   }
 
-  const animate = () => {
-    visualizerTick += 1;
-    drawVisualizerFrame();
-    if (els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) visualizerFrame = window.requestAnimationFrame(animate);
-    else visualizerFrame = 0;
+  let lastFrameAt = 0;
+  const minFrameGap = lowPowerModeEnabled ? 140 : 70;
+
+  const animate = (now = 0) => {
+    if (!shouldRunVisualizer()) {
+      visualizerFrame = 0;
+      return;
+    }
+    if (!lastFrameAt || (now - lastFrameAt) >= minFrameGap) {
+      lastFrameAt = now;
+      visualizerTick += 1;
+      drawVisualizerFrame();
+    }
+    visualizerFrame = window.requestAnimationFrame(animate);
   };
   visualizerFrame = window.requestAnimationFrame(animate);
 }
@@ -2663,9 +2707,10 @@ let prefetchedAudio = null;
 
 function prefetchTrackMedia(track, options = {}) {
   if (!track?.src) return;
-  const allowAudio = options.audio !== false;
-  const allowCover = options.cover !== false;
-  const allowAnalysis = options.analysis !== false;
+  const currentTrack = getCurrentTrack();
+  const allowAudio = options.audio !== false && !lowPowerModeEnabled && !(currentTrack?.id !== track.id);
+  const allowCover = options.cover !== false && !lowPowerModeEnabled;
+  const allowAnalysis = options.analysis !== false && !lowPowerModeEnabled && isPlayerSheetOpen();
 
   if (allowAudio && prefetchedTrackSrc !== track.src) {
     prefetchedTrackSrc = track.src;
@@ -2695,23 +2740,21 @@ function prefetchPlaybackNeighborhood(index = currentQueueIndex, queue = current
   if (!Array.isArray(queue) || !queue.length) return;
   const normalizedIndex = Math.max(0, Math.min(Number(index) || 0, queue.length - 1));
   const current = queue[normalizedIndex];
-  const prev = queue[normalizedIndex - 1] || null;
   const next = queue[normalizedIndex + 1] || queue[0] || null;
-  const nextTwo = queue[normalizedIndex + 2] || null;
-  const candidates = [current, next, prev];
+  const candidates = [current];
 
-  if (shouldUsePredictivePreload()) {
-    candidates.push(nextTwo);
+  if (!lowPowerModeEnabled && next) {
+    candidates.push(next);
   }
 
   const seen = new Set();
   candidates.forEach((track) => {
     if (!track?.id || seen.has(track.id)) return;
     seen.add(track.id);
-    prefetchTrackMedia(track, { audio: track !== current, cover: true, analysis: true });
+    prefetchTrackMedia(track, { audio: false, cover: false, analysis: false });
   });
 
-  backgroundWarmupQueue(normalizedIndex, queue);
+  if (!lowPowerModeEnabled) backgroundWarmupQueue(normalizedIndex, queue);
 }
 
 function prefetchUpcomingTrack() {
@@ -2767,7 +2810,7 @@ function playTrack(track) {
   updateLyricsPanel(track);
   updateSyncedLyricsProgress();
   window.requestAnimationFrame(() => updateSyncedLyricsProgress());
-  prefetchTrackLyrics(track).then(() => {
+  if (!lowPowerModeEnabled) prefetchTrackLyrics(track).then(() => {
     if (getCurrentTrack()?.id === track.id) {
       updateLyricsPanel(track);
       updateSyncedLyricsProgress();
@@ -2786,7 +2829,9 @@ function playTrack(track) {
   renderFeaturedTrackList();
   updateUrlForTrack(track);
   ensureSmartQueueSuggestion(track);
-  window.requestIdleCallback ? window.requestIdleCallback(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), { timeout: 700 }) : window.setTimeout(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), 250);
+  if (!lowPowerModeEnabled) {
+    window.requestIdleCallback ? window.requestIdleCallback(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), { timeout: 1200 }) : window.setTimeout(() => prefetchPlaybackNeighborhood(currentQueueIndex, currentQueue), 600);
+  }
 }
 
 
@@ -3217,23 +3262,39 @@ function toggleFavorite(track) {
   renderFavorites();
 }
 
+function buildMiniPlayerButtonMarkup(kind, label) {
+  const safeLabel = escapeHtml(String(label || ''));
+  const icons = {
+    favoriteOutline: '<span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span>',
+    favoriteFilled: '<span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 1.8l2.84 6.72 7.29.62-5.53 4.8 1.67 7.16L12 17.7l-6.07 3.4 1.67-7.16-5.53-4.8 7.29-.62L12 1.8z"/></svg></span>',
+    offlineSave: '<span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3v9.17l3.59-3.58L17 10l-5 5-5-5 1.41-1.41L11 12.17V3zM5 19h14v2H5z"/></svg></span>',
+    offlineSaved: '<span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-8 9-3-3 1.41-1.41L11 9.17l3.59-3.58L16 7l-5 5z"/></svg></span>',
+    offlineUnavailable: '<span class="mini-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></span>'
+  };
+  const icon = icons[kind] || icons.favoriteOutline;
+  return `${icon}<span class="mini-btn-label">${safeLabel}</span>`;
+}
+
+window.buildMiniPlayerButtonMarkup = buildMiniPlayerButtonMarkup;
+
 function updateFavoriteButton() {
   const track = getCurrentTrack();
   if (!els.favoriteSongBtn) return;
 
   if (!track) {
-    els.favoriteSongBtn.textContent = "☆ Favorite";
+    els.favoriteSongBtn.innerHTML = buildMiniPlayerButtonMarkup("favoriteOutline", "Favorite");
+    els.favoriteSongBtn.setAttribute("aria-label", "Favorite");
     if (els.playerSheetFavoriteBtn) els.playerSheetFavoriteBtn.textContent = "☆ Favorite";
     return;
   }
 
-  const label = isFavorite(track) ? "★ Favorited" : "☆ Favorite";
-  els.favoriteSongBtn.textContent = label;
+  const favorited = isFavorite(track);
+  els.favoriteSongBtn.innerHTML = buildMiniPlayerButtonMarkup(favorited ? "favoriteFilled" : "favoriteOutline", favorited ? "Favorited" : "Favorite");
+  els.favoriteSongBtn.setAttribute("aria-label", favorited ? "Favorited" : "Favorite");
   if (els.playerSheetFavoriteBtn) {
-    const icon = isFavorite(track) ? "★" : "☆";
+    const icon = favorited ? "★" : "☆";
     els.playerSheetFavoriteBtn.textContent = icon;
-    els.playerSheetFavoriteBtn.setAttribute("aria-label", isFavorite(track) ? "Favorited" : "Favorite");
-    els.playerSheetFavoriteBtn.title = isFavorite(track) ? "Favorited" : "Favorite";
+    els.playerSheetFavoriteBtn.setAttribute("aria-label", favorited ? "Favorited" : "Favorite");
   }
 }
 
@@ -3765,9 +3826,13 @@ function openPlayerSheet(triggerEl = null) {
     lockBodyScroll,
     updatePlayerSheet
   });
+  if (els.audioPlayer && !els.audioPlayer.paused) {
+    window.requestAnimationFrame(() => setMiniVisualizerActive(true));
+  }
 }
 
 function closePlayerSheet() {
+  setMiniVisualizerActive(false);
   window.AineoPlayerSheet.close({
     els,
     isAnyModalOpen,
@@ -4287,10 +4352,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.58 preload optimization
+// v43.1.61 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    fetch(`/analysis/${trackId}.json?v=43.1.58`);
+    if (!lowPowerModeEnabled) fetch(`/analysis/${trackId}.json?v=43.1.61`);
   }catch(e){}
 }
 
@@ -4303,7 +4368,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.58 Smart Playback Engine
+// v43.1.61 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4315,12 +4380,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      fetch(`/analysis/${t.id}.json?v=43.1.58`).catch(()=>{});
+      if (!lowPowerModeEnabled) fetch(`/analysis/${t.id}.json?v=43.1.61`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    fetch(`/analysis/${next.id}.json?v=43.1.58`).catch(()=>{});
+    if (!lowPowerModeEnabled) fetch(`/analysis/${next.id}.json?v=43.1.61`).catch(()=>{});
   }
 }
 
@@ -4331,17 +4396,17 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    await fetch(`/analysis/${trackId}.json?v=43.1.58`);
+    if (!lowPowerModeEnabled) await fetch(`/analysis/${trackId}.json?v=43.1.61`);
   }catch(e){}
 }
 
 
 
 /* =========================
-   v43.1.58 ULTRA SMOOTH PLAYBACK
+   v43.1.61 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.58";
+const SMART_PLAYBACK_VERSION = "43.1.61";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
@@ -4397,6 +4462,7 @@ function noteTrackSkip() {
 })();
 
 function shouldUsePredictivePreload() {
+  if (lowPowerModeEnabled) return false;
   const now = Date.now();
   smartSkipTimestamps = smartSkipTimestamps.filter((value) => now - value <= SMART_PLAYBACK.fastSkipWindowMs);
   return smartSkipTimestamps.length >= SMART_PLAYBACK.fastSkipThreshold;
@@ -4430,14 +4496,15 @@ function backgroundWarmupQueue(index = currentQueueIndex, queue = currentQueue) 
   if (!Array.isArray(queue) || !queue.length) return;
   const normalizedIndex = Math.max(0, Math.min(Number(index) || 0, queue.length - 1));
   const candidates = [];
-  for (let offset = 1; offset <= SMART_PLAYBACK.backgroundQueueDepth; offset += 1) {
+  const warmDepth = lowPowerModeEnabled ? 1 : SMART_PLAYBACK.backgroundQueueDepth;
+  for (let offset = 1; offset <= warmDepth; offset += 1) {
     const track = queue[normalizedIndex + offset];
     if (track) candidates.push(track);
   }
   const warm = () => {
     candidates.forEach((track, candidateIndex) => {
       window.setTimeout(() => {
-        prefetchTrackMedia(track, { audio: true, cover: candidateIndex < 2, analysis: true });
+        prefetchTrackMedia(track, { audio: !lowPowerModeEnabled, cover: candidateIndex < (lowPowerModeEnabled ? 1 : 2), analysis: !lowPowerModeEnabled });
       }, candidateIndex * 160);
     });
   };
@@ -4486,7 +4553,7 @@ async function smoothPlayTrack(track, options = {}) {
   const targetFadeMs = getDynamicCrossfadeMs();
 
   if (isInstantPlayModeEnabled()) {
-    prefetchTrackMedia(track, { audio: true, cover: true, analysis: true });
+    prefetchTrackMedia(track, { audio: false, cover: false, analysis: false });
     try {
       await Promise.race([
         ensureTrackAnalysisLoaded(track),

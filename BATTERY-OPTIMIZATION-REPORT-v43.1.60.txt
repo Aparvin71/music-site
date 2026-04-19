@@ -1,0 +1,12 @@
+Aineo v43.1.61 battery optimization pass
+
+Changes made:
+- Visualizer only runs when full player is open, track is playing, page is visible, and low-power mode is off.
+- Visualizer draw loop throttled to ~15 fps in low-power mode and ~30 fps otherwise.
+- Background playback warmup reduced in low-power mode.
+- Audio/analysis prefetch scaled back in low-power mode.
+- Visibility change now stops visualizer and lyrics sync while hidden, and resumes when visible.
+- Low-power mode auto-enables on reduced-motion, save-data, and smaller-screen devices.
+- Starfield animation is disabled in low-power mode to cut GPU usage.
+
+Package remains R2-only with no bundled audio files.

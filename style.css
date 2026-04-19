@@ -12829,7 +12829,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.58 mobile mini-player icon-only render fix + spacing polish */
+/* v43.1.59 mobile mini-player icon-only render fix + spacing polish */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12962,7 +12962,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.58 mini-player real SVG icon patch */
+/* v43.1.59 mini-player real SVG icon patch */
 .mini-btn-icon {
   display: inline-flex;
   align-items: center;
@@ -13037,7 +13037,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.58 mini-player all-icon render hardening */
+/* v43.1.59 mini-player all-icon render hardening */
 @media (max-width: 640px) {
   .compact-actions > .action-btn::before,
   .mobile-more-btn::before {
@@ -13111,4 +13111,56 @@ body.ios-standalone .player-sheet-header::before {
   .mobile-more-btn .mini-btn-label {
     display: none !important;
   }
+}
+
+
+/* v43.1.61 battery optimization pass */
+body.aineo-low-power .player-cover-visualizer::before {
+  opacity: 0.24 !important;
+  filter: blur(18px) saturate(1.05) !important;
+}
+
+body.aineo-low-power .player-cover-visualizer-stars,
+body.aineo-low-power .player-cover-visualizer-stars::before,
+body.aineo-low-power .player-cover-visualizer-stars::after {
+  animation: none !important;
+}
+
+body.aineo-low-power .player-cover-visualizer-stars {
+  opacity: 0.68 !important;
+  filter: drop-shadow(0 0 4px rgba(205,228,255,0.18)) !important;
+}
+
+body.aineo-low-power .player-cover-visualizer-canvas {
+  opacity: 0.82 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-cover-visualizer-stars,
+  .player-cover-visualizer-stars::before,
+  .player-cover-visualizer-stars::after {
+    animation: none !important;
+  }
+}
+
+
+/* v43.1.61 performance + low-power hardening */
+.player-cover-visualizer-stars,
+.player-cover-visualizer-stars::before,
+.player-cover-visualizer-stars::after {
+  display: none !important;
+  animation: none !important;
+  content: none !important;
+}
+
+#playerSheetAutoScrollBtn {
+  display: none !important;
+}
+
+body.aineo-low-power .player-cover-visualizer,
+body.aineo-low-power .player-cover-visualizer-glow,
+body.aineo-low-power .player-cover-visualizer-canvas,
+body.aineo-low-power .player-cover-visualizer-bar {
+  transition: none !important;
+  animation: none !important;
 }

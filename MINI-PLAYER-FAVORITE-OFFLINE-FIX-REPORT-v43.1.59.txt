@@ -1,0 +1,1 @@
+Fixed mini player Favorite and Offline buttons losing their inline SVG icons because JS state updates were replacing button markup with textContent. Updated app.js and aineo-offline.js to preserve SVG markup and labels. R2-only package; no audio files included.

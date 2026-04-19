@@ -1,0 +1,14 @@
+Aineo v43.1.61 performance + low-power hardening
+
+Applied from v43.1.60 base:
+- removed fullscreen spectrum starfield visuals
+- removed lyric auto-scroll button and disabled lyric auto-scrolling logic
+- throttled progress/timeupdate UI refresh cadence
+- throttled fullscreen visualizer animation cadence
+- reduced resume writes frequency
+- disabled predictive media/analysis/cover warmups while low-power mode is active
+- kept package R2-only with no bundled audio files
+
+Notes:
+- lyrics still sync/highlight by time; only automatic scrolling was removed
+- visualizer remains available in fullscreen player, but at a lower frame rate

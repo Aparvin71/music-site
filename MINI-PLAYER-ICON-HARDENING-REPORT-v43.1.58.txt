@@ -1,4 +1,4 @@
-Aineo v43.1.58 mini-player icon hardening report
+Aineo v43.1.59 mini-player icon hardening report
 
 Changes:
 - Disabled legacy mobile pseudo-icon ::before rendering in mini-player controls

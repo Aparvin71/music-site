@@ -263,7 +263,7 @@
   function scrollActiveLyricIntoView(container, activeLine, autoScrollEnabled) {
     const scrollContainer = getLyricsScrollContainer(container);
     if (!scrollContainer || !activeLine || scrollContainer.offsetParent === null) return;
-    if (!autoScrollEnabled) return;
+    return;
     if (Date.now() < getManualScrollHoldUntil(scrollContainer)) return;
 
     const containerRect = scrollContainer.getBoundingClientRect();
