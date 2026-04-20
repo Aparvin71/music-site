@@ -1,0 +1,7 @@
+Aineo Music v43.1.62 — Full Player Lyrics Scroll Fix
+
+Fixes applied:
+- Expanded the mobile full-player lyrics panel to use the available sheet height instead of a constrained lyric box.
+- Added safe-bottom-aware padding so the final lyric lines are not hidden behind the lower screen edge or home-indicator area.
+- Hardened overflow scrolling on the lyrics panel for touch devices.
+- Bumped cache-busting version params for the main music entry pages.

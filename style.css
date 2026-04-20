@@ -13164,3 +13164,43 @@ body.aineo-low-power .player-cover-visualizer-bar {
   transition: none !important;
   animation: none !important;
 }
+
+
+/* v43.1.62 full player lyrics bottom-safe scroll fix */
+@media (max-width: 640px) {
+  .player-sheet-content {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+  }
+
+  .player-sheet-body {
+    height: 100% !important;
+    min-height: 0 !important;
+  }
+
+  .player-sheet-panel {
+    min-height: 0 !important;
+    padding-bottom: calc(10px + var(--safe-bottom)) !important;
+  }
+
+  .player-tab-panel,
+  .player-sheet .player-tab-panel.active,
+  .player-sheet .player-tab-panel[data-player-panel="lyrics"],
+  #playerSheetLyricsPanel {
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding-bottom: calc(28px + var(--safe-bottom)) !important;
+    scroll-padding-bottom: calc(28px + var(--safe-bottom)) !important;
+  }
+
+  .player-sheet .synced-lyrics,
+  .player-sheet .lyrics-block,
+  #playerSheetLyricsPanel .synced-lyrics,
+  #playerSheetLyricsPanel .lyrics-block {
+    padding-bottom: calc(20px + var(--safe-bottom)) !important;
+  }
+}
