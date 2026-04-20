@@ -2,15 +2,12 @@
 import argparse
 import json
 import re
-import shutil
-import subprocess
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
 
-import numpy as np
 from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 
@@ -26,21 +23,9 @@ DEFAULT_COLLECTION = "All Songs"
 LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
-ANALYSIS_DIR_NAME = "analysis"
-ANALYSIS_MANIFEST_NAME = "analysis-manifest.json"
-ANALYSIS_BUILD_CACHE_NAME = "analysis-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
-ANALYSIS_VERSION = "v1"
-GENERATOR_VERSION = "v43.1.47"
+GENERATOR_VERSION = "v43.1.64"
 AUDIO_EXTENSIONS = {".mp3"}
-WAVEFORM_ENVELOPE_POINTS = 2048
-WAVEFORM_FFMPEG_SAMPLE_RATE = 400
-WAVEFORM_MIN_SAMPLES = 256
-SPECTRUM_FRAME_COUNT = 120
-SPECTRUM_BAND_COUNT = 24
-SPECTRUM_SAMPLE_RATE = 11025
-SPECTRUM_MIN_HZ = 40.0
-SPECTRUM_MAX_HZ = 5200.0
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
@@ -56,9 +41,6 @@ OUTPUT_FILE = SITE_DIR / "tracks.json"
 LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
 TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
 TRACK_BUILD_CACHE_FILE = SITE_DIR / TRACK_BUILD_CACHE_NAME
-ANALYSIS_DIR = SITE_DIR / ANALYSIS_DIR_NAME
-ANALYSIS_MANIFEST_FILE = SITE_DIR / ANALYSIS_MANIFEST_NAME
-ANALYSIS_BUILD_CACHE_FILE = SITE_DIR / ANALYSIS_BUILD_CACHE_NAME
 BUILD_REPORT_FILE = SITE_DIR / BUILD_REPORT_NAME
 
 SCRIPTURE_BOOKS = [
@@ -250,9 +232,6 @@ def save_json_file(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-def source_cache_matches(cache_data: dict[str, Any], entry: TrackCacheEntry) -> bool:
-    return bool(cache_data) and str(cache_data.get("file_name") or "") == entry.file_name and int(cache_data.get("size") or -1) == entry.size and int(cache_data.get("mtime_ns") or -1) == entry.mtime_ns and int(cache_data.get("duration_seconds") or -1) == entry.duration_seconds
-
 
 def build_lookup_keys(*values: str) -> list[str]:
     keys, seen = [], set()
@@ -379,181 +358,10 @@ def get_album_zip(album: str) -> str:
     return build_album_zip_url(zip_name) if zip_name else ""
 
 
-def extract_waveform_envelope(mp3_path: Path, target_points: int = WAVEFORM_ENVELOPE_POINTS) -> list[int]:
-    command = ["ffmpeg", "-v", "error", "-i", str(mp3_path), "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "1", "-ar", str(WAVEFORM_FFMPEG_SAMPLE_RATE), "-"]
-    try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    except Exception as exc:
-        print(f"  ffmpeg waveform extraction failed for {mp3_path.name}: {exc}")
-        return []
-    raw = result.stdout
-    if len(raw) < 4:
-        return []
-    sample_count = len(raw) // 2
-    peaks = []
-    chunk_size = max(1, sample_count // max(WAVEFORM_MIN_SAMPLES, int(target_points or WAVEFORM_ENVELOPE_POINTS)))
-    max_abs = 1.0
-    for start_sample in range(0, sample_count, chunk_size):
-        end_sample = min(sample_count, start_sample + chunk_size)
-        peak = 0
-        total = 0.0
-        count = 0
-        byte_start = start_sample * 2
-        byte_end = end_sample * 2
-        for i in range(byte_start, byte_end, 2):
-            sample = int.from_bytes(raw[i:i + 2], byteorder="little", signed=True)
-            abs_sample = abs(sample)
-            if abs_sample > peak:
-                peak = abs_sample
-            total += abs_sample * abs_sample
-            count += 1
-        rms = (total / count) ** 0.5 if count else 0.0
-        combined = max(peak * 0.72, rms * 1.18)
-        peaks.append(combined)
-        max_abs = max(max_abs, combined)
-    normalized = [min(1.0, value / max_abs) for value in peaks] if peaks else []
-    smoothed = []
-    for idx, value in enumerate(normalized):
-        left = normalized[idx - 1] if idx > 0 else value
-        right = normalized[idx + 1] if idx + 1 < len(normalized) else value
-        smoothed.append(max(0.0, min(1.0, value * 0.62 + left * 0.19 + right * 0.19)))
-    points = max(WAVEFORM_MIN_SAMPLES, int(target_points or WAVEFORM_ENVELOPE_POINTS))
-    if len(smoothed) > points:
-        smoothed = smoothed[:points]
-    elif len(smoothed) < points and smoothed:
-        smoothed.extend([smoothed[-1]] * (points - len(smoothed)))
-    return [int(round(value * 255)) for value in smoothed]
-
-
-def extract_spectrum_frames(mp3_path: Path, frame_count: int = SPECTRUM_FRAME_COUNT, band_count: int = SPECTRUM_BAND_COUNT, sample_rate: int = SPECTRUM_SAMPLE_RATE) -> list[list[int]]:
-    command = ["ffmpeg", "-v", "error", "-i", str(mp3_path), "-f", "s16le", "-acodec", "pcm_s16le", "-ac", "1", "-ar", str(sample_rate), "-"]
-    try:
-        result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    except Exception as exc:
-        print(f"  ffmpeg spectrum extraction failed for {mp3_path.name}: {exc}")
-        return []
-    raw = result.stdout
-    if len(raw) < 8:
-        return []
-    samples = np.frombuffer(raw, dtype=np.int16).astype(np.float32)
-    if samples.size < 2048:
-        return []
-    samples /= 32768.0
-    frame_count = max(24, int(frame_count or SPECTRUM_FRAME_COUNT))
-    band_count = max(8, int(band_count or SPECTRUM_BAND_COUNT))
-    edges = np.geomspace(SPECTRUM_MIN_HZ, min(SPECTRUM_MAX_HZ, sample_rate / 2 - 10), band_count + 1)
-    chunks = np.array_split(samples, frame_count)
-    n_fft = 2048
-    freq_axis = np.fft.rfftfreq(n_fft, d=1.0 / sample_rate)
-    frames = []
-    for chunk in chunks:
-        if chunk.size < 32:
-            frames.append(np.zeros(band_count, dtype=np.float32))
-            continue
-        if chunk.size < n_fft:
-            padded = np.zeros(n_fft, dtype=np.float32)
-            padded[:chunk.size] = chunk
-            windowed = padded * np.hanning(n_fft)
-        else:
-            start = max(0, (chunk.size - n_fft) // 2)
-            trimmed = chunk[start:start+n_fft]
-            if trimmed.size < n_fft:
-                padded = np.zeros(n_fft, dtype=np.float32)
-                padded[:trimmed.size] = trimmed
-                trimmed = padded
-            windowed = trimmed * np.hanning(n_fft)
-        spectrum = np.abs(np.fft.rfft(windowed))
-        band_values = np.zeros(band_count, dtype=np.float32)
-        for i in range(band_count):
-            mask = (freq_axis >= edges[i]) & (freq_axis < edges[i+1])
-            if np.any(mask):
-                band_slice = spectrum[mask]
-                if band_slice.size:
-                    band_values[i] = float(np.sqrt(np.mean(np.square(band_slice))))
-        frames.append(band_values)
-    frame_matrix = np.vstack(frames)
-    if not np.any(frame_matrix):
-        return []
-    compression = np.power(frame_matrix, 0.6)
-    reference = np.percentile(compression, 95, axis=0)
-    reference[reference <= 1e-6] = np.max(compression) if np.max(compression) > 1e-6 else 1.0
-    normalized = np.clip(compression / reference, 0.0, 1.0)
-    smoothed = normalized.copy()
-    for idx in range(smoothed.shape[0]):
-        left = normalized[idx - 1] if idx > 0 else normalized[idx]
-        center = normalized[idx]
-        right = normalized[idx + 1] if idx + 1 < normalized.shape[0] else normalized[idx]
-        smoothed[idx] = left * 0.2 + center * 0.6 + right * 0.2
-    shaped = np.clip(np.power(smoothed, 0.82) * 1.12, 0.0, 1.0)
-    shaped[:, :3] *= 1.18
-    shaped[:, 3:8] *= 1.10
-    shaped[:, -4:] *= 0.94
-    shaped = np.clip(shaped, 0.0, 1.0)
-    return [[int(round(float(value) * 255)) for value in row] for row in shaped]
-
-
-def build_analysis_file_name(track_id: str) -> str:
-    return f"{slugify(track_id)}.json"
-
-
-def load_existing_analysis(rel_path: str) -> dict[str, Any]:
-    if not rel_path:
-        return {}
-    path = SITE_DIR / rel_path
-    return load_json_file(path, {}) if path.exists() else {}
-
-
-def get_reusable_spectrum_frames(existing_analysis: dict[str, Any], analysis_cache: dict[str, dict[str, Any]], cache_entry: TrackCacheEntry) -> tuple[list[list[int]], bool]:
-    existing_frames = existing_analysis.get("spectrum_frames")
-    cache_data = analysis_cache.get(cache_entry.file_name, {})
-    frames_ok = isinstance(existing_frames, list) and len(existing_frames) > 0 and all(isinstance(frame, list) and len(frame) > 0 for frame in existing_frames)
-    if frames_ok and source_cache_matches(cache_data, cache_entry) and str(existing_analysis.get("analysis_version") or "") == ANALYSIS_VERSION:
-        return ([[int(round(v)) for v in frame] for frame in existing_frames], True)
-    return ([], False)
-
-
-def write_analysis_file(track: dict[str, Any], waveform_envelope: list[int], spectrum_frames: list[list[int]]) -> str:
-    ANALYSIS_DIR.mkdir(parents=True, exist_ok=True)
-    filename = build_analysis_file_name(track["id"])
-    rel_path = f"{ANALYSIS_DIR_NAME}/{filename}"
-    payload = {
-        "analysis_version": ANALYSIS_VERSION,
-        "generator_version": GENERATOR_VERSION,
-        "track_id": track["id"],
-        "slug": track.get("slug") or "",
-        "waveform_envelope": waveform_envelope or [],
-        "spectrum_frames": spectrum_frames or [],
-        "spectrum_band_count": len(spectrum_frames[0]) if spectrum_frames else 0,
-        "spectrum_frame_count": len(spectrum_frames) if spectrum_frames else 0,
-    }
-    save_json_file(SITE_DIR / rel_path, payload)
-    return rel_path
-
-
-
-
-def write_lrc_manifest_from_tracks(tracks: list[dict[str, Any]]) -> None:
-    entries = []
-    for track in tracks:
-        lyrics_file = normalize_text(str(track.get("lyrics_file") or ""))
-        if not lyrics_file:
-            continue
-        audio_url = normalize_text(str(track.get("audio") or track.get("src") or ""))
-        mp3_name = unquote(audio_url.rsplit("/", 1)[-1]) if audio_url else ""
-        entries.append({
-            "title": normalize_text(str(track.get("title") or clean_title(mp3_name))),
-            "slug": normalize_text(str(track.get("slug") or slugify(track.get("title") or mp3_name))),
-            "mp3": quote(mp3_name.replace("\", "/"), safe="") if mp3_name else "",
-            "lyrics_file": lyrics_file,
-        })
-    entries.sort(key=lambda item: (normalize_text(item.get("slug") or ""), normalize_text(item.get("title") or "")))
-    save_json_file(LRC_MANIFEST_FILE, entries)
-    lyrics_manifest_path = LYRICS_DIR / LRC_MANIFEST_NAME
-    save_json_file(lyrics_manifest_path, entries)
 
 def create_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Build tracks.json and split analysis files incrementally.")
-    parser.add_argument("--analysis-mode", choices=["changed", "missing", "all"], default="changed", help="How aggressively to generate analysis files.")
+    parser = argparse.ArgumentParser(description="Build tracks.json incrementally for the Aineo site.")
+    parser.add_argument("--analysis-mode", choices=["changed", "missing", "all"], default="changed", help="Deprecated and ignored. Kept for compatibility with older build commands.")
     parser.add_argument("--report-json", action="store_true", help="Write track-build-report.json with a detailed summary.")
     parser.add_argument("--limit", type=int, default=0, help="Only process the first N audio files for targeted testing.")
     parser.add_argument("--verbose", action="store_true", help="Print per-track decisions.")
@@ -573,13 +381,8 @@ def main() -> int:
     existing_by_src = {str(track.get("src") or ""): track for track in existing_tracks if isinstance(track, dict)}
     track_cache = load_json_file(TRACK_BUILD_CACHE_FILE, {})
     track_cache = track_cache if isinstance(track_cache, dict) else {}
-    analysis_cache = load_json_file(ANALYSIS_BUILD_CACHE_FILE, {})
-    analysis_cache = analysis_cache if isinstance(analysis_cache, dict) else {}
     lrc_map = load_lrc_manifest()
     track_meta_map = load_track_metadata()
-    analysis_manifest_existing = load_json_file(ANALYSIS_MANIFEST_FILE, {"analysis_version": ANALYSIS_VERSION, "tracks": {}})
-    analysis_manifest_tracks = analysis_manifest_existing.get("tracks", {}) if isinstance(analysis_manifest_existing, dict) else {}
-    analysis_manifest_out = {"analysis_version": ANALYSIS_VERSION, "generator_version": GENERATOR_VERSION, "tracks": {}}
 
     mp3_paths = sorted([p for p in AUDIO_DIR.glob("*.mp3") if p.suffix.lower() in AUDIO_EXTENSIONS], key=lambda p: p.name.lower()) if AUDIO_DIR.exists() else []
     if args.limit and args.limit > 0:
@@ -587,21 +390,15 @@ def main() -> int:
 
     tracks_out = []
     new_track_cache = {}
-    new_analysis_cache = {}
-    seen_analysis_paths = set()
 
     report = {
         "generator_version": GENERATOR_VERSION,
-        "analysis_version": ANALYSIS_VERSION,
-        "analysis_mode": args.analysis_mode,
+        "analysis_mode": "disabled",
         "audio_found": len(mp3_paths),
         "tracks_written": 0,
         "new_tracks": [],
         "changed_tracks": [],
         "reused_tracks": [],
-        "analysis_generated": [],
-        "analysis_reused": [],
-        "analysis_missing": [],
         "warnings": [],
     }
 
@@ -671,62 +468,6 @@ def main() -> int:
 
         cache_entry = TrackCacheEntry.from_path(mp3_path, duration_seconds)
         new_track_cache[mp3_path.name] = {**cache_entry.to_dict(), "track_id": track_id, "title": title, "album": album}
-        existing_analysis_rel = normalize_text(str(existing_track.get("analysis_file") or analysis_manifest_tracks.get(track_id, {}).get("analysis_file") or ""))
-        existing_analysis = load_existing_analysis(existing_analysis_rel)
-
-        waveform = []
-        waveform_reused = False
-        prev_track_cache = track_cache.get(mp3_path.name, {})
-        prev_analysis_cache = analysis_cache.get(mp3_path.name, {})
-        if isinstance(existing_analysis, dict):
-            existing_waveform = existing_analysis.get("waveform_envelope")
-            if isinstance(existing_waveform, list) and len(existing_waveform) >= WAVEFORM_MIN_SAMPLES and source_cache_matches(prev_track_cache, cache_entry):
-                waveform = [int(round(v)) for v in existing_waveform]
-                waveform_reused = True
-        if not waveform:
-            waveform = extract_waveform_envelope(mp3_path)
-
-        spectrum, spectrum_reused = get_reusable_spectrum_frames(existing_analysis, analysis_cache, cache_entry)
-        analysis_path_existing = existing_analysis_rel and (SITE_DIR / existing_analysis_rel).exists()
-        should_generate = False
-        if args.analysis_mode == "all":
-            should_generate = True
-        elif args.analysis_mode == "missing":
-            should_generate = not analysis_path_existing
-        else:
-            should_generate = not spectrum_reused or not waveform_reused or not analysis_path_existing
-        if should_generate and not spectrum:
-            spectrum = extract_spectrum_frames(mp3_path)
-        analysis_rel_path = existing_analysis_rel if analysis_path_existing and not should_generate else write_analysis_file(track, waveform, spectrum)
-        if should_generate:
-            report["analysis_generated"].append(track_id)
-        else:
-            report["analysis_reused"].append(track_id)
-
-        new_analysis_cache[mp3_path.name] = {
-            **cache_entry.to_dict(),
-            "track_id": track_id,
-            "analysis_file": analysis_rel_path,
-            "analysis_version": ANALYSIS_VERSION,
-            "waveform_point_count": len(waveform),
-            "spectrum_frame_count": len(spectrum),
-            "spectrum_band_count": len(spectrum[0]) if spectrum else 0,
-        }
-
-        track["analysis_file"] = analysis_rel_path
-        track["analysis_version"] = ANALYSIS_VERSION
-        track["has_analysis"] = bool(analysis_rel_path)
-        track["waveform_point_count"] = len(waveform)
-        track["spectrum_band_count"] = len(spectrum[0]) if spectrum else 0
-        track["spectrum_frame_count"] = len(spectrum)
-        analysis_manifest_out["tracks"][track_id] = {
-            "analysis_file": analysis_rel_path,
-            "analysis_version": ANALYSIS_VERSION,
-            "waveform_point_count": len(waveform),
-            "spectrum_frame_count": len(spectrum),
-            "spectrum_band_count": len(spectrum[0]) if spectrum else 0,
-        }
-        seen_analysis_paths.add(analysis_rel_path)
         tracks_out.append(track)
 
         if not existing_track:
@@ -739,19 +480,7 @@ def main() -> int:
                 report["reused_tracks"].append(track_id)
         if args.verbose:
             decision = "new" if track_id in report["new_tracks"] else "changed" if track_id in report["changed_tracks"] else "reused"
-            analysis_decision = "generated" if track_id in report["analysis_generated"] else "reused"
-            print(f"[{decision:7}] {mp3_path.name} -> {track_id} | analysis={analysis_decision}")
-
-    # prune stale analysis files that are no longer referenced
-    if ANALYSIS_DIR.exists():
-        removed = []
-        for file_path in ANALYSIS_DIR.glob("*.json"):
-            rel = f"{ANALYSIS_DIR_NAME}/{file_path.name}"
-            if rel not in seen_analysis_paths:
-                file_path.unlink()
-                removed.append(rel)
-        if removed:
-            report["warnings"].append(f"Removed {len(removed)} stale analysis files.")
+            print(f"[{decision:7}] {mp3_path.name} -> {track_id}")
 
     tracks_out.sort(key=lambda item: (normalize_text(item.get("album") or ""), int(item.get("trackNumber") or 0), normalize_text(item.get("title") or "")))
     report["tracks_written"] = len(tracks_out)
@@ -759,25 +488,20 @@ def main() -> int:
     save_json_file(OUTPUT_FILE, tracks_out)
     write_lrc_manifest_from_tracks(tracks_out)
     save_json_file(TRACK_BUILD_CACHE_FILE, new_track_cache)
-    save_json_file(ANALYSIS_BUILD_CACHE_FILE, new_analysis_cache)
-    save_json_file(ANALYSIS_MANIFEST_FILE, analysis_manifest_out)
     if args.report_json:
         save_json_file(BUILD_REPORT_FILE, report)
 
     print(f"Generator {GENERATOR_VERSION}")
-    print(f"Analysis mode: {args.analysis_mode}")
+    print("Analysis mode: disabled (legacy argument ignored)")
     print(f"Audio files found: {len(mp3_paths)}")
     print(f"Tracks written: {len(tracks_out)}")
     print(summarize_counts("New tracks", report["new_tracks"]))
     print(summarize_counts("Changed tracks", report["changed_tracks"]))
     print(summarize_counts("Reused tracks", report["reused_tracks"]))
-    print(summarize_counts("Analysis generated", report["analysis_generated"]))
-    print(summarize_counts("Analysis reused", report["analysis_reused"]))
     if report["warnings"]:
         for warning in report["warnings"]:
             print(f"Warning: {warning}")
     print(f"tracks.json -> {OUTPUT_FILE.name}")
-    print(f"analysis manifest -> {ANALYSIS_MANIFEST_FILE.name}")
     if args.report_json:
         print(f"build report -> {BUILD_REPORT_FILE.name}")
     return 0

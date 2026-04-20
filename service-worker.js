@@ -1,9 +1,8 @@
-// v43.1.55 Navigation Redirect Fix + Service Worker Strategy Cleanup
+// v43.1.64 Runtime Cleanup + Service Worker Cache Refresh
 
-const CACHE_VERSION = "v43.1.55";
+const CACHE_VERSION = "v43.1.64";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
-const ANALYSIS_CACHE = `analysis-${CACHE_VERSION}`;
 
 // Navigation requests are handled by the browser directly.
 // This avoids redirected document responses being served by the service worker.
@@ -23,29 +22,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.55",
-  "/app.js?v=43.1.55",
-  "/nav.js?v=43.1.55",
-  "/pwa-init.js?v=43.1.55",
-  "/manifest.webmanifest?v=43.1.55",
-  "/aineo-album-page.js?v=43.1.55",
-  "/aineo-config.js?v=43.1.55",
-  "/aineo-data.js?v=43.1.55",
-  "/aineo-featured.js?v=43.1.55",
-  "/aineo-library.js?v=43.1.55",
-  "/aineo-lyrics.js?v=43.1.55",
-  "/aineo-media-session.js?v=43.1.55",
-  "/aineo-offline.js?v=43.1.55",
-  "/aineo-player-sheet.js?v=43.1.55",
-  "/aineo-playlists.js?v=43.1.55",
-  "/aineo-queue.js?v=43.1.55",
-  "/aineo-shared.js?v=43.1.55",
-  "/aineo-ui.js?v=43.1.55",
-  "/album-page.js?v=43.1.55",
-  "/albums-page.js?v=43.1.55",
-  "/artist-page.js?v=43.1.55",
-  "/artists-page.js?v=43.1.55",
-  "/contact.js?v=43.1.55"
+  "/style.css?v=43.1.64",
+  "/app.js?v=43.1.64",
+  "/nav.js?v=43.1.64",
+  "/pwa-init.js?v=43.1.64",
+  "/manifest.webmanifest?v=43.1.64",
+  "/aineo-album-page.js?v=43.1.64",
+  "/aineo-config.js?v=43.1.64",
+  "/aineo-data.js?v=43.1.64",
+  "/aineo-featured.js?v=43.1.64",
+  "/aineo-library.js?v=43.1.64",
+  "/aineo-lyrics.js?v=43.1.64",
+  "/aineo-media-session.js?v=43.1.64",
+  "/aineo-offline.js?v=43.1.64",
+  "/aineo-player-sheet.js?v=43.1.64",
+  "/aineo-playlists.js?v=43.1.64",
+  "/aineo-queue.js?v=43.1.64",
+  "/aineo-shared.js?v=43.1.64",
+  "/aineo-ui.js?v=43.1.64",
+  "/album-page.js?v=43.1.64",
+  "/albums-page.js?v=43.1.64",
+  "/artist-page.js?v=43.1.64",
+  "/artists-page.js?v=43.1.64",
+  "/contact.js?v=43.1.64"
 ];
 
 async function safeWarmStaticCache() {
@@ -135,11 +134,6 @@ self.addEventListener("fetch", (event) => {
 
   if (url.pathname.includes("/lyrics/") || url.pathname.endsWith("tracks.json") || url.pathname.endsWith("albums.json") || url.pathname.endsWith("lrc-manifest.json")) {
     event.respondWith(networkFirst(req, DYNAMIC_CACHE));
-    return;
-  }
-
-  if (url.pathname.includes("/analysis/")) {
-    event.respondWith(staleWhileRevalidate(req, ANALYSIS_CACHE));
     return;
   }
 

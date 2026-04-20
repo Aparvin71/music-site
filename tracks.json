@@ -39,13 +39,7 @@
     "scripture": "Philippians 2:9-11",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/holy-beyond-measure.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/holy-beyond-measure.lrc",
-    "analysis_file": "analysis/alpha-and-omega-holy-beyond-measure-24.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/holy-beyond-measure.lrc"
   },
   {
     "id": "alpha-and-omega__you-see-me__70",
@@ -87,13 +81,7 @@
     "scripture": "Colossians 1:16-17",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/you-see-me.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/you-see-me.lrc",
-    "analysis_file": "analysis/alpha-and-omega-you-see-me-70.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/you-see-me.lrc"
   },
   {
     "id": "alpha-and-omega__genesis__20",
@@ -133,13 +121,7 @@
     "scripture": "Genesis 2:7",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/genesis.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/genesis.lrc",
-    "analysis_file": "analysis/alpha-and-omega-genesis-20.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/genesis.lrc"
   },
   {
     "id": "alpha-and-omega__worth-it-all__69",
@@ -181,13 +163,7 @@
     "scripture": "Philippians 3:7-8",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/worth-it-all.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/worth-it-all.lrc",
-    "analysis_file": "analysis/alpha-and-omega-worth-it-all-69.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/worth-it-all.lrc"
   },
   {
     "id": "alpha-and-omega__moved-with-compassion__39",
@@ -229,13 +205,7 @@
     "scripture": "Matthew 9:36",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/moved-with-compassion.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/moved-with-compassion.lrc",
-    "analysis_file": "analysis/alpha-and-omega-moved-with-compassion-39.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/moved-with-compassion.lrc"
   },
   {
     "id": "alpha-and-omega__praise-the-lord-o-my-soul__45",
@@ -278,12 +248,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/praise-the-lord-o-my-soul.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc",
-    "analysis_file": "analysis/alpha-and-omega-praise-the-lord-o-my-soul-45.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Praise the Lord, O My Soul"
     ]
@@ -328,12 +292,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/every-breath-your-name.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/every-breath-your-name.lrc",
-    "analysis_file": "analysis/alpha-and-omega-every-breath-your-name-16.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Every Breath, Your Name"
     ]
@@ -377,13 +335,7 @@
     "scripture": "Genesis 1:1",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/you-spoke.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/you-spoke.lrc",
-    "analysis_file": "analysis/alpha-and-omega-you-spoke-71.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/you-spoke.lrc"
   },
   {
     "id": "beautiful-things__alivia-play-with-me__4",
@@ -417,12 +369,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/alivia-play-with-me.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/alivia-play-with-me.lrc",
-    "analysis_file": "analysis/beautiful-things-alivia-play-with-me-4.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Alivia - Play with Me"
     ]
@@ -459,13 +405,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/at-work.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/at-work.lrc",
-    "analysis_file": "analysis/beautiful-things-at-work-5.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/at-work.lrc"
   },
   {
     "id": "beautiful-things__watching-you-grow__65",
@@ -499,13 +439,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/watching-you-grow.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/watching-you-grow.lrc",
-    "analysis_file": "analysis/beautiful-things-watching-you-grow-65.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/watching-you-grow.lrc"
   },
   {
     "id": "beautiful-things__please-stay-with-me-child__43",
@@ -540,13 +474,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/please-stay-with-me-child.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/please-stay-with-me-child.lrc",
-    "analysis_file": "analysis/beautiful-things-please-stay-with-me-child-43.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/please-stay-with-me-child.lrc"
   },
   {
     "id": "beautiful-things__please-stay-with-me-mom__44",
@@ -579,13 +507,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/please-stay-with-me-mom.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/please-stay-with-me-mom.lrc",
-    "analysis_file": "analysis/beautiful-things-please-stay-with-me-mom-44.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/please-stay-with-me-mom.lrc"
   },
   {
     "id": "carry-the-light__step-out-and-go__54",
@@ -626,13 +548,7 @@
     "scripture": "Matthew 14:28-29",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/step-out-and-go.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/step-out-and-go.lrc",
-    "analysis_file": "analysis/carry-the-light-step-out-and-go-54.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/step-out-and-go.lrc"
   },
   {
     "id": "carry-the-light__wide-awake__68",
@@ -674,13 +590,7 @@
     "scripture": "1 Thessalonians 5:6",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/wide-awake.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/wide-awake.lrc",
-    "analysis_file": "analysis/carry-the-light-wide-awake-68.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/wide-awake.lrc"
   },
   {
     "id": "carry-the-light__spiritual-gym-anthem__53",
@@ -722,13 +632,7 @@
     "scripture": "1 Corinthians 10:13",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/spiritual-gym-anthem.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/spiritual-gym-anthem.lrc",
-    "analysis_file": "analysis/carry-the-light-spiritual-gym-anthem-53.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/spiritual-gym-anthem.lrc"
   },
   {
     "id": "carry-the-light__shape-of-sacrifice__52",
@@ -771,13 +675,7 @@
     "scripture": "Philippians 2:5-8",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/shape-of-sacrifice.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/shape-of-sacrifice.lrc",
-    "analysis_file": "analysis/carry-the-light-shape-of-sacrifice-52.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/shape-of-sacrifice.lrc"
   },
   {
     "id": "carry-the-light__remove-the-log__49",
@@ -818,13 +716,7 @@
     "scripture": "Galatians 6:1",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remove-the-log.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/remove-the-log.lrc",
-    "analysis_file": "analysis/carry-the-light-remove-the-log-49.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/remove-the-log.lrc"
   },
   {
     "id": "carry-the-light__same-mouth__50",
@@ -866,13 +758,7 @@
     "scripture": "Ephesians 4:29",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/same-mouth.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/same-mouth.lrc",
-    "analysis_file": "analysis/carry-the-light-same-mouth-50.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/same-mouth.lrc"
   },
   {
     "id": "carry-the-light__upon-the-holy-mount__63",
@@ -913,13 +799,7 @@
     "scripture": "Revelation 4:8",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/upon-the-holy-mount.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/upon-the-holy-mount.lrc",
-    "analysis_file": "analysis/carry-the-light-upon-the-holy-mount-63.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/upon-the-holy-mount.lrc"
   },
   {
     "id": "carry-the-light__turn-that-other-cheek__62",
@@ -961,13 +841,7 @@
     "scripture": "Ephesians 4:31-32",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/turn-that-other-cheek.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/turn-that-other-cheek.lrc",
-    "analysis_file": "analysis/carry-the-light-turn-that-other-cheek-62.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/turn-that-other-cheek.lrc"
   },
   {
     "id": "carry-the-light__lead-me-home-good-shepherd__32",
@@ -1007,13 +881,7 @@
     "scripture": "Hebrews 13:20",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lead-me-home-good-shepherd.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/lead-me-home-good-shepherd.lrc",
-    "analysis_file": "analysis/carry-the-light-lead-me-home-good-shepherd-32.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/lead-me-home-good-shepherd.lrc"
   },
   {
     "id": "carry-the-light__make-me-a-faithful-tree__36",
@@ -1055,13 +923,7 @@
     "scripture": "Galatians 5:22-23",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/make-me-a-faithful-tree.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/make-me-a-faithful-tree.lrc",
-    "analysis_file": "analysis/carry-the-light-make-me-a-faithful-tree-36.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/make-me-a-faithful-tree.lrc"
   },
   {
     "id": "carry-the-light__make-a-good-tree-in-me__35",
@@ -1102,13 +964,7 @@
     "scripture": "Galatians 5:22-23",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/make-a-good-tree-in-me.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/make-a-good-tree-in-me.lrc",
-    "analysis_file": "analysis/carry-the-light-make-a-good-tree-in-me-35.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/make-a-good-tree-in-me.lrc"
   },
   {
     "id": "carry-the-light__same-sky__51",
@@ -1150,13 +1006,7 @@
     "scripture": "1 Corinthians 12:12-27",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/same-sky.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/same-sky.lrc",
-    "analysis_file": "analysis/carry-the-light-same-sky-51.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/same-sky.lrc"
   },
   {
     "id": "carry-the-light__alive-in-me__3",
@@ -1198,13 +1048,7 @@
     "scripture": "Philippians 2:13",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/alive-in-me.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/alive-in-me.lrc",
-    "analysis_file": "analysis/carry-the-light-alive-in-me-3.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/alive-in-me.lrc"
   },
   {
     "id": "carry-the-light__trash-in-trash-out__61",
@@ -1246,13 +1090,7 @@
     "scripture": "Philippians 4:8",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/trash-in-trash-out.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/trash-in-trash-out.lrc",
-    "analysis_file": "analysis/carry-the-light-trash-in-trash-out-61.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/trash-in-trash-out.lrc"
   },
   {
     "id": "fun__chop-it-like-its-hot__12",
@@ -1289,12 +1127,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/chop-it-like-its-hot.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/chop-it-like-its-hot.lrc",
-    "analysis_file": "analysis/fun-chop-it-like-its-hot-12.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Chop it like it's hot!"
     ]
@@ -1331,13 +1163,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lake-house-weekend.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/lake-house-weekend.lrc",
-    "analysis_file": "analysis/fun-lake-house-weekend-30.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/lake-house-weekend.lrc"
   },
   {
     "id": "fun__deck-9-kind-of-love__13",
@@ -1370,13 +1196,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/deck-9-kind-of-love.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/deck-9-kind-of-love.lrc",
-    "analysis_file": "analysis/fun-deck-9-kind-of-love-13.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/deck-9-kind-of-love.lrc"
   },
   {
     "id": "fun__whos-driving-this-bus__67",
@@ -1411,13 +1231,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/whos-driving-this-bus.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/whos-driving-this-bus.lrc",
-    "analysis_file": "analysis/fun-whos-driving-this-bus-67.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/whos-driving-this-bus.lrc"
   },
   {
     "id": "fun__card-drop__10",
@@ -1450,13 +1264,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/card-drop.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/card-drop.lrc",
-    "analysis_file": "analysis/fun-card-drop-10.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/card-drop.lrc"
   },
   {
     "id": "fun__lake-house-chant__31",
@@ -1491,12 +1299,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lake-house-chant.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/lake-house-chant.lrc",
-    "analysis_file": "analysis/fun-lake-house-chant-31.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Lake house! (Chant)"
     ]
@@ -1534,13 +1336,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/dont-drop-the-bar-bro.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/dont-drop-the-bar-bro.lrc",
-    "analysis_file": "analysis/fun-don-t-drop-the-bar-bro-14.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/dont-drop-the-bar-bro.lrc"
   },
   {
     "id": "fun__iron-don-t-lie__26",
@@ -1575,12 +1371,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/iron-dont-lie.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/iron-dont-lie.lrc",
-    "analysis_file": "analysis/fun-iron-don-t-lie-26.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Iron Don't Lie"
     ]
@@ -1626,12 +1416,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/forever-and-ever-gritty.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/forever-and-ever-gritty.lrc",
-    "analysis_file": "analysis/heartprints-forever-and-ever-gritty-19.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Forever and Ever (Gritty)"
     ]
@@ -1669,13 +1453,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/its-you.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/its-you.lrc",
-    "analysis_file": "analysis/heartprints-its-you-27.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/its-you.lrc"
   },
   {
     "id": "heartprints__mi-luna__37",
@@ -1708,13 +1486,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/mi-luna.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/mi-luna.lrc",
-    "analysis_file": "analysis/heartprints-mi-luna-37.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/mi-luna.lrc"
   },
   {
     "id": "heartprints__rearview-memories__46",
@@ -1756,13 +1528,7 @@
     "scripture": "Colossians 3:23",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/rearview-memories.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/rearview-memories.lrc",
-    "analysis_file": "analysis/heartprints-rearview-memories-46.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/rearview-memories.lrc"
   },
   {
     "id": "heartprints__haunting-blue__22",
@@ -1796,13 +1562,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/haunting-blue.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/haunting-blue.lrc",
-    "analysis_file": "analysis/heartprints-haunting-blue-22.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/haunting-blue.lrc"
   },
   {
     "id": "home__by-your-hands__9",
@@ -1844,13 +1604,7 @@
     "scripture": "2 Timothy 1:5",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/by-your-hands.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/by-your-hands.lrc",
-    "analysis_file": "analysis/home-by-your-hands-9.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/by-your-hands.lrc"
   },
   {
     "id": "home__theres-always-enough__59",
@@ -1891,13 +1645,7 @@
     "scripture": "Philippians 4:19",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/theres-always-enough.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/theres-always-enough.lrc",
-    "analysis_file": "analysis/home-theres-always-enough-59.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/theres-always-enough.lrc"
   },
   {
     "id": "home__things-i-carry__60",
@@ -1938,13 +1686,7 @@
     "scripture": "Colossians 3:23",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/things-i-carry.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/things-i-carry.lrc",
-    "analysis_file": "analysis/home-things-i-carry-60.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/things-i-carry.lrc"
   },
   {
     "id": "home__my-son__40",
@@ -1979,13 +1721,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/my-son.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/my-son.lrc",
-    "analysis_file": "analysis/home-my-son-40.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/my-son.lrc"
   },
   {
     "id": "home__higher-aim__23",
@@ -2021,13 +1757,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/higher-aim.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/higher-aim.lrc",
-    "analysis_file": "analysis/home-higher-aim-23.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/higher-aim.lrc"
   },
   {
     "id": "home__keeper-of-the-pines__29",
@@ -2061,13 +1791,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/keeper-of-the-pines.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/keeper-of-the-pines.lrc",
-    "analysis_file": "analysis/home-keeper-of-the-pines-29.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/keeper-of-the-pines.lrc"
   },
   {
     "id": "home__remington-the-pump-truck-guy__48",
@@ -2102,13 +1826,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remington-the-pump-truck-guy.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/remington-the-pump-truck-guy.lrc",
-    "analysis_file": "analysis/home-remington-the-pump-truck-guy-48.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/remington-the-pump-truck-guy.lrc"
   },
   {
     "id": "home__the-table__58",
@@ -2149,13 +1867,7 @@
     "scripture": "1 Corinthians 10:17",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/the-table.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/the-table.lrc",
-    "analysis_file": "analysis/home-the-table-58.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/the-table.lrc"
   },
   {
     "id": "home__mother-of-two__38",
@@ -2196,13 +1908,7 @@
     "scripture": "Deuteronomy 6:6-7",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/mother-of-two.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/mother-of-two.lrc",
-    "analysis_file": "analysis/home-mother-of-two-38.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/mother-of-two.lrc"
   },
   {
     "id": "home__little-brother__34",
@@ -2236,13 +1942,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/little-brother.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/little-brother.lrc",
-    "analysis_file": "analysis/home-little-brother-34.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/little-brother.lrc"
   },
   {
     "id": "home__a-man-like-him__1",
@@ -2283,13 +1983,7 @@
     "scripture": "1 Corinthians 16:13-14",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/a-man-like-him.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/a-man-like-him.lrc",
-    "analysis_file": "analysis/home-a-man-like-him-1.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/a-man-like-him.lrc"
   },
   {
     "id": "home__before-anyone-else__6",
@@ -2323,13 +2017,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/before-anyone-else.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/before-anyone-else.lrc",
-    "analysis_file": "analysis/home-before-anyone-else-6.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/before-anyone-else.lrc"
   },
   {
     "id": "mercy-and-grace__foot-of-the-cross__18",
@@ -2373,13 +2061,7 @@
     "scripture": "Galatians 2:20",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/foot-of-the-cross.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/foot-of-the-cross.lrc",
-    "analysis_file": "analysis/mercy-and-grace-foot-of-the-cross-18.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/foot-of-the-cross.lrc"
   },
   {
     "id": "mercy-and-grace__on-my-body__41",
@@ -2421,13 +2103,7 @@
     "scripture": "1 Corinthians 6:19-20",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/on-my-body.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/on-my-body.lrc",
-    "analysis_file": "analysis/mercy-and-grace-on-my-body-41.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/on-my-body.lrc"
   },
   {
     "id": "mercy-and-grace__where-the-worm-does-not-die__66",
@@ -2468,13 +2144,7 @@
     "scripture": "Revelation 14:10-11",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/where-the-worm-does-not-die.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/where-the-worm-does-not-die.lrc",
-    "analysis_file": "analysis/mercy-and-grace-where-the-worm-does-not-die-66.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/where-the-worm-does-not-die.lrc"
   },
   {
     "id": "mercy-and-grace__remember-me__47",
@@ -2518,13 +2188,7 @@
     "scripture": "Matthew 27:45",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remember-me.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/remember-me.lrc",
-    "analysis_file": "analysis/mercy-and-grace-remember-me-47.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/remember-me.lrc"
   },
   {
     "id": "mercy-and-grace__don-t-remember-me__15",
@@ -2566,13 +2230,7 @@
     "scripture": "1 Corinthians 2:2",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/dont-remember-me.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/dont-remember-me.lrc",
-    "analysis_file": "analysis/mercy-and-grace-don-t-remember-me-15.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/dont-remember-me.lrc"
   },
   {
     "id": "mercy-and-grace__changed__11",
@@ -2616,13 +2274,7 @@
     "scripture": "2 Corinthians 5:17",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/changed.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/changed.lrc",
-    "analysis_file": "analysis/mercy-and-grace-changed-11.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/changed.lrc"
   },
   {
     "id": "mercy-and-grace__stones-don-t-become-bread__55",
@@ -2666,12 +2318,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/stones-dont-become-bread.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/stones-dont-become-bread.lrc",
-    "analysis_file": "analysis/mercy-and-grace-stones-don-t-become-bread-55.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "Stones Don't Become Bread"
     ]
@@ -2716,13 +2362,7 @@
     "scripture": "Ephesians 2:8-9",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/agape-love.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/agape-love.lrc",
-    "analysis_file": "analysis/mercy-and-grace-agape-love-2.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/agape-love.lrc"
   },
   {
     "id": "mercy-and-grace__out-of-ashes__42",
@@ -2763,13 +2403,7 @@
     "scripture": "Genesis 50:20",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/out-of-ashes.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/out-of-ashes.lrc",
-    "analysis_file": "analysis/mercy-and-grace-out-of-ashes-42.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/out-of-ashes.lrc"
   },
   {
     "id": "mercy-and-grace__finally-let-you-in__17",
@@ -2811,13 +2445,7 @@
     "scripture": "Zechariah 4:6",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/finally-let-you-in.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/finally-let-you-in.lrc",
-    "analysis_file": "analysis/mercy-and-grace-finally-let-you-in-17.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/finally-let-you-in.lrc"
   },
   {
     "id": "real-people__sugar-and-grace__56",
@@ -2858,13 +2486,7 @@
     "scripture": "Galatians 6:2",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/sugar-and-grace.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/sugar-and-grace.lrc",
-    "analysis_file": "analysis/real-people-sugar-and-grace-56.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/sugar-and-grace.lrc"
   },
   {
     "id": "real-people__wait-hold-up__64",
@@ -2898,13 +2520,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/wait-hold-up.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/wait-hold-up.lrc",
-    "analysis_file": "analysis/real-people-wait-hold-up-64.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/wait-hold-up.lrc"
   },
   {
     "id": "real-people__youre-done__72",
@@ -2939,12 +2555,6 @@
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/youre-done.jpg",
     "lyrics": true,
     "lyrics_file": "lyrics/youre-done.lrc",
-    "analysis_file": "analysis/real-people-youre-done-72.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120,
     "title_aliases": [
       "You're Done!"
     ]
@@ -2981,13 +2591,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/just-strollin-through.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/just-strollin-through.lrc",
-    "analysis_file": "analysis/real-people-just-strollin-through-28.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/just-strollin-through.lrc"
   },
   {
     "id": "real-people__let-it-all-hang-out__33",
@@ -3021,13 +2625,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/let-it-all-hang-out.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/let-it-all-hang-out.lrc",
-    "analysis_file": "analysis/real-people-let-it-all-hang-out-33.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/let-it-all-hang-out.lrc"
   },
   {
     "id": "real-people__thats-just-how-she-is__57",
@@ -3060,13 +2658,7 @@
     "scripture": "",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/thats-just-how-she-is.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/thats-just-how-she-is.lrc",
-    "analysis_file": "analysis/real-people-thats-just-how-she-is-57.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/thats-just-how-she-is.lrc"
   },
   {
     "id": "real-people__hands-of-a-man__21",
@@ -3107,13 +2699,7 @@
     "scripture": "1 Corinthians 15:58",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/hands-of-a-man.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/hands-of-a-man.lrc",
-    "analysis_file": "analysis/real-people-hands-of-a-man-21.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/hands-of-a-man.lrc"
   },
   {
     "id": "trauma__bent-my-mind__7",
@@ -3156,13 +2742,7 @@
     "scripture": "2 Timothy 1:7",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/bent-my-mind.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/bent-my-mind.lrc",
-    "analysis_file": "analysis/trauma-bent-my-mind-7.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/bent-my-mind.lrc"
   },
   {
     "id": "trauma__breathe__8",
@@ -3204,13 +2784,7 @@
     "scripture": "2 Corinthians 5:17",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/breathe.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/breathe.lrc",
-    "analysis_file": "analysis/trauma-breathe-8.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/breathe.lrc"
   },
   {
     "id": "trauma__i-m-still-here__25",
@@ -3251,12 +2825,6 @@
     "scripture": "2 Corinthians 1:4",
     "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/im-still-here.jpg",
     "lyrics": true,
-    "lyrics_file": "lyrics/im-still-here.lrc",
-    "analysis_file": "analysis/trauma-i-m-still-here-25.json",
-    "analysis_version": "v1",
-    "has_analysis": true,
-    "waveform_point_count": 2048,
-    "spectrum_band_count": 24,
-    "spectrum_frame_count": 120
+    "lyrics_file": "lyrics/im-still-here.lrc"
   }
 ]

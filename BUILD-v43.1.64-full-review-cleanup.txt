@@ -1,0 +1,11 @@
+Aineo Music Build v43.1.64
+
+Forward build from v43.1.63.
+
+Included in this pass:
+- Full review cleanup and runtime slimming
+- Removed leftover visualizer/analysis warmup and offline caching hooks
+- Refreshed service worker cache versioning and static asset references
+- Cleaned make_tracks.py to stop generating waveform/spectrum analysis data
+- Removed stale analysis artifacts from the package
+- Kept prior lyrics bottom-safe scroll and downloaded-song readability fixes
