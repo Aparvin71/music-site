@@ -1,4 +1,4 @@
-/* v43.1.61 performance + low-power hardening */
+/* v43.1.63 performance + low-power hardening */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -47,7 +47,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.61";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.63";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -4352,10 +4352,10 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.61 preload optimization
+// v43.1.63 preload optimization
 async function preloadAnalysis(trackId){
   try{
-    if (!lowPowerModeEnabled) fetch(`/analysis/${trackId}.json?v=43.1.61`);
+    if (!lowPowerModeEnabled) fetch(`/analysis/${trackId}.json?v=43.1.63`);
   }catch(e){}
 }
 
@@ -4368,7 +4368,7 @@ async function preloadNextTrack(currentIndex, tracks){
 }
 
 
-// v43.1.61 Smart Playback Engine
+// v43.1.63 Smart Playback Engine
 let userSkipCount = 0;
 
 function smartPreloadEngine(currentIndex, tracks){
@@ -4380,12 +4380,12 @@ function smartPreloadEngine(currentIndex, tracks){
 
   [current, next, prev].forEach(t => {
     if(t && t.id){
-      if (!lowPowerModeEnabled) fetch(`/analysis/${t.id}.json?v=43.1.61`).catch(()=>{});
+      if (!lowPowerModeEnabled) fetch(`/analysis/${t.id}.json?v=43.1.63`).catch(()=>{});
     }
   });
 
   if(userSkipCount > 3 && next && next.id){
-    if (!lowPowerModeEnabled) fetch(`/analysis/${next.id}.json?v=43.1.61`).catch(()=>{});
+    if (!lowPowerModeEnabled) fetch(`/analysis/${next.id}.json?v=43.1.63`).catch(()=>{});
   }
 }
 
@@ -4396,17 +4396,17 @@ function trackSkipped(){
 // optional instant play
 async function instantPlay(trackId){
   try{
-    if (!lowPowerModeEnabled) await fetch(`/analysis/${trackId}.json?v=43.1.61`);
+    if (!lowPowerModeEnabled) await fetch(`/analysis/${trackId}.json?v=43.1.63`);
   }catch(e){}
 }
 
 
 
 /* =========================
-   v43.1.61 ULTRA SMOOTH PLAYBACK
+   v43.1.63 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.61";
+const SMART_PLAYBACK_VERSION = "43.1.63";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

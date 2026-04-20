@@ -4081,6 +4081,8 @@ body.orientation-guard-active {
 
 .offline-card-meta {
   min-width: 0;
+  color: #f4f4f4;
+  -webkit-text-fill-color: #f4f4f4;
 }
 
 .offline-card-meta strong,
@@ -4091,6 +4093,8 @@ body.orientation-guard-active {
 .offline-card-meta strong {
   font-size: 14px;
   margin-bottom: 4px;
+  color: #f4f4f4;
+  -webkit-text-fill-color: #f4f4f4;
 }
 
 .offline-card-meta span {
@@ -13114,7 +13118,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.61 battery optimization pass */
+/* v43.1.63 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13144,7 +13148,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.61 performance + low-power hardening */
+/* v43.1.63 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13166,7 +13170,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.62 full player lyrics bottom-safe scroll fix */
+/* v43.1.63 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;

@@ -1,0 +1,7 @@
+Aineo Music Build v43.1.63
+
+Included in this package:
+- Fixed Downloaded Songs card title text so song names render in a bright readable light color on the dark card background.
+- Kept downloaded card secondary metadata in a readable light treatment.
+- Cleaned root text notes down to this single newest build report only.
+- Carried forward prior full-player lyrics scroll fix from v43.1.62.
