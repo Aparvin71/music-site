@@ -24,7 +24,7 @@ LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
-GENERATOR_VERSION = "v43.1.64"
+GENERATOR_VERSION = "v43.1.65"
 AUDIO_EXTENSIONS = {".mp3"}
 
 SCRIPT_PATH = Path(__file__).resolve()

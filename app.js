@@ -1,4 +1,4 @@
-/* v43.1.64 full review cleanup + runtime slimming */
+/* v43.1.65 playback resume + continuous queue hardening */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -47,7 +47,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.64";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.65";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -729,41 +729,48 @@ function buildTrackAudioCandidates(track) {
   return out;
 }
 
-async function setAudioSourceWithFallback(track) {
+async function setAudioSourceWithFallback(track, targetAudio) {
+  const audioEl = targetAudio || els.audioPlayer;
+  if (!audioEl) throw new Error('Audio player is not available');
   const candidates = buildTrackAudioCandidates(track);
   let lastError = null;
-  for (const candidate of candidates) {
-    try {
-      audioEl.pause();
-      audioEl.removeAttribute('src');
-      audioEl.load();
-      audioEl.src = candidate;
-      audioEl.load();
-      await new Promise((resolve, reject) => {
-        const onReady = () => { cleanup(); resolve(); };
-        const onError = () => {
-          cleanup();
-          const mediaError = audioEl.error;
-          reject(mediaError ? new Error(mediaError.message || `Media error code ${mediaError.code}`) : new Error('Audio source failed to load'));
-        };
-        const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out loading audio source')); }, 4500);
-        function cleanup() {
-          clearTimeout(timer);
-          audioEl.removeEventListener('canplay', onReady);
-          audioEl.removeEventListener('loadedmetadata', onReady);
-          audioEl.removeEventListener('error', onError);
-        }
-        audioEl.addEventListener('canplay', onReady, { once: true });
-        audioEl.addEventListener('loadedmetadata', onReady, { once: true });
-        audioEl.addEventListener('error', onError, { once: true });
-      });
-      track.audio = candidate;
-      track.src = candidate;
-      return candidate;
-    } catch (error) {
-      lastError = error;
-      console.warn('Audio candidate failed', { title: track?.title, candidate, error: String(error?.message || error) });
+  suppressAudioErrorRecovery += 1;
+  try {
+    for (const candidate of candidates) {
+      try {
+        audioEl.pause();
+        audioEl.removeAttribute('src');
+        audioEl.load();
+        audioEl.src = candidate;
+        audioEl.load();
+        await new Promise((resolve, reject) => {
+          const onReady = () => { cleanup(); resolve(); };
+          const onError = () => {
+            cleanup();
+            const mediaError = audioEl.error;
+            reject(mediaError ? new Error(mediaError.message || `Media error code ${mediaError.code}`) : new Error('Audio source failed to load'));
+          };
+          const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out loading audio source')); }, 4500);
+          function cleanup() {
+            clearTimeout(timer);
+            audioEl.removeEventListener('canplay', onReady);
+            audioEl.removeEventListener('loadedmetadata', onReady);
+            audioEl.removeEventListener('error', onError);
+          }
+          audioEl.addEventListener('canplay', onReady, { once: true });
+          audioEl.addEventListener('loadedmetadata', onReady, { once: true });
+          audioEl.addEventListener('error', onError, { once: true });
+        });
+        track.audio = candidate;
+        track.src = candidate;
+        return candidate;
+      } catch (error) {
+        lastError = error;
+        console.warn('Audio candidate failed', { title: track?.title, candidate, error: String(error?.message || error) });
+      }
     }
+  } finally {
+    suppressAudioErrorRecovery = Math.max(0, suppressAudioErrorRecovery - 1);
   }
   const finalError = lastError || new Error('No supported audio source found for this track');
   console.error('All audio candidates failed', { title: track?.title, candidates, error: String(finalError?.message || finalError) });
@@ -1106,6 +1113,8 @@ function bindUI() {
       syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("playing", () => {
+      playbackErrorRecoveryCount = 0;
+      playbackErrorRecoveryAt = 0;
       updateSyncedLyricsProgress();
       startLyricsSyncLoop();
     });
@@ -1128,7 +1137,12 @@ function bindUI() {
       syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("error", () => {
-      if (navigator.onLine === false) renderOfflineStatus({ forceVisible: true });
+      if (suppressAudioErrorRecovery > 0) return;
+      if (navigator.onLine === false) {
+        renderOfflineStatus({ forceVisible: true });
+        return;
+      }
+      handlePlaybackErrorRecovery();
     });
   }
 
@@ -2636,6 +2650,10 @@ function renderFeaturedTrackList() {
 
 let prefetchedTrackSrc = "";
 let prefetchedAudio = null;
+let playbackRequestId = 0;
+let playbackErrorRecoveryCount = 0;
+let playbackErrorRecoveryAt = 0;
+let suppressAudioErrorRecovery = 0;
 
 
 function prefetchTrackMedia(track, options = {}) {
@@ -2705,8 +2723,9 @@ function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
   playFromQueueIndex(Math.max(0, Math.min(startIndex, currentQueue.length - 1)));
 }
 
-function playTrack(track) {
+async function playTrack(track) {
   if (!track || !track.src || !els.audioPlayer) return;
+  const requestId = ++playbackRequestId;
   stopPreviewAudio();
 
   if (navigator.onLine === false && !isDownloaded(track)) {
@@ -2715,15 +2734,21 @@ function playTrack(track) {
     return;
   }
 
-  const queueIndex = currentQueue.findIndex(t => t.id === track.id);
-  if (queueIndex >= 0) {
-    currentQueueIndex = queueIndex;
+  if (!currentQueue.length) {
+    const fallbackQueue = getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : tracks;
+    currentQueue = [...fallbackQueue];
   }
+
+  let queueIndex = currentQueue.findIndex(t => t.id === track.id);
+  if (queueIndex < 0) {
+    currentQueue.push(track);
+    queueIndex = currentQueue.length - 1;
+  }
+  currentQueueIndex = queueIndex;
 
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
 
   stopLyricsSyncLoop();
-  els.audioPlayer.src = track.src;
   pendingResumeSeek = track.src === resumeTrackSrc && resumeTrackTime > 1 ? resumeTrackTime : null;
   const applyResumeSeek = () => {
     if (pendingResumeSeek !== null && Number.isFinite(els.audioPlayer.duration)) {
@@ -2746,7 +2771,21 @@ function playTrack(track) {
     }
   });
 
-  els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
+  try {
+    await setAudioSourceWithFallback(track, els.audioPlayer);
+    if (requestId !== playbackRequestId) return;
+    await els.audioPlayer.play();
+    playbackErrorRecoveryCount = 0;
+    playbackErrorRecoveryAt = 0;
+  } catch (err) {
+    console.error("Playback failed:", err);
+    if (requestId === playbackRequestId) {
+      showToast?.('Playback had trouble loading this song. Trying the next available track.');
+      handlePlaybackErrorRecovery();
+    }
+    return;
+  }
+
   updateScripturePanel(track);
   recordTrackPlay(track);
   addToRecentlyPlayed(track);
@@ -2810,22 +2849,80 @@ function playNextTrack() {
   playTrack(currentQueue[currentQueueIndex]);
 }
 
+function getPlayableStartupTrack() {
+  const current = getCurrentTrack();
+  if (current?.src) return current;
+
+  if (resumeTrackSrc) {
+    const resumed = tracks.find(track => track.src === resumeTrackSrc || track.audio === resumeTrackSrc || track.title === resumeTrackTitle);
+    if (resumed?.src) return resumed;
+  }
+
+  const savedState = loadJsonFromStorage(STORAGE_KEYS.playerState, null);
+  if (savedState?.trackId) {
+    const savedTrack = tracks.find(track => track.id === savedState.trackId);
+    if (savedTrack?.src) return savedTrack;
+  }
+
+  return currentQueue[currentQueueIndex] || currentQueue[0] || getCurrentCollectionTracks()[0] || tracks[0] || null;
+}
+
+function handlePlaybackErrorRecovery() {
+  const audio = els.audioPlayer;
+  const current = getCurrentTrack();
+  if (!audio || !current) return;
+
+  const now = Date.now();
+  if (now - playbackErrorRecoveryAt > 12000) playbackErrorRecoveryCount = 0;
+  playbackErrorRecoveryAt = now;
+  playbackErrorRecoveryCount += 1;
+
+  if (navigator.onLine === false) {
+    renderOfflineStatus({ forceVisible: true });
+    return;
+  }
+
+  if (playbackErrorRecoveryCount <= 1) {
+    const retryTime = Math.max(0, Number(audio.currentTime) || 0);
+    setAudioSourceWithFallback(current, audio)
+      .then(() => {
+        if (retryTime > 1 && Number.isFinite(audio.duration)) audio.currentTime = Math.min(retryTime, Math.max(0, audio.duration - 1));
+        return audio.play();
+      })
+      .then(() => {
+        playbackErrorRecoveryCount = 0;
+        playbackErrorRecoveryAt = 0;
+      })
+      .catch(() => {
+        if (currentQueue.length > 1) playNextTrack();
+      });
+    return;
+  }
+
+  if (currentQueue.length > 1) playNextTrack();
+}
+
 function togglePlayPause() {
   if (!els.audioPlayer) return;
 
   if (!els.audioPlayer.src) {
-    const first = currentQueue[0] || getCurrentCollectionTracks()[0] || tracks[0];
-    if (first) {
+    const target = getPlayableStartupTrack();
+    if (target) {
       if (!currentQueue.length) {
         setQueue(getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : tracks, false);
       }
-      playTrack(first);
+      const matchIndex = currentQueue.findIndex(track => track.id === target.id);
+      if (matchIndex >= 0) currentQueueIndex = matchIndex;
+      playTrack(target);
     }
     return;
   }
 
   if (els.audioPlayer.paused) {
-    els.audioPlayer.play().catch(err => console.error("Playback failed:", err));
+    els.audioPlayer.play().catch(err => {
+      console.error("Playback failed:", err);
+      handlePlaybackErrorRecovery();
+    });
   } else {
     els.audioPlayer.pause();
   }
@@ -4281,7 +4378,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.64 legacy analysis preload disabled
+// v43.1.65 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4291,7 +4388,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.64 smart playback cleanup
+// v43.1.65 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4310,10 +4407,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.64 ULTRA SMOOTH PLAYBACK
+   v43.1.65 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.64";
+const SMART_PLAYBACK_VERSION = "43.1.65";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

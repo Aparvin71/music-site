@@ -1,6 +1,6 @@
-// v43.1.64 Runtime Cleanup + Service Worker Cache Refresh
+// v43.1.65 Runtime Cleanup + Service Worker Cache Refresh
 
-const CACHE_VERSION = "v43.1.64";
+const CACHE_VERSION = "v43.1.65";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
@@ -22,29 +22,29 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.64",
-  "/app.js?v=43.1.64",
-  "/nav.js?v=43.1.64",
-  "/pwa-init.js?v=43.1.64",
-  "/manifest.webmanifest?v=43.1.64",
-  "/aineo-album-page.js?v=43.1.64",
-  "/aineo-config.js?v=43.1.64",
-  "/aineo-data.js?v=43.1.64",
-  "/aineo-featured.js?v=43.1.64",
-  "/aineo-library.js?v=43.1.64",
-  "/aineo-lyrics.js?v=43.1.64",
-  "/aineo-media-session.js?v=43.1.64",
-  "/aineo-offline.js?v=43.1.64",
-  "/aineo-player-sheet.js?v=43.1.64",
-  "/aineo-playlists.js?v=43.1.64",
-  "/aineo-queue.js?v=43.1.64",
-  "/aineo-shared.js?v=43.1.64",
-  "/aineo-ui.js?v=43.1.64",
-  "/album-page.js?v=43.1.64",
-  "/albums-page.js?v=43.1.64",
-  "/artist-page.js?v=43.1.64",
-  "/artists-page.js?v=43.1.64",
-  "/contact.js?v=43.1.64"
+  "/style.css?v=43.1.65",
+  "/app.js?v=43.1.65",
+  "/nav.js?v=43.1.65",
+  "/pwa-init.js?v=43.1.65",
+  "/manifest.webmanifest?v=43.1.65",
+  "/aineo-album-page.js?v=43.1.65",
+  "/aineo-config.js?v=43.1.65",
+  "/aineo-data.js?v=43.1.65",
+  "/aineo-featured.js?v=43.1.65",
+  "/aineo-library.js?v=43.1.65",
+  "/aineo-lyrics.js?v=43.1.65",
+  "/aineo-media-session.js?v=43.1.65",
+  "/aineo-offline.js?v=43.1.65",
+  "/aineo-player-sheet.js?v=43.1.65",
+  "/aineo-playlists.js?v=43.1.65",
+  "/aineo-queue.js?v=43.1.65",
+  "/aineo-shared.js?v=43.1.65",
+  "/aineo-ui.js?v=43.1.65",
+  "/album-page.js?v=43.1.65",
+  "/albums-page.js?v=43.1.65",
+  "/artist-page.js?v=43.1.65",
+  "/artists-page.js?v=43.1.65",
+  "/contact.js?v=43.1.65"
 ];
 
 async function safeWarmStaticCache() {

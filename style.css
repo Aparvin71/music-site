@@ -12372,7 +12372,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.64 visualizer lift + left-wing alignment polish */
+/* v43.1.65 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12401,13 +12401,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.64 visualizer lift + left-wing alignment polish */
+/* v43.1.65 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.64 visualizer lift + left-wing alignment polish */
+/* v43.1.65 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.64 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.65 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12609,7 +12609,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.64 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.65 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12768,7 +12768,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.64 mobile mini-player final tighten */
+/* v43.1.65 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13118,7 +13118,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.64 battery optimization pass */
+/* v43.1.65 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13148,7 +13148,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.64 performance + low-power hardening */
+/* v43.1.65 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13170,7 +13170,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.64 full player lyrics bottom-safe scroll fix */
+/* v43.1.65 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;

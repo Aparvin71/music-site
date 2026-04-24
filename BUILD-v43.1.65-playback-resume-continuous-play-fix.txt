@@ -1,0 +1,11 @@
+Aineo Music Build v43.1.65
+
+Playback resume + continuous play hardening pass.
+
+Changes:
+- Fixed startup play behavior so the mini player can play the restored/displayed last song instead of falling back to the first song in the playlist.
+- Hardened playTrack so a selected/restored track is always synchronized into the active queue before playback.
+- Repaired setAudioSourceWithFallback so it uses the real audio element and can test alternate R2/audio URL candidates.
+- Added playback request guarding to reduce race conditions when skipping or switching songs quickly.
+- Added lightweight audio error recovery: retry the current track source once, then advance to the next queued song instead of silently quitting.
+- Kept low-power behavior by not preloading restored audio on app startup; the source is loaded only when play is pressed.
