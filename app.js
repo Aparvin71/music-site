@@ -1,10 +1,16 @@
-/* v43.1.65 playback resume + continuous queue hardening */
+/* v43.1.73 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
 let currentTrackIndex = -1;
 let currentQueue = [];
 let currentQueueIndex = -1;
+let currentPlaybackTrackId = "";
+window.__AINEO_CURRENT_PLAYBACK_TRACK_ID__ = "";
+let continuousPlaybackWanted = false;
+let userPausedPlayback = false;
+let backgroundAdvanceInFlight = false;
+let queuedAutoAdvanceTimer = 0;
 let favorites = [];
 let recentlyPlayed = [];
 let resumeTrackSrc = null;
@@ -47,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.65";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.73";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -729,6 +735,115 @@ function buildTrackAudioCandidates(track) {
   return out;
 }
 
+function getPrimaryAudioCandidate(track) {
+  const candidates = buildTrackAudioCandidates(track);
+  return candidates[0] || track?.src || track?.audio || "";
+}
+
+function markUserPlaybackIntent(shouldPlay) {
+  continuousPlaybackWanted = Boolean(shouldPlay);
+  userPausedPlayback = !shouldPlay;
+  window.__AINEO_CONTINUOUS_PLAYBACK_WANTED__ = continuousPlaybackWanted;
+}
+
+function hasPlayableNextTrack() {
+  if (!Array.isArray(currentQueue) || currentQueue.length < 2) return false;
+  if (repeatMode === "one") return true;
+  return repeatMode !== "off" || currentQueueIndex < currentQueue.length - 1;
+}
+
+function getNextQueueIndexForAutoAdvance() {
+  if (!Array.isArray(currentQueue) || !currentQueue.length) return -1;
+  if (repeatMode === "one") return Math.max(0, currentQueueIndex);
+  const atEnd = currentQueueIndex >= currentQueue.length - 1;
+  if (atEnd) return repeatMode === "off" ? -1 : 0;
+  return currentQueueIndex + 1;
+}
+
+function primeNextAudioForContinuousPlayback() {
+  if (!els.audioPlayer || !continuousPlaybackWanted || !hasPlayableNextTrack()) return;
+  const nextIndex = getNextQueueIndexForAutoAdvance();
+  const nextTrack = nextIndex >= 0 ? currentQueue[nextIndex] : null;
+  if (!nextTrack) return;
+  try {
+    const url = getPrimaryAudioCandidate(nextTrack);
+    if (!url) return;
+    const warm = new Audio();
+    warm.preload = "auto";
+    warm.src = url;
+    warm.load();
+    window.__AINEO_NEXT_AUDIO_PRIME__ = warm;
+  } catch (error) {}
+}
+
+async function playTrackContinuousAdvance(track) {
+  if (!track || !els.audioPlayer) return;
+  const requestId = ++playbackRequestId;
+  backgroundAdvanceInFlight = true;
+  setCurrentPlaybackTrack(track);
+  setPendingPlaybackTrack(track.id);
+  updateNowPlaying(track);
+  renderQueue();
+  renderFeaturedTrackList();
+  syncCurrentPlaybackHighlights();
+  syncQueuePlaybackUI();
+  updateMediaSessionMetadata(track);
+  updateLyricsPanel(track);
+  updateSyncedLyricsProgress();
+
+  try {
+    const primary = getPrimaryAudioCandidate(track);
+    if (!primary) throw new Error("No audio source available for continuous advance");
+    if (els.audioPlayer.src !== primary) {
+      els.audioPlayer.src = primary;
+      els.audioPlayer.load();
+    }
+    const playPromise = els.audioPlayer.play();
+    if (playPromise && typeof playPromise.then === "function") await playPromise;
+    if (requestId !== playbackRequestId) return;
+    clearPendingPlaybackTrack(track.id);
+    playbackErrorRecoveryCount = 0;
+    playbackErrorRecoveryAt = 0;
+    updatePlayButton();
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
+    updateScripturePanel(track);
+    recordTrackPlay(track);
+    addToRecentlyPlayed(track);
+    saveResume(track);
+    saveQueueState();
+    savePlayerState(track, 0);
+    requestPlaybackUiSync();
+    updateUrlForTrack(track);
+    ensureSmartQueueSuggestion(track);
+    primeNextAudioForContinuousPlayback();
+  } catch (error) {
+    console.error("Continuous advance failed:", error);
+    if (requestId === playbackRequestId && !userPausedPlayback && continuousPlaybackWanted) {
+      window.clearTimeout(queuedAutoAdvanceTimer);
+      queuedAutoAdvanceTimer = window.setTimeout(() => handlePlaybackErrorRecovery(), 250);
+    }
+  } finally {
+    backgroundAdvanceInFlight = false;
+  }
+}
+
+function advanceContinuousPlayback() {
+  if (!continuousPlaybackWanted || userPausedPlayback || backgroundAdvanceInFlight) return;
+  if (!Array.isArray(currentQueue) || !currentQueue.length) return;
+  const nextIndex = getNextQueueIndexForAutoAdvance();
+  if (nextIndex < 0) {
+    continuousPlaybackWanted = false;
+    updatePlayButton();
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
+    return;
+  }
+  currentQueueIndex = nextIndex;
+  const nextTrack = currentQueue[currentQueueIndex];
+  playTrackContinuousAdvance(nextTrack);
+}
+
 async function setAudioSourceWithFallback(track, targetAudio) {
   const audioEl = targetAudio || els.audioPlayer;
   if (!audioEl) throw new Error('Audio player is not available');
@@ -744,13 +859,29 @@ async function setAudioSourceWithFallback(track, targetAudio) {
         audioEl.src = candidate;
         audioEl.load();
         await new Promise((resolve, reject) => {
-          const onReady = () => { cleanup(); resolve(); };
+          const onReady = () => {
+            cleanup();
+            updatePlayButton();
+            syncCurrentPlaybackHighlights();
+            syncQueuePlaybackUI();
+            resolve();
+          };
           const onError = () => {
             cleanup();
+            // Keep the UI locked while trying the next fallback candidate.
+            updatePlayButton();
+            syncCurrentPlaybackHighlights();
+            syncQueuePlaybackUI();
             const mediaError = audioEl.error;
             reject(mediaError ? new Error(mediaError.message || `Media error code ${mediaError.code}`) : new Error('Audio source failed to load'));
           };
-          const timer = setTimeout(() => { cleanup(); reject(new Error('Timed out loading audio source')); }, 4500);
+          const timer = setTimeout(() => {
+            cleanup();
+            updatePlayButton();
+            syncCurrentPlaybackHighlights();
+            syncQueuePlaybackUI();
+            reject(new Error('Timed out loading audio source'));
+          }, 4500);
           function cleanup() {
             clearTimeout(timer);
             audioEl.removeEventListener('canplay', onReady);
@@ -854,6 +985,7 @@ function restoreSavedPlaybackContext() {
   const queueIndex = currentQueue.findIndex(track => track.id === stateTrack.id);
   if (queueIndex >= 0) currentQueueIndex = queueIndex;
   currentTrackIndex = filteredTracks.findIndex(track => track.id === stateTrack.id);
+  setCurrentPlaybackTrack(stateTrack);
   resumeTrackSrc = stateTrack.src;
   resumeTrackTime = Math.max(0, Number(state.time) || 0);
   resumeTrackTitle = stateTrack.title || "";
@@ -895,6 +1027,31 @@ function clearResume() {
   resumeTrackSrc = null;
   resumeTrackTime = 0;
   resumeTrackTitle = "";
+}
+
+function setPendingPlaybackTrack(trackId = "") {
+  pendingPlaybackTrackId = trackId || "";
+  pendingPlaybackLockUntil = pendingPlaybackTrackId ? Date.now() + PENDING_PLAYBACK_LOCK_MS : 0;
+  window.__AINEO_PENDING_PLAYBACK_TRACK_ID__ = pendingPlaybackTrackId;
+  window.__AINEO_PENDING_PLAYBACK_LOCK_UNTIL__ = pendingPlaybackLockUntil;
+}
+
+function isPendingPlaybackTrack(trackId = "") {
+  if (!trackId || pendingPlaybackTrackId !== trackId) return false;
+  if (pendingPlaybackLockUntil && Date.now() > pendingPlaybackLockUntil) {
+    clearPendingPlaybackTrack(trackId);
+    return false;
+  }
+  return true;
+}
+
+function clearPendingPlaybackTrack(trackId = "") {
+  if (!trackId || pendingPlaybackTrackId === trackId) {
+    pendingPlaybackTrackId = "";
+    pendingPlaybackLockUntil = 0;
+    window.__AINEO_PENDING_PLAYBACK_TRACK_ID__ = "";
+    window.__AINEO_PENDING_PLAYBACK_LOCK_UNTIL__ = 0;
+  }
 }
 function savePlaybackModes() {
   localStorage.setItem(
@@ -991,6 +1148,7 @@ function queueCurrentTrackNext() {
 
 
 function clearQueueList() {
+  markUserPlaybackIntent(false);
   currentQueue = [];
   currentQueueIndex = -1;
   smartQueueSuggestionId = '';
@@ -1030,16 +1188,20 @@ function closeTrackActionSheet() {
 function handleTrackEnded() {
   if (!currentQueue.length) return;
   if (repeatMode === "one") {
+    markUserPlaybackIntent(true);
     els.audioPlayer.currentTime = 0;
-    els.audioPlayer.play().catch(() => {});
+    els.audioPlayer.play().then(() => primeNextAudioForContinuousPlayback()).catch(() => handlePlaybackErrorRecovery());
     return;
   }
   const atEnd = currentQueueIndex >= currentQueue.length - 1;
   if (atEnd && repeatMode === "off") {
+    continuousPlaybackWanted = false;
     updatePlayButton();
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
     return;
   }
-  playNextTrack();
+  advanceContinuousPlayback();
 }
 
 /* =========================
@@ -1094,15 +1256,22 @@ function bindUI() {
         saveResume(current);
         lastResumePersistAt = now;
       }
+      if (continuousPlaybackWanted && els.audioPlayer?.duration && Number.isFinite(els.audioPlayer.duration)) {
+        const remaining = els.audioPlayer.duration - (els.audioPlayer.currentTime || 0);
+        if (remaining > 0 && remaining < 12) primeNextAudioForContinuousPlayback();
+      }
     });
     els.audioPlayer.addEventListener("loadedmetadata", () => {
       updateProgressUI();
       updateSyncedLyricsProgress();
       window.requestAnimationFrame(() => updateSyncedLyricsProgress());
       updateMediaSessionPositionState();
+      updatePlayButton();
       syncCurrentPlaybackHighlights();
+      syncQueuePlaybackUI();
     });
     els.audioPlayer.addEventListener("play", () => {
+      markUserPlaybackIntent(true);
       stopPreviewAudio();
       updatePlayButton();
       updateMediaSessionPlaybackState();
@@ -1115,16 +1284,30 @@ function bindUI() {
     els.audioPlayer.addEventListener("playing", () => {
       playbackErrorRecoveryCount = 0;
       playbackErrorRecoveryAt = 0;
+      clearPendingPlaybackTrack(getCurrentTrack()?.id || "");
+      updatePlayButton();
       updateSyncedLyricsProgress();
       startLyricsSyncLoop();
+      syncCurrentPlaybackHighlights();
+      syncQueuePlaybackUI();
     });
     els.audioPlayer.addEventListener("pause", () => {
+      const current = getCurrentTrack();
+      const pendingCurrent = Boolean(current && isPendingPlaybackTrack(current.id));
+      const naturalTransition = Boolean(els.audioPlayer?.ended || pendingCurrent || backgroundAdvanceInFlight);
+      if (!naturalTransition) markUserPlaybackIntent(false);
+      // iOS/Safari can emit pause while a new source is still loading. Keep the
+      // UI locked on the selected track during that pending transition.
+      if (!pendingCurrent && !backgroundAdvanceInFlight) {
+        clearPendingPlaybackTrack();
+        setMiniVisualizerActive(false);
+        stopLyricsSyncLoop();
+      }
       updatePlayButton();
       updateMediaSessionPlaybackState();
-      setMiniVisualizerActive(false);
       savePlayerState();
-      stopLyricsSyncLoop();
       syncCurrentPlaybackHighlights();
+      syncQueuePlaybackUI();
     });
     els.audioPlayer.addEventListener("seeking", updateSyncedLyricsProgress);
     els.audioPlayer.addEventListener("seeked", () => {
@@ -1137,6 +1320,22 @@ function bindUI() {
       syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("error", () => {
+      const current = getCurrentTrack();
+      const pendingCurrent = Boolean(current && isPendingPlaybackTrack(current.id));
+
+      // During source fallback probing, Safari/Chrome may fire a temporary media
+      // error for one candidate before the next candidate is tested. Do not let
+      // that transient error clear the visible selected/playing intent. That was
+      // causing the track card to flash purple, reset, and leave the play button
+      // stuck on Play even though the user tapped the correct track.
+      if (suppressAudioErrorRecovery > 0 && pendingCurrent) {
+        updatePlayButton();
+        syncCurrentPlaybackHighlights();
+        syncQueuePlaybackUI();
+        return;
+      }
+
+      clearPendingPlaybackTrack();
       if (suppressAudioErrorRecovery > 0) return;
       if (navigator.onLine === false) {
         renderOfflineStatus({ forceVisible: true });
@@ -2269,7 +2468,40 @@ function getFeaturedAlbum() {
   return getFeaturedCollection();
 }
 
+function setCurrentPlaybackTrack(track) {
+  currentPlaybackTrackId = track?.id || "";
+  window.__AINEO_CURRENT_PLAYBACK_TRACK_ID__ = currentPlaybackTrackId;
+  if (currentPlaybackTrackId) {
+    const queueMatch = currentQueue.findIndex(item => item.id === currentPlaybackTrackId);
+    if (queueMatch >= 0) currentQueueIndex = queueMatch;
+    const filteredMatch = filteredTracks.findIndex(item => item.id === currentPlaybackTrackId);
+    currentTrackIndex = filteredMatch;
+  }
+}
+
+function findTrackById(trackId = "") {
+  if (!trackId) return null;
+  return currentQueue.find(track => track.id === trackId)
+    || tracks.find(track => track.id === trackId)
+    || filteredTracks.find(track => track.id === trackId)
+    || null;
+}
+
+function getCurrentPlaybackTrackId() {
+  if (currentPlaybackTrackId) return currentPlaybackTrackId;
+  const indexed = currentQueueIndex >= 0 && currentQueueIndex < currentQueue.length ? currentQueue[currentQueueIndex] : null;
+  if (indexed?.id) return indexed.id;
+  const filtered = currentTrackIndex >= 0 && currentTrackIndex < filteredTracks.length ? filteredTracks[currentTrackIndex] : null;
+  return filtered?.id || "";
+}
+
 function getCurrentTrack() {
+  const activeId = getCurrentPlaybackTrackId();
+  if (activeId) {
+    const activeTrack = findTrackById(activeId);
+    if (activeTrack) return activeTrack;
+  }
+
   if (currentQueueIndex >= 0 && currentQueueIndex < currentQueue.length) {
     return currentQueue[currentQueueIndex];
   }
@@ -2295,6 +2527,7 @@ function updateLibraryView() {
   renderAlbums(filteredTracks);
   renderFeaturedAlbum();
   renderFeaturedTrackList();
+  requestPlaybackUiSync();
   renderSearchUi();
   renderMyPlaylists();
   renderPlaylistWorkspace();
@@ -2632,6 +2865,7 @@ function renderFeaturedTrackList() {
     getCurrentCollectionTracks,
     setQueue,
     playFromQueueIndex,
+    playTrackById,
     toggleFavorite,
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
@@ -2651,6 +2885,11 @@ function renderFeaturedTrackList() {
 let prefetchedTrackSrc = "";
 let prefetchedAudio = null;
 let playbackRequestId = 0;
+let pendingPlaybackTrackId = "";
+let pendingPlaybackLockUntil = 0;
+const PENDING_PLAYBACK_LOCK_MS = 9000;
+window.__AINEO_PENDING_PLAYBACK_TRACK_ID__ = "";
+window.__AINEO_PENDING_PLAYBACK_LOCK_UNTIL__ = 0;
 let playbackErrorRecoveryCount = 0;
 let playbackErrorRecoveryAt = 0;
 let suppressAudioErrorRecovery = 0;
@@ -2726,6 +2965,7 @@ function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
 async function playTrack(track) {
   if (!track || !track.src || !els.audioPlayer) return;
   const requestId = ++playbackRequestId;
+  markUserPlaybackIntent(true);
   stopPreviewAudio();
 
   if (navigator.onLine === false && !isDownloaded(track)) {
@@ -2745,8 +2985,11 @@ async function playTrack(track) {
     queueIndex = currentQueue.length - 1;
   }
   currentQueueIndex = queueIndex;
+  setCurrentPlaybackTrack(track);
 
   currentTrackIndex = filteredTracks.findIndex(t => t.id === track.id);
+  setPendingPlaybackTrack(track.id);
+  if (Number.isFinite(els.audioPlayer.volume) && els.audioPlayer.volume < 0.98) els.audioPlayer.volume = 1;
 
   stopLyricsSyncLoop();
   pendingResumeSeek = track.src === resumeTrackSrc && resumeTrackTime > 1 ? resumeTrackTime : null;
@@ -2760,6 +3003,10 @@ async function playTrack(track) {
   els.audioPlayer.addEventListener("loadedmetadata", applyResumeSeek, { once: true });
 
   updateNowPlaying(track);
+  renderQueue();
+  renderFeaturedTrackList();
+  syncCurrentPlaybackHighlights();
+  syncQueuePlaybackUI();
   updateMediaSessionMetadata(track);
   updateLyricsPanel(track);
   updateSyncedLyricsProgress();
@@ -2775,11 +3022,17 @@ async function playTrack(track) {
     await setAudioSourceWithFallback(track, els.audioPlayer);
     if (requestId !== playbackRequestId) return;
     await els.audioPlayer.play();
+    clearPendingPlaybackTrack(track.id);
+    updatePlayButton();
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
     playbackErrorRecoveryCount = 0;
     playbackErrorRecoveryAt = 0;
+    primeNextAudioForContinuousPlayback();
   } catch (err) {
     console.error("Playback failed:", err);
     if (requestId === playbackRequestId) {
+      clearPendingPlaybackTrack(track.id);
       showToast?.('Playback had trouble loading this song. Trying the next available track.');
       handlePlaybackErrorRecovery();
     }
@@ -2795,6 +3048,7 @@ async function playTrack(track) {
   renderQueue();
   renderFavorites();
   renderFeaturedTrackList();
+  requestPlaybackUiSync();
   updateUrlForTrack(track);
   ensureSmartQueueSuggestion(track);
   if (!lowPowerModeEnabled) {
@@ -2805,9 +3059,37 @@ async function playTrack(track) {
 
 function playFromQueueIndex(index) {
   if (index < 0 || index >= currentQueue.length) return;
-  currentQueueIndex = index;
-  saveQueueState();
-  smoothPlayTrack(currentQueue[index], { crossfade: false, reason: "queue" });
+  const track = currentQueue[index];
+  playTrackById(track?.id || "", currentQueue);
+}
+
+function playTrackById(trackId, preferredQueue = null) {
+  if (!trackId) return;
+
+  const queueSource = Array.isArray(preferredQueue) && preferredQueue.length
+    ? preferredQueue
+    : (getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : currentQueue.length ? currentQueue : tracks);
+
+  const target = queueSource.find(track => track.id === trackId) || tracks.find(track => track.id === trackId);
+  if (!target) return;
+
+  currentQueue = [...queueSource];
+  let queueIndex = currentQueue.findIndex(track => track.id === target.id);
+  if (queueIndex < 0) {
+    currentQueue.push(target);
+    queueIndex = currentQueue.length - 1;
+  }
+
+  currentQueueIndex = queueIndex;
+  setCurrentPlaybackTrack(target);
+  setPendingPlaybackTrack(target.id);
+  currentTrackIndex = filteredTracks.findIndex(track => track.id === target.id);
+
+  updateNowPlaying(target);
+  renderQueue();
+  renderFeaturedTrackList();
+  requestPlaybackUiSync();
+  playTrack(target);
 }
 
 function playPreviousTrack() {
@@ -2827,6 +3109,7 @@ function playPreviousTrack() {
 }
 
 function playNextTrack() {
+  markUserPlaybackIntent(true);
   if (!currentQueue.length) {
     if (!getCurrentCollectionTracks().length) return;
     setQueue(getCurrentCollectionTracks(), shuffleModeEnabled);
@@ -2841,6 +3124,7 @@ function playNextTrack() {
 
   const isAtEnd = currentQueueIndex >= currentQueue.length - 1;
   if (isAtEnd && repeatMode === "off") {
+    markUserPlaybackIntent(false);
     els.audioPlayer.pause();
     return;
   }
@@ -2882,28 +3166,37 @@ function handlePlaybackErrorRecovery() {
     return;
   }
 
-  if (playbackErrorRecoveryCount <= 1) {
+  // Keep recovery gentle. Do not repeatedly swap src on the active audio element,
+  // because that can make mobile Safari sound unstable during normal buffering.
+  if (playbackErrorRecoveryCount <= 1 && audio.src) {
     const retryTime = Math.max(0, Number(audio.currentTime) || 0);
-    setAudioSourceWithFallback(current, audio)
-      .then(() => {
+    window.setTimeout(() => {
+      try {
         if (retryTime > 1 && Number.isFinite(audio.duration)) audio.currentTime = Math.min(retryTime, Math.max(0, audio.duration - 1));
-        return audio.play();
-      })
-      .then(() => {
-        playbackErrorRecoveryCount = 0;
-        playbackErrorRecoveryAt = 0;
-      })
-      .catch(() => {
+        audio.play().catch(() => {
+          if (currentQueue.length > 1) playNextTrack();
+        });
+      } catch (error) {
         if (currentQueue.length > 1) playNextTrack();
-      });
+      }
+    }, 250);
     return;
   }
 
   if (currentQueue.length > 1) playNextTrack();
 }
 
+
 function togglePlayPause() {
   if (!els.audioPlayer) return;
+
+  const current = getCurrentTrack();
+  if (current && isPendingPlaybackTrack(current.id)) {
+    updatePlayButton();
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
+    return;
+  }
 
   if (!els.audioPlayer.src) {
     const target = getPlayableStartupTrack();
@@ -2919,11 +3212,13 @@ function togglePlayPause() {
   }
 
   if (els.audioPlayer.paused) {
-    els.audioPlayer.play().catch(err => {
+    markUserPlaybackIntent(true);
+    els.audioPlayer.play().then(() => primeNextAudioForContinuousPlayback()).catch(err => {
       console.error("Playback failed:", err);
       handlePlaybackErrorRecovery();
     });
   } else {
+    markUserPlaybackIntent(false);
     els.audioPlayer.pause();
   }
 }
@@ -2982,11 +3277,12 @@ function updateNowPlaying(track) {
 
 function syncCurrentPlaybackHighlights() {
   if (!els.featuredTrackList) return;
-  const currentTrack = getCurrentTrack();
-  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+  const activeTrackId = getCurrentPlaybackTrackId();
+  const isPlaybackPending = Boolean(activeTrackId && isPendingPlaybackTrack(activeTrackId));
+  const isPlaying = Boolean(activeTrackId && ((els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) || isPlaybackPending));
 
   els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
-    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    const isCurrentTrack = Boolean(activeTrackId && row.dataset.trackId === activeTrackId);
     row.classList.toggle("playing", isCurrentTrack);
     row.classList.toggle("is-current", isCurrentTrack);
     row.classList.toggle("is-playing", isCurrentTrack && isPlaying);
@@ -2997,46 +3293,46 @@ function syncCurrentPlaybackHighlights() {
     const trackId = btn.dataset.trackId;
     const row = btn.closest('.featured-track-row');
     const trackTitle = row?.querySelector('.featured-track-title')?.textContent?.trim() || btn.dataset.trackTitle || "track";
-    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
+    const isCurrentTrack = Boolean(activeTrackId && trackId === activeTrackId);
     const buttonShowsPause = isCurrentTrack && isPlaying;
 
     btn.textContent = buttonShowsPause ? "❚❚" : "▶";
     btn.classList.toggle("is-playing", buttonShowsPause);
     btn.classList.toggle("is-current", isCurrentTrack);
     btn.setAttribute("aria-pressed", buttonShowsPause ? "true" : "false");
-    btn.setAttribute("aria-label", `${buttonShowsPause ? "Pause" : "Play"} ${trackTitle}`);
+    btn.setAttribute("aria-label", (buttonShowsPause ? "Pause" : "Play") + " " + trackTitle);
   });
 }
 
 function syncFeaturedTrackPlayButtons() {
   if (!els.featuredTrackList) return;
-
-  const currentTrack = getCurrentTrack();
+  const activeTrackId = getCurrentPlaybackTrackId();
 
   els.featuredTrackList.querySelectorAll(".featured-track-row").forEach(row => {
-    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    const isCurrentTrack = Boolean(activeTrackId && row.dataset.trackId === activeTrackId);
     row.classList.toggle("playing", isCurrentTrack);
   });
 
   els.featuredTrackList.querySelectorAll(".featured-track-play[data-track-id]").forEach(btn => {
     const trackId = btn.dataset.trackId;
     const trackTitle = btn.dataset.trackTitle || "track";
-    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
-    const isPlaying = Boolean(isCurrentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+    const isCurrentTrack = Boolean(activeTrackId && trackId === activeTrackId);
+    const isPlaying = Boolean(isCurrentTrack && ((els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) || isPendingPlaybackTrack(trackId)));
 
     btn.textContent = isPlaying ? "❚❚" : "▶";
     btn.classList.toggle("is-playing", isPlaying);
     btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
-    btn.setAttribute("aria-label", `${isPlaying ? "Pause" : "Play"} ${trackTitle}`);
+    btn.setAttribute("aria-label", (isPlaying ? "Pause" : "Play") + " " + trackTitle);
   });
 }
 
 function syncQueuePlaybackUI() {
-  const currentTrack = getCurrentTrack();
-  const isPlaying = Boolean(currentTrack && els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src);
+  const activeTrackId = getCurrentPlaybackTrackId();
+  const isPlaybackPending = Boolean(activeTrackId && isPendingPlaybackTrack(activeTrackId));
+  const isPlaying = Boolean(activeTrackId && ((els.audioPlayer && !els.audioPlayer.paused && els.audioPlayer.src) || isPlaybackPending));
 
   document.querySelectorAll('.queue-row').forEach(row => {
-    const isCurrentTrack = Boolean(currentTrack && row.dataset.trackId === currentTrack.id);
+    const isCurrentTrack = Boolean(activeTrackId && row.dataset.trackId === activeTrackId);
     row.classList.toggle('active', isCurrentTrack);
     row.classList.toggle('is-current', isCurrentTrack);
     row.classList.toggle('is-playing', isCurrentTrack && isPlaying);
@@ -3047,20 +3343,39 @@ function syncQueuePlaybackUI() {
     const row = btn.closest('.queue-row');
     const trackId = row?.dataset.trackId || '';
     const trackTitle = row?.querySelector('.queue-title-row h3')?.textContent?.trim() || 'track';
-    const isCurrentTrack = Boolean(currentTrack && trackId === currentTrack.id);
+    const isCurrentTrack = Boolean(activeTrackId && trackId === activeTrackId);
     const buttonShowsPause = isCurrentTrack && isPlaying;
 
     btn.textContent = buttonShowsPause ? '❚❚' : '▶';
     btn.classList.toggle('is-playing', buttonShowsPause);
     btn.classList.toggle('is-current', isCurrentTrack);
     btn.setAttribute('aria-pressed', buttonShowsPause ? 'true' : 'false');
-    btn.setAttribute('aria-label', `${buttonShowsPause ? 'Pause' : 'Play'} ${trackTitle}`);
+    btn.setAttribute('aria-label', (buttonShowsPause ? 'Pause' : 'Play') + ' ' + trackTitle);
   });
+}
+
+function requestPlaybackUiSync() {
+  const sync = () => {
+    syncCurrentPlaybackHighlights();
+    syncQueuePlaybackUI();
+  };
+  sync();
+  if (window.requestAnimationFrame) {
+    window.requestAnimationFrame(() => {
+      sync();
+      window.requestAnimationFrame(sync);
+    });
+  } else {
+    window.setTimeout(sync, 0);
+    window.setTimeout(sync, 80);
+  }
 }
 
 function updatePlayButton() {
   if (!els.audioPlayer) return;
-  const label = els.audioPlayer.paused ? "▶" : "❚❚";
+  const activeTrackId = getCurrentPlaybackTrackId();
+  const pending = Boolean(activeTrackId && isPendingPlaybackTrack(activeTrackId));
+  const label = (pending || !els.audioPlayer.paused) ? "❚❚" : "▶";
   if (els.playBtn) els.playBtn.textContent = label;
   if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
   syncCurrentPlaybackHighlights();
@@ -3100,10 +3415,10 @@ function updateProgressUI() {
 }
 
 function syncCurrentTrackIndex() {
-  const current = getCurrentTrack();
-  if (!current) return;
+  const activeId = getCurrentPlaybackTrackId();
+  if (!activeId) return;
 
-  const found = filteredTracks.findIndex(track => track.id === current.id);
+  const found = filteredTracks.findIndex(track => track.id === activeId);
   currentTrackIndex = found;
 }
 
@@ -4378,7 +4693,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.65 legacy analysis preload disabled
+// v43.1.73 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4388,7 +4703,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.65 smart playback cleanup
+// v43.1.73 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4407,10 +4722,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.65 ULTRA SMOOTH PLAYBACK
+   v43.1.73 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.65";
+const SMART_PLAYBACK_VERSION = "43.1.73";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
@@ -4508,66 +4823,13 @@ function backgroundWarmupQueue(index = currentQueueIndex, queue = currentQueue) 
 }
 
 function fadeAudioVolume(audio, fromVolume, toVolume, durationMs) {
-  if (!audio) return Promise.resolve();
-  const safeFrom = Number.isFinite(fromVolume) ? fromVolume : 1;
-  const safeTo = Number.isFinite(toVolume) ? toVolume : 1;
-  const duration = Math.max(0, Number(durationMs) || 0);
-  if (!duration) {
-    audio.volume = safeTo;
-    return Promise.resolve();
-  }
-
-  const steps = Math.max(6, Math.round(duration / 40));
-  const stepDuration = duration / steps;
-  let stepIndex = 0;
-  audio.volume = safeFrom;
-
-  return new Promise((resolve) => {
-    const timer = window.setInterval(() => {
-      stepIndex += 1;
-      const progress = Math.min(1, stepIndex / steps);
-      audio.volume = safeFrom + ((safeTo - safeFrom) * progress);
-      if (progress >= 1) {
-        window.clearInterval(timer);
-        audio.volume = safeTo;
-        resolve();
-      }
-    }, stepDuration);
-  });
+  if (audio) audio.volume = Number.isFinite(toVolume) ? toVolume : 1;
+  return Promise.resolve();
 }
 
 async function smoothPlayTrack(track, options = {}) {
   if (!track || !track.src || !els.audioPlayer) return;
-  const audio = els.audioPlayer;
-  const current = getCurrentTrack();
-  const hasActiveTrack = Boolean(audio.src && !audio.paused && current?.id && current.id !== track.id);
-  const useCrossfade = options.crossfade !== false && hasActiveTrack;
-  const targetFadeMs = getDynamicCrossfadeMs();
-
-  if (isInstantPlayModeEnabled()) {
-    prefetchTrackMedia(track, { audio: false, cover: false });
-    try {
-      await Promise.race([
-        ensureTrackAnalysisLoaded(track),
-        new Promise((resolve) => window.setTimeout(resolve, 180))
-      ]);
-    } catch (error) {}
-  }
-
-  if (useCrossfade) {
-    try {
-      await fadeAudioVolume(audio, Number.isFinite(audio.volume) ? audio.volume : 1, 0.05, targetFadeMs);
-    } catch (error) {}
-  }
-
-  playTrack(track);
-
-  if (useCrossfade) {
-    try {
-      audio.volume = 0.05;
-      await fadeAudioVolume(audio, 0.05, 1, targetFadeMs + 120);
-    } catch (error) {
-      audio.volume = 1;
-    }
-  }
+  noteTrackSkip();
+  els.audioPlayer.volume = 1;
+  return playTrack(track);
 }

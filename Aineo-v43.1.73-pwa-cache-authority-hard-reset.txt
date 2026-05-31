@@ -1,0 +1,18 @@
+Aineo Music v43.1.73 — PWA Cache Authority Hard Reset
+
+Purpose:
+- Fix devices stuck showing v43.1.65 after installing v43.1.72.
+- Correct stale manifest start_url/shortcut version references that were still pointing to older builds.
+- Strengthen the service worker so new app shell/runtime files cannot remain trapped behind old static caches.
+
+Changes:
+- Updated every package version reference to v43.1.73.
+- Updated manifest.webmanifest start_url and shortcut URLs to v43.1.73.
+- Updated service worker cache namespace to v43.1.73.
+- Added SKIP_WAITING message handling and client activation notification.
+- Changed JS/CSS/manifest runtime assets to network-first so fresh versioned app files win over old cached files.
+- Added aggressive old Aineo cache cleanup during service worker activation.
+- Preserved playback work from v43.1.70 through v43.1.72.
+
+Install note:
+- After upload, close the installed PWA fully and reopen it. If the installed icon still opens v43.1.65 once, open the site in browser once, then relaunch the installed app so the new service worker can claim the shell.

@@ -92,13 +92,16 @@
   }
 
   function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
-    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
-    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
+    const activePlaybackTrackId = window.__AINEO_CURRENT_PLAYBACK_TRACK_ID__ || getCurrentTrack()?.id || '';
+    const isCurrentTrack = Boolean(activePlaybackTrackId && activePlaybackTrackId === track?.id);
+    const pendingLockUntil = Number(window.__AINEO_PENDING_PLAYBACK_LOCK_UNTIL__ || 0);
+    const isPending = Boolean(isCurrentTrack && window.__AINEO_PENDING_PLAYBACK_TRACK_ID__ === track?.id && (!pendingLockUntil || Date.now() <= pendingLockUntil));
+    const isPlaying = Boolean(isCurrentTrack && ((audioPlayer && !audioPlayer.paused && audioPlayer.src) || isPending));
     return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
   }
 
   function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, playTrackById, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
     if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
     const collection = getFeaturedCollection();
     if (!collection) {
@@ -143,9 +146,12 @@
           togglePlayPause();
           return;
         }
-        syncQueueToCurrentCollection(true);
-        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
-        playFromQueueIndex(idx);
+        if (playTrackById) {
+          playTrackById(track.id, collection.tracks);
+          return;
+        }
+        setQueue(collection.tracks, false);
+        playFromQueueIndex(collection.tracks.findIndex(item => item.id === track.id));
       });
     });
 
