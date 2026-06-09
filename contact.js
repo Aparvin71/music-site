@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   contactForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    formMessage.textContent = "Sending request...";
+    formMessage.textContent = "Sending shout out request...";
     formMessage.className = "form-message";
 
     const formData = new FormData(contactForm);
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       if (response.ok) {
-        formMessage.textContent = "Your song request has been sent!";
+        formMessage.textContent = "Your Mission/Church Shout Out request has been sent!";
         formMessage.className = "form-message success";
         contactForm.reset();
       } else {

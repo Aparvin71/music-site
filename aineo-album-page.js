@@ -233,7 +233,7 @@ function renderAlbumPage() {
             <a class="quick-link-pill" href="./index.html">Music</a>
             <a class="quick-link-pill" href="./albums.html">All Albums</a>
             <a class="quick-link-pill" href="./about.html">About</a>
-            <a class="quick-link-pill" href="./contact.html">Request a Song</a>
+            <a class="quick-link-pill" href="./contact.html">Mission/Church Shout Out</a>
           </div>
         </div>
       </div>

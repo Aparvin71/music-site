@@ -1536,6 +1536,73 @@ a:hover {
   color: #c9c9c9;
 }
 
+
+
+/* =========================================
+   MISSION / CHURCH SHOUT OUT BADGES
+========================================= */
+
+.church-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.church-link-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 145px;
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid rgba(29, 185, 84, 0.38);
+  background:
+    radial-gradient(circle at top left, rgba(29, 185, 84, 0.24), transparent 38%),
+    linear-gradient(145deg, rgba(25, 32, 27, 0.98), rgba(12, 14, 16, 0.98));
+  color: #f8fff9 !important;
+  text-decoration: none;
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.32);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.church-link-badge:hover,
+.church-link-badge:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(134, 239, 172, 0.82);
+  box-shadow: 0 20px 46px rgba(29, 185, 84, 0.2);
+  outline: none;
+}
+
+.church-link-badge__eyebrow {
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(134, 239, 172, 0.14);
+  color: #86efac;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.church-link-badge strong {
+  color: #ffffff;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.church-link-badge span:last-child {
+  color: #c7d2cc;
+  font-size: 0.94rem;
+}
+
+@media (max-width: 680px) {
+  .church-badge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* =========================================
    COLLAPSIBLE SECTIONS
 ========================================= */
@@ -12372,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.73 visualizer lift + left-wing alignment polish */
+/* v43.1.75 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12401,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.73 visualizer lift + left-wing alignment polish */
+/* v43.1.75 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.73 visualizer lift + left-wing alignment polish */
+/* v43.1.75 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.73 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.75 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12609,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.73 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.75 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12768,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.73 mobile mini-player final tighten */
+/* v43.1.75 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13118,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.73 battery optimization pass */
+/* v43.1.75 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13148,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.73 performance + low-power hardening */
+/* v43.1.75 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13170,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.73 full player lyrics bottom-safe scroll fix */
+/* v43.1.75 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13207,4 +13274,50 @@ body.aineo-low-power .player-cover-visualizer-bar {
   #playerSheetLyricsPanel .lyrics-block {
     padding-bottom: calc(20px + var(--safe-bottom)) !important;
   }
+}
+
+
+/* v43.1.75 Mission/Church Shout Out image badge expansion */
+.church-badge-grid--featured {
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.church-link-badge--image {
+  align-items: stretch;
+  min-height: 260px;
+  overflow: hidden;
+}
+.church-link-badge__image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 132px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+.church-link-badge__image-wrap img {
+  display: block;
+  width: 100%;
+  max-height: 120px;
+  object-fit: contain;
+}
+.church-link-badge__image-wrap--banner {
+  min-height: 112px;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.42);
+}
+.church-link-badge__image-wrap--banner img {
+  max-height: none;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+@media (min-width: 900px) {
+  .church-link-badge--wide { grid-column: span 2; }
+}
+@media (max-width: 680px) {
+  .church-link-badge--image { min-height: 0; }
+  .church-link-badge--wide { grid-column: auto; }
 }

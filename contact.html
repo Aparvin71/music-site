@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.73" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.75" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -20,10 +20,10 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <title>Request a Song - Aineo Music</title>
-  <link rel="stylesheet" href="style.css?v=43.1.73" />
-  <script src="pwa-init.js?v=43.1.73" defer></script>
-  <script src="contact.js?v=43.1.73" defer></script>
+  <title>Mission/Church Shout Out - Aineo Music</title>
+  <link rel="stylesheet" href="style.css?v=43.1.75" />
+  <script src="pwa-init.js?v=43.1.75" defer></script>
+  <script src="contact.js?v=43.1.75" defer></script>
 </head>
 <body>
 <header class="site-header">
@@ -49,26 +49,62 @@
   <li><a href="/about.html">About</a></li>
   <li><a href="/mission.html">Mission</a></li>
   <li><a href="/install.html">Install</a></li>
-  <li><a href="/contact.html" class="active" aria-current="page">Request a Song</a></li>
+  <li><a href="/contact.html" class="active" aria-current="page">Mission/Church Shout Out</a></li>
 </ul>
   </nav>
 </header>
 
-<main class="page">
-  <section class="page-card">
-    <p class="eyebrow">Custom Song Requests</p>
-    <h2>Request a Song Idea</h2>
+<main class="page mission-shoutout-page">
+  <section class="page-card page-hero-card">
+    <p class="eyebrow">Mission / Church Shout Out</p>
+    <h2>Mission / Church Shout Out</h2>
 
     <p>
-      Have a theme, Scripture, or message you'd like turned into a song?
-      Send your idea below and I’ll review it for a possible custom creation.
+      Explore featured churches, ministries, and mission pages. Use the form below to request a new church/ministry shout out page or share a mission, testimony, outreach, event, pastor, volunteer, prayer need, or community work you would like highlighted on Aineo Music.
+    </p>
+
+    <div class="church-badge-grid church-badge-grid--featured" aria-label="Featured mission and church links">
+      <a class="church-link-badge church-link-badge--image" href="https://www.fbcmayflower.com/" target="_blank" rel="noopener noreferrer" aria-label="Open First Baptist Church Mayflower website">
+        <span class="church-link-badge__image-wrap"><img src="/images/church-logo.png" alt="First Baptist Church Mayflower badge"></span>
+        <span class="church-link-badge__eyebrow">Church Website</span>
+        <strong>First Baptist Church Mayflower</strong>
+        <span>Visit fbcmayflower.com</span>
+      </a>
+      <a class="church-link-badge church-link-badge--image" href="https://alpenafbc.org/Home" target="_blank" rel="noopener noreferrer" aria-label="Open Alpena First Baptist Church website">
+        <span class="church-link-badge__image-wrap"><img src="/images/alpena-first-baptist-church.png" alt="Alpena First Baptist Church badge"></span>
+        <span class="church-link-badge__eyebrow">Church Website</span>
+        <strong>Alpena First Baptist Church</strong>
+        <span>Visit alpenafbc.org</span>
+      </a>
+      <a class="church-link-badge church-link-badge--image" href="https://www.facebook.com/profile.php?id=61565440661319" target="_blank" rel="noopener noreferrer" aria-label="Open New Beginnings Community Church Facebook page">
+        <span class="church-link-badge__image-wrap"><img src="/images/new-beginnings-cc.jpg" alt="New Beginnings Community Church badge"></span>
+        <span class="church-link-badge__eyebrow">Facebook</span>
+        <strong>New Beginnings Community Church</strong>
+        <span>Open Facebook page</span>
+      </a>
+      <a class="church-link-badge church-link-badge--image church-link-badge--wide" href="https://www.youtube.com/channel/UCwQIETWQ96KQTXPn_VpAP1g" target="_blank" rel="noopener noreferrer" aria-label="Open Wielders of the Word YouTube channel">
+        <span class="church-link-badge__image-wrap church-link-badge__image-wrap--banner"><img src="/images/wielders-of-the-word.jpg" alt="Wielders of the Word with Pastor Dennis Pearrow badge"></span>
+        <span class="church-link-badge__eyebrow">YouTube</span>
+        <strong>Wielders of the Word with Pastor Dennis Pearrow</strong>
+        <span>Open YouTube channel</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="page-card">
+    <p class="eyebrow">Submit a Shout Out</p>
+    <h2>Tell Us Who to Highlight</h2>
+    <p>
+      Use this form to request adding a new Mission/Church Shout Out page or badge.
+      Include the church or ministry name, a link if available, image/logo notes if you have them, and what makes the work worth sharing.
     </p>
 
     <form class="request-form" id="contactForm" novalidate>
       <input type="hidden" name="accessKey" value="sf_587f45c8128caab3e591b597">
-      <input type="hidden" name="subject" value="New Song Request - Aineo Music">
+      <input type="hidden" name="subject" value="New Mission/Church Shout Out - Aineo Music">
       <input type="hidden" name="replyTo" value="@email">
       <input type="hidden" name="botcheck" value="" tabindex="-1" autocomplete="off">
+
       <div class="form-row">
         <div class="form-group">
           <label for="name">Your Name</label>
@@ -82,58 +118,58 @@
       </div>
 
       <div class="form-group">
-        <label for="subject">Request Title</label>
+        <label for="subject">Shout Out Title</label>
         <input
           id="subject"
-          name="subject"
+          name="requestTitle"
           type="text"
-          placeholder="Example: Song about trusting God in the storm"
+          placeholder="Example: Add a shout out page for our church outreach"
           required
         >
       </div>
 
       <div class="request-box">
-        <h3>Song Request Details</h3>
-        <p>Share the main idea for the song you'd like created.</p>
+        <h3>Mission / Church Page Request Details</h3>
+        <p>Share who should be highlighted, which link the badge should open, and whether this should become a full shout out page.</p>
 
         <div class="form-group">
-          <label for="theme">Theme</label>
+          <label for="churchName">Church / Ministry Name</label>
           <input
-            id="theme"
-            name="theme"
+            id="churchName"
+            name="churchName"
             type="text"
-            placeholder="Example: Faith, surrender, praise"
+            placeholder="Example: First Baptist Church Mayflower"
             required
           >
         </div>
 
         <div class="form-group">
-          <label for="scripture">Scripture Reference</label>
+          <label for="churchLink">Website or Social Link</label>
           <input
-            id="scripture"
-            name="scripture"
-            type="text"
-            placeholder="Example: Matthew 14:28-31"
+            id="churchLink"
+            name="churchLink"
+            type="url"
+            placeholder="https://example.com"
           >
         </div>
 
         <div class="form-group">
-          <label for="artistStyle">Artist / Style Inspiration</label>
+          <label for="location">Location</label>
           <input
-            id="artistStyle"
-            name="artistStyle"
+            id="location"
+            name="location"
             type="text"
-            placeholder="Example: Southern gospel, modern worship"
+            placeholder="City, state, or area served"
           >
         </div>
 
         <div class="form-group">
-          <label for="about">About the Song</label>
+          <label for="about">About the Shout Out</label>
           <textarea
             id="about"
             name="about"
             rows="7"
-            placeholder="Describe what you want the song to say."
+            placeholder="Tell us about the mission, outreach, testimony, volunteer work, event, pastor, church family, or new shout out page you want highlighted."
             required
           ></textarea>
         </div>
@@ -145,15 +181,16 @@
           id="message"
           name="message"
           rows="4"
-          placeholder="Extra notes or details."
+          placeholder="Extra notes, prayer requests, image/logo notes, page request details, contact info, or timing details."
         ></textarea>
       </div>
 
       <div id="formMessage" class="form-message"></div>
 
-      <button type="submit" class="btn-submit">Send Request</button>
+      <button type="submit" class="btn-submit">Send Shout Out / Page Request</button>
     </form>
-  
+  </section>
+
   <section class="page-card utility-card">
     <p class="eyebrow">Feedback</p>
     <h2>General Feedback</h2>
@@ -165,9 +202,8 @@
   </section>
 </main>
 
-
   <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.73</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.75</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/changelog.html">Changelog</a>
       <a href="/feedback.html">Feedback</a>
@@ -175,6 +211,6 @@
       <a href="/admin-upload.html">Admin Upload</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.1.73"></script>
+<script src="/nav.js?v=43.1.75"></script>
 </body>
 </html>

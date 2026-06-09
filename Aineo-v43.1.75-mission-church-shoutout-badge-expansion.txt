@@ -1,0 +1,11 @@
+Aineo Music v43.1.75 — Mission/Church Shout Out Badge Expansion
+
+Built from v43.1.74.
+
+Included:
+- Converted the Request page into a fuller Mission/Church Shout Out page.
+- Added clickable image badges for First Baptist Church Mayflower, Alpena First Baptist Church, New Beginnings Community Church, and Wielders of the Word.
+- Used the existing package church logo for FBC Mayflower.
+- Added uploaded images into /images with web-safe filenames.
+- Updated form copy so others can request adding a church/ministry shout out page or badge.
+- Bumped visible/runtime/cache references to v43.1.75.
