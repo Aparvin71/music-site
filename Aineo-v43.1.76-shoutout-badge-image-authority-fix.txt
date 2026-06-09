@@ -1,0 +1,3 @@
+Aineo v43.1.76 — Shout Out Badge Image Authority Fix
+
+Fixed Mission/Church Shout Out added badge images not rendering on device by embedding the badge artwork directly in contact.html and removing dependency on fragile absolute /images paths for the badge cards. Added service worker image handling for jpg/jpeg/webp/svg along with png/ico and refreshed package/cache/version markers to v43.1.76.

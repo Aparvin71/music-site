@@ -1,4 +1,4 @@
-/* v43.1.75 unified playback state */
+/* v43.1.76 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.75";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.76";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -4693,7 +4693,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.75 legacy analysis preload disabled
+// v43.1.76 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4703,7 +4703,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.75 smart playback cleanup
+// v43.1.76 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4722,10 +4722,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.75 ULTRA SMOOTH PLAYBACK
+   v43.1.76 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.75";
+const SMART_PLAYBACK_VERSION = "43.1.76";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
