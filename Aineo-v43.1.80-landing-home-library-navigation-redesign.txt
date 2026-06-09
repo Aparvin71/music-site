@@ -1,0 +1,14 @@
+Aineo Music v43.1.80 — Landing/Home + Library Navigation Redesign
+
+Built from v43.1.79.
+
+Included:
+- Replaced the old landing entry with a new Home page inspired by the approved dark purple concept.
+- Home top boxes: Favorites, Downloads, Albums, Shout Outs.
+- Added bottom icon row: Home, Library, Playlists, Quick Filters, More.
+- Moved the previous Home content to Welcome at /home.html.
+- Kept the music runtime/player on the new Home page and preserved the mini player.
+- Established /music.html as the Library page.
+- Removed Lyrics Editor and Admin Upload pages from the package and removed their footer links.
+- Rebuilt hamburger menu with alphabetical page list.
+- Updated manifest shortcuts, service worker cache, visible labels, and version references to v43.1.80.

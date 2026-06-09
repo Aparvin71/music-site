@@ -6,14 +6,14 @@
   <meta http-equiv="Expires" content="0" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Stream Allen Parvin's original songs, worship music, family songs, and Scripture-inspired tracks in the Aineo Music library." />
-  <meta name="theme-color" content="#0f1115" />
+  <meta name="description" content="Aineo Music home page with quick access to favorites, downloads, albums, shout outs, and the music library." />
+  <meta name="theme-color" content="#090812" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.79" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.80" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -23,252 +23,112 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
   <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
-  <title>Music - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.79" />
-  <script src="/pwa-init.js?v=43.1.79" defer></script>
-  <script src="/aineo-config.js?v=43.1.79" defer></script>
-  <script src="/aineo-data.js?v=43.1.79" defer></script>
-  <script src="/aineo-ui.js?v=43.1.79" defer></script>
-  <script src="/aineo-lyrics.js?v=43.1.79" defer></script>
-  <script src="/aineo-media-session.js?v=43.1.79" defer></script>
-  <script src="/aineo-library.js?v=43.1.79" defer></script>
-  <script src="/aineo-queue.js?v=43.1.79" defer></script>
-  <script src="/aineo-featured.js?v=43.1.79" defer></script>
-  <script src="/aineo-playlists.js?v=43.1.79" defer></script>
-  <script src="/aineo-player-sheet.js?v=43.1.79" defer></script>
-  <script src="/aineo-offline.js?v=43.1.79" defer></script>
-  <script src="/app.js?v=43.1.79" defer></script>
+  <title>Home - Aineo Music</title>
+  <link rel="stylesheet" href="/style.css?v=43.1.80" />
+  <script src="/pwa-init.js?v=43.1.80" defer></script>
+  <script src="/aineo-config.js?v=43.1.80" defer></script>
+  <script src="/aineo-data.js?v=43.1.80" defer></script>
+  <script src="/aineo-ui.js?v=43.1.80" defer></script>
+  <script src="/aineo-lyrics.js?v=43.1.80" defer></script>
+  <script src="/aineo-media-session.js?v=43.1.80" defer></script>
+  <script src="/aineo-library.js?v=43.1.80" defer></script>
+  <script src="/aineo-queue.js?v=43.1.80" defer></script>
+  <script src="/aineo-featured.js?v=43.1.80" defer></script>
+  <script src="/aineo-playlists.js?v=43.1.80" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.1.80" defer></script>
+  <script src="/aineo-offline.js?v=43.1.80" defer></script>
+  <script src="/app.js?v=43.1.80" defer></script>
 </head>
-<body class="music-page-layout">
+<body class="landing-page-layout music-page-layout has-aineo-bottom-nav">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
 
-  <header class="site-header">
+  <header class="site-header aineo-app-header">
     <nav class="navbar" aria-label="Main navigation">
       <div class="nav-top-row">
-        <h1 class="logo">Aineo Music</h1>
-
-        <button
-          id="mobileNavToggle"
-          class="mobile-nav-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="siteNavLinks"
-          aria-label="Toggle navigation"
-        >
-          ☰
-        </button>
+        <a class="aineo-wordmark" href="/index.html" aria-label="Aineo Music Home"><span aria-hidden="true">≋</span> AINEO</a>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Open page menu">☰</button>
       </div>
-
       <ul id="siteNavLinks" class="nav-links">
-  <li><a href="/home.html">Home</a></li>
-  <li><a href="/index.html" class="active" aria-current="page">Music</a></li>
-  <li><a href="/albums.html">Albums</a></li>
   <li><a href="/about.html">About</a></li>
-  <li><a href="/mission.html">Mission</a></li>
+  <li><a href="/albums.html">Albums</a></li>
+  <li><a href="/artists.html">Artists</a></li>
+  <li><a href="/changelog.html">Changelog</a></li>
+  <li><a href="/feedback.html">Feedback</a></li>
+  <li><a href="/index.html" class="active" aria-current="page">Home</a></li>
   <li><a href="/install.html">Install</a></li>
-  <li><a href="/contact.html">Mission/Church Shout Out</a></li>
+  <li><a href="/music.html">Library</a></li>
+  <li><a href="/mission.html">Mission</a></li>
+  <li><a href="/contact.html">Shout Outs</a></li>
+  <li><a href="/home.html">Welcome</a></li>
 </ul>
     </nav>
   </header>
 
-  <noscript>
-    <div class="noscript-banner">This music library needs JavaScript enabled to load tracks and controls.</div>
-  </noscript>
+  <noscript><div class="noscript-banner">This music library needs JavaScript enabled to load tracks and controls.</div></noscript>
 
-  
-  <div class="app-shell music-app-shell">
-    <main id="mainContent" class="main-content main-content--music-order">
-      <section id="offlineStatusMount" class="offline-status-wrap hidden music-center-column-item" aria-live="polite"></section>
-      <section id="stickyFilterBar" class="sticky-filter-bar hidden music-center-column-item" aria-live="polite">
-        <div class="sticky-filter-bar-inner">
-          <div class="filter-info">
-            <span id="filterTypeBadge" class="filter-type-badge">Filter</span>
-            <p id="activeFilterLabel" class="active-filter-label">Showing all music</p>
-          </div>
+  <main id="mainContent" class="aineo-landing-page">
+    <section id="offlineStatusMount" class="offline-status-wrap hidden" aria-live="polite"></section>
+    <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite"></section>
 
-          <button id="clearFiltersBtn" class="action-btn secondary-btn" type="button">
-            Show All Music
-          </button>
-        </div>
-      </section>
-
-      <div class="music-layout-shell">
-        <aside class="music-left-rail" aria-label="Browse music library">
-          <section class="library-panel playlist-section-card collapsible-section open" data-collapsible="playlists">
-            <div class="section-header section-header-collapsible">
-              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="playlistSectionBody">
-                <span id="playlistsHeading">Quick Filters &amp; Playlists</span><span class="toggle-icon" aria-hidden="true">▾</span>
-              </button>
-            </div>
-            <div id="playlistSectionBody" class="section-body">
-              <div id="playlistList" class="playlist-list" aria-live="polite"></div>
-              <div class="playlist-subsection-label">Custom Playlists</div>
-              <p class="playlist-subsection-copy">Your saved custom playlists live here and work like the main playlist filters.</p>
-              <div id="myPlaylistList" class="playlist-list playlist-list--custom" aria-live="polite"></div>
-            </div>
-          </section>
-
-          <section class="albums-panel collapsible-section open" data-collapsible="albums" aria-labelledby="albumsHeading">
-            <div class="section-header section-header-collapsible">
-              <button class="section-toggle" type="button" aria-expanded="true" aria-controls="albumsSectionBody">
-                <span id="albumsHeading">Albums</span><span class="toggle-icon" aria-hidden="true">▾</span>
-              </button>
-            </div>
-            <div id="albumsSectionBody" class="section-body">
-              <div class="browse-shelf-intro">
-                <p>Browse collections quickly from the top of the app.</p>
-                <a class="browse-shelf-link" href="/albums.html">Open all</a>
-              </div>
-            <div id="albumGrid" class="album-grid album-grid--four" aria-live="polite"></div>
-          </section>
-        </aside>
-
-        <div class="music-center-column">
-          <section class="page-card music-library-card music-library-card--compact">
-        <div class="music-library-card-copy">
-          <p class="eyebrow">Music Library</p>
-          <h2>Original songs, worship tracks, and thoughtful music</h2>
-          <p class="hero-text">
-            Browse by playlist or album and listen through a single, simple All Songs list.
-          </p>
-        </div>
-        <div class="music-library-card-search">
-          <label class="visually-hidden" for="searchInput">Search music library</label>
-          <input
-            type="search"
-            id="searchInput"
-            placeholder="Search songs, albums, tags, playlists, lyrics..."
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <div id="searchScopeBar" class="search-scope-bar" aria-label="Search scope"></div>
-          <p id="searchMeta" class="search-meta">Search songs, albums, playlists, lyrics, and scripture.</p>
-          <div class="library-quick-links" aria-label="Quick browse links">
-                        <a class="library-quick-link" href="#albumsHeading">Albums</a>
-            <a class="library-quick-link" href="#featuredTrackListTitle">Tracks</a>
-            <a class="library-quick-link" href="#playlistsHeading">Playlists</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="about-panel about-panel--compact" aria-labelledby="aboutMusicHeading">
-        <h2 id="aboutMusicHeading">About This Music</h2>
-        <p>
-          Every song here begins with words I have written. I use AI as a creative tool to help shape the music,
-          sound, and vocals, allowing those lyrics to become fully realized songs.
-        </p>
-        <div class="card-actions about-panel-actions">
-          <a class="action-btn secondary-btn small-action-btn" href="/about.html">Read More About the Music</a>
-        </div>
-      </section>
-
-      <section id="continueListeningCard" class="page-card continue-listening-card hidden" aria-live="polite">
-        <div class="continue-listening-cover-wrap">
-          <img id="continueListeningCover" class="continue-listening-cover" src="" alt="Continue listening cover" />
-        </div>
-        <div class="continue-listening-copy">
-          <p class="eyebrow">Continue Listening</p>
-          <h2 id="continueListeningTitle">Pick up where you left off</h2>
-          <p id="continueListeningMeta" class="continue-listening-meta">Resume your last song and position.</p>
-        </div>
-        <div class="continue-listening-actions">
-          <button id="resumeSongBtn" class="action-btn" type="button">Resume</button>
-          <button id="dismissResumeBtn" class="action-btn secondary-btn" type="button">Dismiss</button>
-        </div>
-      </section>
-
-      <section class="featured-album-card" id="featuredCollectionCard" aria-labelledby="featuredAlbumTitle">
-        <div class="featured-cover-wrap">
-          <img
-            id="featuredAlbumCover"
-            class="featured-cover"
-            src=""
-            alt="Selected collection cover"
-          />
-        </div>
-
-        <div class="featured-meta">
-          <p class="eyebrow">Selected Collection</p>
-          <h2 id="featuredAlbumTitle">Loading album...</h2>
-          <p id="featuredAlbumArtist">—</p>
-          <p id="featuredAlbumCount">—</p>
-          <p class="featured-quick-copy">Start here for the fastest way to play, shuffle, save offline, or open the full collection page.</p>
-
-          <div class="featured-actions">
-            <button id="playAlbumBtn" class="action-btn" type="button">Play Collection</button>
-            <button id="shuffleAlbumBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
-            <button id="saveAlbumOfflineBtn" class="action-btn secondary-btn" type="button">Save Collection Offline</button>
-            <button id="downloadAlbumBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="library-panel featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
-        <div class="section-header section-header--with-link">
-          <h2 id="featuredTrackListTitle">All Songs</h2>
-          
-        </div>
-
-        <div id="featuredTrackList" class="featured-track-list" aria-live="polite">
-          <p class="empty-message">No tracks available.</p>
-        </div>
-      </section>
-        </div>
-
-        <aside class="music-right-rail" aria-label="Current song details">
-      <section class="lyrics-panel collapsible-section open" data-collapsible="lyrics">
-        <div class="section-header section-header-collapsible">
-          <button
-            class="section-toggle"
-            type="button"
-            aria-expanded="true"
-            aria-controls="lyricsSectionBody"
-          >
-            <span>Lyrics</span>
-            <span class="toggle-icon" aria-hidden="true">▾</span>
-          </button>
-        </div>
-
-        <div id="lyricsSectionBody" class="section-body">
-          <div id="lyricsContent" class="lyrics-content">
-            <p class="empty-message">Select a song to view lyrics.</p>
-          </div>
-        </div>
-      </section>
-
-      <section class="library-panel collapsible-section open" data-collapsible="favorites" aria-labelledby="favoritesHeading">
-        <div class="section-header section-header-collapsible">
-          <button class="section-toggle" type="button" aria-expanded="true" aria-controls="favoritesSectionBody">
-            <span id="favoritesHeading">Favorites</span><span class="toggle-icon" aria-hidden="true">▾</span>
-          </button>
-        </div>
-        <div id="favoritesSectionBody" class="section-body">
-        <div id="favoritesList" class="mini-grid" aria-live="polite"></div>
-        </div>
-      </section>
-
-      <section class="library-panel collapsible-section open" data-collapsible="recent" aria-labelledby="recentlyPlayedHeading">
-        <div class="section-header section-header-collapsible">
-          <button class="section-toggle" type="button" aria-expanded="true" aria-controls="recentlyPlayedSectionBody">
-            <span id="recentlyPlayedHeading">Recently Played</span><span class="toggle-icon" aria-hidden="true">▾</span>
-          </button>
-        </div>
-        <div id="recentlyPlayedSectionBody" class="section-body">
-        <div id="recentlyPlayedList" class="mini-grid" aria-live="polite"></div>
-        </div>
-      </section>
-
-      <section id="downloadedSection" class="library-panel" aria-labelledby="downloadedHeading">
-        <div class="section-header">
-          <h2 id="downloadedHeading">Downloaded Songs</h2>
-        </div>
-        <div id="downloadedList" class="mini-grid" aria-live="polite"></div>
-      </section>
-
-        </aside>
+    <section class="aineo-landing-hero" aria-labelledby="landingHomeHeading">
+      <div class="aineo-landing-hero-copy">
+        <p class="aineo-welcome-line">Welcome back 👋</p>
+        <h1 id="landingHomeHeading">Let’s worship together.</h1>
+        <p>Music for every moment, faith for every step.</p>
       </div>
-    </main>
-  </div>
+      <div class="aineo-landing-hero-art" aria-hidden="true"><span>✝</span></div>
+    </section>
+
+    <section class="aineo-home-action-grid" aria-label="Featured shortcuts">
+      <a class="aineo-home-action-card card-favorites" href="/music.html#favoritesHeading">
+        <span class="home-card-icon" aria-hidden="true">♡</span>
+        <strong>Favorites</strong>
+        <small id="landingFavoritesCount">Saved songs</small>
+      </a>
+      <a class="aineo-home-action-card card-downloads" href="/music.html#downloadedHeading">
+        <span class="home-card-icon" aria-hidden="true">⇩</span>
+        <strong>Downloads</strong>
+        <small id="landingDownloadsCount">Offline songs</small>
+      </a>
+      <a class="aineo-home-action-card card-albums" href="/albums.html">
+        <span class="home-card-icon" aria-hidden="true">▣</span>
+        <strong>Albums</strong>
+        <small>Collections</small>
+      </a>
+      <a class="aineo-home-action-card card-shoutouts" href="/contact.html">
+        <span class="home-card-icon" aria-hidden="true">▹</span>
+        <strong>Shout Outs</strong>
+        <small>Church & mission highlights</small>
+      </a>
+    </section>
+
+    <section class="aineo-home-panel aineo-home-panel--horizontal" aria-labelledby="continueHeading">
+      <div class="aineo-section-title-row">
+        <h2 id="continueHeading">Continue Listening</h2>
+        <a href="/music.html">See all ›</a>
+      </div>
+      <div id="recentlyPlayedList" class="mini-grid aineo-continue-strip" aria-live="polite"></div>
+      <p class="aineo-tip-line">More recommendations are curated as you listen.</p>
+    </section>
+
+    <section class="aineo-home-panel aineo-home-panel--songs featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
+      <div class="aineo-section-title-row">
+        <h2 id="featuredTrackListTitle">My Songs</h2>
+        <a href="/music.html">View all ›</a>
+      </div>
+      <div id="featuredTrackList" class="featured-track-list aineo-home-song-list" aria-live="polite"></div>
+      <p class="aineo-tip-line">Tip: more actions are under the ••• menu on each song.</p>
+    </section>
+
+    <section class="landing-hidden-runtime" aria-hidden="true">
+      <label class="visually-hidden" for="searchInput">Search music library</label><input id="searchInput" type="search" />
+      <div id="searchScopeBar"></div><p id="searchMeta"></p><div id="playlistList"></div><div id="myPlaylistList"></div><div id="albumGrid"></div><div id="tagList"></div>
+      <p id="activeFilterLabel"></p><button id="clearFiltersBtn" type="button"></button>
+      <div id="favoritesList"></div><div id="downloadedList"></div><div id="queueList"></div><span id="queueCount"></span>
+    </section>
+  </main>
+
+
 
 
   <div class="sticky-player" aria-label="Audio player">
@@ -486,15 +346,41 @@
     </div>
   </div>
 
-    <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.79</span></p>
+    
+
+<nav class="aineo-bottom-icon-row" aria-label="Main app shortcuts">
+  <a class="aineo-bottom-icon active" href="/index.html" aria-current="page"><span aria-hidden="true">⌂</span><strong>Home</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html"><span aria-hidden="true">♫</span><strong>Library</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html#playlistsHeading"><span aria-hidden="true">☷</span><strong>Playlists</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html#playlistsHeading"><span aria-hidden="true">⌁</span><strong>Quick Filters</strong></a>
+  <button class="aineo-bottom-icon" type="button" data-open-nav><span aria-hidden="true">•••</span><strong>More</strong></button>
+</nav>
+
+<footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.80</span></p>
     <p class="footer-links footer-links--admin">
+      <a href="/about.html">About</a>
       <a href="/changelog.html">Changelog</a>
       <a href="/feedback.html">Feedback</a>
-      <a href="/lyrics-editor.html">Lyrics Editor</a>
-      <a href="/admin-upload.html">Admin Upload</a>
+      <a href="/install.html">Install</a>
+      <a href="/contact.html">Shout Outs</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.1.79"></script>
+<script src="/nav.js?v=43.1.80"></script>
+<script>
+(function() {
+  function readArray(key) { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function updateLandingCounts() {
+    const favs = readArray('aineo_favorites');
+    const downloads = readArray('aineo_downloaded_tracks');
+    const f = document.getElementById('landingFavoritesCount');
+    const d = document.getElementById('landingDownloadsCount');
+    if (f) f.textContent = favs.length ? `${favs.length} saved song${favs.length === 1 ? '' : 's'}` : 'Saved songs';
+    if (d) d.textContent = downloads.length ? `${downloads.length} offline song${downloads.length === 1 ? '' : 's'}` : 'Offline songs';
+  }
+  document.addEventListener('DOMContentLoaded', updateLandingCounts);
+  window.addEventListener('storage', updateLandingCounts);
+})();
+</script>
 </body>
 </html>

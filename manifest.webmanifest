@@ -1,7 +1,7 @@
 {
   "name": "Aineo Music",
   "short_name": "Aineo",
-  "start_url": "./index.html?source=pwa&v=43.1.79&shell=43178",
+  "start_url": "./index.html?source=pwa&v=43.1.80&shell=43180",
   "scope": "./",
   "display": "standalone",
   "display_override": [
@@ -12,7 +12,7 @@
   "orientation": "portrait-primary",
   "background_color": "#0f1115",
   "theme_color": "#0f1115",
-  "description": "Original songs, worship music, family songs, and Scripture-inspired tracks with a cleaner standalone iPhone experience.",
+  "description": "Aineo Music home, library, playlists, quick filters, albums, downloads, favorites, and mission/church shout outs.",
   "icons": [
     {
       "src": "./icons/icon-16.png",
@@ -45,7 +45,7 @@
       "purpose": "any maskable"
     }
   ],
-  "id": "./index.html?app=AineoMusic",
+  "id": "./index.html?app=AineoMusic&v=43.1.80",
   "categories": [
     "music",
     "entertainment",
@@ -53,19 +53,24 @@
   ],
   "shortcuts": [
     {
-      "name": "Music",
-      "short_name": "Music",
-      "url": "./music.html?source=pwa&v=43.1.79&shell=43178"
+      "name": "Home",
+      "short_name": "Home",
+      "url": "./index.html?source=pwa&v=43.1.80&shell=43180"
+    },
+    {
+      "name": "Library",
+      "short_name": "Library",
+      "url": "./music.html?source=pwa&v=43.1.80&shell=43180"
     },
     {
       "name": "Albums",
       "short_name": "Albums",
-      "url": "./albums.html?source=pwa&v=43.1.79&shell=43178"
+      "url": "./albums.html?source=pwa&v=43.1.80&shell=43180"
     },
     {
-      "name": "About",
-      "short_name": "About",
-      "url": "./about.html?source=pwa&v=43.1.79&shell=43178"
+      "name": "Shout Outs",
+      "short_name": "Shout Outs",
+      "url": "./contact.html?source=pwa&v=43.1.80&shell=43180"
     }
   ]
 }
