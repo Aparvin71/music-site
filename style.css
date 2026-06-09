@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.80 visualizer lift + left-wing alignment polish */
+/* v43.1.81 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.80 visualizer lift + left-wing alignment polish */
+/* v43.1.81 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.80 visualizer lift + left-wing alignment polish */
+/* v43.1.81 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.80 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.81 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.80 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.81 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.80 mobile mini-player final tighten */
+/* v43.1.81 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.80 battery optimization pass */
+/* v43.1.81 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.80 performance + low-power hardening */
+/* v43.1.81 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.80 full player lyrics bottom-safe scroll fix */
+/* v43.1.81 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.80 Mission/Church Shout Out image badge expansion */
+/* v43.1.81 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.80 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.81 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.80 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.81 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.80 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.80"] .shoutout-badge-image,
+/* ===== v43.1.81 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.81"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.80 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.81 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14000,4 +14000,389 @@ body.has-aineo-bottom-nav {
   .aineo-bottom-icon strong { font-size: 0.68rem; }
   .aineo-bottom-icon span { font-size: 1.3rem; }
   .aineo-bottom-icon { min-height: 50px; border-radius: 14px; }
+}
+
+
+/* =========================================
+   v43.1.81 HOME LAYOUT + MINI PLAYER REPAIR
+   - smaller worship hero
+   - compact continue cards
+   - mini player stacked above bottom nav
+   - bottom nav remains clickable
+   - no floating standalone ellipsis
+========================================= */
+
+.floating-settings-btn,
+#floatingSettingsButton {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.has-aineo-bottom-nav {
+  --app-bottom-space: calc(154px + var(--safe-bottom));
+  padding-bottom: var(--app-bottom-space) !important;
+}
+
+.landing-page-layout .site-header {
+  z-index: 1800;
+}
+
+.landing-page-layout .aineo-landing-page {
+  padding-top: clamp(12px, 3vw, 28px) !important;
+  padding-bottom: calc(165px + var(--safe-bottom)) !important;
+}
+
+.landing-page-layout .aineo-landing-hero {
+  min-height: clamp(170px, 26vw, 260px) !important;
+  padding: clamp(18px, 3vw, 32px) !important;
+  gap: clamp(12px, 2vw, 22px) !important;
+  border-radius: clamp(24px, 4vw, 32px) !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,0.26), inset 0 0 30px rgba(116, 69, 255, 0.10) !important;
+}
+
+.landing-page-layout .aineo-landing-hero h1 {
+  font-size: clamp(2.05rem, 6.6vw, 4.1rem) !important;
+  letter-spacing: -0.065em !important;
+}
+
+.landing-page-layout .aineo-welcome-line {
+  margin-bottom: 6px !important;
+}
+
+.landing-page-layout .aineo-landing-hero p:last-child {
+  margin-top: 0.65rem !important;
+  font-size: clamp(0.98rem, 2.1vw, 1.18rem) !important;
+}
+
+.landing-page-layout .aineo-landing-hero-art {
+  min-height: clamp(105px, 18vw, 170px) !important;
+  border-radius: 24px !important;
+}
+
+.landing-page-layout .aineo-landing-hero-art span {
+  width: clamp(64px, 12vw, 108px) !important;
+  height: clamp(64px, 12vw, 108px) !important;
+  font-size: clamp(2.45rem, 7vw, 4.6rem) !important;
+}
+
+.landing-page-layout #offlineStatusMount:empty,
+.landing-page-layout #stickyFilterBar:empty,
+.landing-page-layout .landing-hidden-runtime {
+  display: none !important;
+  min-height: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Reduce the impression of a hidden card/shelf behind content panels. */
+.landing-page-layout .aineo-home-panel {
+  background: linear-gradient(180deg, rgba(18,18,31,0.72), rgba(10,11,20,0.78)) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04) !important;
+}
+
+/* Continue Listening: keep the cards, but make cover art about half the previous visual size. */
+.landing-page-layout .aineo-continue-strip {
+  gap: 12px !important;
+  padding-bottom: 8px !important;
+}
+
+.landing-page-layout .aineo-continue-strip > * {
+  flex: 0 0 min(260px, 78vw) !important;
+}
+
+.landing-page-layout .aineo-continue-strip .mini-card {
+  display: grid !important;
+  grid-template-columns: 82px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 12px !important;
+  min-height: 104px !important;
+  padding: 10px !important;
+  text-align: left !important;
+}
+
+.landing-page-layout .aineo-continue-strip .mini-card-cover,
+.landing-page-layout .aineo-continue-strip .mini-card img,
+.landing-page-layout .aineo-continue-strip .mini-card-placeholder {
+  width: 82px !important;
+  height: 82px !important;
+  max-width: 82px !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
+  border-radius: 16px !important;
+  object-fit: cover !important;
+}
+
+.landing-page-layout .aineo-continue-strip .mini-card-meta {
+  min-width: 0 !important;
+}
+
+.landing-page-layout .aineo-continue-strip .mini-card-meta strong {
+  font-size: 0.98rem !important;
+  line-height: 1.15 !important;
+}
+
+.landing-page-layout .aineo-continue-strip .mini-card-meta span {
+  margin-top: 4px !important;
+  font-size: 0.82rem !important;
+}
+
+/* Home My Songs: keep it short/curated; app.js now supplies My Songs/most-played/favorites only. */
+.landing-page-layout .aineo-home-song-list {
+  max-height: none !important;
+}
+
+.landing-page-layout .aineo-home-song-list .featured-track-row:nth-child(n+6) {
+  display: none !important;
+}
+
+/* Mini player authority with bottom nav: compact, centered, and no action drawer covering tabs. */
+.has-aineo-bottom-nav .sticky-player {
+  position: fixed !important;
+  left: max(10px, calc(10px + var(--safe-left))) !important;
+  right: max(10px, calc(10px + var(--safe-right))) !important;
+  bottom: calc(66px + var(--safe-bottom)) !important;
+  width: auto !important;
+  max-width: none !important;
+  min-height: 66px !important;
+  max-height: 78px !important;
+  transform: none !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-areas:
+    "meta controls"
+    "progress progress" !important;
+  align-items: center !important;
+  gap: 4px 10px !important;
+  padding: 8px 10px 9px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  z-index: 1200 !important;
+  background: linear-gradient(180deg, rgba(22,23,36,0.96), rgba(12,13,24,0.98)) !important;
+  border: 1px solid rgba(166, 94, 255, 0.26) !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.36) !important;
+}
+
+.has-aineo-bottom-nav .sticky-player::before {
+  opacity: 0.35 !important;
+}
+
+.has-aineo-bottom-nav .sticky-player-left {
+  grid-area: meta !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+}
+
+.has-aineo-bottom-nav .now-cover,
+.has-aineo-bottom-nav #nowCover {
+  width: 48px !important;
+  height: 48px !important;
+  max-width: 48px !important;
+  flex: 0 0 48px !important;
+  border-radius: 13px !important;
+  margin: 0 !important;
+}
+
+.has-aineo-bottom-nav .now-meta {
+  min-width: 0 !important;
+}
+
+.has-aineo-bottom-nav .now-meta .label,
+.has-aineo-bottom-nav #nowAlbum,
+.has-aineo-bottom-nav #nowScripture {
+  display: none !important;
+}
+
+.has-aineo-bottom-nav .now-meta h3,
+.has-aineo-bottom-nav #nowTitle {
+  margin: 0 !important;
+  font-size: 0.92rem !important;
+  line-height: 1.12 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.has-aineo-bottom-nav .now-meta p,
+.has-aineo-bottom-nav #nowArtist {
+  margin: 3px 0 0 !important;
+  font-size: 0.74rem !important;
+  line-height: 1.1 !important;
+  color: rgba(255,255,255,0.62) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.has-aineo-bottom-nav .sticky-player-center {
+  grid-area: controls !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-width: auto !important;
+}
+
+.has-aineo-bottom-nav .sticky-player .transport {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+}
+
+.has-aineo-bottom-nav .sticky-player .mode-btn,
+.has-aineo-bottom-nav #shuffleModeBtn,
+.has-aineo-bottom-nav #repeatModeBtn,
+.has-aineo-bottom-nav .sticky-player-right,
+.has-aineo-bottom-nav .compact-actions,
+.has-aineo-bottom-nav .desktop-extra-actions,
+.has-aineo-bottom-nav .mobile-actions-drawer {
+  display: none !important;
+}
+
+.has-aineo-bottom-nav .sticky-player .control-btn {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 0.88rem !important;
+}
+
+.has-aineo-bottom-nav .sticky-player .play-btn {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  font-size: 1rem !important;
+}
+
+.has-aineo-bottom-nav .progress-wrap {
+  grid-area: progress !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  width: 100% !important;
+  gap: 0 !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+
+.has-aineo-bottom-nav .progress-wrap span {
+  display: none !important;
+}
+
+.has-aineo-bottom-nav .seek-wrap,
+.has-aineo-bottom-nav #seekBar {
+  width: 100% !important;
+}
+
+.has-aineo-bottom-nav #seekBar {
+  height: 4px !important;
+  margin: 0 !important;
+  accent-color: #a855ff !important;
+}
+
+.has-aineo-bottom-nav .aineo-bottom-icon-row {
+  z-index: 2200 !important;
+  pointer-events: auto !important;
+  min-height: calc(62px + var(--safe-bottom)) !important;
+  padding-top: 6px !important;
+  background: linear-gradient(180deg, rgba(13,14,26,0.90), rgba(8,9,18,0.99)) !important;
+}
+
+.has-aineo-bottom-nav .aineo-bottom-icon {
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+@media (max-width: 760px) {
+  .landing-page-layout .aineo-landing-hero {
+    grid-template-columns: 1fr !important;
+    min-height: 224px !important;
+    padding: 20px 18px !important;
+  }
+
+  .landing-page-layout .aineo-landing-hero-art {
+    min-height: 86px !important;
+  }
+
+  .landing-page-layout .aineo-landing-hero h1 {
+    font-size: clamp(2.15rem, 9.5vw, 3.4rem) !important;
+  }
+
+  .landing-page-layout .aineo-home-action-card {
+    min-height: 118px !important;
+  }
+
+  .landing-page-layout .aineo-home-panel {
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    border-radius: 24px !important;
+  }
+}
+
+@media (max-width: 440px) {
+  body.has-aineo-bottom-nav {
+    --app-bottom-space: calc(150px + var(--safe-bottom));
+  }
+
+  .landing-page-layout .aineo-landing-page {
+    padding-left: max(14px, var(--safe-left)) !important;
+    padding-right: max(14px, var(--safe-right)) !important;
+  }
+
+  .landing-page-layout .aineo-landing-hero {
+    min-height: 210px !important;
+  }
+
+  .landing-page-layout .aineo-landing-hero-art {
+    min-height: 74px !important;
+  }
+
+  .landing-page-layout .aineo-continue-strip .mini-card {
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+    min-height: 92px !important;
+  }
+
+  .landing-page-layout .aineo-continue-strip .mini-card-cover,
+  .landing-page-layout .aineo-continue-strip .mini-card img,
+  .landing-page-layout .aineo-continue-strip .mini-card-placeholder {
+    width: 72px !important;
+    height: 72px !important;
+    max-width: 72px !important;
+  }
+
+  .has-aineo-bottom-nav .sticky-player {
+    bottom: calc(62px + var(--safe-bottom)) !important;
+    min-height: 64px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 3px 6px !important;
+    padding: 7px 8px 8px !important;
+  }
+
+  .has-aineo-bottom-nav .sticky-player .control-btn:not(.play-btn) {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+  }
+
+  .has-aineo-bottom-nav .sticky-player .play-btn {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    min-height: 38px !important;
+  }
+
+  .has-aineo-bottom-nav .now-cover,
+  .has-aineo-bottom-nav #nowCover {
+    width: 44px !important;
+    height: 44px !important;
+    max-width: 44px !important;
+    flex-basis: 44px !important;
+  }
 }

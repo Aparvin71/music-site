@@ -1,0 +1,13 @@
+Aineo v43.1.81 — Home Layout + Mini Player Repair
+
+Forward build from v43.1.80.
+
+Changes:
+- Reduced the vertical size of the “Let’s worship together” hero card.
+- Fixed the mini player stacking so it sits above the bottom icon row instead of covering it.
+- Kept the bottom icon row clickable and raised its z-index above the player.
+- Reduced Continue Listening artwork size inside its cards.
+- Changed Home “My Songs” to use the custom “My Songs” playlist first, then most-played songs, then favorites/recent songs; it no longer falls back to the full library.
+- Removed the standalone top-right floating three-dot app-feel/settings button from all pages.
+- Reduced the hidden-card/shelf look behind Home sections.
+- Bumped app, cache, manifest, service worker, and asset versioning to v43.1.81.

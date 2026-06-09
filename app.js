@@ -1,4 +1,4 @@
-/* v43.1.80 unified playback state */
+/* v43.1.81 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.80";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.81";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -2385,7 +2385,85 @@ function getCurrentCollectionMeta() {
   };
 }
 
+function isLandingHomePage() {
+  return document.body.classList.contains("landing-page-layout");
+}
+
+function getCustomPlaylistEntryByName(targetName) {
+  const target = String(targetName || "").trim().toLowerCase();
+  if (!target) return null;
+  const names = Object.keys(customPlaylists || {});
+  const match = names.find(name => String(name || "").trim().toLowerCase() === target);
+  return match ? customPlaylists[match] : null;
+}
+
+function normalizePlaylistTrackIds(entry) {
+  if (!entry) return [];
+  if (Array.isArray(entry)) return entry;
+  if (Array.isArray(entry.trackIds)) return entry.trackIds;
+  if (Array.isArray(entry.tracks)) return entry.tracks.map(item => typeof item === "string" ? item : item?.id).filter(Boolean);
+  return [];
+}
+
+function resolveTrackIdsToTracks(ids) {
+  const seen = new Set();
+  return (ids || [])
+    .map(id => tracks.find(track => track.id === id))
+    .filter(track => {
+      if (!track?.id || seen.has(track.id)) return false;
+      seen.add(track.id);
+      return true;
+    });
+}
+
+function getHomeMySongsTracks() {
+  const maxHomeSongs = 5;
+
+  // 1) Prefer the user's explicit custom playlist named "My Songs".
+  const mySongsEntry = getCustomPlaylistEntryByName("My Songs");
+  const mySongsTracks = resolveTrackIdsToTracks(normalizePlaylistTrackIds(mySongsEntry));
+  if (mySongsTracks.length) return mySongsTracks.slice(0, maxHomeSongs);
+
+  // 2) Then use most-played songs, if play history exists.
+  const mostPlayed = [...tracks]
+    .filter(track => Number(playStats?.[track.id]?.count || track.play_count || 0) > 0)
+    .sort((a, b) => {
+      const countDiff = Number(playStats?.[b.id]?.count || b.play_count || 0) - Number(playStats?.[a.id]?.count || a.play_count || 0);
+      if (countDiff) return countDiff;
+      const bTime = Date.parse(playStats?.[b.id]?.lastPlayed || b.last_played || "") || 0;
+      const aTime = Date.parse(playStats?.[a.id]?.lastPlayed || a.last_played || "") || 0;
+      return bTime - aTime;
+    });
+  if (mostPlayed.length) return mostPlayed.slice(0, maxHomeSongs);
+
+  // 3) Then use favorites.
+  const favoriteTracks = resolveTrackIdsToTracks(favorites);
+  if (favoriteTracks.length) return favoriteTracks.slice(0, maxHomeSongs);
+
+  // 4) Then use recently played.
+  const recentTracks = resolveTrackIdsToTracks(recentlyPlayed);
+  if (recentTracks.length) return recentTracks.slice(0, maxHomeSongs);
+
+  // Do not fall back to the full library on the Home page.
+  return [];
+}
+
 function getFeaturedCollection() {
+  if (isLandingHomePage()) {
+    const homeTracks = getHomeMySongsTracks();
+    if (!homeTracks.length) return null;
+    return {
+      type: "home-my-songs",
+      key: "home:my-songs",
+      name: "My Songs",
+      subtitle: "My Songs playlist, most played, or favorites",
+      cover: homeTracks.find(track => track.cover)?.cover || "",
+      tracks: homeTracks,
+      album_zip: "",
+      openMode: "collection"
+    };
+  }
+
   const collection = getCurrentCollectionMeta();
   return collection.tracks.length ? collection : null;
 }
@@ -4693,7 +4771,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.80 legacy analysis preload disabled
+// v43.1.81 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4703,7 +4781,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.80 smart playback cleanup
+// v43.1.81 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4722,10 +4800,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.80 ULTRA SMOOTH PLAYBACK
+   v43.1.81 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.80";
+const SMART_PLAYBACK_VERSION = "43.1.81";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
