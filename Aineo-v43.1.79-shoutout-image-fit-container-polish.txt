@@ -1,0 +1,10 @@
+Aineo Music v43.1.79 — Shout Out Image Fit + Container Polish
+
+Forward build from v43.1.78.
+
+Fixes:
+- Adjusted Mission/Church Shout Out badge image windows so logos and banners fit comfortably inside their containers.
+- Removed mobile banner crop behavior; Wielders of the Word now uses full-image contain instead of cover/crop.
+- Added logo-specific padding and sizing for New Beginnings, Alpena FBC, FBC Mayflower, and banner-style images.
+- Added stable min/max image window heights for mobile so card visuals stay balanced without cutting off important artwork.
+- Version/cache references bumped to v43.1.79.

@@ -1,6 +1,6 @@
-// v43.1.78 Shout Out Badge Image Authority + Service Worker Cache Refresh
+// v43.1.79 Shout Out Badge Image Authority + Service Worker Cache Refresh
 
-const CACHE_VERSION = "v43.1.78";
+const CACHE_VERSION = "v43.1.79";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
@@ -38,33 +38,33 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.78",
-  "/app.js?v=43.1.78",
-  "/nav.js?v=43.1.78",
-  "/pwa-init.js?v=43.1.78",
-  "/manifest.webmanifest?v=43.1.78",
-  "/aineo-album-page.js?v=43.1.78",
-  "/aineo-config.js?v=43.1.78",
-  "/aineo-data.js?v=43.1.78",
-  "/aineo-featured.js?v=43.1.78",
-  "/aineo-library.js?v=43.1.78",
-  "/aineo-lyrics.js?v=43.1.78",
-  "/aineo-media-session.js?v=43.1.78",
-  "/aineo-offline.js?v=43.1.78",
-  "/aineo-player-sheet.js?v=43.1.78",
-  "/aineo-playlists.js?v=43.1.78",
-  "/aineo-queue.js?v=43.1.78",
-  "/aineo-shared.js?v=43.1.78",
-  "/aineo-ui.js?v=43.1.78",
-  "/album-page.js?v=43.1.78",
-  "/albums-page.js?v=43.1.78",
-  "/artist-page.js?v=43.1.78",
-  "/artists-page.js?v=43.1.78",
-  "/contact.js?v=43.1.78",
-  "/images/church-logo.png?v=43.1.78",
-  "/images/alpena-first-baptist-church.png?v=43.1.78",
-  "/images/new-beginnings-cc.jpg?v=43.1.78",
-  "/images/wielders-of-the-word.jpg?v=43.1.78"
+  "/style.css?v=43.1.79",
+  "/app.js?v=43.1.79",
+  "/nav.js?v=43.1.79",
+  "/pwa-init.js?v=43.1.79",
+  "/manifest.webmanifest?v=43.1.79",
+  "/aineo-album-page.js?v=43.1.79",
+  "/aineo-config.js?v=43.1.79",
+  "/aineo-data.js?v=43.1.79",
+  "/aineo-featured.js?v=43.1.79",
+  "/aineo-library.js?v=43.1.79",
+  "/aineo-lyrics.js?v=43.1.79",
+  "/aineo-media-session.js?v=43.1.79",
+  "/aineo-offline.js?v=43.1.79",
+  "/aineo-player-sheet.js?v=43.1.79",
+  "/aineo-playlists.js?v=43.1.79",
+  "/aineo-queue.js?v=43.1.79",
+  "/aineo-shared.js?v=43.1.79",
+  "/aineo-ui.js?v=43.1.79",
+  "/album-page.js?v=43.1.79",
+  "/albums-page.js?v=43.1.79",
+  "/artist-page.js?v=43.1.79",
+  "/artists-page.js?v=43.1.79",
+  "/contact.js?v=43.1.79",
+  "/images/church-logo.png?v=43.1.79",
+  "/images/alpena-first-baptist-church.png?v=43.1.79",
+  "/images/new-beginnings-cc.jpg?v=43.1.79",
+  "/images/wielders-of-the-word.jpg?v=43.1.79"
 ];
 
 async function safeWarmStaticCache() {
