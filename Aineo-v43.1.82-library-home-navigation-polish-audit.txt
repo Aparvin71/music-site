@@ -1,0 +1,20 @@
+Aineo v43.1.82 — Library/Home Navigation Polish + Cleanup Audit
+
+Forward build from the current working package.
+
+Changes:
+- Fixed hamburger/page menu layering so it opens in the foreground.
+- Recovered the mini player on Home and Library and positioned it above the bottom icon row.
+- Kept the bottom icon row clickable and functional.
+- Replaced Home shortcut symbols with stronger SVG-style icons:
+  Favorites = star, Downloads = down arrow, Albums = book, Shout Outs = megaphone.
+- Added Library action buttons for Search, Playlists, and Quick Filters.
+- Search and Quick Filters now open the Search/Filter card on demand.
+- Playlists now opens the playlist card on demand from the bottom icon row.
+- Fixed the More icon so it opens the hamburger/page menu.
+- Hid Library cards that now live on Home or in the hamburger:
+  Albums panel, Continue Listening, Favorites, Downloaded Songs, and compact About block.
+- Kept Recently Played on Library but reduced it to a smaller horizontal strip.
+- Preserved full Library track list behavior on the Library page.
+- Removed the standalone floating three-dot settings button from all pages.
+- Updated all app/cache/manifest/service-worker version references to v43.1.82.

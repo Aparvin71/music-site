@@ -1,4 +1,4 @@
-// v43.1.81 unified hamburger page menu
+// v43.1.82 unified hamburger page menu
 (function () {
   function getNav() { return document.getElementById('siteNavLinks') || document.querySelector('.nav-menu'); }
   function getToggle() { return document.getElementById('mobileNavToggle') || document.querySelector('.hamburger'); }
@@ -38,9 +38,9 @@
       return;
     }
     const nativeToggle = e.target.closest('#mobileNavToggle, .hamburger');
-    if (nativeToggle) {
-      // app.js owns the header hamburger on music-runtime pages; avoid double-toggling.
-      if (window.__AINEO_APP_JS_NAV__) return;
+    if (nativeToggle && !nativeToggle.__aineoHandledByApp) {
+      // If app.js is also listening, this handler still keeps the overlay in the foreground.
+      if (window.__AINEO_APP_JS_NAV__ && nativeToggle.id === 'mobileNavToggle') return;
       e.preventDefault();
       toggleMenu();
       return;

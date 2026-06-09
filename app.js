@@ -1,4 +1,4 @@
-/* v43.1.81 unified playback state */
+/* v43.1.82 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.81";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.82";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1222,6 +1222,7 @@ function bindUI() {
 
   on(els.clearFiltersBtn, "click", clearAllFilters);
   bindSearchScopeChips();
+  bindLibraryPanelLaunchers();
 
   on(els.playBtn, "click", togglePlayPause);
   on(els.prevBtn, "click", playPreviousTrack);
@@ -4308,6 +4309,7 @@ function normalizeSongLookupValue(value) {
 }
 
 function handleSongQueryParam() {
+  handleLibraryQueryParams();
   const params = new URLSearchParams(window.location.search);
   const song = params.get("song");
   if (!song) return;
@@ -4523,11 +4525,92 @@ function closeMobilePlayerDrawer() {
    MOBILE NAV
 ========================= */
 
+
+/* =========================
+   v43.1.82 LIBRARY PANEL LAUNCHERS
+========================= */
+
+function closeLibraryPanels() {
+  document.body.classList.remove("library-panel-search-open", "library-panel-playlists-open", "library-panel-filters-open");
+  document.getElementById("libraryPanelBackdrop")?.classList.add("hidden");
+}
+
+function openLibraryPanel(panelName = "search") {
+  const normalized = String(panelName || "search").toLowerCase();
+  closeLibraryPanels();
+
+  if (normalized === "playlists") {
+    document.body.classList.add("library-panel-playlists-open");
+    document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
+    setTimeout(() => document.getElementById("playlistSectionBody")?.closest("section")?.querySelector("button, input, a")?.focus?.(), 30);
+    return;
+  }
+
+  if (normalized === "filters" || normalized === "quick-filters" || normalized === "quickfilters") {
+    document.body.classList.add("library-panel-filters-open", "library-panel-search-open");
+    document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
+    setTimeout(() => els.searchInput?.focus?.(), 30);
+    return;
+  }
+
+  document.body.classList.add("library-panel-search-open");
+  document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
+  setTimeout(() => els.searchInput?.focus?.(), 30);
+}
+
+function bindLibraryPanelLaunchers() {
+  document.addEventListener("click", (event) => {
+    const opener = event.target.closest("[data-open-library-panel]");
+    if (opener) {
+      event.preventDefault();
+      event.stopPropagation();
+      openLibraryPanel(opener.dataset.openLibraryPanel || "search");
+      return;
+    }
+
+    const close = event.target.closest("[data-close-library-panels]");
+    if (close) {
+      event.preventDefault();
+      closeLibraryPanels();
+      return;
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeLibraryPanels();
+  });
+}
+
+function handleLibraryQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+  const smart = params.get("smart");
+  if (smart) {
+    filters.selectedAlbum = null;
+    filters.selectedPlaylist = null;
+    filters.selectedTag = null;
+    filters.selectedCustomPlaylist = null;
+    filters.searchTerm = "";
+    filters.selectedSmartPlaylist = smart;
+    if (els.searchInput) els.searchInput.value = "";
+    updateLibraryView();
+    scrollToTrackList();
+  }
+
+  const panel = params.get("panel");
+  if (panel) {
+    setTimeout(() => openLibraryPanel(panel), 120);
+  }
+}
+
+
 function initMobileNav() {
   if (!els.mobileNavToggle || !els.siteNavLinks) return;
 
-  els.mobileNavToggle.addEventListener("click", () => {
+  els.mobileNavToggle.addEventListener("click", (event) => {
+    event.preventDefault();
     const isOpen = els.siteNavLinks.classList.toggle("nav-open");
+    els.siteNavLinks.classList.toggle("open", isOpen);
+    document.body.classList.toggle("nav-open", isOpen);
     els.mobileNavToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
     els.mobileNavToggle.textContent = isOpen ? "✕" : "☰";
   });
@@ -4539,7 +4622,7 @@ function initMobileNav() {
   });
 
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 640) {
+    if (window.innerWidth > 760) {
       closeMobileNav(true);
     }
   });
@@ -4548,12 +4631,14 @@ function initMobileNav() {
 function closeMobileNav(forceDesktopState = false) {
   if (!els.mobileNavToggle || !els.siteNavLinks) return;
 
-  els.siteNavLinks.classList.remove("nav-open");
+  els.siteNavLinks.classList.remove("nav-open", "open");
+  document.body.classList.remove("nav-open");
   els.mobileNavToggle.setAttribute("aria-expanded", "false");
   els.mobileNavToggle.textContent = "☰";
 
-  if (forceDesktopState && window.innerWidth > 640) {
-    els.siteNavLinks.classList.remove("nav-open");
+  if (forceDesktopState && window.innerWidth > 760) {
+    els.siteNavLinks.classList.remove("nav-open", "open");
+    document.body.classList.remove("nav-open");
   }
 }
 
@@ -4771,7 +4856,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.81 legacy analysis preload disabled
+// v43.1.82 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4781,7 +4866,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.81 smart playback cleanup
+// v43.1.82 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4800,10 +4885,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.81 ULTRA SMOOTH PLAYBACK
+   v43.1.82 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.81";
+const SMART_PLAYBACK_VERSION = "43.1.82";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
