@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.76 visualizer lift + left-wing alignment polish */
+/* v43.1.77 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.76 visualizer lift + left-wing alignment polish */
+/* v43.1.77 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.76 visualizer lift + left-wing alignment polish */
+/* v43.1.77 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.76 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.77 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.76 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.77 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.76 mobile mini-player final tighten */
+/* v43.1.77 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.76 battery optimization pass */
+/* v43.1.77 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.76 performance + low-power hardening */
+/* v43.1.77 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.76 full player lyrics bottom-safe scroll fix */
+/* v43.1.77 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.76 Mission/Church Shout Out image badge expansion */
+/* v43.1.77 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13320,4 +13320,335 @@ body.aineo-low-power .player-cover-visualizer-bar {
 @media (max-width: 680px) {
   .church-link-badge--image { min-height: 0; }
   .church-link-badge--wide { grid-column: auto; }
+}
+
+
+/* ===== v43.1.77 Mission/Church Shout Out visual redesign ===== */
+.shoutout-redesign-page {
+  --shoutout-bg: #080910;
+  --shoutout-panel: rgba(18, 20, 31, 0.9);
+  --shoutout-panel-2: rgba(24, 26, 40, 0.92);
+  --shoutout-line: rgba(149, 82, 255, 0.42);
+  --shoutout-purple: #8f4dff;
+  --shoutout-purple-2: #5a22a7;
+  --shoutout-text: #f8f5ff;
+  --shoutout-muted: rgba(248, 245, 255, 0.78);
+  --shoutout-soft: rgba(255, 255, 255, 0.08);
+  color: var(--shoutout-text);
+  max-width: 1180px;
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.shoutout-redesign-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(134, 76, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 80% 18%, rgba(89, 39, 180, 0.18), transparent 30%),
+    radial-gradient(circle at 55% 100%, rgba(37, 25, 78, 0.35), transparent 40%),
+    #080910;
+}
+
+.shoutout-hero-panel {
+  text-align: center;
+  padding: clamp(1.25rem, 4vw, 2.6rem) 1rem 1.35rem;
+}
+
+.shoutout-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0 0 .55rem;
+  color: #a46bff;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.shoutout-kicker::before {
+  content: "📣";
+  filter: drop-shadow(0 0 12px rgba(143, 77, 255, .55));
+}
+
+.shoutout-hero-panel h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0 24px rgba(143, 77, 255, 0.24);
+}
+
+.shoutout-lead {
+  max-width: 760px;
+  margin: .75rem auto 0;
+  color: var(--shoutout-muted);
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+}
+
+.shoutout-featured-section,
+.shoutout-request-panel {
+  margin-top: 1.25rem;
+}
+
+.shoutout-section-heading,
+.shoutout-request-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: .85rem;
+  margin-bottom: 1rem;
+}
+
+.shoutout-section-heading h2,
+.shoutout-request-heading h2 {
+  color: #fff;
+  margin: 0 0 .25rem;
+  font-size: clamp(1.45rem, 3.6vw, 2rem);
+  letter-spacing: -0.03em;
+}
+
+.shoutout-section-heading p,
+.shoutout-request-heading p {
+  margin: 0;
+  color: var(--shoutout-muted);
+}
+
+.shoutout-heading-icon,
+.shoutout-plus {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(135deg, #8f4dff, #4f1b9b);
+  box-shadow: 0 0 22px rgba(143, 77, 255, .34);
+  font-weight: 900;
+}
+
+.shoutout-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(.9rem, 2vw, 1.2rem);
+}
+
+.shoutout-badge-card {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--shoutout-line);
+  border-radius: 18px;
+  color: var(--shoutout-text);
+  text-decoration: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, .01)),
+    rgba(14, 15, 25, .95);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, .42), inset 0 1px 0 rgba(255,255,255,.06);
+  transform: translateZ(0);
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.shoutout-badge-card:hover,
+.shoutout-badge-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(180, 126, 255, .88);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, .5), 0 0 0 3px rgba(143, 77, 255, .14);
+  outline: none;
+}
+
+.shoutout-badge-image {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1.28 / 1;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,255,255,.98), rgba(241,242,247,.94));
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.shoutout-badge-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.shoutout-badge-image--banner {
+  aspect-ratio: 1.28 / 1;
+  background: #0b0d12;
+}
+
+.shoutout-badge-image--banner img {
+  object-fit: cover;
+}
+
+.shoutout-badge-image--mayflower {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255,255,255,.96), rgba(237,245,255,.92));
+}
+
+.shoutout-badge-image--mayflower img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.shoutout-badge-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .45rem;
+  padding: 1rem .95rem 1.15rem;
+}
+
+.shoutout-badge-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto .1rem;
+  padding: .38rem .8rem;
+  border-radius: 999px;
+  color: #eadfff;
+  background: rgba(143, 77, 255, .18);
+  font-size: .73rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.shoutout-badge-body h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  line-height: 1.24;
+  letter-spacing: -0.025em;
+}
+
+.shoutout-badge-body p:not(.shoutout-badge-type) {
+  margin: 0 0 .55rem;
+  color: var(--shoutout-muted);
+}
+
+.shoutout-badge-button {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.65rem;
+  padding: .65rem 1rem;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--shoutout-purple), var(--shoutout-purple-2));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 10px 24px rgba(82, 31, 160, .28);
+}
+
+.shoutout-request-panel {
+  padding: clamp(1.1rem, 3vw, 1.75rem);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.055), rgba(255,255,255,.018)),
+    rgba(16, 18, 29, .92);
+  box-shadow: 0 20px 50px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.shoutout-form {
+  margin-top: 1.25rem;
+}
+
+.shoutout-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.shoutout-form label {
+  color: #fff;
+  font-weight: 850;
+}
+
+.shoutout-form label span {
+  color: #ffb36b;
+}
+
+.shoutout-form input,
+.shoutout-form textarea {
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.055);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+.shoutout-form input::placeholder,
+.shoutout-form textarea::placeholder {
+  color: rgba(255,255,255,.42);
+}
+
+.shoutout-form input:focus,
+.shoutout-form textarea:focus {
+  border-color: rgba(169, 114, 255, .8);
+  box-shadow: 0 0 0 3px rgba(143, 77, 255, .18);
+  outline: none;
+}
+
+.shoutout-hidden-title {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.shoutout-submit {
+  width: 100%;
+  min-height: 3.6rem;
+  margin-top: .25rem;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 950;
+  background: linear-gradient(135deg, #8f4dff, #4d168f);
+  box-shadow: 0 15px 32px rgba(80, 29, 153, .34), inset 0 1px 0 rgba(255,255,255,.14);
+}
+
+@media (max-width: 980px) {
+  .shoutout-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .shoutout-redesign-page {
+    padding-left: .85rem;
+    padding-right: .85rem;
+  }
+
+  .shoutout-card-grid,
+  .shoutout-form .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .shoutout-badge-card {
+    border-radius: 20px;
+  }
+
+  .shoutout-badge-image {
+    aspect-ratio: 2.15 / 1;
+  }
+
+  .shoutout-badge-image--mayflower img {
+    width: 42%;
+    height: 72%;
+  }
 }

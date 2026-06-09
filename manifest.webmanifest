@@ -1,7 +1,7 @@
 {
   "name": "Aineo Music",
   "short_name": "Aineo",
-  "start_url": "./index.html?source=pwa&v=43.1.76&shell=43176",
+  "start_url": "./index.html?source=pwa&v=43.1.77&shell=43177",
   "scope": "./",
   "display": "standalone",
   "display_override": [
@@ -55,17 +55,17 @@
     {
       "name": "Music",
       "short_name": "Music",
-      "url": "./music.html?source=pwa&v=43.1.76&shell=43176"
+      "url": "./music.html?source=pwa&v=43.1.77&shell=43177"
     },
     {
       "name": "Albums",
       "short_name": "Albums",
-      "url": "./albums.html?source=pwa&v=43.1.76&shell=43176"
+      "url": "./albums.html?source=pwa&v=43.1.77&shell=43177"
     },
     {
       "name": "About",
       "short_name": "About",
-      "url": "./about.html?source=pwa&v=43.1.76&shell=43176"
+      "url": "./about.html?source=pwa&v=43.1.77&shell=43177"
     }
   ]
 }

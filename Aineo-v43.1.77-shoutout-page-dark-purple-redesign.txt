@@ -1,0 +1,7 @@
+Aineo Music v43.1.77 — Mission/Church Shout Out Dark Purple Redesign
+
+- Restyled Mission/Church Shout Out page to match the approved dark purple badge-card concept.
+- Rebuilt clickable shout-out badges using real packaged image assets.
+- Preserved correct FBC Mayflower package image: images/church-logo.png.
+- Simplified request form into a dedicated shout-out/page request panel.
+- Updated version/cache references to v43.1.77 / shell 43177.
