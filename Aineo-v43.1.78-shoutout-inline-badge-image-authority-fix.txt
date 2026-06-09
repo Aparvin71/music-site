@@ -1,0 +1,8 @@
+Aineo v43.1.78 — Shout Out Inline Badge Image Authority Fix
+
+- Fixed Mission/Church Shout Out badge images disappearing in installed/mobile PWA views.
+- Inlined the four shout-out badge images directly in contact.html so they no longer depend on absolute /images paths or stale service-worker image cache resolution.
+- Kept packaged image files in /images as backup assets.
+- Preserved the dark purple shout-out redesign from v43.1.77.
+- Tightened mobile badge image proportions so broken/blank-looking image areas do not dominate the card layout.
+- Bumped app/cache/version references to v43.1.78.

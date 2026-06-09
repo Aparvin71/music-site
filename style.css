@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.77 visualizer lift + left-wing alignment polish */
+/* v43.1.78 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.77 visualizer lift + left-wing alignment polish */
+/* v43.1.78 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.77 visualizer lift + left-wing alignment polish */
+/* v43.1.78 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.77 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.78 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.77 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.78 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.77 mobile mini-player final tighten */
+/* v43.1.78 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.77 battery optimization pass */
+/* v43.1.78 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.77 performance + low-power hardening */
+/* v43.1.78 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.77 full player lyrics bottom-safe scroll fix */
+/* v43.1.78 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.77 Mission/Church Shout Out image badge expansion */
+/* v43.1.78 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.77 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.78 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13650,5 +13650,33 @@ body.aineo-low-power .player-cover-visualizer-bar {
   .shoutout-badge-image--mayflower img {
     width: 42%;
     height: 72%;
+  }
+}
+
+
+/* v43.1.78 Shout Out badge image authority + mobile proportion repair */
+.shoutout-redesign-page .shoutout-badge-image {
+  min-height: 0;
+  overflow: hidden;
+}
+.shoutout-redesign-page .shoutout-badge-image img {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+@media (max-width: 720px) {
+  .shoutout-redesign-page .shoutout-card-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .shoutout-redesign-page .shoutout-badge-image {
+    aspect-ratio: 1.65 / 1;
+    max-height: 260px;
+  }
+  .shoutout-redesign-page .shoutout-badge-image--banner {
+    aspect-ratio: 2.6 / 1;
+    max-height: 190px;
+  }
+  .shoutout-redesign-page .shoutout-badge-body {
+    padding: .9rem .85rem 1rem;
   }
 }
