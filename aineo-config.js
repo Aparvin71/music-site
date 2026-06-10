@@ -8,12 +8,13 @@
     lastQueue: "aineo_last_queue",
     tracksCache: "aineo_tracks_cache",
     offlineBannerDismissed: "aineo_offline_banner_dismissed",
-      playStats: "aineo_play_stats"
+      playStats: "aineo_play_stats",
+      lastHomePlaylistSelection: "aineo_last_home_playlist_selection"
   };
 
   window.AineoConfig = {
-    version: "v43.1.94",
-    assetVersion: "43.1.94",
+    version: "v43.1.95",
+    assetVersion: "43.1.95",
     defaultArtist: "Allen Parvin",
     assetMode: "decoupled",
     assets: {
@@ -21,7 +22,7 @@
       coverBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers",
       lyricsBasePath: "lyrics",
       lyricsManifestPath: "lyrics/lrc-manifest.json",
-      lyricsVersionKey: "43.1.94",
+      lyricsVersionKey: "43.1.95",
       externalAudio: true,
       externalCovers: true,
       localLyricsOptional: true

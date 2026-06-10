@@ -1,0 +1,14 @@
+Aineo v43.1.95 — Home Last Playlist Tab + Recent 15 Root Pass
+
+Root changes:
+- The Home My Songs tab now resolves from the last user-selected album playlist or custom playlist instead of assuming a pre-existing My Songs playlist.
+- The last selected playlist is persisted in localStorage under aineo_last_home_playlist_selection and updates when album playlists or custom playlists are selected, played, renamed, or deleted.
+- First-download fallback remains Suggested Listening so the Home page is not empty.
+- The Recent Home tab now shows only the last 15 played songs and the recently-played store trims to 15.
+- Dynamic Home tab label/helper text reflects the selected playlist while keeping Suggested/Favorites/Recent behavior intact.
+
+Verification performed:
+- JS syntax check
+- JSON/manifest parse check
+- ZIP integrity check
+- Version marker sweep to v43.1.95
