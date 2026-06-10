@@ -1,0 +1,12 @@
+Aineo v43.1.84 — Header Radius + Purple Text + Mini Player + Opening Speed Pass
+
+Forward build from v43.1.83.
+
+Changes:
+- Rounded the top AINEO app header shell on Home and Library so the black box no longer has pointed corners.
+- Repositioned/reduced the Shout Outs megaphone SVG on mobile so it no longer clips the “Shout Outs” title.
+- Added purple text authority overrides to replace remaining blue typography/link accents with the new purple look.
+- Added a hard mini-player recovery layer for Home and Library so the compact player stays visible above the bottom icon row.
+- Added a runtime mini-player visibility guard in nav.js to remove stale hidden states after cache/page restore.
+- Tightened page opening and transition timing to make Home/Library changes feel faster on mobile.
+- Refreshed app/cache/manifest/service-worker/version markers to v43.1.84.

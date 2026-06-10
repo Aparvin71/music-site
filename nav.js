@@ -1,4 +1,4 @@
-// v43.1.83 foreground page menu authority
+// v43.1.84 foreground page menu authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -138,3 +138,30 @@
 
   window.AineoNav = { open, close, toggle };
 })();
+
+// v43.1.84 mini player visibility guard for Home/Library bottom-nav screens.
+(function () {
+  function recoverMiniPlayer() {
+    if (!document.body.classList.contains("has-aineo-bottom-nav")) return;
+    const player = document.querySelector(".sticky-player");
+    if (!player) return;
+    player.hidden = false;
+    player.classList.remove("hidden");
+    player.removeAttribute("aria-hidden");
+    player.style.removeProperty("display");
+    player.style.removeProperty("visibility");
+    player.style.removeProperty("opacity");
+    document.body.classList.add("aineo-mini-player-ready");
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", recoverMiniPlayer, { once: true });
+  } else {
+    recoverMiniPlayer();
+  }
+  window.addEventListener("pageshow", recoverMiniPlayer);
+  window.addEventListener("load", recoverMiniPlayer, { once: true });
+  window.setTimeout(recoverMiniPlayer, 120);
+  window.setTimeout(recoverMiniPlayer, 650);
+})();
+

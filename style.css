@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.83 visualizer lift + left-wing alignment polish */
+/* v43.1.84 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.83 visualizer lift + left-wing alignment polish */
+/* v43.1.84 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.83 visualizer lift + left-wing alignment polish */
+/* v43.1.84 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.83 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.84 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.83 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.84 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.83 mobile mini-player final tighten */
+/* v43.1.84 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.83 battery optimization pass */
+/* v43.1.84 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.83 performance + low-power hardening */
+/* v43.1.84 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.83 full player lyrics bottom-safe scroll fix */
+/* v43.1.84 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.83 Mission/Church Shout Out image badge expansion */
+/* v43.1.84 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.83 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.84 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.83 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.84 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.83 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.83"] .shoutout-badge-image,
+/* ===== v43.1.84 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.84"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.83 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.84 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.83 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.84 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.83 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.84 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14912,7 +14912,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.83 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.84 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15232,3 +15232,372 @@ body.aineo-page-menu-open {
     padding: 14px;
   }
 }
+
+/* =========================================
+   v43.1.84 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   - Rounded app header shell on Home/Library.
+   - Shout Outs megaphone no longer overlaps title text.
+   - Blue typography accents are normalized to purple.
+   - Mini player is forced visible above bottom icon row on Home/Library.
+   - Mobile page open/transition work is shortened to feel faster.
+========================================= */
+
+:root {
+  --aineo-purple-readable: #c084fc;
+  --aineo-purple-readable-strong: #d8b4fe;
+  --aineo-purple-link: #b96cff;
+  --aineo-fast: 120ms;
+  --aineo-medium: 150ms;
+  --aineo-slow: 210ms;
+}
+
+/* Rounded top app header authority. */
+body.has-aineo-bottom-nav .site-header.aineo-app-header,
+body.has-aineo-bottom-nav.landing-page-layout .site-header,
+body.has-aineo-bottom-nav.music-page-layout .site-header {
+  margin: max(10px, calc(10px + var(--safe-top))) max(10px, calc(10px + var(--safe-right))) 0 max(10px, calc(10px + var(--safe-left))) !important;
+  width: auto !important;
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  background: rgba(7, 6, 16, 0.94) !important;
+  border: 1px solid rgba(168, 85, 255, 0.20) !important;
+  box-shadow: 0 16px 42px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.045) !important;
+  transform: translateZ(0) !important;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header .navbar,
+body.has-aineo-bottom-nav.landing-page-layout .site-header .navbar,
+body.has-aineo-bottom-nav.music-page-layout .site-header .navbar {
+  padding-left: max(20px, calc(18px + var(--safe-left))) !important;
+  padding-right: max(20px, calc(18px + var(--safe-right))) !important;
+}
+
+@media (max-width: 640px) {
+  body.has-aineo-bottom-nav .site-header.aineo-app-header,
+  body.has-aineo-bottom-nav.landing-page-layout .site-header,
+  body.has-aineo-bottom-nav.music-page-layout .site-header {
+    margin: max(8px, calc(8px + var(--safe-top))) max(8px, calc(8px + var(--safe-right))) 0 max(8px, calc(8px + var(--safe-left))) !important;
+    border-radius: 20px !important;
+  }
+}
+
+/* Shout Outs icon spacing authority. */
+.card-shoutouts {
+  min-height: 136px !important;
+  padding-top: 56px !important;
+}
+
+.card-shoutouts .home-card-svg {
+  top: 14px !important;
+  left: 16px !important;
+  width: clamp(30px, 8.2vw, 48px) !important;
+  height: clamp(30px, 8.2vw, 48px) !important;
+  z-index: 1 !important;
+}
+
+.card-shoutouts strong,
+.card-shoutouts small {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 440px) {
+  .card-shoutouts {
+    min-height: 138px !important;
+    padding-top: 58px !important;
+  }
+
+  .card-shoutouts .home-card-svg {
+    width: 34px !important;
+    height: 34px !important;
+    top: 14px !important;
+  }
+
+  .card-shoutouts strong {
+    font-size: 0.98rem !important;
+    line-height: 1.08 !important;
+  }
+}
+
+/* Purple text authority: remove remaining blue typography while preserving intentional blue card art/backgrounds. */
+a,
+a:hover,
+.aineo-section-title-row a,
+.library-quick-link,
+.browse-shelf-link,
+.scripture-line a,
+.scripture-link,
+.queue-tags,
+.now-meta .label,
+.eyebrow,
+.filter-type-badge,
+.app-version,
+.search-meta strong,
+.active-filter-label strong,
+.playlist-subsection-title,
+.album-track-meta a,
+.footer-links a,
+.install-step strong,
+.install-hint strong,
+.offline-status-wrap a,
+.track-action-sheet-meta a,
+.player-sheet-heading .eyebrow,
+.aineo-page-menu-kicker {
+  color: var(--aineo-purple-readable) !important;
+  -webkit-text-fill-color: var(--aineo-purple-readable) !important;
+}
+
+a:hover,
+.library-quick-link:hover,
+.browse-shelf-link:hover,
+.footer-links a:hover {
+  color: var(--aineo-purple-readable-strong) !important;
+  -webkit-text-fill-color: var(--aineo-purple-readable-strong) !important;
+}
+
+.library-quick-link,
+.browse-shelf-link,
+.search-scope-chip.active,
+.filter-chip.active,
+.tag-chip.active,
+.playlist-btn.active {
+  border-color: rgba(192, 132, 252, 0.42) !important;
+}
+
+/* Mini player hard recovery for Home and Library. */
+body.has-aineo-bottom-nav {
+  --app-bottom-space: calc(164px + var(--safe-bottom)) !important;
+  padding-bottom: var(--app-bottom-space) !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player,
+html body.has-aineo-bottom-nav .sticky-player.hidden,
+html body.has-aineo-bottom-nav.aineo-mini-player-ready .sticky-player {
+  position: fixed !important;
+  display: grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  left: max(10px, calc(10px + var(--safe-left))) !important;
+  right: max(10px, calc(10px + var(--safe-right))) !important;
+  top: auto !important;
+  bottom: calc(76px + var(--safe-bottom)) !important;
+  width: auto !important;
+  max-width: none !important;
+  min-height: 68px !important;
+  max-height: 82px !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-areas: "meta controls" "progress progress" !important;
+  align-items: center !important;
+  gap: 4px 10px !important;
+  padding: 8px 10px 9px !important;
+  border-radius: 22px !important;
+  overflow: hidden !important;
+  z-index: 8400 !important;
+  transform: translate3d(0, 0, 0) !important;
+  background: linear-gradient(180deg, rgba(22,23,36,0.98), rgba(10,11,22,0.99)) !important;
+  border: 1px solid rgba(192,132,252,0.36) !important;
+  box-shadow: 0 14px 38px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.045) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player-left {
+  grid-area: meta !important;
+  display: flex !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  gap: 9px !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player-center {
+  grid-area: controls !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  min-width: auto !important;
+}
+
+html body.has-aineo-bottom-nav .progress-wrap {
+  grid-area: progress !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  width: 100% !important;
+  gap: 0 !important;
+  margin: 0 !important;
+}
+
+html body.has-aineo-bottom-nav .progress-wrap span,
+html body.has-aineo-bottom-nav #shuffleModeBtn,
+html body.has-aineo-bottom-nav #repeatModeBtn,
+html body.has-aineo-bottom-nav .sticky-player-right,
+html body.has-aineo-bottom-nav .compact-actions,
+html body.has-aineo-bottom-nav .desktop-extra-actions,
+html body.has-aineo-bottom-nav .mobile-actions-drawer,
+html body.has-aineo-bottom-nav .now-meta .label,
+html body.has-aineo-bottom-nav #nowAlbum,
+html body.has-aineo-bottom-nav #nowScripture {
+  display: none !important;
+}
+
+html body.has-aineo-bottom-nav #nowCover,
+html body.has-aineo-bottom-nav .now-cover {
+  display: block !important;
+  width: 46px !important;
+  height: 46px !important;
+  max-width: 46px !important;
+  flex: 0 0 46px !important;
+  border-radius: 13px !important;
+  object-fit: cover !important;
+}
+
+html body.has-aineo-bottom-nav #nowTitle {
+  display: block !important;
+  margin: 0 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-size: 0.92rem !important;
+  line-height: 1.12 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html body.has-aineo-bottom-nav #nowArtist {
+  display: block !important;
+  margin: 3px 0 0 !important;
+  color: rgba(248,244,255,0.66) !important;
+  -webkit-text-fill-color: rgba(248,244,255,0.66) !important;
+  font-size: 0.74rem !important;
+  line-height: 1.1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player .transport {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player .control-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  font-size: 0.82rem !important;
+}
+
+html body.has-aineo-bottom-nav .sticky-player .play-btn {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  font-size: 0.98rem !important;
+}
+
+html body.has-aineo-bottom-nav #seekBar {
+  display: block !important;
+  width: 100% !important;
+  height: 4px !important;
+  margin: 0 !important;
+  accent-color: var(--aineo-purple-readable) !important;
+}
+
+html body.has-aineo-bottom-nav .aineo-bottom-icon-row {
+  z-index: 8600 !important;
+  min-height: calc(66px + var(--safe-bottom)) !important;
+}
+
+@media (max-width: 430px) {
+  html body.has-aineo-bottom-nav .sticky-player,
+  html body.has-aineo-bottom-nav .sticky-player.hidden,
+  html body.has-aineo-bottom-nav.aineo-mini-player-ready .sticky-player {
+    left: max(8px, calc(8px + var(--safe-left))) !important;
+    right: max(8px, calc(8px + var(--safe-right))) !important;
+    bottom: calc(72px + var(--safe-bottom)) !important;
+    min-height: 66px !important;
+    max-height: 78px !important;
+    gap: 3px 7px !important;
+    padding: 7px 8px 8px !important;
+  }
+
+  html body.has-aineo-bottom-nav #nowCover,
+  html body.has-aineo-bottom-nav .now-cover {
+    width: 42px !important;
+    height: 42px !important;
+    max-width: 42px !important;
+    flex-basis: 42px !important;
+  }
+
+  html body.has-aineo-bottom-nav .sticky-player .control-btn:not(.play-btn) {
+    width: 29px !important;
+    height: 29px !important;
+    min-width: 29px !important;
+    min-height: 29px !important;
+  }
+
+  html body.has-aineo-bottom-nav .sticky-player .play-btn {
+    width: 37px !important;
+    height: 37px !important;
+    min-width: 37px !important;
+    min-height: 37px !important;
+  }
+}
+
+/* Opening speed/performance pass: keep polish, reduce delay and expensive first-paint motion. */
+body.motion-enabled .site-header,
+body.motion-enabled .page-card,
+body.motion-enabled .featured-album-card,
+body.motion-enabled .album-card,
+body.motion-enabled .mini-card,
+body.motion-enabled .catalog-card,
+body.motion-enabled .featured-track-row,
+body.motion-enabled .album-track-row,
+body.motion-enabled .queue-row,
+body.motion-enabled .sticky-player,
+body.motion-enabled .action-btn,
+body.motion-enabled .mini-action-btn,
+body.motion-enabled .playlist-btn,
+body.motion-enabled .tag-chip,
+body.motion-enabled .filter-chip,
+body.motion-enabled .search-scope-chip,
+body.motion-enabled .nav-links a,
+body.motion-enabled .mobile-nav-toggle,
+body.motion-enabled input,
+body.motion-enabled textarea,
+body.motion-enabled select {
+  transition-duration: 120ms, 120ms, 90ms, 90ms, 90ms, 90ms !important;
+}
+
+body.motion-ready .main-content > *,
+body.motion-ready .aineo-landing-page > *,
+body.motion-ready .music-layout-shell > *,
+body.motion-ready .music-center-column > *,
+body.motion-ready .music-right-rail > *,
+body.motion-ready .music-left-rail > * {
+  animation-duration: 150ms !important;
+  animation-delay: 0ms !important;
+}
+
+@media (max-width: 760px) {
+  .aineo-landing-hero,
+  .aineo-home-action-card,
+  .aineo-home-panel,
+  .library-command-btn,
+  .featured-track-row,
+  .mini-card {
+    transition-property: transform, box-shadow, border-color, background-color, color, opacity !important;
+    transition-duration: 110ms !important;
+  }
+
+  .player-cover-visualizer-stars,
+  .player-cover-visualizer-stars::before,
+  .player-cover-visualizer-stars::after {
+    animation-duration: 5.5s !important;
+  }
+}
+
