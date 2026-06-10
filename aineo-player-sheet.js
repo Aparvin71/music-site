@@ -156,7 +156,7 @@
     if (!panel) return;
     panel.scrollTop = 0;
     if (window.matchMedia('(max-width: 640px)').matches) {
-      requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      requestAnimationFrame(() => panel.scrollIntoView({ behavior: 'auto', block: 'start' }));
     }
   }
 

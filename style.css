@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.88 visualizer lift + left-wing alignment polish */
+/* v43.1.89 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.88 visualizer lift + left-wing alignment polish */
+/* v43.1.89 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.88 visualizer lift + left-wing alignment polish */
+/* v43.1.89 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.88 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.89 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.88 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.89 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.88 mobile mini-player final tighten */
+/* v43.1.89 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.88 battery optimization pass */
+/* v43.1.89 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.88 performance + low-power hardening */
+/* v43.1.89 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.88 full player lyrics bottom-safe scroll fix */
+/* v43.1.89 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.88 Mission/Church Shout Out image badge expansion */
+/* v43.1.89 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.88 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.89 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.88 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.89 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.88 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.88"] .shoutout-badge-image,
+/* ===== v43.1.89 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.89"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.88 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.89 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.88 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.89 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.88 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.89 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14912,7 +14912,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.88 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.89 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15234,7 +15234,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.88 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.89 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15603,7 +15603,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.88 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.1.89 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15836,7 +15836,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.88 Header Height + Page Menu White Text Authority Pass
+   v43.1.89 Header Height + Page Menu White Text Authority Pass
    - Removes the doubled safe-area padding inside the rounded AINEO header card.
    - Cuts the visual header card height down to roughly half of the prior mobile build.
    - Keeps hamburger/menu button purple and centered in the shorter header.
@@ -15954,7 +15954,7 @@ body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
 
 
 /* =========================================
-   v43.1.88 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   v43.1.89 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
    Root cause fixed:
    - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
    - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
@@ -16228,7 +16228,7 @@ html body .album-modal-backdrop {
 }
 
 /* =========================================
-   v43.1.88 GLOBAL HEADER CARD AUTHORITY
+   v43.1.89 GLOBAL HEADER CARD AUTHORITY
    Root fix: the compact AINEO header now targets every page header,
    not only Home/Library body classes.
 ========================================= */
@@ -16442,7 +16442,7 @@ html body .aineo-page-menu-close {
   -webkit-text-fill-color: var(--aineo-global-header-purple) !important;
 }
 
-/* v43.1.88 transition audit: keep header/menu opening responsive on every page. */
+/* v43.1.89 transition audit: keep header/menu opening responsive on every page. */
 html body.motion-enabled .site-header,
 html body.motion-enabled .navbar,
 html body.motion-enabled .nav-top-row,
@@ -16450,4 +16450,473 @@ html body.motion-enabled .nav-links,
 html body.motion-enabled .aineo-page-menu-overlay,
 html body.motion-enabled .aineo-page-menu-card {
   transition-duration: 80ms !important;
+}
+
+
+/* =========================================
+   v43.1.89 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
+   Root fix: all pages now share one radius/token system instead of
+   page-specific card/background rules that allowed square corners to resurface.
+========================================= */
+:root {
+  --aineo-radius-page-shell: 30px;
+  --aineo-radius-page-shell-mobile: 26px;
+  --aineo-radius-card: 26px;
+  --aineo-radius-card-mobile: 22px;
+  --aineo-radius-row: 18px;
+  --aineo-radius-control: 16px;
+  --aineo-fast-ui: 70ms;
+  --aineo-page-enter-fast: 60ms;
+}
+
+/* Page/background shells: remove square page-window corners on every page and popup state. */
+html body .page,
+html body .main-content,
+html body .music-app-shell,
+html body .music-layout-shell,
+html body .aineo-landing-page,
+html body .app-shell,
+html body .album-page-shell,
+html body .artist-page-root,
+html body .album-page-root,
+html body .mission-page,
+html body .home-page,
+html body .library-panel-backdrop,
+html body .aineo-page-menu-backdrop,
+html body .player-sheet-backdrop,
+html body .track-action-sheet-backdrop,
+html body .lyrics-modal-backdrop,
+html body .album-modal-backdrop {
+  border-radius: var(--aineo-radius-page-shell) !important;
+  overflow: clip !important;
+}
+
+/* Card/panel surfaces audited across Home, Library, utility pages, shout-outs, albums, artists, and mission pages. */
+html body .page-card,
+html body .page-hero-card,
+html body .utility-card,
+html body .mission-card,
+html body .mind-card,
+html body .church-card,
+html body .mission-hero-card,
+html body .mission-mini-card,
+html body .mission-church-card,
+html body .home-hero-card,
+html body .home-elevated-card,
+html body .home-spotlight-card,
+html body .install-card,
+html body .tools-card,
+html body .about-panel,
+html body .featured-album-card,
+html body .queue-panel,
+html body .albums-panel,
+html body .library-panel,
+html body .lyrics-panel,
+html body .scripture-panel,
+html body .music-library-card,
+html body .playlist-section-card,
+html body .featured-tracklist-panel,
+html body .continue-listening-card,
+html body .album-card,
+html body .catalog-card,
+html body .mini-card,
+html body .album-page-nav-card,
+html body .request-form,
+html body .request-card,
+html body .shoutout-hero-panel,
+html body .shoutout-request-panel,
+html body .shoutout-badge-card,
+html body .shoutout-badge-image,
+html body .lyrics-modal-content,
+html body .album-modal-content,
+html body .playlist-modal-content,
+html body .player-sheet-content,
+html body .track-action-sheet-panel,
+html body .aineo-page-menu-card,
+html body .app-feel-surface-panel,
+html body .standalone-welcome-card,
+html body .offline-hint-card,
+html body .install-banner,
+html body .noscript-banner,
+html body .sticky-player {
+  border-radius: var(--aineo-radius-card) !important;
+  overflow: clip !important;
+  background-clip: padding-box !important;
+}
+
+/* Repeating list rows and mini controls should still be rounded, not squared off. */
+html body .featured-track-row,
+html body .album-track-row,
+html body .queue-row,
+html body .playlist-btn,
+html body .filter-chip,
+html body .tag-chip,
+html body .search-scope-chip,
+html body .library-command-btn,
+html body .library-quick-link,
+html body .quick-link-pill,
+html body .action-btn,
+html body .secondary-btn,
+html body .control-btn,
+html body .mini-action-btn,
+html body .mini-icon-btn,
+html body .mode-btn,
+html body .small-action-btn,
+html body input,
+html body textarea,
+html body select,
+html body .request-input,
+html body .form-group,
+html body .search-wrap,
+html body #searchInput,
+html body .home-stat-pill,
+html body .scripture-link,
+html body .scripture-line,
+html body .app-feel-toggle,
+html body .aineo-page-menu-links a,
+html body .mobile-actions-drawer,
+html body .offline-status-wrap {
+  border-radius: var(--aineo-radius-control) !important;
+  background-clip: padding-box !important;
+}
+
+html body .featured-track-row,
+html body .album-track-row,
+html body .queue-row,
+html body .aineo-home-song-list .featured-track-row {
+  border-radius: var(--aineo-radius-row) !important;
+  overflow: clip !important;
+}
+
+/* Icon/home blocks keep stronger radius and readable white labels. */
+html body .aineo-home-action-card,
+html body .card-favorites,
+html body .card-downloads,
+html body .card-albums,
+html body .card-shoutouts {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  background-clip: padding-box !important;
+}
+
+html body .aineo-home-action-card,
+html body .aineo-home-action-card strong,
+html body .aineo-home-action-card small {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Bottom nav is a fixed card too: round the top corners instead of a hard rectangular slab. */
+html body .aineo-bottom-icon-row {
+  border-radius: 24px 24px 0 0 !important;
+  overflow: clip !important;
+  background-clip: padding-box !important;
+}
+
+html body .aineo-bottom-icon {
+  border-radius: 18px !important;
+}
+
+/* Keep circular controls circular. */
+html body .mobile-nav-toggle,
+html body .hamburger,
+html body .play-btn,
+html body .featured-track-play,
+html body .library-panel-close,
+html body .aineo-page-menu-close,
+html body .player-sheet-drag-handle,
+html body .track-action-sheet-handle {
+  border-radius: 999px !important;
+}
+
+/* Full player and bottom sheets: rounded on all four corners, including mobile. */
+html body .track-action-sheet-panel,
+html body .player-sheet-content,
+html body .playlist-modal-content,
+html body .lyrics-modal-content,
+html body .album-modal-content {
+  border-radius: 28px !important;
+  overflow: clip auto !important;
+}
+
+/* Remove old straight-bottom library/popup backdrops from previous passes. */
+@media (max-width: 760px) {
+  html body .page,
+  html body .main-content,
+  html body .music-app-shell,
+  html body .music-layout-shell,
+  html body .aineo-landing-page,
+  html body .app-shell,
+  html body .album-page-shell,
+  html body .artist-page-root,
+  html body .album-page-root,
+  html body .mission-page,
+  html body .home-page,
+  html body .library-panel-backdrop,
+  html body .aineo-page-menu-backdrop,
+  html body .player-sheet-backdrop,
+  html body .track-action-sheet-backdrop,
+  html body .lyrics-modal-backdrop,
+  html body .album-modal-backdrop {
+    border-radius: var(--aineo-radius-page-shell-mobile) !important;
+    overflow: clip !important;
+  }
+
+  html body .page-card,
+  html body .page-hero-card,
+  html body .utility-card,
+  html body .mission-card,
+  html body .mind-card,
+  html body .church-card,
+  html body .mission-hero-card,
+  html body .mission-mini-card,
+  html body .mission-church-card,
+  html body .home-hero-card,
+  html body .home-elevated-card,
+  html body .home-spotlight-card,
+  html body .install-card,
+  html body .tools-card,
+  html body .about-panel,
+  html body .featured-album-card,
+  html body .queue-panel,
+  html body .albums-panel,
+  html body .library-panel,
+  html body .lyrics-panel,
+  html body .scripture-panel,
+  html body .music-library-card,
+  html body .playlist-section-card,
+  html body .featured-tracklist-panel,
+  html body .continue-listening-card,
+  html body .album-card,
+  html body .catalog-card,
+  html body .mini-card,
+  html body .album-page-nav-card,
+  html body .request-form,
+  html body .request-card,
+  html body .shoutout-hero-panel,
+  html body .shoutout-request-panel,
+  html body .shoutout-badge-card,
+  html body .shoutout-badge-image,
+  html body .lyrics-modal-content,
+  html body .album-modal-content,
+  html body .playlist-modal-content,
+  html body .player-sheet-content,
+  html body .track-action-sheet-panel,
+  html body .aineo-page-menu-card,
+  html body .app-feel-surface-panel,
+  html body .standalone-welcome-card,
+  html body .offline-hint-card,
+  html body .install-banner,
+  html body .noscript-banner,
+  html body .sticky-player {
+    border-radius: var(--aineo-radius-card-mobile) !important;
+  }
+
+  html body .library-panel-backdrop,
+  html body .aineo-page-menu-backdrop,
+  html body .player-sheet-backdrop,
+  html body .track-action-sheet-backdrop,
+  html body .lyrics-modal-backdrop,
+  html body .album-modal-backdrop {
+    inset: max(8px, calc(8px + var(--safe-top))) max(8px, calc(8px + var(--safe-right))) max(8px, calc(8px + var(--safe-bottom))) max(8px, calc(8px + var(--safe-left))) !important;
+    border-radius: var(--aineo-radius-page-shell-mobile) !important;
+  }
+
+  html body.music-page-layout .music-app-shell,
+  html body.music-page-layout .main-content,
+  html body.music-page-layout .music-layout-shell {
+    border-radius: var(--aineo-radius-page-shell-mobile) !important;
+    overflow: clip !important;
+  }
+
+  html body .library-page-cleanup.library-panel-playlists-open .playlist-section-card,
+  html body .library-page-cleanup.library-panel-search-open .music-library-card,
+  html body .library-page-cleanup.library-panel-filters-open .music-library-card {
+    border-radius: var(--aineo-radius-card-mobile) !important;
+    overflow: clip auto !important;
+  }
+}
+
+/* Performance/root transition cleanup: no slow page swoop, no expensive all-card entrance cascade. */
+html {
+  scroll-behavior: auto !important;
+}
+
+html body {
+  --app-fast: 70ms;
+  --app-med: var(--aineo-page-enter-fast);
+  --app-slow: 110ms;
+}
+
+html body .page-enter {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html body .page-enter.page-enter-active {
+  transition: opacity var(--aineo-page-enter-fast) ease, transform var(--aineo-page-enter-fast) ease !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html body.motion-enabled :where(
+  .site-header,
+  .navbar,
+  .nav-top-row,
+  .page-card,
+  .page-hero-card,
+  .utility-card,
+  .library-panel,
+  .playlist-section-card,
+  .music-library-card,
+  .featured-tracklist-panel,
+  .aineo-home-action-card,
+  .home-hero-card,
+  .home-elevated-card,
+  .mission-card,
+  .mind-card,
+  .church-card,
+  .shoutout-hero-panel,
+  .shoutout-request-panel,
+  .shoutout-badge-card,
+  .album-card,
+  .catalog-card,
+  .mini-card,
+  .featured-track-row,
+  .album-track-row,
+  .queue-row,
+  .sticky-player,
+  .aineo-page-menu-overlay,
+  .aineo-page-menu-card,
+  .library-panel-backdrop,
+  .player-sheet-content,
+  .track-action-sheet-panel,
+  .lyrics-modal-content,
+  .album-modal-content,
+  .action-btn,
+  .secondary-btn,
+  .playlist-btn,
+  .filter-chip,
+  .tag-chip,
+  .search-scope-chip,
+  .library-command-btn,
+  .mobile-nav-toggle
+) {
+  transition-duration: var(--aineo-fast-ui) !important;
+  transition-delay: 0ms !important;
+  transition-property: opacity, transform, background-color, border-color, box-shadow, color !important;
+}
+
+html body.motion-ready :where(
+  .main-content > *,
+  .page > *,
+  .aineo-landing-page > *,
+  .music-layout-shell > *,
+  .music-center-column > *,
+  .music-right-rail > *,
+  .music-left-rail > *
+) {
+  animation-duration: var(--aineo-fast-ui) !important;
+  animation-delay: 0ms !important;
+}
+
+html body :where(
+  .site-header,
+  .aineo-bottom-icon-row,
+  .aineo-page-menu-backdrop,
+  .library-panel-backdrop,
+  .player-sheet-backdrop,
+  .track-action-sheet-backdrop,
+  .lyrics-modal-backdrop,
+  .album-modal-backdrop
+) {
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body *,
+  html body *::before,
+  html body *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* v43.1.89 radius audit supplement: secondary containers/rows found in page markup. */
+html body .aineo-home-panel,
+html body .home-card-primary,
+html body .home-hero-grid,
+html body .home-quick-links,
+html body .home-stat-pills,
+html body .aineo-home-action-grid,
+html body .album-grid,
+html body .catalog-grid,
+html body .utility-grid,
+html body .mission-grid,
+html body .about-mission-grid,
+html body .mission-card--nested,
+html body .playlist-list,
+html body .playlist-list--custom,
+html body .playlist-list--custom-standalone,
+html body .playlist-toolbar,
+html body .playlist-subsection-block,
+html body .music-library-card-search,
+html body .library-command-row,
+html body .library-quick-links,
+html body .quick-link-pills,
+html body .scripture-pill-row,
+html body .featured-track-list,
+html body .changelog-list,
+html body .shoutout-card-grid,
+html body .shoutout-form,
+html body .album-modal-body,
+html body .album-modal-header,
+html body .album-modal-top,
+html body .album-modal-tracks,
+html body .lyrics-modal-body,
+html body .lyrics-modal-header,
+html body .track-action-sheet-header,
+html body .track-action-sheet-actions,
+html body .track-action-sheet-footer,
+html body .player-sheet-panel,
+html body .player-sheet-body,
+html body .player-sheet-header,
+html body .player-sheet-now,
+html body .player-sheet-tabs,
+html body .player-sheet-transport,
+html body .player-tab-panel,
+html body .mobile-actions-drawer,
+html body .nav-links,
+html body #siteNavLinks {
+  border-radius: var(--aineo-radius-card-mobile) !important;
+  background-clip: padding-box !important;
+}
+
+html body .album-modal-cover,
+html body .now-cover,
+html body .player-sheet-cover,
+html body .continue-listening-cover,
+html body .continue-listening-cover-wrap,
+html body .album-page-back-link,
+html body .browse-shelf-link,
+html body .church-button,
+html body .shoutout-badge-button,
+html body .btn-submit,
+html body .playlist-jump-btn,
+html body .mobile-more-btn,
+html body .filter-type-badge,
+html body .progress-wrap,
+html body .player-sheet-progress {
+  border-radius: var(--aineo-radius-control) !important;
+  overflow: clip !important;
+  background-clip: padding-box !important;
+}
+
+html body .home-card-svg,
+html body .mini-btn-icon,
+html body .mini-btn-label {
+  border-radius: 14px !important;
 }

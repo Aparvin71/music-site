@@ -1,4 +1,4 @@
-/* v43.1.88 unified playback state */
+/* v43.1.89 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.88";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.89";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -400,7 +400,7 @@ function renderOfflineStatus({ forceVisible = false, emphasizeSaved = false } = 
 
   mount.querySelector('[data-scroll-offline]')?.addEventListener('click', () => {
     const target = savedCount ? document.getElementById('downloadedList') : document.getElementById('downloadedSection');
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (target) target.scrollIntoView({ behavior: 'auto', block: 'start' });
   });
 }
 
@@ -1615,7 +1615,7 @@ function initSmoothHashJumps() {
         collapsible.querySelector(".section-toggle")?.setAttribute("aria-expanded", "true");
       }
 
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.scrollIntoView({ behavior: "auto", block: "start" });
     });
   });
 }
@@ -2476,7 +2476,7 @@ function scrollToTrackList() {
   if (!target) return;
   const headerHeight = document.querySelector(".site-header")?.getBoundingClientRect().height || 0;
   const top = window.scrollY + target.getBoundingClientRect().top - headerHeight - 16;
-  window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+  window.scrollTo({ top: Math.max(top, 0), behavior: "auto" });
 }
 
 function scrollToFeaturedCollection() {
@@ -3650,7 +3650,7 @@ function scrollAlbumModalToCurrentTrack() {
   if (!activeRow) return;
 
   activeRow.scrollIntoView({
-    behavior: "smooth",
+    behavior: "auto",
     block: "nearest"
   });
 }
@@ -4108,7 +4108,7 @@ function openAndScrollQueueToCurrentTrack() {
 
   requestAnimationFrame(() => {
     els.queueSectionBody?.scrollIntoView({
-      behavior: "smooth",
+      behavior: "auto",
       block: "start"
     });
 
@@ -4124,7 +4124,7 @@ function scrollQueueToCurrentTrack() {
   if (!activeRow) return;
 
   activeRow.scrollIntoView({
-    behavior: "smooth",
+    behavior: "auto",
     block: "nearest"
   });
 }
@@ -4361,7 +4361,7 @@ function restoreFocus() {
 }
 
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo({ top: 0, behavior: "auto" });
 }
 
 function cssEscape(value) {
@@ -4527,7 +4527,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.88 LIBRARY PANEL LAUNCHERS
+   v43.1.89 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -4661,16 +4661,16 @@ function handleLibraryQueryParams() {
 
   const panel = params.get("panel");
   if (panel) {
-    setTimeout(() => openLibraryPanel(panel), 20);
+    requestAnimationFrame(() => openLibraryPanel(panel));
   } else if (document.body.classList.contains("library-page-cleanup")) {
     setBottomIconSelection("library");
-    setTimeout(() => scrollPanelToTop("library"), 20);
+    requestAnimationFrame(() => scrollPanelToTop("library"));
   }
 }
 
 
 function initMobileNav() {
-  // v43.1.88: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.1.89: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -4899,7 +4899,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.88 legacy analysis preload disabled
+// v43.1.89 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4909,7 +4909,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.88 smart playback cleanup
+// v43.1.89 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4928,10 +4928,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.88 ULTRA SMOOTH PLAYBACK
+   v43.1.89 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.88";
+const SMART_PLAYBACK_VERSION = "43.1.89";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

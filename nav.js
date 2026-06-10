@@ -1,4 +1,4 @@
-// v43.1.88 foreground page menu authority
+// v43.1.89 foreground page menu authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -80,7 +80,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.1.88";
+    overlay.dataset.version = "43.1.89";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -183,7 +183,7 @@
   window.AineoNav = { open, close, toggle };
 })();
 
-// v43.1.88 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.89 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;

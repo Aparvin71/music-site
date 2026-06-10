@@ -1,0 +1,14 @@
+Aineo v43.1.89 — Global Radius Authority + Performance Audit Pass
+
+Scope:
+- Audited all top-level HTML pages for card/panel/background corner consistency.
+- Added one global rounded-corner authority system so Home, Library, popups, utility pages, albums/artists, mission, contact/shout-outs, modals, player sheets, and bottom nav inherit the same rounded visual language.
+- Removed old straight-bottom mobile library/popup backdrop behavior.
+- Rounded repeated rows, action cards, command buttons, chips, modals, and sheet panels.
+- Reduced page-entry and popup transition duration.
+- Changed key page/panel scroll resets from smooth to instant/auto to remove slow movement when switching pages or opening Library/Playlist/Quick Filter cards.
+- Reduced heavy backdrop blur for faster mobile paint.
+
+Version/cache:
+- App/config/manifest/service-worker markers bumped to v43.1.89.
+- Service worker cache name changed to force stale-cache replacement.
