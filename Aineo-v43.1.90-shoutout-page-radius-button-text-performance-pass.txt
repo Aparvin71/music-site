@@ -1,0 +1,8 @@
+Aineo Music v43.1.90
+Shout Out Page Radius + Button Text + Performance Pass
+
+- Rounded/clipped the Mission/Church Shout Out page shell so the top page corners are no longer square.
+- Removed the small platform/category pill buttons directly below badge images.
+- Forced remaining purple action buttons on the Shout Out page to white text.
+- Added a page-specific root background fix instead of relying on the old fixed pseudo-background.
+- Tightened Shout Out page and menu transition timing for faster opening.
