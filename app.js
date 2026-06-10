@@ -1,4 +1,4 @@
-/* v43.1.84 unified playback state */
+/* v43.1.85 unified playback state */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.84";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.85";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -4527,35 +4527,98 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.84 LIBRARY PANEL LAUNCHERS
+   v43.1.85 LIBRARY PANEL LAUNCHERS
 ========================= */
+
+function normalizePanelName(panelName = "library") {
+  const normalized = String(panelName || "library").toLowerCase();
+  if (normalized === "quick-filters" || normalized === "quickfilters") return "filters";
+  if (normalized === "playlists" || normalized === "filters" || normalized === "search") return normalized;
+  return "library";
+}
+
+function setBottomIconSelection(panelName = "library") {
+  const row = document.querySelector(".aineo-bottom-icon-row");
+  if (!row) return;
+  const selected = normalizePanelName(panelName);
+  row.querySelectorAll(".aineo-bottom-icon").forEach(icon => {
+    icon.classList.remove("active");
+    icon.removeAttribute("data-panel-selected");
+    if (icon.getAttribute("aria-current") === "page") icon.removeAttribute("aria-current");
+  });
+
+  let target = null;
+  if (selected === "playlists") target = row.querySelector('[data-open-library-panel="playlists"]');
+  else if (selected === "filters") target = row.querySelector('[data-open-library-panel="filters"]');
+  else if (selected === "search" || selected === "library") target = row.querySelector('a[href$="/music.html"], a[href="/music.html"]');
+
+  if (target) {
+    target.classList.add("active");
+    target.setAttribute("data-panel-selected", "true");
+    target.setAttribute("aria-current", "page");
+  }
+}
+
+function scrollPanelToTop(panelName = "library") {
+  const selected = normalizePanelName(panelName);
+  const target = selected === "playlists"
+    ? document.querySelector(".playlist-section-card")
+    : selected === "library"
+      ? document.querySelector(".featured-tracklist-panel")
+      : document.querySelector(".music-library-card");
+
+  try { window.history.scrollRestoration = "manual"; } catch (error) {}
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
+  if (target) {
+    target.scrollTop = 0;
+    target.querySelectorAll(".section-body, .lyrics-modal-body").forEach(node => { node.scrollTop = 0; });
+    if (selected === "library") {
+      requestAnimationFrame(() => target.scrollIntoView({ behavior: "auto", block: "start" }));
+    }
+  }
+}
 
 function closeLibraryPanels() {
   document.body.classList.remove("library-panel-search-open", "library-panel-playlists-open", "library-panel-filters-open");
   document.getElementById("libraryPanelBackdrop")?.classList.add("hidden");
+  if (document.body.classList.contains("library-page-cleanup")) setBottomIconSelection("library");
 }
 
 function openLibraryPanel(panelName = "search") {
-  const normalized = String(panelName || "search").toLowerCase();
+  const normalized = normalizePanelName(panelName);
   closeLibraryPanels();
+  scrollPanelToTop(normalized);
 
   if (normalized === "playlists") {
     document.body.classList.add("library-panel-playlists-open");
     document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
-    setTimeout(() => document.getElementById("playlistSectionBody")?.closest("section")?.querySelector("button, input, a")?.focus?.(), 30);
+    setBottomIconSelection("playlists");
+    requestAnimationFrame(() => {
+      scrollPanelToTop("playlists");
+      document.getElementById("playlistSectionBody")?.closest("section")?.querySelector("button, input, a")?.focus?.({ preventScroll: true });
+    });
     return;
   }
 
-  if (normalized === "filters" || normalized === "quick-filters" || normalized === "quickfilters") {
+  if (normalized === "filters") {
     document.body.classList.add("library-panel-filters-open", "library-panel-search-open");
     document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
-    setTimeout(() => els.searchInput?.focus?.(), 30);
+    setBottomIconSelection("filters");
+    requestAnimationFrame(() => {
+      scrollPanelToTop("filters");
+      els.searchInput?.focus?.({ preventScroll: true });
+    });
     return;
   }
 
   document.body.classList.add("library-panel-search-open");
   document.getElementById("libraryPanelBackdrop")?.classList.remove("hidden");
-  setTimeout(() => els.searchInput?.focus?.(), 30);
+  setBottomIconSelection("library");
+  requestAnimationFrame(() => {
+    scrollPanelToTop("search");
+    els.searchInput?.focus?.({ preventScroll: true });
+  });
 }
 
 function bindLibraryPanelLaunchers() {
@@ -4598,13 +4661,16 @@ function handleLibraryQueryParams() {
 
   const panel = params.get("panel");
   if (panel) {
-    setTimeout(() => openLibraryPanel(panel), 120);
+    setTimeout(() => openLibraryPanel(panel), 20);
+  } else if (document.body.classList.contains("library-page-cleanup")) {
+    setBottomIconSelection("library");
+    setTimeout(() => scrollPanelToTop("library"), 20);
   }
 }
 
 
 function initMobileNav() {
-  // v43.1.84: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.1.85: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -4833,7 +4899,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.84 legacy analysis preload disabled
+// v43.1.85 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4843,7 +4909,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.84 smart playback cleanup
+// v43.1.85 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4862,10 +4928,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.84 ULTRA SMOOTH PLAYBACK
+   v43.1.85 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.84";
+const SMART_PLAYBACK_VERSION = "43.1.85";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

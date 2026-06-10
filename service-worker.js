@@ -1,6 +1,6 @@
-// v43.1.84 Landing/Home Architecture + Page Menu Authority
+// v43.1.85 Landing/Home Architecture + Page Menu Authority
 
-const CACHE_VERSION = "v43.1.84";
+const CACHE_VERSION = "v43.1.85";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
@@ -38,33 +38,33 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.84",
-  "/app.js?v=43.1.84",
-  "/nav.js?v=43.1.84",
-  "/pwa-init.js?v=43.1.84",
-  "/manifest.webmanifest?v=43.1.84",
-  "/aineo-album-page.js?v=43.1.84",
-  "/aineo-config.js?v=43.1.84",
-  "/aineo-data.js?v=43.1.84",
-  "/aineo-featured.js?v=43.1.84",
-  "/aineo-library.js?v=43.1.84",
-  "/aineo-lyrics.js?v=43.1.84",
-  "/aineo-media-session.js?v=43.1.84",
-  "/aineo-offline.js?v=43.1.84",
-  "/aineo-player-sheet.js?v=43.1.84",
-  "/aineo-playlists.js?v=43.1.84",
-  "/aineo-queue.js?v=43.1.84",
-  "/aineo-shared.js?v=43.1.84",
-  "/aineo-ui.js?v=43.1.84",
-  "/album-page.js?v=43.1.84",
-  "/albums-page.js?v=43.1.84",
-  "/artist-page.js?v=43.1.84",
-  "/artists-page.js?v=43.1.84",
-  "/contact.js?v=43.1.84",
-  "/images/church-logo.png?v=43.1.84",
-  "/images/alpena-first-baptist-church.png?v=43.1.84",
-  "/images/new-beginnings-cc.jpg?v=43.1.84",
-  "/images/wielders-of-the-word.jpg?v=43.1.84"
+  "/style.css?v=43.1.85",
+  "/app.js?v=43.1.85",
+  "/nav.js?v=43.1.85",
+  "/pwa-init.js?v=43.1.85",
+  "/manifest.webmanifest?v=43.1.85",
+  "/aineo-album-page.js?v=43.1.85",
+  "/aineo-config.js?v=43.1.85",
+  "/aineo-data.js?v=43.1.85",
+  "/aineo-featured.js?v=43.1.85",
+  "/aineo-library.js?v=43.1.85",
+  "/aineo-lyrics.js?v=43.1.85",
+  "/aineo-media-session.js?v=43.1.85",
+  "/aineo-offline.js?v=43.1.85",
+  "/aineo-player-sheet.js?v=43.1.85",
+  "/aineo-playlists.js?v=43.1.85",
+  "/aineo-queue.js?v=43.1.85",
+  "/aineo-shared.js?v=43.1.85",
+  "/aineo-ui.js?v=43.1.85",
+  "/album-page.js?v=43.1.85",
+  "/albums-page.js?v=43.1.85",
+  "/artist-page.js?v=43.1.85",
+  "/artists-page.js?v=43.1.85",
+  "/contact.js?v=43.1.85",
+  "/images/church-logo.png?v=43.1.85",
+  "/images/alpena-first-baptist-church.png?v=43.1.85",
+  "/images/new-beginnings-cc.jpg?v=43.1.85",
+  "/images/wielders-of-the-word.jpg?v=43.1.85"
 ];
 
 async function safeWarmStaticCache() {

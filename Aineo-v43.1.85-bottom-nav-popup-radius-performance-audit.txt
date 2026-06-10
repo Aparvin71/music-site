@@ -1,0 +1,19 @@
+Aineo v43.1.85 — Bottom Nav + Popup Radius + Text Authority + Performance Audit Pass
+
+Forward build from v43.1.84.
+
+Changes:
+- Forced Favorites, Downloads, Albums, and Shout Outs card title/subtext labels to white over their gradient cards.
+- Set hamburger/page-menu controls to the purple theme color.
+- Set inactive bottom navigation icons/text to purple on Home, Library, Playlists, Quick Filters, and More.
+- Set the selected bottom page/popup icon/text to dark blue with a visible selected pill state.
+- Added runtime bottom-nav selection syncing so Library, Playlists, Quick Filters, and More mark the correct bottom icon while selected.
+- Rounded the Library page shell, library popup backdrop, playlist popup, search/filter popup, page menu, player sheet, track action sheet, lyrics modal, and album modal corners.
+- Added popup/page scroll reset authority so Library returns to the beginning of the track card and Playlist/Quick Filter popups open at the top instead of restoring stale scroll.
+- Reduced popup/page transition delay and expensive first-paint blur/filter work to make page and popup opening feel faster on mobile.
+- Refreshed app/cache/manifest/service-worker/version markers to v43.1.85.
+
+Verification performed:
+- JavaScript syntax check passed for app runtime, nav runtime, PWA init, Aineo modules, and service worker.
+- Manifest/tracks/albums JSON validation passed.
+- CSS brace balance audit passed.

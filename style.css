@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.84 visualizer lift + left-wing alignment polish */
+/* v43.1.85 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.84 visualizer lift + left-wing alignment polish */
+/* v43.1.85 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.84 visualizer lift + left-wing alignment polish */
+/* v43.1.85 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.84 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.85 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.84 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.85 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.84 mobile mini-player final tighten */
+/* v43.1.85 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.84 battery optimization pass */
+/* v43.1.85 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.84 performance + low-power hardening */
+/* v43.1.85 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.84 full player lyrics bottom-safe scroll fix */
+/* v43.1.85 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.84 Mission/Church Shout Out image badge expansion */
+/* v43.1.85 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.84 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.85 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.84 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.85 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.84 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.84"] .shoutout-badge-image,
+/* ===== v43.1.85 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.85"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.84 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.85 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.84 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.85 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.84 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.85 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14912,7 +14912,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.84 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.85 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15234,7 +15234,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.84 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.85 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15601,3 +15601,235 @@ body.motion-ready .music-left-rail > * {
   }
 }
 
+
+/* =========================================
+   v43.1.85 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   - Home action card text remains white over gradients.
+   - Hamburger and inactive bottom icons are purple.
+   - Selected bottom page/popup icon text is dark blue.
+   - Library/popup background shells get rounded mobile corners.
+   - Panel/page transitions are tightened for faster openings.
+========================================= */
+:root {
+  --aineo-nav-purple: #c084fc;
+  --aineo-nav-purple-strong: #d8b4fe;
+  --aineo-selected-blue: #073186;
+  --aineo-selected-blue-strong: #08245f;
+  --aineo-fast-panel-ms: 80ms;
+}
+
+/* Card label authority: keep labels/subtext readable white, not purple. */
+.aineo-home-action-card,
+.aineo-home-action-card:visited,
+.aineo-home-action-card strong,
+.aineo-home-action-card small {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.aineo-home-action-card small {
+  color: rgba(255,255,255,0.82) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.82) !important;
+}
+
+/* Purple hamburger authority across Home, Library, and page menu states. */
+.mobile-nav-toggle,
+.hamburger,
+#mobileNavToggle,
+.aineo-page-menu-close,
+.library-panel-close {
+  color: var(--aineo-nav-purple) !important;
+  -webkit-text-fill-color: var(--aineo-nav-purple) !important;
+  border-color: rgba(192,132,252,0.34) !important;
+}
+
+.mobile-nav-toggle:hover,
+.hamburger:hover,
+#mobileNavToggle:hover,
+.aineo-page-menu-close:hover,
+.library-panel-close:hover {
+  color: var(--aineo-nav-purple-strong) !important;
+  -webkit-text-fill-color: var(--aineo-nav-purple-strong) !important;
+}
+
+/* Bottom icon authority: inactive = purple, selected page/popup = dark blue. */
+.aineo-bottom-icon-row .aineo-bottom-icon,
+.aineo-bottom-icon-row .aineo-bottom-icon:visited,
+.aineo-bottom-icon-row .aineo-bottom-icon strong,
+.aineo-bottom-icon-row .aineo-bottom-svg,
+.aineo-bottom-icon-row .aineo-bottom-svg svg,
+.aineo-bottom-icon-row .aineo-bottom-svg svg * {
+  color: var(--aineo-nav-purple) !important;
+  -webkit-text-fill-color: var(--aineo-nav-purple) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.aineo-bottom-icon-row .aineo-bottom-icon.active,
+.aineo-bottom-icon-row .aineo-bottom-icon[aria-current="page"],
+.aineo-bottom-icon-row .aineo-bottom-icon[data-panel-selected="true"] {
+  color: var(--aineo-selected-blue) !important;
+  -webkit-text-fill-color: var(--aineo-selected-blue) !important;
+  background: linear-gradient(180deg, rgba(192,132,252,0.95), rgba(124,58,237,0.52)) !important;
+  text-shadow: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 10px 24px rgba(0,0,0,0.24) !important;
+}
+
+.aineo-bottom-icon-row .aineo-bottom-icon.active strong,
+.aineo-bottom-icon-row .aineo-bottom-icon[aria-current="page"] strong,
+.aineo-bottom-icon-row .aineo-bottom-icon[data-panel-selected="true"] strong,
+.aineo-bottom-icon-row .aineo-bottom-icon.active .aineo-bottom-svg,
+.aineo-bottom-icon-row .aineo-bottom-icon[aria-current="page"] .aineo-bottom-svg,
+.aineo-bottom-icon-row .aineo-bottom-icon[data-panel-selected="true"] .aineo-bottom-svg,
+.aineo-bottom-icon-row .aineo-bottom-icon.active svg,
+.aineo-bottom-icon-row .aineo-bottom-icon[aria-current="page"] svg,
+.aineo-bottom-icon-row .aineo-bottom-icon[data-panel-selected="true"] svg,
+.aineo-bottom-icon-row .aineo-bottom-icon.active svg *,
+.aineo-bottom-icon-row .aineo-bottom-icon[aria-current="page"] svg *,
+.aineo-bottom-icon-row .aineo-bottom-icon[data-panel-selected="true"] svg * {
+  color: var(--aineo-selected-blue-strong) !important;
+  -webkit-text-fill-color: var(--aineo-selected-blue-strong) !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Rounded background authority for Library and overlay popup shells. */
+body.music-page-layout .site-header,
+body.music-page-layout .navbar,
+body.landing-page-layout .site-header,
+body.landing-page-layout .navbar {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+}
+
+body.music-page-layout .music-app-shell,
+body.music-page-layout .main-content,
+body.music-page-layout .music-layout-shell {
+  border-radius: 28px !important;
+}
+
+body.music-page-layout .music-app-shell {
+  overflow: clip !important;
+}
+
+.library-panel-backdrop,
+.aineo-page-menu-backdrop,
+.player-sheet-backdrop,
+.track-action-sheet-backdrop,
+.lyrics-modal-backdrop,
+.album-modal-backdrop {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+}
+
+.library-page-cleanup.library-panel-playlists-open .playlist-section-card,
+.library-page-cleanup.library-panel-search-open .music-library-card,
+.library-page-cleanup.library-panel-filters-open .music-library-card,
+.aineo-page-menu-card,
+.player-sheet-content,
+.track-action-sheet-panel,
+.lyrics-modal-content,
+.album-modal-content {
+  border-radius: 28px !important;
+  overflow: auto !important;
+}
+
+@media (max-width: 760px) {
+  body.music-page-layout .music-app-shell {
+    margin: 0 max(8px, calc(8px + var(--safe-right))) 0 max(8px, calc(8px + var(--safe-left))) !important;
+    width: auto !important;
+    border-radius: 26px 26px 0 0 !important;
+  }
+
+  body.music-page-layout .main-content,
+  body.music-page-layout .music-layout-shell {
+    border-radius: 26px 26px 0 0 !important;
+  }
+
+  .library-panel-backdrop {
+    inset: calc(82px + var(--safe-top)) max(8px, calc(8px + var(--safe-right))) 0 max(8px, calc(8px + var(--safe-left))) !important;
+    border-radius: 26px 26px 0 0 !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+  }
+
+  .library-page-cleanup.library-panel-playlists-open .playlist-section-card,
+  .library-page-cleanup.library-panel-search-open .music-library-card,
+  .library-page-cleanup.library-panel-filters-open .music-library-card {
+    top: calc(104px + var(--safe-top)) !important;
+    border-radius: 26px !important;
+    scroll-padding-top: 14px !important;
+  }
+
+  .aineo-page-menu-backdrop,
+  .player-sheet-backdrop,
+  .track-action-sheet-backdrop,
+  .lyrics-modal-backdrop,
+  .album-modal-backdrop {
+    inset: max(8px, calc(8px + var(--safe-top))) max(8px, calc(8px + var(--safe-right))) max(8px, calc(8px + var(--safe-bottom))) max(8px, calc(8px + var(--safe-left))) !important;
+    border-radius: 26px !important;
+    backdrop-filter: blur(5px) !important;
+    -webkit-backdrop-filter: blur(5px) !important;
+  }
+}
+
+/* Faster page and popup openings: less blur work, no delayed page-card cascade. */
+body.motion-enabled .site-header,
+body.motion-enabled .page-card,
+body.motion-enabled .featured-album-card,
+body.motion-enabled .album-card,
+body.motion-enabled .mini-card,
+body.motion-enabled .catalog-card,
+body.motion-enabled .featured-track-row,
+body.motion-enabled .album-track-row,
+body.motion-enabled .queue-row,
+body.motion-enabled .sticky-player,
+body.motion-enabled .action-btn,
+body.motion-enabled .mini-action-btn,
+body.motion-enabled .playlist-btn,
+body.motion-enabled .tag-chip,
+body.motion-enabled .filter-chip,
+body.motion-enabled .search-scope-chip,
+body.motion-enabled .nav-links a,
+body.motion-enabled .mobile-nav-toggle,
+body.motion-enabled .library-command-btn,
+body.motion-enabled .library-panel,
+body.motion-enabled .playlist-section-card,
+body.motion-enabled .music-library-card,
+body.motion-enabled .aineo-page-menu-card,
+body.motion-enabled .library-panel-backdrop,
+body.motion-enabled .aineo-page-menu-overlay,
+body.motion-enabled .player-sheet-content,
+body.motion-enabled .track-action-sheet-panel {
+  transition-duration: var(--aineo-fast-panel-ms) !important;
+  transition-property: transform, opacity, background-color, border-color, box-shadow, color !important;
+}
+
+body.motion-ready .main-content > *,
+body.motion-ready .aineo-landing-page > *,
+body.motion-ready .music-layout-shell > *,
+body.motion-ready .music-center-column > *,
+body.motion-ready .music-right-rail > *,
+body.motion-ready .music-left-rail > * {
+  animation-duration: 90ms !important;
+  animation-delay: 0ms !important;
+}
+
+.library-panel-backdrop,
+.aineo-page-menu-backdrop,
+.player-sheet-backdrop,
+.track-action-sheet-backdrop,
+.lyrics-modal-backdrop,
+.album-modal-backdrop,
+.sticky-player,
+.site-header {
+  will-change: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}

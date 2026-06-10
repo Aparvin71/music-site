@@ -1,4 +1,4 @@
-// v43.1.84 foreground page menu authority
+// v43.1.85 foreground page menu authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -30,6 +30,47 @@
       toggle.setAttribute("aria-expanded", "false");
       toggle.textContent = "☰";
     }
+  }
+
+  function clearBottomIconState() {
+    const row = document.querySelector(".aineo-bottom-icon-row");
+    if (!row) return null;
+    row.querySelectorAll(".aineo-bottom-icon").forEach(icon => {
+      icon.classList.remove("active");
+      icon.removeAttribute("data-panel-selected");
+      if (icon.getAttribute("aria-current") === "page") icon.removeAttribute("aria-current");
+    });
+    return row;
+  }
+
+  function markBottomIcon(icon) {
+    if (!icon) return;
+    icon.classList.add("active");
+    icon.setAttribute("data-panel-selected", "true");
+    icon.setAttribute("aria-current", "page");
+  }
+
+  function restoreBottomNavSelection() {
+    const row = clearBottomIconState();
+    if (!row) return;
+
+    let target = null;
+    if (document.body.classList.contains("library-panel-playlists-open")) {
+      target = row.querySelector('[data-open-library-panel="playlists"]');
+    } else if (document.body.classList.contains("library-panel-filters-open")) {
+      target = row.querySelector('[data-open-library-panel="filters"]');
+    } else if (location.pathname.endsWith("/music.html") || document.body.classList.contains("library-page-cleanup")) {
+      target = row.querySelector('a[href$="/music.html"], a[href="/music.html"]');
+    } else {
+      target = row.querySelector('a[href$="/index.html"], a[href="/index.html"], a[href="/"]');
+    }
+    markBottomIcon(target);
+  }
+
+  function setMoreBottomNavActive() {
+    const row = clearBottomIconState();
+    if (!row) return;
+    markBottomIcon(row.querySelector("[data-open-nav]"));
   }
 
   function ensureOverlay() {
@@ -85,6 +126,7 @@
     overlay.classList.add("show");
     overlay.setAttribute("aria-hidden", "false");
     document.body.classList.add("aineo-page-menu-open");
+    setMoreBottomNavActive();
     const toggle = document.getElementById("mobileNavToggle") || document.querySelector(".hamburger");
     if (toggle) {
       toggle.setAttribute("aria-expanded", "true");
@@ -102,6 +144,7 @@
     }
     document.body.classList.remove("aineo-page-menu-open");
     closeNativeNav();
+    restoreBottomNavSelection();
   }
 
   function toggle() {
@@ -139,7 +182,7 @@
   window.AineoNav = { open, close, toggle };
 })();
 
-// v43.1.84 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.85 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;
