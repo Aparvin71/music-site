@@ -1,5 +1,5 @@
 function rememberTracksSignature(signature){try{localStorage.setItem('aineo_tracks_signature',signature);}catch(e){}}
-const AINEO_APP_VERSION = "v43.1.95";
+const AINEO_APP_VERSION = "v43.1.96";
 const INSTALL_DISMISSED_KEY = "aineo_install_dismissed";
 const OFFLINE_HINT_DISMISSED_KEY = "aineo_offline_hint_dismissed";
 let offlineHintTimer = null;
@@ -76,7 +76,7 @@ function ensureSettingsSurface() {
         </section>
         <section class="app-feel-group">
           <h3>About this build</h3>
-          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.95</span></p>
+          <p class="page-lead compact-lead">Version <span class="app-version">v43.1.96</span></p>
           <p class="mission-statement mission-statement--summary">This build focuses on a cleaner premium split-spectrum presentation with faster snap response, energy bloom on peaks, wing-curve shaping, micro-motion polish, and a full package cleanup while keeping the working audio path stable.</p>
         </section>
       </div>
@@ -127,7 +127,7 @@ function closeSettingsSurface() {
 }
 
 function ensureFloatingSettingsButton() {
-  // v43.1.95: Top-right floating app-feel/settings ellipsis removed by request.
+  // v43.1.96: Top-right floating app-feel/settings ellipsis removed by request.
   // The full page menu now lives behind the hamburger and the bottom More tab.
   const existing = document.getElementById("floatingSettingsButton");
   if (existing) existing.remove();
@@ -371,18 +371,18 @@ async function registerStandaloneServiceWorker() {
 const TRACKS_UPDATE_SIGNATURE_KEY = "aineo_tracks_signature";
 const APP_UPDATE_ANNOUNCED_VERSION_KEY = "aineo_app_update_announced_version";
 const APP_UPDATE_SESSION_FLAG_KEY = "aineo_app_update_session_flag";
-const APP_RUNTIME_VERSION = "v43.1.95";
+const APP_RUNTIME_VERSION = "v43.1.96";
 
 
 const APP_SHELL_RESET_VERSION_KEY = "aineo_app_shell_reset_version";
-const APP_SHELL_RESET_TARGET = "v43.1.95";
+const APP_SHELL_RESET_TARGET = "v43.1.96";
 const APP_PERSIST_SCHEMA_KEY = "aineo_persist_schema_version";
 const APP_PERSIST_SCHEMA_VERSION = 2;
 const APP_LAST_SEEN_BUILD_KEY = "aineo_last_seen_build";
 const APP_LAST_REFRESHED_BUILD_KEY = "aineo_last_refreshed_build";
 const APP_UPDATE_CHANNEL_KEY = "aineo_update_channel_state";
 const LYRICS_LIBRARY_VERSION_KEY = "aineo_lyrics_library_version";
-const LYRICS_LIBRARY_VERSION = "43.1.95";
+const LYRICS_LIBRARY_VERSION = "43.1.96";
 
 async function forceRuntimeCacheRefreshForCurrentBuild() {
   if (!("caches" in window)) return;
@@ -872,6 +872,15 @@ function initInstallExperience() {
 }
 
 
+let appChromeMetricsFrame = 0;
+function requestAppChromeMetricsUpdate() {
+  if (appChromeMetricsFrame) return;
+  appChromeMetricsFrame = window.requestAnimationFrame(() => {
+    appChromeMetricsFrame = 0;
+    updateAppChromeMetrics();
+  });
+}
+
 function updateAppChromeMetrics() {
   const header = document.querySelector(".site-header");
   const headerHeight = header ? Math.ceil(header.getBoundingClientRect().height) : 72;
@@ -898,12 +907,12 @@ function initIosWebAppPolish() {
     document.body.classList.add("touch-optimized");
   }
   updateAppChromeMetrics();
-  window.addEventListener("resize", updateAppChromeMetrics, { passive: true });
-  window.addEventListener("orientationchange", updateAppChromeMetrics, { passive: true });
-  window.addEventListener("pageshow", updateAppChromeMetrics, { passive: true });
+  window.addEventListener("resize", requestAppChromeMetricsUpdate, { passive: true });
+  window.addEventListener("orientationchange", requestAppChromeMetricsUpdate, { passive: true });
+  window.addEventListener("pageshow", requestAppChromeMetricsUpdate, { passive: true });
   if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", updateAppChromeMetrics, { passive: true });
-    window.visualViewport.addEventListener("scroll", updateAppChromeMetrics, { passive: true });
+    window.visualViewport.addEventListener("resize", requestAppChromeMetricsUpdate, { passive: true });
+    window.visualViewport.addEventListener("scroll", requestAppChromeMetricsUpdate, { passive: true });
   }
 }
 
@@ -915,7 +924,8 @@ function initInteractionPolish() {
     ".search-scope-chip", ".section-toggle", ".library-quick-link", ".browse-shelf-link", ".control-link"
   ];
 
-  const rippleTargets = document.querySelectorAll(rippleSelectors.join(","));
+  const useLightweightTapFeedback = Boolean(window.matchMedia?.("(pointer: coarse)")?.matches || document.body.classList.contains("has-aineo-bottom-nav"));
+  const rippleTargets = useLightweightTapFeedback ? [] : document.querySelectorAll(rippleSelectors.join(","));
   rippleTargets.forEach((el) => {
     if (el.dataset.rippleBound === "true") return;
     el.dataset.rippleBound = "true";
@@ -945,6 +955,6 @@ function initInteractionPolish() {
 function injectVersionText() {
   document.querySelectorAll(".app-version").forEach(el => { el.textContent = AINEO_APP_VERSION; });
 }
-window.addEventListener("load", registerStandaloneServiceWorker);
+window.addEventListener("load", registerStandaloneServiceWorker, { once: true });
 document.addEventListener("DOMContentLoaded", () => { initIosWebAppPolish(); initBasicMobileNav(); initPortraitLock(); initInstallExperience(); injectVersionText(); initInteractionPolish(); initAppFeelPolish(); /* background update detection disabled in v43.1.8 */ if (isStandalone()) showStandaloneLaunchScreen(); maybeShowStandaloneWelcome(); document.body.classList.add("motion-enabled"); window.requestAnimationFrame(() => document.body.classList.add("motion-ready")); });
-window.addEventListener("load", () => { initBasicMobileNav(); });
+window.addEventListener("load", () => { initBasicMobileNav(); }, { once: true });

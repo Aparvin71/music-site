@@ -1,4 +1,4 @@
-// v43.1.95 foreground page menu + bottom nav fast-tap authority
+// v43.1.96 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -80,7 +80,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.1.95";
+    overlay.dataset.version = "43.1.96";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -170,6 +170,12 @@
   document.addEventListener("click", (event) => {
     const menuTrigger = event.target.closest("#mobileNavToggle, .hamburger, [data-open-nav]");
     if (!menuTrigger) return;
+    if (Date.now() < (window.__AINEO_NAV_FAST_HANDLED_UNTIL__ || 0)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -185,7 +191,7 @@
 
 
 
-// v43.1.95 root bottom-nav responsiveness authority.
+// v43.1.96 root bottom-nav responsiveness authority.
 // Handles visual feedback on pointerdown and opens in-page Library panels directly,
 // instead of waiting for slower delegated click work after page/layout transitions.
 (function () {
@@ -267,9 +273,46 @@
     document.addEventListener(name, clearPressState, { passive: true, capture: true });
   });
 
+
+  let fastHandledAt = 0;
+
+  document.addEventListener("pointerup", event => {
+    const item = event.target.closest(NAV_ITEM);
+    if (!item || !getRow()?.contains(item)) return;
+
+    const panelButton = item.closest("[data-open-library-panel]");
+    const moreButton = item.closest("[data-open-nav]");
+    if (!panelButton && !moreButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    fastHandledAt = Date.now();
+    window.__AINEO_NAV_FAST_HANDLED_UNTIL__ = fastHandledAt + 450;
+    item.classList.remove(PRESS_CLASS);
+    selectItem(item);
+
+    if (panelButton) {
+      if (!openPanel(panelButton.dataset.openLibraryPanel || "library")) {
+        window.location.assign(`/music.html?panel=${encodeURIComponent(normalizePanel(panelButton.dataset.openLibraryPanel || "library"))}`);
+      }
+      return;
+    }
+
+    if (moreButton) {
+      window.AineoNav?.toggle?.();
+    }
+  }, { capture: true });
+
   document.addEventListener("click", event => {
     const item = event.target.closest(NAV_ITEM);
     if (!item || !getRow()?.contains(item)) return;
+
+    if (Date.now() - fastHandledAt < 450) {
+      event.preventDefault();
+      event.stopPropagation();
+      item.classList.remove(PRESS_CLASS);
+      return;
+    }
 
     item.classList.remove(PRESS_CLASS);
     selectItem(item);
@@ -321,7 +364,7 @@
   }, true);
 })();
 
-// v43.1.95 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.96 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;

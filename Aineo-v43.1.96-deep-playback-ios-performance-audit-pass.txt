@@ -1,0 +1,28 @@
+v43.1.96 — Deep Playback Continuity + iOS Metadata + Performance Audit Pass
+
+Scope:
+- Complete deep audit of playback continuity, background/minimized behavior, iOS standalone behavior, Media Session metadata/controls, button responsiveness, page/popup transitions, service worker loading, and code/package integrity.
+
+Root changes:
+- Replaced Media Session play/pause toggle behavior with explicit play and pause actions to prevent lock-screen / external controls from accidentally reversing playback state.
+- Added continuous-playback lifecycle guards for visibilitychange, pagehide, beforeunload, pageshow, waiting, stalled, suspend, canplay, and ended states.
+- Preserved user playback intent during background/suspended pauses so iOS Safari/PWA pauses are not treated as a deliberate user stop.
+- Set audio elements to preload=auto with playsinline / webkit-playsinline / x-webkit-airplay hints on Home, Library, and Album pages.
+- Added Media Session metadata and position updates to Album pages too.
+- Throttled Media Session position updates to reduce unnecessary work during timeupdate.
+- Increased audio-ready timeout for slow mobile/network loads.
+- Corrected next-track prefetch authority so next songs can actually warm before continuous advance.
+- Added service worker support for external R2 audio/cover fetches, user offline audio/cache messages, document stale-while-revalidate loading, and versioned static stale-while-revalidate loading.
+- Reduced heavy mobile transitions, blur, tap-ripple DOM creation, and page-load animation delays.
+- Added content-visibility to long rows/cards for faster rendering of large music lists.
+- Throttled iOS visual viewport metric updates through requestAnimationFrame.
+- Tightened bottom-nav pointerup response for in-page panels and More menu.
+
+Verification:
+- JS syntax checked for all JavaScript files.
+- JSON and manifest files parsed successfully.
+- CSS brace balance verified.
+- Required audio attributes verified on Home, Library, and Album pages.
+- Service worker external audio/cache handlers verified present.
+- Version markers swept to v43.1.96.
+- ZIP integrity verified.
