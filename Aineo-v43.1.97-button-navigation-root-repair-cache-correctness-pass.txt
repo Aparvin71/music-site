@@ -1,0 +1,15 @@
+Aineo v43.1.97 — Button Navigation Root Repair + Cache Correctness Pass
+
+Root fixes:
+- Removed the v43.1.96 pointerup navigation authority that could suppress the real click/navigation path on iOS/PWA.
+- Restored one reliable click/tap activation path for bottom icons, page navigation, Library panels, and More/Hamburger menu.
+- Kept pointerdown as visual feedback only so buttons still feel immediate without blocking page changes.
+- Changed service-worker document and JS/CSS loading back to network-first with cached fallback, so new page/button code is not trapped behind stale cached shells.
+- Preserved the v43.1.96 playback/iOS metadata work while repairing navigation.
+
+Verification:
+- JS syntax check
+- JSON/manifest parse check
+- Service-worker fetch strategy check
+- Bottom-nav handler audit check
+- ZIP integrity check

@@ -1,6 +1,6 @@
-// v43.1.96 Bottom Nav Responsiveness + Full Home Tab List Pass
+// v43.1.97 Bottom Nav Responsiveness + Full Home Tab List Pass
 
-const CACHE_VERSION = "v43.1.96";
+const CACHE_VERSION = "v43.1.97";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const USER_AUDIO_CACHE = "aineo-user-offline-audio";
@@ -57,33 +57,33 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.1.96",
-  "/app.js?v=43.1.96",
-  "/nav.js?v=43.1.96",
-  "/pwa-init.js?v=43.1.96",
-  "/manifest.webmanifest?v=43.1.96",
-  "/aineo-album-page.js?v=43.1.96",
-  "/aineo-config.js?v=43.1.96",
-  "/aineo-data.js?v=43.1.96",
-  "/aineo-featured.js?v=43.1.96",
-  "/aineo-library.js?v=43.1.96",
-  "/aineo-lyrics.js?v=43.1.96",
-  "/aineo-media-session.js?v=43.1.96",
-  "/aineo-offline.js?v=43.1.96",
-  "/aineo-player-sheet.js?v=43.1.96",
-  "/aineo-playlists.js?v=43.1.96",
-  "/aineo-queue.js?v=43.1.96",
-  "/aineo-shared.js?v=43.1.96",
-  "/aineo-ui.js?v=43.1.96",
-  "/album-page.js?v=43.1.96",
-  "/albums-page.js?v=43.1.96",
-  "/artist-page.js?v=43.1.96",
-  "/artists-page.js?v=43.1.96",
-  "/contact.js?v=43.1.96",
-  "/images/church-logo.png?v=43.1.96",
-  "/images/alpena-first-baptist-church.png?v=43.1.96",
-  "/images/new-beginnings-cc.jpg?v=43.1.96",
-  "/images/wielders-of-the-word.jpg?v=43.1.96"
+  "/style.css?v=43.1.97",
+  "/app.js?v=43.1.97",
+  "/nav.js?v=43.1.97",
+  "/pwa-init.js?v=43.1.97",
+  "/manifest.webmanifest?v=43.1.97",
+  "/aineo-album-page.js?v=43.1.97",
+  "/aineo-config.js?v=43.1.97",
+  "/aineo-data.js?v=43.1.97",
+  "/aineo-featured.js?v=43.1.97",
+  "/aineo-library.js?v=43.1.97",
+  "/aineo-lyrics.js?v=43.1.97",
+  "/aineo-media-session.js?v=43.1.97",
+  "/aineo-offline.js?v=43.1.97",
+  "/aineo-player-sheet.js?v=43.1.97",
+  "/aineo-playlists.js?v=43.1.97",
+  "/aineo-queue.js?v=43.1.97",
+  "/aineo-shared.js?v=43.1.97",
+  "/aineo-ui.js?v=43.1.97",
+  "/album-page.js?v=43.1.97",
+  "/albums-page.js?v=43.1.97",
+  "/artist-page.js?v=43.1.97",
+  "/artists-page.js?v=43.1.97",
+  "/contact.js?v=43.1.97",
+  "/images/church-logo.png?v=43.1.97",
+  "/images/alpena-first-baptist-church.png?v=43.1.97",
+  "/images/new-beginnings-cc.jpg?v=43.1.97",
+  "/images/wielders-of-the-word.jpg?v=43.1.97"
 ];
 
 async function safeWarmStaticCache() {
@@ -230,18 +230,22 @@ async function cacheFirstExternal(request, cacheName, maxEntries) {
   }
 }
 
-async function documentStaleWhileRevalidate(request) {
+async function documentNetworkFirst(request) {
   const cache = await caches.open(STATIC_CACHE);
   const url = new URL(request.url);
   const pathKey = url.pathname === "/" ? "/index.html" : url.pathname;
-  const cached = await cache.match(request, { ignoreSearch: true }) || await cache.match(pathKey, { ignoreSearch: true }) || await cache.match("/index.html");
-  const networkPromise = fetch(request).then(async (response) => {
+  try {
+    const response = await fetch(request);
     if (response && response.ok && !response.redirected && response.type !== "opaqueredirect") {
       await cache.put(pathKey, response.clone());
     }
     return response;
-  }).catch(() => null);
-  return cached || networkPromise || Response.error();
+  } catch (error) {
+    const cached = await cache.match(request, { ignoreSearch: false }) ||
+      await cache.match(pathKey, { ignoreSearch: true }) ||
+      await cache.match("/index.html", { ignoreSearch: true });
+    return cached || Response.error();
+  }
 }
 
 async function cacheFirst(request, cacheName) {
@@ -279,7 +283,7 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   if (req.mode === "navigate" || req.destination === "document") {
-    event.respondWith(documentStaleWhileRevalidate(req));
+    event.respondWith(documentNetworkFirst(req));
     return;
   }
 
@@ -289,7 +293,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (url.pathname.endsWith(".js") || url.pathname.endsWith(".css") || url.pathname.endsWith(".webmanifest")) {
-    event.respondWith(staleWhileRevalidate(req, STATIC_CACHE));
+    event.respondWith(networkFirst(req, STATIC_CACHE));
     return;
   }
 

@@ -1,4 +1,4 @@
-AINEO v43.1.96 — Bottom Nav Responsiveness + Full Home Tab List Audit Pass
+AINEO v43.1.97 — Bottom Nav Responsiveness + Full Home Tab List Audit Pass
 
 Root fixes:
 - Removed the CSS rule that hid Home song rows after the first five.

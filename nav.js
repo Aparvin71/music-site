@@ -1,4 +1,4 @@
-// v43.1.96 foreground page menu + bottom nav fast-tap authority
+// v43.1.97 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -80,7 +80,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.1.96";
+    overlay.dataset.version = "43.1.97";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -170,12 +170,6 @@
   document.addEventListener("click", (event) => {
     const menuTrigger = event.target.closest("#mobileNavToggle, .hamburger, [data-open-nav]");
     if (!menuTrigger) return;
-    if (Date.now() < (window.__AINEO_NAV_FAST_HANDLED_UNTIL__ || 0)) {
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-      return;
-    }
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
@@ -191,9 +185,11 @@
 
 
 
-// v43.1.96 root bottom-nav responsiveness authority.
-// Handles visual feedback on pointerdown and opens in-page Library panels directly,
-// instead of waiting for slower delegated click work after page/layout transitions.
+
+// v43.1.97 root bottom-nav navigation authority.
+// Root fix: v43.1.97 moved real actions onto pointerup and then suppressed the follow-up click.
+// On iOS/PWA that made navigation and panel changes feel delayed or fail entirely.
+// This restores a single click/tap activation path while keeping pointerdown visual feedback only.
 (function () {
   const NAV_ITEM = ".aineo-bottom-icon";
   const PRESS_CLASS = "is-pressed";
@@ -213,14 +209,21 @@
     getRow()?.querySelectorAll(`${NAV_ITEM}.${PRESS_CLASS}`).forEach(item => item.classList.remove(PRESS_CLASS));
   }
 
-  function selectItem(item) {
+  function clearSelection() {
     const row = getRow();
-    if (!row || !item) return;
+    if (!row) return null;
     row.querySelectorAll(NAV_ITEM).forEach(icon => {
       icon.classList.remove("active");
       icon.removeAttribute("data-panel-selected");
       if (icon.getAttribute("aria-current") === "page") icon.removeAttribute("aria-current");
     });
+    return row;
+  }
+
+  function selectItem(item) {
+    if (!item) return;
+    const row = clearSelection();
+    if (!row) return;
     item.classList.add("active");
     item.setAttribute("data-panel-selected", "true");
     item.setAttribute("aria-current", "page");
@@ -262,90 +265,78 @@
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   }
 
+  function syncFromLocation() {
+    const row = clearSelection();
+    if (!row) return;
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    const panel = normalizePanel(params.get("panel") || "library");
+    let target = null;
+
+    if (document.body.classList.contains("library-panel-playlists-open") || (path.endsWith("/music.html") && panel === "playlists")) {
+      target = row.querySelector('[data-open-library-panel="playlists"], a[href*="panel=playlists"]');
+    } else if (document.body.classList.contains("library-panel-filters-open") || (path.endsWith("/music.html") && panel === "filters")) {
+      target = row.querySelector('[data-open-library-panel="filters"], a[href*="panel=filters"]');
+    } else if (path.endsWith("/music.html")) {
+      target = row.querySelector('a[href="/music.html"], a[href$="/music.html"]');
+    } else {
+      target = row.querySelector('a[href="/index.html"], a[href$="/index.html"], a[href="/"]');
+    }
+    if (target) selectItem(target);
+  }
+
   document.addEventListener("pointerdown", event => {
     const item = event.target.closest(NAV_ITEM);
-    if (!item || !getRow()?.contains(item)) return;
+    const row = getRow();
+    if (!item || !row?.contains(item)) return;
     item.classList.add(PRESS_CLASS);
-    selectItem(item);
   }, { passive: true, capture: true });
 
-  ["pointerup", "pointercancel", "pointerleave", "touchcancel"].forEach(name => {
+  ["pointerup", "pointercancel", "pointerleave", "touchcancel", "scroll"].forEach(name => {
     document.addEventListener(name, clearPressState, { passive: true, capture: true });
   });
 
-
-  let fastHandledAt = 0;
-
-  document.addEventListener("pointerup", event => {
-    const item = event.target.closest(NAV_ITEM);
-    if (!item || !getRow()?.contains(item)) return;
-
-    const panelButton = item.closest("[data-open-library-panel]");
-    const moreButton = item.closest("[data-open-nav]");
-    if (!panelButton && !moreButton) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-    fastHandledAt = Date.now();
-    window.__AINEO_NAV_FAST_HANDLED_UNTIL__ = fastHandledAt + 450;
-    item.classList.remove(PRESS_CLASS);
-    selectItem(item);
-
-    if (panelButton) {
-      if (!openPanel(panelButton.dataset.openLibraryPanel || "library")) {
-        window.location.assign(`/music.html?panel=${encodeURIComponent(normalizePanel(panelButton.dataset.openLibraryPanel || "library"))}`);
-      }
-      return;
-    }
-
-    if (moreButton) {
-      window.AineoNav?.toggle?.();
-    }
-  }, { capture: true });
-
   document.addEventListener("click", event => {
     const item = event.target.closest(NAV_ITEM);
-    if (!item || !getRow()?.contains(item)) return;
-
-    if (Date.now() - fastHandledAt < 450) {
-      event.preventDefault();
-      event.stopPropagation();
-      item.classList.remove(PRESS_CLASS);
-      return;
-    }
+    const row = getRow();
+    if (!item || !row?.contains(item)) return;
 
     item.classList.remove(PRESS_CLASS);
-    selectItem(item);
 
     const panelButton = item.closest("[data-open-library-panel]");
     if (panelButton) {
       event.preventDefault();
       event.stopPropagation();
-      if (!openPanel(panelButton.dataset.openLibraryPanel || "library")) {
-        window.location.assign(`/music.html?panel=${encodeURIComponent(normalizePanel(panelButton.dataset.openLibraryPanel || "library"))}`);
+      selectItem(item);
+      const panel = normalizePanel(panelButton.dataset.openLibraryPanel || "library");
+      if (!openPanel(panel)) {
+        window.location.assign(`/music.html?panel=${encodeURIComponent(panel)}`);
       }
       return;
     }
 
     if (item.matches("[data-open-nav]")) {
+      // The foreground page menu handler above owns this button. This is a safe fallback only.
+      selectItem(item);
+      window.AineoNav?.toggle?.();
       return;
     }
 
     if (item instanceof HTMLAnchorElement) {
       const href = item.getAttribute("href") || "";
       const panel = getPanelFromHref(href);
-      const targetUrl = new URL(href, window.location.href);
       const currentlyOnLibrary = window.location.pathname.endsWith("/music.html");
 
       if (currentlyOnLibrary && panel) {
         event.preventDefault();
         event.stopPropagation();
+        selectItem(item);
         if (panel === "library") {
           window.AineoLibraryPanels?.close?.();
           window.AineoLibraryPanels?.select?.("library");
           window.AineoLibraryPanels?.scrollToTop?.("library");
-        } else {
-          openPanel(panel);
+        } else if (!openPanel(panel)) {
+          window.location.assign(`/music.html?panel=${encodeURIComponent(panel)}`);
         }
         return;
       }
@@ -353,18 +344,29 @@
       if (isSamePageUrl(href)) {
         event.preventDefault();
         event.stopPropagation();
+        selectItem(item);
         instantScrollTop();
         return;
       }
 
       try {
+        const targetUrl = new URL(href, window.location.href);
         sessionStorage.setItem("aineo_bottom_nav_pending", targetUrl.pathname + targetUrl.search);
       } catch (error) {}
+      selectItem(item);
+      // Let the anchor's native navigation proceed. This is the most reliable path in iOS PWA mode.
     }
   }, true);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", syncFromLocation, { once: true });
+  } else {
+    syncFromLocation();
+  }
+  window.addEventListener("pageshow", syncFromLocation, { passive: true });
 })();
 
-// v43.1.96 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.97 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;
@@ -389,4 +391,3 @@
   window.setTimeout(recoverMiniPlayer, 120);
   window.setTimeout(recoverMiniPlayer, 650);
 })();
-

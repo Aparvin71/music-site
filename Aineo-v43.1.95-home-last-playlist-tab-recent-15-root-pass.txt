@@ -1,4 +1,4 @@
-Aineo v43.1.95 — Home Last Playlist Tab + Recent 15 Root Pass
+Aineo v43.1.97 — Home Last Playlist Tab + Recent 15 Root Pass
 
 Root changes:
 - The Home My Songs tab now resolves from the last user-selected album playlist or custom playlist instead of assuming a pre-existing My Songs playlist.
@@ -11,4 +11,4 @@ Verification performed:
 - JS syntax check
 - JSON/manifest parse check
 - ZIP integrity check
-- Version marker sweep to v43.1.95
+- Version marker sweep to v43.1.97
