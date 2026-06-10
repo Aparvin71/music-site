@@ -1,0 +1,16 @@
+Aineo v43.1.88 — Global Header Authority + All Pages + Performance Audit Pass
+
+Changes included:
+- Root-fixed the compact AINEO header so it applies to every page, not just Home and Library.
+- Every mobile page header now computes to a 56px rounded black/purple card with centered logo and hamburger.
+- Hamburger controls stay purple across all page headers.
+- Hamburger/More Pages menu text remains white across the native nav path and custom overlay path.
+- Tightened header/menu transition timing so page and popup openings feel quicker.
+- Bumped page, asset, manifest, runtime, and service-worker cache markers to v43.1.88.
+
+Verification performed:
+- Audited all HTML pages with .site-header: index, music/library, welcome, about, albums, album, artist, artists, changelog, contact/shout outs, feedback, install, and mission.
+- Verified mobile computed header height: 56px on every audited page.
+- Verified mobile hamburger button height: 36px on every audited page.
+- Verified menu links render white when opened.
+- Verified CSS brace balance, JS syntax, JSON/manifest parsing, and zip integrity.
