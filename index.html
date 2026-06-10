@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.97" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.98" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -24,20 +24,20 @@
   <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
   <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
   <title>Home - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.97" />
-  <script src="/pwa-init.js?v=43.1.97" defer></script>
-  <script src="/aineo-config.js?v=43.1.97" defer></script>
-  <script src="/aineo-data.js?v=43.1.97" defer></script>
-  <script src="/aineo-ui.js?v=43.1.97" defer></script>
-  <script src="/aineo-lyrics.js?v=43.1.97" defer></script>
-  <script src="/aineo-media-session.js?v=43.1.97" defer></script>
-  <script src="/aineo-library.js?v=43.1.97" defer></script>
-  <script src="/aineo-queue.js?v=43.1.97" defer></script>
-  <script src="/aineo-featured.js?v=43.1.97" defer></script>
-  <script src="/aineo-playlists.js?v=43.1.97" defer></script>
-  <script src="/aineo-player-sheet.js?v=43.1.97" defer></script>
-  <script src="/aineo-offline.js?v=43.1.97" defer></script>
-  <script src="/app.js?v=43.1.97" defer></script>
+  <link rel="stylesheet" href="/style.css?v=43.1.98" />
+  <script src="/pwa-init.js?v=43.1.98" defer></script>
+  <script src="/aineo-config.js?v=43.1.98" defer></script>
+  <script src="/aineo-data.js?v=43.1.98" defer></script>
+  <script src="/aineo-ui.js?v=43.1.98" defer></script>
+  <script src="/aineo-lyrics.js?v=43.1.98" defer></script>
+  <script src="/aineo-media-session.js?v=43.1.98" defer></script>
+  <script src="/aineo-library.js?v=43.1.98" defer></script>
+  <script src="/aineo-queue.js?v=43.1.98" defer></script>
+  <script src="/aineo-featured.js?v=43.1.98" defer></script>
+  <script src="/aineo-playlists.js?v=43.1.98" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.1.98" defer></script>
+  <script src="/aineo-offline.js?v=43.1.98" defer></script>
+  <script src="/app.js?v=43.1.98" defer></script>
 </head>
 <body class="landing-page-layout music-page-layout has-aineo-bottom-nav">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -143,12 +143,14 @@
   <div class="sticky-player" aria-label="Audio player">
     <div class="sticky-player-left">
       <img id="nowCover" src="" alt="Album cover" class="now-cover" />
-      <div class="now-meta">
+      <div class="now-meta aura-now-meta">
         <p class="label">Now Playing</p>
         <h3 id="nowTitle">Select a song</h3>
-        <p id="nowArtist">—</p>
-        <p id="nowAlbum">—</p>
-        <p id="nowScripture" class="scripture-line">—</p>
+        <p id="nowArtist" class="player-hidden-meta" hidden aria-hidden="true">—</p>
+        <p id="nowAlbum" class="player-hidden-meta" hidden aria-hidden="true">—</p>
+        <div class="now-scripture-row">
+          <p id="nowScripture" class="scripture-line">No scripture references</p>
+        </div>
       </div>
     </div>
 
@@ -282,7 +284,7 @@
           <p class="eyebrow">Now Playing</p>
           <h2 id="playerSheetTitle">Player</h2>
         </div>
-        <button id="playerSheetFavoriteBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+        <button id="playerSheetFavoriteBtn" class="action-btn secondary-btn player-sheet-favorite-icon" type="button" aria-label="Favorite">♡</button>
       </div>
 
       <div class="player-sheet-body">
@@ -291,11 +293,11 @@
             <img id="playerSheetCover" class="player-sheet-cover" src="" alt="Current song cover" />
           </div>
 
-          <div class="player-sheet-meta">
+          <div class="player-sheet-meta aura-player-sheet-meta">
+            <p id="playerSheetTrackAlbum" class="player-sheet-collection-line">—</p>
             <h3 id="playerSheetTrackTitle">Select a song</h3>
-            <p id="playerSheetTrackArtist">—</p>
-            <p id="playerSheetTrackAlbum">—</p>
-            <p id="playerSheetTrackScripture" class="scripture-line">—</p>
+            <p id="playerSheetTrackArtist" class="player-hidden-meta" hidden aria-hidden="true">—</p>
+            <div id="playerSheetTrackScripture" class="scripture-pill-row">No scripture references</div>
           </div>
 
           <div class="player-sheet-progress">
@@ -366,7 +368,7 @@
 </nav>
 
 <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.97</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.98</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/about.html">About</a>
       <a href="/changelog.html">Changelog</a>
@@ -375,7 +377,7 @@
       <a href="/contact.html">Shout Outs</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.1.97"></script>
+<script src="/nav.js?v=43.1.98"></script>
 <script>
 (function() {
   function readArray(key) { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }

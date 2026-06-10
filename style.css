@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.97 visualizer lift + left-wing alignment polish */
+/* v43.1.98 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.97 visualizer lift + left-wing alignment polish */
+/* v43.1.98 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.97 visualizer lift + left-wing alignment polish */
+/* v43.1.98 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.97 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.98 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.97 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.98 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.97 mobile mini-player final tighten */
+/* v43.1.98 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.97 battery optimization pass */
+/* v43.1.98 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.97 performance + low-power hardening */
+/* v43.1.98 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.97 full player lyrics bottom-safe scroll fix */
+/* v43.1.98 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.97 Mission/Church Shout Out image badge expansion */
+/* v43.1.98 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.97 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.98 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.97 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.98 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.97 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.97"] .shoutout-badge-image,
+/* ===== v43.1.98 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.98"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.97 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.98 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.97 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.98 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14386,7 +14386,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.97 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.98 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14909,7 +14909,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.97 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.98 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15231,7 +15231,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.97 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.98 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15600,7 +15600,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.97 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.1.98 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15833,7 +15833,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.97 Header Height + Page Menu White Text Authority Pass
+   v43.1.98 Header Height + Page Menu White Text Authority Pass
    - Removes the doubled safe-area padding inside the rounded AINEO header card.
    - Cuts the visual header card height down to roughly half of the prior mobile build.
    - Keeps hamburger/menu button purple and centered in the shorter header.
@@ -15951,7 +15951,7 @@ body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
 
 
 /* =========================================
-   v43.1.97 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   v43.1.98 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
    Root cause fixed:
    - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
    - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
@@ -16225,7 +16225,7 @@ html body .album-modal-backdrop {
 }
 
 /* =========================================
-   v43.1.97 GLOBAL HEADER CARD AUTHORITY
+   v43.1.98 GLOBAL HEADER CARD AUTHORITY
    Root fix: the compact AINEO header now targets every page header,
    not only Home/Library body classes.
 ========================================= */
@@ -16439,7 +16439,7 @@ html body .aineo-page-menu-close {
   -webkit-text-fill-color: var(--aineo-global-header-purple) !important;
 }
 
-/* v43.1.97 transition audit: keep header/menu opening responsive on every page. */
+/* v43.1.98 transition audit: keep header/menu opening responsive on every page. */
 html body.motion-enabled .site-header,
 html body.motion-enabled .navbar,
 html body.motion-enabled .nav-top-row,
@@ -16451,7 +16451,7 @@ html body.motion-enabled .aineo-page-menu-card {
 
 
 /* =========================================
-   v43.1.97 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
+   v43.1.98 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
    Root fix: all pages now share one radius/token system instead of
    page-specific card/background rules that allowed square corners to resurface.
 ========================================= */
@@ -16842,7 +16842,7 @@ html body :where(
   }
 }
 
-/* v43.1.97 radius audit supplement: secondary containers/rows found in page markup. */
+/* v43.1.98 radius audit supplement: secondary containers/rows found in page markup. */
 html body .aineo-home-panel,
 html body .home-card-primary,
 html body .home-hero-grid,
@@ -16920,7 +16920,7 @@ html body .mini-btn-label {
 
 
 /* =========================================
-   v43.1.97 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
+   v43.1.98 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
    Root fix:
    - The Shout Out page was using a fixed full-viewport pseudo background, so the visible page color could not be clipped by the rounded page shell.
    - This gives the Shout Out page its own real rounded/clipped surface and moves the glow background inside that surface.
@@ -17024,7 +17024,7 @@ html body.motion-enabled :where(
 
 
 /* =========================================
-   v43.1.97 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
+   v43.1.98 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
    Root fix:
    - v43.1.90 used page-level overflow clipping to force the Shout Out page corner radius.
    - That clipped the wide mobile badge cards against the page edge.
@@ -17119,7 +17119,7 @@ html body .about-page .church-button * {
 }
 
 
-/* v43.1.97 — Library top button removal + customizable Home listening tabs */
+/* v43.1.98 — Library top button removal + customizable Home listening tabs */
 .library-command-row {
   display: none !important;
 }
@@ -17180,7 +17180,7 @@ html body .about-page .church-button * {
 }
 
 /* =========================================
-   v43.1.97 Bottom Nav Responsiveness + Full Home Tab List Authority
+   v43.1.98 Bottom Nav Responsiveness + Full Home Tab List Authority
    Root causes fixed:
    - Home list CSS was hiding every row after the fifth child.
    - Home tab data helpers capped My Songs/Favorites/Recent to 11 items.
@@ -17225,7 +17225,7 @@ html body .about-page .church-button * {
 
 
 /* =========================================
-   v43.1.97 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
+   v43.1.98 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
    Root fixes:
    - The Shout Out hero repeated the same title twice; the megaphone label is now the single page heading.
    - The page shell still had square bottom corners from earlier top-only radius rules.
@@ -17294,7 +17294,7 @@ body.shoutout-page-layout .shoutout-request-panel {
   }
 }
 
-/* v43.1.97 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
+/* v43.1.98 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
 :root {
   --aineo-fast: 90ms;
   --aineo-medium: 120ms;
@@ -17387,5 +17387,564 @@ body.motion-ready .music-page-layout .right-rail > .page-card {
   .player-cover-visualizer::after,
   .player-cover-visualizer-glow {
     filter: none !important;
+  }
+}
+
+
+/* =========================================================
+   v43.1.98 AURORA GLASS PLAYER AUTHORITY
+   Root redesign for sticky mini player + full player sheet
+========================================================= */
+.player-hidden-meta {
+  display: none !important;
+}
+
+body .sticky-player {
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  width: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 14px 16px;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.95fr) auto;
+  gap: 14px;
+  align-items: center;
+  border-radius: 28px;
+  border: 1px solid rgba(176, 120, 255, 0.34);
+  background:
+    radial-gradient(circle at 18% 50%, rgba(164, 112, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 78% 18%, rgba(117, 84, 255, 0.18), transparent 26%),
+    linear-gradient(145deg, rgba(10, 8, 28, 0.96), rgba(8, 8, 24, 0.93));
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(140, 100, 240, 0.06) inset;
+  border-top: 1px solid rgba(176, 120, 255, 0.34);
+  overflow: hidden;
+}
+
+body .sticky-player::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(173, 111, 255, 0.08), transparent 35%, rgba(91, 128, 255, 0.08));
+  pointer-events: none;
+}
+
+body .sticky-player-left {
+  gap: 14px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+body .now-cover {
+  width: 78px;
+  height: 78px;
+  border-radius: 22px;
+  border: 1px solid rgba(196, 163, 255, 0.24);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 0 22px rgba(178, 117, 255, 0.18);
+}
+
+body .aura-now-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+body .now-meta .label {
+  margin: 0;
+  color: #b789ff;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+body .now-meta h3 {
+  margin: 0;
+  font-size: clamp(1rem, 1.6vw, 1.28rem);
+  font-weight: 800;
+  color: #ffffff;
+}
+
+body .now-scripture-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 24px;
+}
+
+body .sticky-player .scripture-line,
+body .sticky-player #nowScripture {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(146, 104, 255, 0.16);
+  border: 1px solid rgba(186, 143, 255, 0.22);
+  color: #efe7ff !important;
+  font-size: 0.74rem;
+  line-height: 1.3;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body .sticky-player-center {
+  gap: 12px;
+  min-width: 0;
+}
+
+body .sticky-player .transport {
+  margin: 0;
+  gap: 10px;
+}
+
+body .sticky-player .control-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(188, 150, 255, 0.18);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+body .sticky-player .control-btn.mode-btn {
+  width: 38px;
+  height: 38px;
+  font-size: 0.92rem;
+  color: #c596ff;
+}
+
+body .sticky-player #playBtn {
+  width: 64px;
+  height: 64px;
+  background: radial-gradient(circle at 35% 30%, #e6d3ff 0%, #bf84ff 28%, #8d4cff 62%, #5632b8 100%);
+  border: 1px solid rgba(233, 212, 255, 0.44);
+  box-shadow: 0 0 0 5px rgba(172, 103, 255, 0.12), 0 16px 28px rgba(84, 46, 171, 0.38);
+}
+
+body .sticky-player .progress-wrap {
+  grid-template-columns: 42px 1fr 42px;
+  gap: 10px;
+  padding: 8px 10px 0;
+}
+
+body .sticky-player .progress-wrap span {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+#seekBar,
+#playerSheetSeekBar {
+  height: 7px;
+  background: linear-gradient(90deg, rgba(201, 144, 255, 0.96) 0%, rgba(201, 144, 255, 0.96) var(--range-progress), rgba(255,255,255,0.12) var(--range-progress), rgba(255,255,255,0.12) 100%);
+  box-shadow: 0 0 0 1px rgba(167, 117, 255, 0.12) inset;
+}
+
+body .sticky-player-right {
+  justify-content: flex-end;
+}
+
+body .sticky-player .track-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(76px, auto);
+  gap: 8px;
+  align-items: center;
+}
+
+body .sticky-player .action-btn {
+  min-height: 46px;
+  border-radius: 18px;
+  border: 1px solid rgba(186, 143, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffffff;
+}
+
+body .sticky-player .action-btn .mini-btn-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+body .sticky-player .desktop-extra-actions {
+  display: none;
+}
+
+body .player-sheet-backdrop {
+  background: rgba(5, 6, 18, 0.76);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+body .player-sheet-content {
+  width: min(960px, calc(100% - 24px));
+  max-height: calc(100vh - 24px);
+  margin: 12px auto;
+  border-radius: 34px;
+  border: 1px solid rgba(188, 150, 255, 0.22);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(173, 111, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 70% 0%, rgba(103, 88, 255, 0.14), transparent 18%),
+    linear-gradient(180deg, rgba(13, 11, 34, 0.98), rgba(9, 8, 24, 0.98));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(196, 160, 255, 0.06) inset;
+}
+
+body .player-sheet-drag-handle {
+  width: 74px;
+  height: 6px;
+  margin-top: 12px;
+  background: rgba(238, 228, 255, 0.24);
+}
+
+body .player-sheet-header {
+  padding: 18px 24px 10px;
+  border-bottom: none;
+  align-items: center;
+}
+
+body .player-sheet-heading {
+  text-align: center;
+}
+
+body .player-sheet-heading .eyebrow {
+  color: #c492ff;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.74rem;
+}
+
+body .player-sheet-heading h2 {
+  margin: 6px 0 0;
+  font-size: 1.02rem;
+  color: rgba(255,255,255,0.84);
+}
+
+body .player-sheet-header #closePlayerSheetBtn,
+body .player-sheet-header #playerSheetFavoriteBtn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  min-width: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(190, 150, 255, 0.18);
+  background: rgba(255,255,255,0.05);
+  color: #ffffff;
+}
+
+body .player-sheet-header #playerSheetFavoriteBtn {
+  font-size: 1.32rem;
+  color: #d09cff;
+}
+
+body .player-sheet-body {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  padding: 0 20px 22px;
+}
+
+body .player-sheet-now,
+body .player-sheet-panel {
+  border: 1px solid rgba(188, 150, 255, 0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 28px;
+  box-shadow: 0 18px 46px rgba(0,0,0,0.2);
+}
+
+body .player-sheet-now {
+  border-right: none;
+  padding: 22px;
+  gap: 16px;
+}
+
+body .player-sheet-cover-wrap {
+  position: relative;
+  justify-content: center;
+  padding: 16px 0 10px;
+}
+
+body .player-sheet-cover-wrap::before {
+  content: "";
+  position: absolute;
+  width: min(74vw, 430px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(174, 118, 255, 0.44) 0%, rgba(174,118,255,0.18) 32%, rgba(174,118,255,0.06) 48%, transparent 68%);
+  filter: blur(12px);
+  opacity: 0.9;
+}
+
+body .player-sheet-cover {
+  position: relative;
+  width: min(100%, 460px);
+  border-radius: 32px;
+  border: 1px solid rgba(198, 165, 255, 0.2);
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255,255,255,0.04) inset;
+}
+
+body .aura-player-sheet-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+body .player-sheet-collection-line {
+  margin: 0;
+  color: #b88bff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body .player-sheet-meta h3 {
+  margin: 0;
+  font-size: clamp(1.9rem, 3.5vw, 3rem);
+  line-height: 1.02;
+  color: #ffffff;
+}
+
+body .player-sheet-meta .scripture-line,
+body .scripture-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+body .player-sheet-meta .scripture-link,
+body .scripture-pill-row .scripture-link {
+  background: rgba(154, 111, 255, 0.16);
+  border-color: rgba(200, 168, 255, 0.2);
+  color: #f2eaff;
+}
+
+body .scripture-link--empty {
+  opacity: 0.72;
+}
+
+body .player-sheet-progress {
+  grid-template-columns: 52px 1fr 52px;
+  gap: 14px;
+  padding: 4px 4px 0;
+}
+
+body .player-sheet-progress span {
+  color: rgba(255,255,255,0.82);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+body .player-sheet-transport {
+  gap: 18px;
+  align-items: center;
+}
+
+body .player-sheet-transport .control-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(191, 148, 255, 0.18);
+  color: #ffffff;
+}
+
+body .player-sheet-transport .control-btn.mode-btn {
+  color: #ca97ff;
+}
+
+body .player-sheet-transport .play-btn {
+  width: 92px;
+  height: 92px;
+  font-size: 2rem;
+  background: radial-gradient(circle at 35% 30%, #f3e5ff 0%, #c78eff 28%, #9858ff 62%, #5d37c4 100%);
+  box-shadow: 0 0 0 8px rgba(168, 101, 255, 0.12), 0 18px 34px rgba(75, 41, 156, 0.34);
+}
+
+body .player-sheet-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+body .player-sheet-actions .action-btn {
+  min-height: 58px;
+  border-radius: 18px;
+  border: 1px solid rgba(188, 150, 255, 0.18);
+  background: rgba(255,255,255,0.04);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+body .player-sheet-panel {
+  padding: 18px 20px 18px;
+}
+
+body .player-sheet-tabs {
+  display: none;
+}
+
+body #playerSheetLyricsPanel {
+  min-height: 220px;
+  border-radius: 22px;
+  padding: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(188, 150, 255, 0.12);
+}
+
+body .player-sheet-swipe-hint {
+  color: rgba(255,255,255,0.62);
+  margin: 14px 4px 0;
+}
+
+@media (max-width: 1100px) {
+  body .sticky-player {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  body .sticky-player-right {
+    justify-content: flex-start;
+  }
+
+  body .sticky-player .track-actions {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  body .sticky-player {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 12px;
+    gap: 12px;
+    border-radius: 24px;
+  }
+
+  body .now-cover {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
+
+  body .sticky-player .transport {
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  body .sticky-player .control-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  body .sticky-player #playBtn {
+    width: 58px;
+    height: 58px;
+  }
+
+  body .sticky-player .progress-wrap {
+    grid-template-columns: 36px 1fr 36px;
+    gap: 8px;
+    padding-inline: 0;
+  }
+
+  body .sticky-player .track-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body .player-sheet-content {
+    width: calc(100% - 12px);
+    max-height: calc(100vh - 12px);
+    margin: 6px auto;
+    border-radius: 28px;
+  }
+
+  body .player-sheet-header {
+    padding: 14px 16px 8px;
+  }
+
+  body .player-sheet-body {
+    padding: 0 12px 14px;
+    gap: 12px;
+  }
+
+  body .player-sheet-now {
+    padding: 16px;
+  }
+
+  body .player-sheet-cover {
+    width: min(100%, 320px);
+    border-radius: 26px;
+  }
+
+  body .player-sheet-meta h3 {
+    font-size: clamp(1.72rem, 8vw, 2.35rem);
+  }
+
+  body .player-sheet-transport {
+    gap: 10px;
+  }
+
+  body .player-sheet-transport .control-btn {
+    width: 48px;
+    height: 48px;
+  }
+
+  body .player-sheet-transport .play-btn {
+    width: 80px;
+    height: 80px;
+  }
+
+  body .player-sheet-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body #playerSheetLyricsPanel {
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 520px) {
+  body .sticky-player {
+    padding: 10px;
+  }
+
+  body .sticky-player .track-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body .sticky-player .action-btn {
+    min-height: 42px;
+    padding-inline: 10px;
+  }
+
+  body .now-meta h3 {
+    font-size: 0.98rem;
+  }
+
+  body .sticky-player .scripture-line,
+  body .sticky-player #nowScripture {
+    font-size: 0.7rem;
+  }
+
+  body .player-sheet-header #closePlayerSheetBtn,
+  body .player-sheet-header #playerSheetFavoriteBtn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+
+  body .player-sheet-collection-line {
+    font-size: 0.72rem;
   }
 }

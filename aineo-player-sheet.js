@@ -166,10 +166,11 @@
       els.playerSheetCover.alt = track ? `${track.title} cover` : 'Current song cover';
     }
     if (els.playerSheetTrackTitle) els.playerSheetTrackTitle.textContent = track?.title || 'Select a song';
-    if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || '—';
-    if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || '—';
+    if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || '';
+    if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || 'Singles';
     if (els.playerSheetTrackScripture) {
-      els.playerSheetTrackScripture.innerHTML = track?.scripture_references?.length ? renderScriptureLinks(track.scripture_references, { compact: true }) : '—';
+      const refs = Array.isArray(track?.scripture_references) ? track.scripture_references.filter(Boolean) : [];
+      els.playerSheetTrackScripture.innerHTML = refs.length ? renderScriptureLinks(refs, { compact: true }) : '<span class="scripture-link scripture-link--compact scripture-link--empty">No scripture references</span>';
     }
     if (els.playerSheetLyricsPanel) renderLyricsInto(els.playerSheetLyricsPanel, track, 'No lyrics available.');
     if (els.playerSheetScripturePanel) {

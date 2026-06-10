@@ -1,8 +1,8 @@
-Aineo v43.1.97 — Shout Out Card Fit + Church Button Text Pass
+Aineo v43.1.98 — Shout Out Card Fit + Church Button Text Pass
 
 Changes:
 - Fixed Shout Out page badge cards so they fit inside the rounded page container without right-side clipping.
 - Removed the root cause from v43.1.90: page-level overflow clipping is no longer used to force the rounded page corners.
 - Added bounded mobile card-grid sizing and real side inset for Shout Out cards.
 - Forced Our Church Home green button text and nested icon/text spans to white on About and Mission pages.
-- Updated cache/version markers to v43.1.97.
+- Updated cache/version markers to v43.1.98.

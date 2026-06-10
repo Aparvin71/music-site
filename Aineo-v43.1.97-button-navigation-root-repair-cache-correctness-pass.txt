@@ -1,4 +1,4 @@
-Aineo v43.1.97 — Button Navigation Root Repair + Cache Correctness Pass
+Aineo v43.1.98 — Button Navigation Root Repair + Cache Correctness Pass
 
 Root fixes:
 - Removed the v43.1.96 pointerup navigation authority that could suppress the real click/navigation path on iOS/PWA.

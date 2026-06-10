@@ -1,0 +1,7 @@
+Aineo Music v43.1.98
+
+- Rebuilt the sticky mini player in the aura glass purple style.
+- Removed visible artist text from mini player and full player.
+- Kept scripture references prominent in full player and mini player.
+- Restyled the full player sheet with larger artwork, stronger glow, and cleaner transport controls.
+- Updated asset/runtime version markers to 43.1.98.
