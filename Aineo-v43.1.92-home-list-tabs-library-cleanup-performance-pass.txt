@@ -1,0 +1,21 @@
+AINEO v43.1.92 — Home List Tabs + Library Cleanup + Performance Pass
+
+Changes:
+- Removed the Search, Playlists, and Quick Filters shortcut buttons from the top of the Library page because those actions now live in the bottom icon bar.
+- Added a customizable Home listening area with tab buttons: Suggested, My Songs, Favorites, and Recent.
+- Defaulted first-time listeners to Suggested Listening so the Home page is not empty before a user creates My Songs or builds history.
+- Added the requested Suggested Listening order:
+  1. Alive in Me
+  2. Trash In Trash Out
+  3. Lead Me Home, Good Shepherd
+  4. Same Mouth
+  5. You Spoke
+  6. Praise the Lord O My Soul
+  7. Worth It All
+  8. You See Me
+  9. Moved with Compassion
+  10. Turn That Other Cheek
+  11. Same Sky
+- Persisted the selected Home listening tab per device.
+- Preserved the bottom icon bar panel controls, mini player, global rounded corners, purple theme, and Shout Out card fixes from prior builds.
+- Bumped cache, manifest, service worker, and asset query markers to v43.1.92.

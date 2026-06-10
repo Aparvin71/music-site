@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.1.91" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.92" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -24,20 +24,20 @@
   <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
   <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
   <title>Home - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.1.91" />
-  <script src="/pwa-init.js?v=43.1.91" defer></script>
-  <script src="/aineo-config.js?v=43.1.91" defer></script>
-  <script src="/aineo-data.js?v=43.1.91" defer></script>
-  <script src="/aineo-ui.js?v=43.1.91" defer></script>
-  <script src="/aineo-lyrics.js?v=43.1.91" defer></script>
-  <script src="/aineo-media-session.js?v=43.1.91" defer></script>
-  <script src="/aineo-library.js?v=43.1.91" defer></script>
-  <script src="/aineo-queue.js?v=43.1.91" defer></script>
-  <script src="/aineo-featured.js?v=43.1.91" defer></script>
-  <script src="/aineo-playlists.js?v=43.1.91" defer></script>
-  <script src="/aineo-player-sheet.js?v=43.1.91" defer></script>
-  <script src="/aineo-offline.js?v=43.1.91" defer></script>
-  <script src="/app.js?v=43.1.91" defer></script>
+  <link rel="stylesheet" href="/style.css?v=43.1.92" />
+  <script src="/pwa-init.js?v=43.1.92" defer></script>
+  <script src="/aineo-config.js?v=43.1.92" defer></script>
+  <script src="/aineo-data.js?v=43.1.92" defer></script>
+  <script src="/aineo-ui.js?v=43.1.92" defer></script>
+  <script src="/aineo-lyrics.js?v=43.1.92" defer></script>
+  <script src="/aineo-media-session.js?v=43.1.92" defer></script>
+  <script src="/aineo-library.js?v=43.1.92" defer></script>
+  <script src="/aineo-queue.js?v=43.1.92" defer></script>
+  <script src="/aineo-featured.js?v=43.1.92" defer></script>
+  <script src="/aineo-playlists.js?v=43.1.92" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.1.92" defer></script>
+  <script src="/aineo-offline.js?v=43.1.92" defer></script>
+  <script src="/app.js?v=43.1.92" defer></script>
 </head>
 <body class="landing-page-layout music-page-layout has-aineo-bottom-nav">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -113,9 +113,19 @@
 
     <section class="aineo-home-panel aineo-home-panel--songs featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
       <div class="aineo-section-title-row">
-        <h2 id="featuredTrackListTitle">My Songs</h2>
+        <div>
+          <p class="aineo-section-kicker">Customize Home Listening</p>
+          <h2 id="featuredTrackListTitle">Suggested Listening</h2>
+        </div>
         <a href="/music.html">View all ›</a>
       </div>
+      <div class="home-list-tabs" role="tablist" aria-label="Choose what appears in the Home listening list">
+        <button class="home-list-tab active" type="button" data-home-list-choice="suggested" role="tab" aria-selected="true">Suggested</button>
+        <button class="home-list-tab" type="button" data-home-list-choice="my-songs" role="tab" aria-selected="false">My Songs</button>
+        <button class="home-list-tab" type="button" data-home-list-choice="favorites" role="tab" aria-selected="false">Favorites</button>
+        <button class="home-list-tab" type="button" data-home-list-choice="recent" role="tab" aria-selected="false">Recent</button>
+      </div>
+      <p id="homeListHelper" class="aineo-tip-line aineo-home-list-helper">A starting worship list is ready for first-time listeners. Your selected tab is remembered on this device.</p>
       <div id="featuredTrackList" class="featured-track-list aineo-home-song-list" aria-live="polite"></div>
       <p class="aineo-tip-line">Tip: more actions are under the ••• menu on each song.</p>
     </section>
@@ -357,7 +367,7 @@
 </nav>
 
 <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.91</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.92</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/about.html">About</a>
       <a href="/changelog.html">Changelog</a>
@@ -366,7 +376,7 @@
       <a href="/contact.html">Shout Outs</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.1.91"></script>
+<script src="/nav.js?v=43.1.92"></script>
 <script>
 (function() {
   function readArray(key) { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }

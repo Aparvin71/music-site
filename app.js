@@ -1,4 +1,4 @@
-/* v43.1.91 unified playback state */
+/* v43.1.92 home listening tabs + library top button cleanup */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.91";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.92";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -113,7 +113,8 @@ const STORAGE_KEYS = (window.AineoConfig && window.AineoConfig.storageKeys) || {
   playStats: "aineo_play_stats",
   lastQueue: "aineo_last_queue",
   playbackModes: "aineo_playback_modes",
-  playerState: "aineo_player_state"
+  playerState: "aineo_player_state",
+  homeListChoice: "aineo_home_list_choice"
 };
 
 const filters = {
@@ -127,6 +128,22 @@ const filters = {
 };
 
 let currentCollectionKey = "all-songs";
+
+const HOME_LIST_CHOICES = new Set(["suggested", "my-songs", "favorites", "recent"]);
+let homeListChoice = "suggested";
+const HOME_SUGGESTED_TRACK_IDS = [
+  "carry-the-light__alive-in-me__3",
+  "carry-the-light__trash-in-trash-out__61",
+  "carry-the-light__lead-me-home-good-shepherd__32",
+  "carry-the-light__same-mouth__50",
+  "alpha-and-omega__you-spoke__71",
+  "alpha-and-omega__praise-the-lord-o-my-soul__45",
+  "alpha-and-omega__worth-it-all__69",
+  "alpha-and-omega__you-see-me__70",
+  "alpha-and-omega__moved-with-compassion__39",
+  "carry-the-light__turn-that-other-cheek__62",
+  "carry-the-light__same-sky__51"
+];
 
 const els = {
   mobileNavToggle: document.getElementById("mobileNavToggle"),
@@ -143,6 +160,7 @@ const els = {
   clearFiltersBtn: document.getElementById("clearFiltersBtn"),
   featuredTrackListTitle: document.getElementById("featuredTrackListTitle"),
   featuredTrackList: document.getElementById("featuredTrackList"),
+  homeListHelper: document.getElementById("homeListHelper"),
 
   featuredAlbumCard: document.getElementById("featuredAlbumCard"),
   featuredAlbumCover: document.getElementById("featuredAlbumCover"),
@@ -294,6 +312,7 @@ document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
   loadStoredData();
+  loadHomeListChoice();
   bindUI();
   bindMediaSessionHandlers();
   initOfflineStatus();
@@ -1223,6 +1242,7 @@ function bindUI() {
   on(els.clearFiltersBtn, "click", clearAllFilters);
   bindSearchScopeChips();
   bindLibraryPanelLaunchers();
+  bindHomeListTabs();
 
   on(els.playBtn, "click", togglePlayPause);
   on(els.prevBtn, "click", playPreviousTrack);
@@ -2417,8 +2437,78 @@ function resolveTrackIdsToTracks(ids) {
     });
 }
 
+function normalizeHomeListChoice(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  return HOME_LIST_CHOICES.has(normalized) ? normalized : "suggested";
+}
+
+function loadHomeListChoice() {
+  try {
+    homeListChoice = normalizeHomeListChoice(localStorage.getItem(STORAGE_KEYS.homeListChoice || "aineo_home_list_choice"));
+  } catch (error) {
+    homeListChoice = "suggested";
+  }
+  syncHomeListTabs();
+}
+
+function saveHomeListChoice(choice) {
+  homeListChoice = normalizeHomeListChoice(choice);
+  try {
+    localStorage.setItem(STORAGE_KEYS.homeListChoice || "aineo_home_list_choice", homeListChoice);
+  } catch (error) {}
+  syncHomeListTabs();
+}
+
+function syncHomeListTabs() {
+  if (!document.body.classList.contains("landing-page-layout")) return;
+  document.querySelectorAll("[data-home-list-choice]").forEach(tab => {
+    const active = normalizeHomeListChoice(tab.dataset.homeListChoice) === homeListChoice;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+  });
+  if (els.homeListHelper) {
+    const helperText = {
+      suggested: "A starting worship list is ready for first-time listeners. Your selected tab is remembered on this device.",
+      "my-songs": "Shows your My Songs playlist when you create one, then falls back to your most-played, favorites, and recent listening.",
+      favorites: "Shows the songs you have saved as favorites on this device.",
+      recent: "Shows songs you have recently played on this device."
+    };
+    els.homeListHelper.textContent = helperText[homeListChoice] || helperText.suggested;
+  }
+}
+
+function bindHomeListTabs() {
+  document.querySelectorAll("[data-home-list-choice]").forEach(tab => {
+    tab.addEventListener("click", () => {
+      saveHomeListChoice(tab.dataset.homeListChoice);
+      renderFeaturedAlbum();
+      renderFeaturedTrackList();
+    });
+  });
+  syncHomeListTabs();
+}
+
+function getHomeSuggestedTracks() {
+  const seen = new Set();
+  return HOME_SUGGESTED_TRACK_IDS
+    .map(id => tracks.find(track => track.id === id))
+    .filter(track => {
+      if (!track?.id || seen.has(track.id)) return false;
+      seen.add(track.id);
+      return true;
+    });
+}
+
+function getHomeFavoriteTracks(maxHomeSongs = 11) {
+  return resolveTrackIdsToTracks(favorites).slice(0, maxHomeSongs);
+}
+
+function getHomeRecentTracks(maxHomeSongs = 11) {
+  return resolveTrackIdsToTracks(recentlyPlayed).slice(0, maxHomeSongs);
+}
+
 function getHomeMySongsTracks() {
-  const maxHomeSongs = 5;
+  const maxHomeSongs = 11;
 
   // 1) Prefer the user's explicit custom playlist named "My Songs".
   const mySongsEntry = getCustomPlaylistEntryByName("My Songs");
@@ -2451,13 +2541,42 @@ function getHomeMySongsTracks() {
 
 function getFeaturedCollection() {
   if (isLandingHomePage()) {
-    const homeTracks = getHomeMySongsTracks();
+    const choice = normalizeHomeListChoice(homeListChoice);
+    const suggestedTracks = getHomeSuggestedTracks();
+    let name = "Suggested Listening";
+    let subtitle = "A starting worship list for new listeners";
+    let key = "home:suggested";
+    let homeTracks = suggestedTracks;
+
+    if (choice === "my-songs") {
+      homeTracks = getHomeMySongsTracks();
+      name = "My Songs";
+      subtitle = homeTracks.length ? "Your custom or listening-based home mix" : "Create a My Songs playlist or choose Suggested";
+      key = "home:my-songs";
+    } else if (choice === "favorites") {
+      homeTracks = getHomeFavoriteTracks();
+      name = "Favorites";
+      subtitle = homeTracks.length ? "Songs you saved as favorites" : "Favorite songs to fill this tab";
+      key = "home:favorites";
+    } else if (choice === "recent") {
+      homeTracks = getHomeRecentTracks();
+      name = "Recent Listening";
+      subtitle = homeTracks.length ? "Songs you recently played" : "Play songs to fill this tab";
+      key = "home:recent";
+    }
+
+    if (!homeTracks.length && choice !== "suggested") {
+      homeTracks = suggestedTracks;
+      name = "Suggested Listening";
+      subtitle = "A starting worship list for new listeners";
+      key = `home:${choice}:suggested-fallback`;
+    }
     if (!homeTracks.length) return null;
     return {
-      type: "home-my-songs",
-      key: "home:my-songs",
-      name: "My Songs",
-      subtitle: "My Songs playlist, most played, or favorites",
+      type: "home-list",
+      key,
+      name,
+      subtitle,
       cover: homeTracks.find(track => track.cover)?.cover || "",
       tracks: homeTracks,
       album_zip: "",
@@ -4527,7 +4646,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.91 LIBRARY PANEL LAUNCHERS
+   v43.1.92 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -4670,7 +4789,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.1.91: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.1.92: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -4899,7 +5018,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.91 legacy analysis preload disabled
+// v43.1.92 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -4909,7 +5028,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.91 smart playback cleanup
+// v43.1.92 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -4928,10 +5047,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.91 ULTRA SMOOTH PLAYBACK
+   v43.1.92 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.91";
+const SMART_PLAYBACK_VERSION = "43.1.92";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

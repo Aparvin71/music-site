@@ -1,4 +1,4 @@
-/* v42.3.76 featured track state sync fix */
+/* v43.1.92 featured home list selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -109,7 +109,7 @@
       els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
       return;
     }
-    els.featuredTrackListTitle.textContent = document.body.classList.contains('landing-page-layout') ? 'My Songs' : (collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`);
+    els.featuredTrackListTitle.textContent = document.body.classList.contains('landing-page-layout') ? (collection.name || 'Suggested Listening') : (collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`);
     els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
       const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
       const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';

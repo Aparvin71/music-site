@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.91 visualizer lift + left-wing alignment polish */
+/* v43.1.92 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.91 visualizer lift + left-wing alignment polish */
+/* v43.1.92 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.91 visualizer lift + left-wing alignment polish */
+/* v43.1.92 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.91 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.92 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.91 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.92 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.91 mobile mini-player final tighten */
+/* v43.1.92 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.91 battery optimization pass */
+/* v43.1.92 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.91 performance + low-power hardening */
+/* v43.1.92 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.91 full player lyrics bottom-safe scroll fix */
+/* v43.1.92 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.91 Mission/Church Shout Out image badge expansion */
+/* v43.1.92 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.91 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.92 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.91 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.92 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.91 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.91"] .shoutout-badge-image,
+/* ===== v43.1.92 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.92"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.91 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.92 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.91 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.92 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.91 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.92 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14912,7 +14912,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.91 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.92 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15234,7 +15234,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.91 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.92 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15603,7 +15603,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.91 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.1.92 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15836,7 +15836,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.91 Header Height + Page Menu White Text Authority Pass
+   v43.1.92 Header Height + Page Menu White Text Authority Pass
    - Removes the doubled safe-area padding inside the rounded AINEO header card.
    - Cuts the visual header card height down to roughly half of the prior mobile build.
    - Keeps hamburger/menu button purple and centered in the shorter header.
@@ -15954,7 +15954,7 @@ body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
 
 
 /* =========================================
-   v43.1.91 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   v43.1.92 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
    Root cause fixed:
    - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
    - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
@@ -16228,7 +16228,7 @@ html body .album-modal-backdrop {
 }
 
 /* =========================================
-   v43.1.91 GLOBAL HEADER CARD AUTHORITY
+   v43.1.92 GLOBAL HEADER CARD AUTHORITY
    Root fix: the compact AINEO header now targets every page header,
    not only Home/Library body classes.
 ========================================= */
@@ -16442,7 +16442,7 @@ html body .aineo-page-menu-close {
   -webkit-text-fill-color: var(--aineo-global-header-purple) !important;
 }
 
-/* v43.1.91 transition audit: keep header/menu opening responsive on every page. */
+/* v43.1.92 transition audit: keep header/menu opening responsive on every page. */
 html body.motion-enabled .site-header,
 html body.motion-enabled .navbar,
 html body.motion-enabled .nav-top-row,
@@ -16454,7 +16454,7 @@ html body.motion-enabled .aineo-page-menu-card {
 
 
 /* =========================================
-   v43.1.91 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
+   v43.1.92 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
    Root fix: all pages now share one radius/token system instead of
    page-specific card/background rules that allowed square corners to resurface.
 ========================================= */
@@ -16845,7 +16845,7 @@ html body :where(
   }
 }
 
-/* v43.1.91 radius audit supplement: secondary containers/rows found in page markup. */
+/* v43.1.92 radius audit supplement: secondary containers/rows found in page markup. */
 html body .aineo-home-panel,
 html body .home-card-primary,
 html body .home-hero-grid,
@@ -16923,7 +16923,7 @@ html body .mini-btn-label {
 
 
 /* =========================================
-   v43.1.91 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
+   v43.1.92 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
    Root fix:
    - The Shout Out page was using a fixed full-viewport pseudo background, so the visible page color could not be clipped by the rounded page shell.
    - This gives the Shout Out page its own real rounded/clipped surface and moves the glow background inside that surface.
@@ -17027,7 +17027,7 @@ html body.motion-enabled :where(
 
 
 /* =========================================
-   v43.1.91 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
+   v43.1.92 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
    Root fix:
    - v43.1.90 used page-level overflow clipping to force the Shout Out page corner radius.
    - That clipped the wide mobile badge cards against the page edge.
@@ -17119,4 +17119,65 @@ html body .about-page .church-button * {
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.28) !important;
+}
+
+
+/* v43.1.92 — Library top button removal + customizable Home listening tabs */
+.library-command-row {
+  display: none !important;
+}
+
+.home-list-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.45rem, 1.6vw, 0.75rem);
+  margin: 0.65rem 0 0.5rem;
+}
+
+.home-list-tab {
+  border: 1px solid rgba(195, 105, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(24, 16, 42, 0.82);
+  color: #fff;
+  font: 800 clamp(0.72rem, 2.6vw, 0.92rem)/1.1 var(--font-sans, system-ui, sans-serif);
+  letter-spacing: 0.01em;
+  padding: 0.72rem 0.5rem;
+  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+}
+
+.home-list-tab.active,
+.home-list-tab[aria-selected="true"] {
+  color: #fff;
+  border-color: rgba(60, 116, 255, 0.92);
+  background: linear-gradient(180deg, rgba(45, 95, 205, 0.96), rgba(13, 47, 116, 0.96));
+  box-shadow: 0 12px 24px rgba(22, 50, 134, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.home-list-tab:active {
+  transform: translateY(1px);
+}
+
+.aineo-section-kicker {
+  margin: 0 0 0.16rem;
+  color: #c77dff;
+  font-size: clamp(0.72rem, 2.4vw, 0.86rem);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.aineo-home-list-helper {
+  margin-top: 0.1rem;
+}
+
+@media (max-width: 430px) {
+  .home-list-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.aineo-low-power .home-list-tab {
+  transition-duration: 80ms;
 }
