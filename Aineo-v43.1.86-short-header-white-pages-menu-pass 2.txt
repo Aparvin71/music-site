@@ -1,0 +1,15 @@
+Aineo v43.1.86 — Short Header + White Pages Menu Pass
+
+Changes:
+- Shortened the rounded AINEO header card by removing duplicated safe-area padding inside the card.
+- Set compact mobile header/navbar heights so the Home and Library header cards are roughly half the previous visual height.
+- Kept the hamburger/menu button centered inside the shorter header and purple.
+- Forced all page-menu text opened from the hamburger or More button to white.
+- Preserved prior v43.1.85 bottom nav, rounded popup, mini player, and purple theme fixes.
+- Bumped page, asset, manifest, config, and service-worker cache markers to v43.1.86.
+
+Verification:
+- JavaScript syntax checks passed with node --check for all root JS files.
+- JSON validation passed for manifest.webmanifest, tracks.json, track-metadata.json, and albums.json.
+- CSS brace balance passed after the new authority block was added.
+- ZIP integrity test passed.

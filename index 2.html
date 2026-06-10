@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Aineo Music home page with quick access to favorites, downloads, albums, shout outs, and the music library." />
+  <meta name="theme-color" content="#090812" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Aineo Music" />
+  <meta name="format-detection" content="telephone=no" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.1.86" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
+  <link rel="icon" type="image/png" sizes="64x64" href="/icons/icon-64.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
+  <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
+  <title>Home - Aineo Music</title>
+  <link rel="stylesheet" href="/style.css?v=43.1.86" />
+  <script src="/pwa-init.js?v=43.1.86" defer></script>
+  <script src="/aineo-config.js?v=43.1.86" defer></script>
+  <script src="/aineo-data.js?v=43.1.86" defer></script>
+  <script src="/aineo-ui.js?v=43.1.86" defer></script>
+  <script src="/aineo-lyrics.js?v=43.1.86" defer></script>
+  <script src="/aineo-media-session.js?v=43.1.86" defer></script>
+  <script src="/aineo-library.js?v=43.1.86" defer></script>
+  <script src="/aineo-queue.js?v=43.1.86" defer></script>
+  <script src="/aineo-featured.js?v=43.1.86" defer></script>
+  <script src="/aineo-playlists.js?v=43.1.86" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.1.86" defer></script>
+  <script src="/aineo-offline.js?v=43.1.86" defer></script>
+  <script src="/app.js?v=43.1.86" defer></script>
+</head>
+<body class="landing-page-layout music-page-layout has-aineo-bottom-nav">
+  <a class="skip-link" href="#mainContent">Skip to main content</a>
+
+  <header class="site-header aineo-app-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-top-row">
+        <a class="aineo-wordmark" href="/index.html" aria-label="Aineo Music Home"><span aria-hidden="true">≋</span> AINEO</a>
+        <button id="mobileNavToggle" class="mobile-nav-toggle" type="button" aria-expanded="false" aria-controls="siteNavLinks" aria-label="Open page menu">☰</button>
+      </div>
+      <ul id="siteNavLinks" class="nav-links">
+  <li><a href="/about.html">About</a></li>
+  <li><a href="/albums.html">Albums</a></li>
+  <li><a href="/artists.html">Artists</a></li>
+  <li><a href="/changelog.html">Changelog</a></li>
+  <li><a href="/feedback.html">Feedback</a></li>
+  <li><a href="/index.html" class="active" aria-current="page">Home</a></li>
+  <li><a href="/install.html">Install</a></li>
+  <li><a href="/music.html">Library</a></li>
+  <li><a href="/mission.html">Mission</a></li>
+  <li><a href="/contact.html">Shout Outs</a></li>
+  <li><a href="/home.html">Welcome</a></li>
+</ul>
+    </nav>
+  </header>
+
+  <noscript><div class="noscript-banner">This music library needs JavaScript enabled to load tracks and controls.</div></noscript>
+
+  <main id="mainContent" class="aineo-landing-page">
+    <section id="offlineStatusMount" class="offline-status-wrap hidden" aria-live="polite"></section>
+    <section id="stickyFilterBar" class="sticky-filter-bar hidden" aria-live="polite"></section>
+
+    <section class="aineo-landing-hero" aria-labelledby="landingHomeHeading">
+      <div class="aineo-landing-hero-copy">
+        <p class="aineo-welcome-line">Welcome back 👋</p>
+        <h1 id="landingHomeHeading">Let’s worship together.</h1>
+        <p>Music for every moment, faith for every step.</p>
+      </div>
+      <div class="aineo-landing-hero-art" aria-hidden="true"><span>✝</span></div>
+    </section>
+
+    <section class="aineo-home-action-grid" aria-label="Featured shortcuts">
+      <a class="aineo-home-action-card card-favorites" href="/music.html?smart=favorites">
+        <svg class="home-card-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3.4l2.55 5.18 5.72.83-4.14 4.04.98 5.7L12 16.46l-5.11 2.69.98-5.7-4.14-4.04 5.72-.83L12 3.4z"/></svg>
+        <strong>Favorites</strong>
+        <small id="landingFavoritesCount">Saved songs</small>
+      </a>
+      <a class="aineo-home-action-card card-downloads" href="/music.html?smart=downloaded">
+        <svg class="home-card-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3a1.25 1.25 0 0 1 1.25 1.25v8.18l2.64-2.64a1.2 1.2 0 1 1 1.7 1.7l-4.74 4.75a1.2 1.2 0 0 1-1.7 0L6.4 11.49a1.2 1.2 0 1 1 1.7-1.7l2.65 2.64V4.25A1.25 1.25 0 0 1 12 3zM5 18.25C5 17.56 5.56 17 6.25 17h11.5a1.25 1.25 0 1 1 0 2.5H6.25A1.25 1.25 0 0 1 5 18.25z"/></svg>
+        <strong>Downloads</strong>
+        <small id="landingDownloadsCount">Offline songs</small>
+      </a>
+      <a class="aineo-home-action-card card-albums" href="/albums.html">
+        <svg class="home-card-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.6 4.25c1.82 0 3.43.45 4.7 1.35.45.32.95.32 1.4 0 1.27-.9 2.88-1.35 4.7-1.35A2.6 2.6 0 0 1 20 6.85v11.4c0 .91-.9 1.52-1.73 1.2-1.8-.7-3.58-.55-5.33.46a1.82 1.82 0 0 1-1.88 0c-1.75-1.01-3.53-1.16-5.33-.46A1.27 1.27 0 0 1 4 18.25V6.85a2.6 2.6 0 0 1 2.6-2.6zm4.15 3.55c-1.05-.72-2.34-1.08-3.9-1.08-.24 0-.44.2-.44.44v9.47c1.48-.28 2.93-.09 4.34.57V7.8zm2.5 9.4a8.04 8.04 0 0 1 4.34-.57V7.16c0-.24-.2-.44-.44-.44-1.56 0-2.85.36-3.9 1.08v9.4z"/></svg>
+        <strong>Albums</strong>
+        <small>Collections</small>
+      </a>
+      <a class="aineo-home-action-card card-shoutouts" href="/contact.html">
+        <svg class="home-card-svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.2 4.7a1.5 1.5 0 0 1 1.8 1.47v11.66a1.5 1.5 0 0 1-1.8 1.47l-7.7-1.57v.7a2.6 2.6 0 0 1-5.17.35l-.46-3.35H5.3A3.3 3.3 0 0 1 2 12.13v-.26a3.3 3.3 0 0 1 3.3-3.3h4.02L19.2 4.7zM8.38 15.43l.36 2.67a.48.48 0 0 0 .95-.07v-.82l-1.31-1.78zm-3.08-4.45a.9.9 0 0 0-.9.9v.25c0 .5.4.9.9.9h3.16V10.98H5.3zm5.56-.1v2.24l7.74 1.58V9.3l-7.74 1.58z"/></svg>
+        <strong>Shout Outs</strong>
+        <small>Church & mission highlights</small>
+      </a>
+    </section>
+
+    <section class="aineo-home-panel aineo-home-panel--horizontal" aria-labelledby="continueHeading">
+      <div class="aineo-section-title-row">
+        <h2 id="continueHeading">Continue Listening</h2>
+        <a href="/music.html">See all ›</a>
+      </div>
+      <div id="recentlyPlayedList" class="mini-grid aineo-continue-strip" aria-live="polite"></div>
+      <p class="aineo-tip-line">More recommendations are curated as you listen.</p>
+    </section>
+
+    <section class="aineo-home-panel aineo-home-panel--songs featured-tracklist-panel" aria-labelledby="featuredTrackListTitle">
+      <div class="aineo-section-title-row">
+        <h2 id="featuredTrackListTitle">My Songs</h2>
+        <a href="/music.html">View all ›</a>
+      </div>
+      <div id="featuredTrackList" class="featured-track-list aineo-home-song-list" aria-live="polite"></div>
+      <p class="aineo-tip-line">Tip: more actions are under the ••• menu on each song.</p>
+    </section>
+
+    <section class="landing-hidden-runtime" aria-hidden="true">
+      <label class="visually-hidden" for="searchInput">Search music library</label><input id="searchInput" type="search" />
+      <div id="searchScopeBar"></div><p id="searchMeta"></p><div id="playlistList"></div><div id="myPlaylistList"></div><div id="albumGrid"></div><div id="tagList"></div>
+      <p id="activeFilterLabel"></p><button id="clearFiltersBtn" type="button"></button>
+      <div id="favoritesList"></div><div id="downloadedList"></div><div id="queueList"></div><span id="queueCount"></span>
+    </section>
+  </main>
+
+
+
+
+  <div class="sticky-player" aria-label="Audio player">
+    <div class="sticky-player-left">
+      <img id="nowCover" src="" alt="Album cover" class="now-cover" />
+      <div class="now-meta">
+        <p class="label">Now Playing</p>
+        <h3 id="nowTitle">Select a song</h3>
+        <p id="nowArtist">—</p>
+        <p id="nowAlbum">—</p>
+        <p id="nowScripture" class="scripture-line">—</p>
+      </div>
+    </div>
+
+    <div class="sticky-player-center">
+      <div class="transport">
+        <button id="shuffleModeBtn" class="control-btn mode-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false">🔀</button>
+        <button id="prevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
+        <button id="playBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
+        <button id="nextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+        <button id="repeatModeBtn" class="control-btn mode-btn" type="button" aria-label="Toggle repeat mode" aria-pressed="false">🔁</button>
+      </div>
+
+      <div class="progress-wrap">
+        <span id="currentTime">0:00</span>
+        <label class="visually-hidden" for="seekBar">Seek through track</label>
+        <input id="seekBar" type="range" min="0" max="100" value="0" step="0.1" />
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="sticky-player-right">
+      <div class="track-actions compact-actions">
+        <button id="favoriteSongBtn" class="action-btn secondary-btn" type="button" aria-label="Favorite" title="Favorite"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span><span class="mini-btn-label">Favorite</span></button>
+        <button id="addToPlaylistBtn" class="action-btn secondary-btn mini-icon-btn" type="button" aria-label="Add to playlist" title="Add to playlist"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"/></svg></span><span class="mini-btn-label">Playlist</span></button>
+        <button id="saveOfflineBtn" class="action-btn secondary-btn" type="button" aria-label="Save offline" title="Save offline"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 20h14v-2H5zm7-18-5.5 5.5h4v6h3v-6h4z"/></svg></span><span class="mini-btn-label">Offline</span></button>
+        <button id="playNextBtn" class="action-btn secondary-btn" type="button" aria-label="Play next" title="Play next"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 18l8.5-6L6 6zM16 6h2v12h-2z"/></svg></span><span class="mini-btn-label">Play Next</span></button>
+        <button id="openPlayerSheetBtn" class="action-btn secondary-btn mini-icon-btn" type="button" aria-label="Open player" title="Open player"><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 14H5v5h5v-2H7zm0-4h2V7h3V5H5v5zm10 7h-3v2h5v-5h-2zm0-12V5h-3v2h3v3h2V5z"/></svg></span><span class="mini-btn-label">Open Player</span></button>
+
+        <button
+          id="moreActionsBtn"
+          class="action-btn secondary-btn mobile-more-btn mini-icon-btn"
+          type="button"
+          aria-label="More actions"
+          title="More actions"
+          aria-expanded="false"
+          aria-controls="mobileActionsDrawer"
+        ><span class="mini-btn-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></span><span class="mini-btn-label">More</span></button>
+
+        <div id="mobileActionsDrawer" class="mobile-actions-drawer hidden">
+          <button id="copyLyricsBtn" class="action-btn secondary-btn" type="button">Copy</button>
+          <button id="shareSongBtn" class="action-btn secondary-btn" type="button">Link</button>
+          <button id="downloadSongBtn" class="action-btn secondary-btn" type="button">Download</button>
+          <button id="shuffleQueueBtn" class="action-btn secondary-btn" type="button">Shuffle</button>
+        </div>
+
+        <div class="desktop-extra-actions">
+          <button id="copyLyricsBtnDesktop" class="action-btn secondary-btn" type="button">Copy</button>
+          <button id="shareSongBtnDesktop" class="action-btn secondary-btn" type="button">Link</button>
+          <button id="downloadSongBtnDesktop" class="action-btn secondary-btn" type="button">Download</button>
+          <button id="shuffleQueueBtnDesktop" class="action-btn secondary-btn" type="button">Shuffle</button>
+        </div>
+      </div>
+
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </div>
+  </div>
+
+  <div id="lyricsModal" class="lyrics-modal hidden" aria-hidden="true">
+    <div class="lyrics-modal-backdrop" id="lyricsModalBackdrop"></div>
+    <div class="lyrics-modal-content" role="dialog" aria-modal="true" aria-labelledby="lyricsModalTitle">
+      <div class="lyrics-modal-header">
+        <h2 id="lyricsModalTitle">Lyrics</h2>
+        <button id="closeLyricsBtn" class="control-btn" type="button" aria-label="Close lyrics">✕</button>
+      </div>
+      <div id="lyricsModalBody" class="lyrics-modal-body">
+        <p class="empty-message">No lyrics available.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="albumModal" class="album-modal hidden" aria-hidden="true">
+    <div class="album-modal-backdrop" id="albumModalBackdrop"></div>
+    <div class="album-modal-content" role="dialog" aria-modal="true" aria-labelledby="albumModalTitle">
+      <div class="album-modal-header">
+        <h2 id="albumModalTitle">Album</h2>
+        <button id="closeAlbumBtn" class="control-btn" type="button" aria-label="Close album">✕</button>
+      </div>
+
+      <div class="album-modal-body">
+        <div class="album-modal-top">
+          <img id="albumModalCover" class="album-modal-cover" src="" alt="Album cover" />
+
+          <div class="album-modal-meta">
+            <p id="albumModalArtist">—</p>
+            <p id="albumModalInfo">—</p>
+
+            <div class="album-modal-actions">
+              <button id="albumModalPlayBtn" class="action-btn" type="button">Play Collection</button>
+              <button id="albumModalShuffleBtn" class="action-btn secondary-btn" type="button">Shuffle Collection</button>
+              <button id="albumModalSaveOfflineBtn" class="action-btn secondary-btn" type="button">Save Collection Offline</button>
+              <button id="albumModalDownloadBtn" class="action-btn secondary-btn" type="button">Download Collection</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="albumModalTracks" class="album-modal-tracks"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="playlistModal" class="lyrics-modal hidden" aria-hidden="true">
+    <div class="lyrics-modal-backdrop" id="playlistModalBackdrop"></div>
+    <div class="lyrics-modal-content playlist-modal-content" role="dialog" aria-modal="true" aria-labelledby="playlistModalTitle">
+      <div class="lyrics-modal-header">
+        <h2 id="playlistModalTitle">Add to Playlist</h2>
+        <button id="closePlaylistModalBtn" class="control-btn" type="button" aria-label="Close playlist modal">✕</button>
+      </div>
+      <div class="lyrics-modal-body">
+        <div class="form-group">
+          <label for="playlistSelect">Choose playlist</label>
+          <select id="playlistSelect" class="request-input"></select>
+        </div>
+        <div class="form-group">
+          <label for="newPlaylistName">Or create new playlist</label>
+          <input id="newPlaylistName" class="request-input" type="text" placeholder="New playlist name" />
+        </div>
+        <div class="featured-actions">
+          <button id="saveToPlaylistBtn" class="action-btn" type="button">Save to Playlist</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="playerSheet" class="player-sheet hidden" aria-hidden="true">
+    <div id="playerSheetBackdrop" class="player-sheet-backdrop"></div>
+    <div class="player-sheet-content" role="dialog" aria-modal="true" aria-labelledby="playerSheetTitle">
+      <div class="player-sheet-drag-handle" aria-hidden="true"></div>
+      <div class="player-sheet-header">
+        <button id="closePlayerSheetBtn" class="control-btn" type="button" aria-label="Close full player">⌄</button>
+        <div class="player-sheet-heading">
+          <p class="eyebrow">Now Playing</p>
+          <h2 id="playerSheetTitle">Player</h2>
+        </div>
+        <button id="playerSheetFavoriteBtn" class="action-btn secondary-btn" type="button">☆ Favorite</button>
+      </div>
+
+      <div class="player-sheet-body">
+        <section class="player-sheet-now">
+          <div class="player-sheet-cover-wrap">
+            <img id="playerSheetCover" class="player-sheet-cover" src="" alt="Current song cover" />
+          </div>
+
+          <div class="player-sheet-meta">
+            <h3 id="playerSheetTrackTitle">Select a song</h3>
+            <p id="playerSheetTrackArtist">—</p>
+            <p id="playerSheetTrackAlbum">—</p>
+            <p id="playerSheetTrackScripture" class="scripture-line">—</p>
+          </div>
+
+          <div class="player-sheet-progress">
+            <span id="playerSheetCurrentTime">0:00</span>
+            <label class="visually-hidden" for="playerSheetSeekBar">Seek through track</label>
+            <input id="playerSheetSeekBar" type="range" min="0" max="100" value="0" step="0.1" />
+            <span id="playerSheetDuration">0:00</span>
+          </div>
+
+          <div class="player-sheet-transport">
+            <button id="playerSheetShuffleBtn" class="control-btn mode-btn" type="button" aria-label="Toggle shuffle" aria-pressed="false">🔀</button>
+            <button id="playerSheetPrevBtn" class="control-btn" type="button" aria-label="Previous track">⏮</button>
+            <button id="playerSheetPlayBtn" class="control-btn play-btn" type="button" aria-label="Play or pause">▶</button>
+            <button id="playerSheetNextBtn" class="control-btn" type="button" aria-label="Next track">⏭</button>
+            <button id="playerSheetRepeatBtn" class="control-btn mode-btn" type="button" aria-label="Toggle repeat mode" aria-pressed="false">🔁</button>
+          </div>
+
+          <div class="player-sheet-actions">
+            <button id="playerSheetAddToPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
+            <button id="playerSheetSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+            <button id="playerSheetPlayNextBtn" class="action-btn secondary-btn" type="button">Play Next</button>
+            <button id="playerSheetShareBtn" class="action-btn secondary-btn" type="button">Share</button>
+          </div>
+        </section>
+
+        <section class="player-sheet-panel">
+          <div class="player-sheet-tabs" role="tablist" aria-label="Player panels">
+          </div>
+
+          <div id="playerSheetLyricsPanel" class="player-tab-panel active" data-player-panel="lyrics"></div>
+<p class="player-sheet-swipe-hint">Swipe cover or mini player left or right for next and previous. Hold a track to preview. Swipe down to close.</p>
+        </section>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div id="trackActionSheet" class="track-action-sheet hidden" aria-hidden="true">
+    <div id="trackActionSheetBackdrop" class="track-action-sheet-backdrop"></div>
+    <div class="track-action-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="trackActionSheetTitle">
+      <div class="track-action-sheet-handle" aria-hidden="true"></div>
+      <div class="track-action-sheet-header">
+        <p class="eyebrow">Quick Actions</p>
+        <h2 id="trackActionSheetTitle">Track actions</h2>
+        <p id="trackActionSheetMeta" class="track-action-sheet-meta">Choose what to do next.</p>
+      </div>
+      <div class="track-action-sheet-actions">
+        <button id="trackActionPlayNextBtn" class="action-btn" type="button">Play Next</button>
+        <button id="trackActionAddPlaylistBtn" class="action-btn secondary-btn" type="button">+ Playlist</button>
+        <button id="trackActionSaveOfflineBtn" class="action-btn secondary-btn" type="button">Offline</button>
+        <button id="trackActionGoAlbumBtn" class="action-btn secondary-btn" type="button">Go to Album</button>
+      </div>
+      <div class="track-action-sheet-footer">
+        <button id="trackActionCloseBtn" class="action-btn secondary-btn" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+
+    
+
+<nav class="aineo-bottom-icon-row" aria-label="Main app shortcuts">
+  <a class="aineo-bottom-icon active" href="/index.html" aria-current="page"><span class="aineo-bottom-svg"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 11.2 12 4l8 7.2v8.05A1.75 1.75 0 0 1 18.25 21h-3.5v-5.5h-5.5V21h-3.5A1.75 1.75 0 0 1 4 19.25V11.2z"/></svg></span><strong>Home</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html"><span class="aineo-bottom-svg"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4.5h9.25A2.75 2.75 0 0 1 17 7.25V20H7.25A2.25 2.25 0 0 1 5 17.75V4.5zm2.25 2.25v9.75c0 .41.34.75.75.75h6.75v-10A.5.5 0 0 0 14.25 6.75h-7zM18.5 7h.25A1.25 1.25 0 0 1 20 8.25V20h-1.5V7z"/></svg></span><strong>Library</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html?panel=playlists"><span class="aineo-bottom-svg"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6.5h10v2H4v-2zm0 4.5h10v2H4v-2zm0 4.5h7v2H4v-2zM17 6h2v8.35A2.9 2.9 0 1 1 17 11.6V6z"/></svg></span><strong>Playlists</strong></a>
+  <a class="aineo-bottom-icon" href="/music.html?panel=filters"><span class="aineo-bottom-svg"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4.5 6.25C4.5 5.56 5.06 5 5.75 5h12.5a1.25 1.25 0 0 1 .97 2.03L14 13.52v4.23c0 .41-.2.8-.54 1.03l-2 1.34A1.25 1.25 0 0 1 9.5 19.1v-5.58L4.78 7.03a1.25 1.25 0 0 1-.28-.78z"/></svg></span><strong>Quick Filters</strong></a>
+  <button class="aineo-bottom-icon" type="button" data-open-nav><span class="aineo-bottom-svg"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="5.5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="18.5" cy="12" r="2"/></svg></span><strong>More</strong></button>
+</nav>
+
+<footer class="site-footer">
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.1.86</span></p>
+    <p class="footer-links footer-links--admin">
+      <a href="/about.html">About</a>
+      <a href="/changelog.html">Changelog</a>
+      <a href="/feedback.html">Feedback</a>
+      <a href="/install.html">Install</a>
+      <a href="/contact.html">Shout Outs</a>
+    </p>
+  </footer>
+<script src="/nav.js?v=43.1.86"></script>
+<script>
+(function() {
+  function readArray(key) { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
+  function updateLandingCounts() {
+    const favs = readArray('aineo_favorites');
+    const downloads = readArray('aineo_downloaded_tracks');
+    const f = document.getElementById('landingFavoritesCount');
+    const d = document.getElementById('landingDownloadsCount');
+    if (f) f.textContent = favs.length ? `${favs.length} saved song${favs.length === 1 ? '' : 's'}` : 'Saved songs';
+    if (d) d.textContent = downloads.length ? `${downloads.length} offline song${downloads.length === 1 ? '' : 's'}` : 'Offline songs';
+  }
+  document.addEventListener('DOMContentLoaded', updateLandingCounts);
+  window.addEventListener('storage', updateLandingCounts);
+})();
+</script>
+</body>
+</html>

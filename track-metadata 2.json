@@ -1,0 +1,184 @@
+{
+  "Praise the Lord O My Soul.mp3": {
+    "title": "Praise the Lord O My Soul",
+    "slug": "praise-the-lord-o-my-soul",
+    "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc",
+    "artist": "Allen Parvin",
+    "album": "Alpha & Omega",
+    "playlists": [
+      "Alpha & Omega"
+    ],
+    "tags": [
+      "gospel",
+      "traditional"
+    ],
+    "scripture_references": [
+      "Revelation 4:8",
+      "3 John 4:23-24",
+      "Psalm 103:1-2",
+      "Psalm 150:6",
+      "Psalm 113:3",
+      "John 4:23-24"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "EVERY BREATH YOUR NAME.mp3": {
+    "title": "EVERY BREATH YOUR NAME",
+    "slug": "every-breath-your-name",
+    "lyrics_file": "lyrics/every-breath-your-name.lrc",
+    "artist": "Allen Parvin",
+    "album": "Alpha & Omega",
+    "playlists": [
+      "Alpha & Omega"
+    ],
+    "tags": [
+      "gospel",
+      "worship"
+    ],
+    "scripture_references": [
+      "Ecclesiastes 12:7",
+      "Genesis 2:7",
+      "Psalm 150:6",
+      "Acts 17:25",
+      "Job 33:4"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Play with Me.mp3": {
+    "title": "Play with Me",
+    "slug": "alivia-play-with-me",
+    "lyrics_file": "lyrics/alivia-play-with-me.lrc",
+    "artist": "Allen Parvin",
+    "album": "Beautiful Things",
+    "playlists": [
+      "Beautiful Things"
+    ],
+    "tags": [
+      "child fantasy"
+    ],
+    "scripture_references": [],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Chop it like it's hot.mp3": {
+    "title": "Chop it like it's hot",
+    "slug": "chop-it-like-its-hot",
+    "lyrics_file": "lyrics/chop-it-like-its-hot.lrc",
+    "artist": "Allen Parvin",
+    "album": "Fun",
+    "playlists": [
+      "Fun"
+    ],
+    "tags": [
+      "pop",
+      "funk",
+      "bollywood",
+      "rap"
+    ],
+    "scripture_references": [],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Lake house (Chant).mp3": {
+    "title": "Lake house (Chant)",
+    "slug": "lake-house-chant",
+    "lyrics_file": "lyrics/lake-house-chant.lrc",
+    "artist": "Allen Parvin",
+    "album": "Fun",
+    "playlists": [
+      "Fun"
+    ],
+    "tags": [
+      "country",
+      "pop"
+    ],
+    "scripture_references": [],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Iron Don’t Lie.mp3": {
+    "title": "Iron Don’t Lie",
+    "slug": "iron-dont-lie",
+    "lyrics_file": "lyrics/iron-dont-lie.lrc",
+    "artist": "Allen Parvin",
+    "album": "Fun",
+    "playlists": [
+      "Fun"
+    ],
+    "tags": [
+      "southern",
+      "rock"
+    ],
+    "scripture_references": [],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Forever and Ever.mp3": {
+    "title": "Forever and Ever",
+    "slug": "forever-and-ever-gritty",
+    "lyrics_file": "lyrics/forever-and-ever-gritty.lrc",
+    "artist": "Allen Parvin",
+    "album": "Heartprints",
+    "playlists": [
+      "Heartprints"
+    ],
+    "tags": [
+      "country",
+      "folk",
+      "soul"
+    ],
+    "scripture_references": [
+      "Ecclesiastes 4:12",
+      "Proverbs 19:14",
+      "Proverbs 3:5-6",
+      "Joshua 24:15",
+      "James 1:17"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Stones Don’t Become Bread.mp3": {
+    "title": "Stones Don’t Become Bread",
+    "slug": "stones-dont-become-bread",
+    "lyrics_file": "lyrics/stones-dont-become-bread.lrc",
+    "artist": "Allen Parvin",
+    "album": "Mercy & Grace",
+    "playlists": [
+      "Mercy & Grace"
+    ],
+    "tags": [
+      "worship",
+      "cinematic",
+      "hip hop",
+      "rock"
+    ],
+    "scripture_references": [
+      "Deuteronomy 8:3",
+      "Deuteronomy 6:16",
+      "Matthew 4:1-11",
+      "Hebrews 4:15",
+      "Luke 4:1-13"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "You're Done.mp3": {
+    "title": "You're Done",
+    "slug": "youre-done",
+    "lyrics_file": "lyrics/youre-done.lrc",
+    "artist": "Allen Parvin",
+    "album": "Real People",
+    "playlists": [
+      "Real People"
+    ],
+    "tags": [
+      "pop",
+      "country"
+    ],
+    "scripture_references": [],
+    "collection": "All Songs",
+    "featured": false
+  }
+}
