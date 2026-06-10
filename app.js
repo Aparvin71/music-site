@@ -1,4 +1,4 @@
-/* v43.1.92 home listening tabs + library top button cleanup */
+/* v43.1.93 bottom nav responsiveness + full home tab list audit */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.92";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.93";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -2499,23 +2499,23 @@ function getHomeSuggestedTracks() {
     });
 }
 
-function getHomeFavoriteTracks(maxHomeSongs = 11) {
-  return resolveTrackIdsToTracks(favorites).slice(0, maxHomeSongs);
+function getHomeFavoriteTracks() {
+  // v43.1.93: Home tabs should show the complete selected list, not an arbitrary preview cap.
+  return resolveTrackIdsToTracks(favorites);
 }
 
-function getHomeRecentTracks(maxHomeSongs = 11) {
-  return resolveTrackIdsToTracks(recentlyPlayed).slice(0, maxHomeSongs);
+function getHomeRecentTracks() {
+  // v43.1.93: preserve the full device recent order.
+  return resolveTrackIdsToTracks(recentlyPlayed);
 }
 
 function getHomeMySongsTracks() {
-  const maxHomeSongs = 11;
-
-  // 1) Prefer the user's explicit custom playlist named "My Songs".
+  // 1) Prefer the user's explicit custom playlist named "My Songs" and show the full playlist.
   const mySongsEntry = getCustomPlaylistEntryByName("My Songs");
   const mySongsTracks = resolveTrackIdsToTracks(normalizePlaylistTrackIds(mySongsEntry));
-  if (mySongsTracks.length) return mySongsTracks.slice(0, maxHomeSongs);
+  if (mySongsTracks.length) return mySongsTracks;
 
-  // 2) Then use most-played songs, if play history exists.
+  // 2) Then use all most-played songs, if play history exists.
   const mostPlayed = [...tracks]
     .filter(track => Number(playStats?.[track.id]?.count || track.play_count || 0) > 0)
     .sort((a, b) => {
@@ -2525,15 +2525,15 @@ function getHomeMySongsTracks() {
       const aTime = Date.parse(playStats?.[a.id]?.lastPlayed || a.last_played || "") || 0;
       return bTime - aTime;
     });
-  if (mostPlayed.length) return mostPlayed.slice(0, maxHomeSongs);
+  if (mostPlayed.length) return mostPlayed;
 
-  // 3) Then use favorites.
+  // 3) Then use all favorites.
   const favoriteTracks = resolveTrackIdsToTracks(favorites);
-  if (favoriteTracks.length) return favoriteTracks.slice(0, maxHomeSongs);
+  if (favoriteTracks.length) return favoriteTracks;
 
-  // 4) Then use recently played.
+  // 4) Then use all recently played.
   const recentTracks = resolveTrackIdsToTracks(recentlyPlayed);
-  if (recentTracks.length) return recentTracks.slice(0, maxHomeSongs);
+  if (recentTracks.length) return recentTracks;
 
   // Do not fall back to the full library on the Home page.
   return [];
@@ -4646,7 +4646,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.92 LIBRARY PANEL LAUNCHERS
+   v43.1.93 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -4763,6 +4763,14 @@ function bindLibraryPanelLaunchers() {
   });
 }
 
+
+window.AineoLibraryPanels = {
+  open: openLibraryPanel,
+  close: closeLibraryPanels,
+  select: setBottomIconSelection,
+  scrollToTop: scrollPanelToTop
+};
+
 function handleLibraryQueryParams() {
   const params = new URLSearchParams(window.location.search);
   const smart = params.get("smart");
@@ -4789,7 +4797,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.1.92: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.1.93: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5018,7 +5026,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.92 legacy analysis preload disabled
+// v43.1.93 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5028,7 +5036,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.92 smart playback cleanup
+// v43.1.93 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5047,10 +5055,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.92 ULTRA SMOOTH PLAYBACK
+   v43.1.93 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.92";
+const SMART_PLAYBACK_VERSION = "43.1.93";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
