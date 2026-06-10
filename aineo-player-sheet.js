@@ -166,7 +166,7 @@
       els.playerSheetCover.alt = track ? `${track.title} cover` : 'Current song cover';
     }
     if (els.playerSheetTrackTitle) els.playerSheetTrackTitle.textContent = track?.title || 'Select a song';
-    if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = track?.artist || '';
+    if (els.playerSheetTrackArtist) els.playerSheetTrackArtist.textContent = ''; 
     if (els.playerSheetTrackAlbum) els.playerSheetTrackAlbum.textContent = track?.album || 'Singles';
     if (els.playerSheetTrackScripture) {
       const refs = Array.isArray(track?.scripture_references) ? track.scripture_references.filter(Boolean) : [];

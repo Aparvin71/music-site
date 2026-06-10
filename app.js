@@ -1,4 +1,4 @@
-/* v43.1.99 concept-faithful aura player rebuild */
+/* v43.2.00 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.99";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.00";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -298,6 +298,7 @@ const els = {
   playerSheetPlayNextBtn: document.getElementById("playerSheetPlayNextBtn"),  playerSheetAutoScrollBtn: document.getElementById("playerSheetAutoScrollBtn"),
   playerSheetAddToPlaylistBtn: document.getElementById("playerSheetAddToPlaylistBtn"),
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
+  playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
@@ -1604,6 +1605,7 @@ function bindUI() {
   on(els.playerSheetRepeatBtn, "click", toggleRepeatMode);
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
+  on(els.playerSheetLyricsBtn, "click", openPlayerSheetLyricsPanel);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
     const track = getCurrentTrack();
@@ -3691,7 +3693,7 @@ function updateNowPlaying(track) {
   if (els.nowArtist) els.nowArtist.textContent = track.artist || "";
   if (els.nowAlbum) els.nowAlbum.textContent = track.album || "";
   if (els.nowScripture) {
-    // v43.1.99: mini player is title-only; scripture stays full-player only.
+    // v43.2.00: mini player is title-only; scripture stays full-player only.
     els.nowScripture.textContent = "";
   }
 
@@ -4885,7 +4887,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.99 LIBRARY PANEL LAUNCHERS
+   v43.2.00 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5036,7 +5038,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.1.99: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.00: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5272,7 +5274,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.99 legacy analysis preload disabled
+// v43.2.00 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5282,7 +5284,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.99 smart playback cleanup
+// v43.2.00 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5301,10 +5303,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.99 ULTRA SMOOTH PLAYBACK
+   v43.2.00 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.99";
+const SMART_PLAYBACK_VERSION = "43.2.00";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
