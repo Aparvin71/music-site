@@ -1,4 +1,4 @@
-/* v43.2.00 concept-faithful aura player rebuild */
+/* v43.2.01 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.00";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.01";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -300,6 +300,7 @@ const els = {
   playerSheetSaveOfflineBtn: document.getElementById("playerSheetSaveOfflineBtn"),
   playerSheetLyricsBtn: document.getElementById("playerSheetLyricsBtn"),
   playerSheetShareBtn: document.getElementById("playerSheetShareBtn"),
+  playerSheetMoreBtn: document.getElementById("playerSheetMoreBtn"),
   playerSheetFavoriteBtn: document.getElementById("playerSheetFavoriteBtn"),
   playerSheetLyricsPanel: document.getElementById("playerSheetLyricsPanel"),
   playerSheetScripturePanel: document.getElementById("playerSheetScripturePanel"),  offlineStatusMount: document.getElementById("offlineStatusMount"),
@@ -1605,6 +1606,7 @@ function bindUI() {
   on(els.playerSheetRepeatBtn, "click", toggleRepeatMode);
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
+  on(els.playerSheetMoreBtn, "click", shareCurrentSong);
   on(els.playerSheetLyricsBtn, "click", openPlayerSheetLyricsPanel);
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
@@ -3693,7 +3695,7 @@ function updateNowPlaying(track) {
   if (els.nowArtist) els.nowArtist.textContent = track.artist || "";
   if (els.nowAlbum) els.nowAlbum.textContent = track.album || "";
   if (els.nowScripture) {
-    // v43.2.00: mini player is title-only; scripture stays full-player only.
+    // v43.2.01: mini player is title-only; scripture stays full-player only.
     els.nowScripture.textContent = "";
   }
 
@@ -3807,9 +3809,12 @@ function updatePlayButton() {
   if (!els.audioPlayer) return;
   const activeTrackId = getCurrentPlaybackTrackId();
   const pending = Boolean(activeTrackId && isPendingPlaybackTrack(activeTrackId));
-  const label = (pending || !els.audioPlayer.paused) ? "❚❚" : "▶";
-  if (els.playBtn) els.playBtn.textContent = label;
-  if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.textContent = label;
+  const playing = (pending || !els.audioPlayer.paused);
+  const playMarkup = '<span class="control-icon control-icon--play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6.5v11l9-5.5-9-5.5Z" fill="currentColor"/></svg></span>';
+  const pauseMarkup = '<span class="control-icon control-icon--play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h3v12H8zm5 0h3v12h-3z" fill="currentColor"/></svg></span>';
+  const markup = playing ? pauseMarkup : playMarkup;
+  if (els.playBtn) els.playBtn.innerHTML = markup;
+  if (els.playerSheetPlayBtn) els.playerSheetPlayBtn.innerHTML = markup;
   syncCurrentPlaybackHighlights();
 }
 
@@ -4058,7 +4063,7 @@ function updateFavoriteButton() {
     els.favoriteSongBtn.innerHTML = buildMiniPlayerButtonMarkup("favoriteOutline", "Favorite");
     els.favoriteSongBtn.setAttribute("aria-label", "Favorite");
     if (els.playerSheetFavoriteBtn) {
-      els.playerSheetFavoriteBtn.textContent = "♡";
+      els.playerSheetFavoriteBtn.innerHTML = `<span class="player-icon-glyph"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 10c0 5.65-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
       els.playerSheetFavoriteBtn.setAttribute("aria-label", "Favorite");
     }
     return;
@@ -4068,8 +4073,8 @@ function updateFavoriteButton() {
   els.favoriteSongBtn.innerHTML = buildMiniPlayerButtonMarkup(favorited ? "favoriteFilled" : "favoriteOutline", favorited ? "Favorited" : "Favorite");
   els.favoriteSongBtn.setAttribute("aria-label", favorited ? "Favorited" : "Favorite");
   if (els.playerSheetFavoriteBtn) {
-    const icon = favorited ? "♥" : "♡";
-    els.playerSheetFavoriteBtn.textContent = icon;
+    const icon = favorited ? `<span class="player-icon-glyph"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 10c0 5.65-7 10-7 10Z" fill="currentColor"/></svg></span>` : `<span class="player-icon-glyph"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 10c0 5.65-7 10-7 10Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+    els.playerSheetFavoriteBtn.innerHTML = icon;
     els.playerSheetFavoriteBtn.setAttribute("aria-label", favorited ? "Favorited" : "Favorite");
   }
 }
@@ -4887,7 +4892,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.00 LIBRARY PANEL LAUNCHERS
+   v43.2.01 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5038,7 +5043,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.00: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.01: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5274,7 +5279,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.00 legacy analysis preload disabled
+// v43.2.01 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5284,7 +5289,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.00 smart playback cleanup
+// v43.2.01 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5303,10 +5308,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.00 ULTRA SMOOTH PLAYBACK
+   v43.2.01 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.00";
+const SMART_PLAYBACK_VERSION = "43.2.01";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
