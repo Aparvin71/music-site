@@ -1,0 +1,17 @@
+Aineo v43.1.94 — Shout Out Hero + Bottom Radius + Menu Cleanup Root Pass
+
+Changes:
+- Mission / Church Shout Out page now uses the megaphone label as the single hero heading.
+- Removed the duplicate Mission / Church Shout Out hero text directly below the megaphone line.
+- Made the megaphone heading whiter, bolder, and larger.
+- Rounded the bottom corners of the Shout Out page background container.
+- Kept Shout Out cards fitting inside the page container without reintroducing clipping.
+- Removed Changelog from hamburger and More page menus by removing it from source nav lists across all pages.
+- Preserved footer/bottom Changelog access where already present.
+- Bumped cache/version markers to v43.1.94.
+
+Verification:
+- HTML navigation source lists checked for Changelog removal.
+- Shout Out hero checked for single heading.
+- CSS authority layer checked for bottom-radius and white/strong kicker rules.
+- JS syntax, JSON/manifest parse, CSS brace balance, and ZIP integrity verified.

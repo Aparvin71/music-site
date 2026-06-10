@@ -1,4 +1,4 @@
-// v43.1.93 foreground page menu + bottom nav fast-tap authority
+// v43.1.94 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -80,7 +80,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.1.93";
+    overlay.dataset.version = "43.1.94";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -185,7 +185,7 @@
 
 
 
-// v43.1.93 root bottom-nav responsiveness authority.
+// v43.1.94 root bottom-nav responsiveness authority.
 // Handles visual feedback on pointerdown and opens in-page Library panels directly,
 // instead of waiting for slower delegated click work after page/layout transitions.
 (function () {
@@ -321,7 +321,7 @@
   }, true);
 })();
 
-// v43.1.93 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.94 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;

@@ -1,0 +1,9 @@
+AINEO v43.1.94 — Bottom Nav Responsiveness + Full Home Tab List Audit Pass
+
+Root fixes:
+- Removed the CSS rule that hid Home song rows after the first five.
+- Removed JS caps from My Songs, Favorites, and Recent Home tabs.
+- Added direct bottom-nav tap authority: visual selection happens on pointerdown, same-page Library panel buttons open directly, and same-page nav taps no longer wait through page transition work.
+- Reduced bottom nav blur/transition cost for faster perceived response.
+
+Verification included JS syntax checks, JSON/manifest parsing, CSS brace balance, requested Home list visibility selector check, version marker sweep, and ZIP integrity.
