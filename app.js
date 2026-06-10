@@ -1,4 +1,4 @@
-/* v43.2.01 concept-faithful aura player rebuild */
+/* v43.2.02 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.01";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.02";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1607,7 +1607,7 @@ function bindUI() {
   on(els.playerSheetAutoScrollBtn, "click", toggleAutoScroll);
   on(els.playerSheetShareBtn, "click", shareCurrentSong);
   on(els.playerSheetMoreBtn, "click", shareCurrentSong);
-  on(els.playerSheetLyricsBtn, "click", openPlayerSheetLyricsPanel);
+  on(els.playerSheetLyricsBtn, "click", () => { togglePlayerSheetLyricsPanel(true); openPlayerSheetLyricsPanel(); });
   on(els.playerSheetFavoriteBtn, "click", toggleCurrentFavorite);
   on(els.playerSheetAddToPlaylistBtn, "click", () => {
     const track = getCurrentTrack();
@@ -3692,12 +3692,9 @@ function updateNowPlaying(track) {
   }
 
   if (els.nowTitle) els.nowTitle.textContent = track.title || "Untitled";
-  if (els.nowArtist) els.nowArtist.textContent = track.artist || "";
-  if (els.nowAlbum) els.nowAlbum.textContent = track.album || "";
-  if (els.nowScripture) {
-    // v43.2.01: mini player is title-only; scripture stays full-player only.
-    els.nowScripture.textContent = "";
-  }
+  if (els.nowArtist) els.nowArtist.textContent = "";
+  if (els.nowAlbum) els.nowAlbum.textContent = "";
+  if (els.nowScripture) els.nowScripture.textContent = "";
 
   if (els.addToPlaylistBtn) {
     els.addToPlaylistBtn.disabled = !track;
@@ -4616,6 +4613,16 @@ function openPlayerSheet(triggerEl = null) {
   }
 }
 
+
+function togglePlayerSheetLyricsPanel(forceVisible = true) {
+  if (!els.playerSheetPanelSection) return;
+  const shouldShow = forceVisible ? true : !els.playerSheetPanelSection.classList.contains('is-visible');
+  els.playerSheetPanelSection.classList.toggle('is-visible', shouldShow);
+  if (shouldShow && els.playerSheetLyricsPanel) {
+    els.playerSheetLyricsPanel.scrollTop = 0;
+    requestAnimationFrame(() => els.playerSheetLyricsPanel.scrollIntoView({ behavior: 'auto', block: 'start' }));
+  }
+}
 function closePlayerSheet() {
   setMiniVisualizerActive(false);
   window.AineoPlayerSheet.close({
@@ -4643,6 +4650,7 @@ function openPlayerSheetLyricsPanel() {
 
 function updatePlayerSheet() {
   updatePlaybackModeButtons();
+  if (els.playerSheetPanelSection) els.playerSheetPanelSection.classList.remove("is-visible");
   window.AineoPlayerSheet.update({
     els,
     track: getCurrentTrack(),
@@ -4892,7 +4900,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.01 LIBRARY PANEL LAUNCHERS
+   v43.2.02 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5043,7 +5051,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.01: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.02: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5279,7 +5287,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.01 legacy analysis preload disabled
+// v43.2.02 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5289,7 +5297,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.01 smart playback cleanup
+// v43.2.02 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5308,10 +5316,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.01 ULTRA SMOOTH PLAYBACK
+   v43.2.02 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.01";
+const SMART_PLAYBACK_VERSION = "43.2.02";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

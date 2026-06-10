@@ -176,7 +176,7 @@
     if (els.playerSheetScripturePanel) {
       els.playerSheetScripturePanel.innerHTML = track?.scripture_references?.length ? `<div class="scripture-block scripture-block--links">${renderScriptureLinks(track.scripture_references)}</div>` : `<p class="empty-message">No scripture references available.</p>`;
     }
-    if (els.playerSheetPlayBtn && audioPlayer) els.playerSheetPlayBtn.textContent = audioPlayer.paused ? '▶' : '❚❚';
+    if (els.playerSheetPlayBtn && audioPlayer) els.playerSheetPlayBtn.innerHTML = audioPlayer.paused ? '<span class="control-icon control-icon--play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6.5v11l9-5.5-9-5.5Z" fill="currentColor"/></svg></span>' : '<span class="control-icon control-icon--play"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h3v12H8zm5 0h3v12h-3z" fill="currentColor"/></svg></span>';
     updateOfflineButtons(track);
     updateFavoriteButton();
     updateProgressUI();
