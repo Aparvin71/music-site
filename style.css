@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.98 visualizer lift + left-wing alignment polish */
+/* v43.1.99 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.98 visualizer lift + left-wing alignment polish */
+/* v43.1.99 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.98 visualizer lift + left-wing alignment polish */
+/* v43.1.99 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.98 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.99 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.98 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.99 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.98 mobile mini-player final tighten */
+/* v43.1.99 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.98 battery optimization pass */
+/* v43.1.99 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.98 performance + low-power hardening */
+/* v43.1.99 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.98 full player lyrics bottom-safe scroll fix */
+/* v43.1.99 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.98 Mission/Church Shout Out image badge expansion */
+/* v43.1.99 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.98 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.99 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.98 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.99 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.98 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.98"] .shoutout-badge-image,
+/* ===== v43.1.99 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.99"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.98 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.99 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.98 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.99 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14386,7 +14386,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.98 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.99 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14909,7 +14909,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.98 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.99 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15231,7 +15231,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.98 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.99 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15600,7 +15600,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.98 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.1.99 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15833,7 +15833,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.98 Header Height + Page Menu White Text Authority Pass
+   v43.1.99 Header Height + Page Menu White Text Authority Pass
    - Removes the doubled safe-area padding inside the rounded AINEO header card.
    - Cuts the visual header card height down to roughly half of the prior mobile build.
    - Keeps hamburger/menu button purple and centered in the shorter header.
@@ -15951,7 +15951,7 @@ body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
 
 
 /* =========================================
-   v43.1.98 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   v43.1.99 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
    Root cause fixed:
    - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
    - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
@@ -16225,7 +16225,7 @@ html body .album-modal-backdrop {
 }
 
 /* =========================================
-   v43.1.98 GLOBAL HEADER CARD AUTHORITY
+   v43.1.99 GLOBAL HEADER CARD AUTHORITY
    Root fix: the compact AINEO header now targets every page header,
    not only Home/Library body classes.
 ========================================= */
@@ -16439,7 +16439,7 @@ html body .aineo-page-menu-close {
   -webkit-text-fill-color: var(--aineo-global-header-purple) !important;
 }
 
-/* v43.1.98 transition audit: keep header/menu opening responsive on every page. */
+/* v43.1.99 transition audit: keep header/menu opening responsive on every page. */
 html body.motion-enabled .site-header,
 html body.motion-enabled .navbar,
 html body.motion-enabled .nav-top-row,
@@ -16451,7 +16451,7 @@ html body.motion-enabled .aineo-page-menu-card {
 
 
 /* =========================================
-   v43.1.98 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
+   v43.1.99 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
    Root fix: all pages now share one radius/token system instead of
    page-specific card/background rules that allowed square corners to resurface.
 ========================================= */
@@ -16842,7 +16842,7 @@ html body :where(
   }
 }
 
-/* v43.1.98 radius audit supplement: secondary containers/rows found in page markup. */
+/* v43.1.99 radius audit supplement: secondary containers/rows found in page markup. */
 html body .aineo-home-panel,
 html body .home-card-primary,
 html body .home-hero-grid,
@@ -16920,7 +16920,7 @@ html body .mini-btn-label {
 
 
 /* =========================================
-   v43.1.98 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
+   v43.1.99 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
    Root fix:
    - The Shout Out page was using a fixed full-viewport pseudo background, so the visible page color could not be clipped by the rounded page shell.
    - This gives the Shout Out page its own real rounded/clipped surface and moves the glow background inside that surface.
@@ -17024,7 +17024,7 @@ html body.motion-enabled :where(
 
 
 /* =========================================
-   v43.1.98 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
+   v43.1.99 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
    Root fix:
    - v43.1.90 used page-level overflow clipping to force the Shout Out page corner radius.
    - That clipped the wide mobile badge cards against the page edge.
@@ -17119,7 +17119,7 @@ html body .about-page .church-button * {
 }
 
 
-/* v43.1.98 — Library top button removal + customizable Home listening tabs */
+/* v43.1.99 — Library top button removal + customizable Home listening tabs */
 .library-command-row {
   display: none !important;
 }
@@ -17180,7 +17180,7 @@ html body .about-page .church-button * {
 }
 
 /* =========================================
-   v43.1.98 Bottom Nav Responsiveness + Full Home Tab List Authority
+   v43.1.99 Bottom Nav Responsiveness + Full Home Tab List Authority
    Root causes fixed:
    - Home list CSS was hiding every row after the fifth child.
    - Home tab data helpers capped My Songs/Favorites/Recent to 11 items.
@@ -17225,7 +17225,7 @@ html body .about-page .church-button * {
 
 
 /* =========================================
-   v43.1.98 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
+   v43.1.99 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
    Root fixes:
    - The Shout Out hero repeated the same title twice; the megaphone label is now the single page heading.
    - The page shell still had square bottom corners from earlier top-only radius rules.
@@ -17294,7 +17294,7 @@ body.shoutout-page-layout .shoutout-request-panel {
   }
 }
 
-/* v43.1.98 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
+/* v43.1.99 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
 :root {
   --aineo-fast: 90ms;
   --aineo-medium: 120ms;
@@ -17392,7 +17392,7 @@ body.motion-ready .music-page-layout .right-rail > .page-card {
 
 
 /* =========================================================
-   v43.1.98 AURORA GLASS PLAYER AUTHORITY
+   v43.1.99 AURORA GLASS PLAYER AUTHORITY
    Root redesign for sticky mini player + full player sheet
 ========================================================= */
 .player-hidden-meta {
@@ -17946,5 +17946,901 @@ body .player-sheet-swipe-hint {
 
   body .player-sheet-collection-line {
     font-size: 0.72rem;
+  }
+}
+
+
+/* =========================================================
+   v43.1.99 CONCEPT-FAITHFUL AURA PLAYER REBUILD
+========================================================= */
+:root {
+  --aura-bg-1: rgba(9, 7, 28, 0.97);
+  --aura-bg-2: rgba(20, 14, 52, 0.96);
+  --aura-line: rgba(173, 124, 255, 0.34);
+  --aura-line-soft: rgba(173, 124, 255, 0.18);
+  --aura-text: #ffffff;
+  --aura-soft: rgba(243, 236, 255, 0.8);
+  --aura-pill: rgba(127, 82, 223, 0.22);
+  --aura-glow: rgba(165, 102, 255, 0.55);
+}
+
+#nowArtist,
+#nowAlbum,
+#playerSheetTrackArtist {
+  display: none !important;
+}
+
+body .sticky-player {
+  left: 14px;
+  right: 14px;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+  margin: 0 auto;
+  max-width: 980px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 30px;
+  border: 1px solid var(--aura-line);
+  background:
+    radial-gradient(circle at 18% 25%, rgba(116, 91, 255, 0.16), transparent 22%),
+    radial-gradient(circle at 76% 78%, rgba(202, 120, 255, 0.12), transparent 24%),
+    linear-gradient(135deg, var(--aura-bg-1), var(--aura-bg-2));
+  box-shadow: 0 16px 44px rgba(0,0,0,0.42), 0 0 0 1px rgba(255,255,255,0.03) inset;
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  overflow: hidden;
+}
+body .sticky-player::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(178,132,255,0.08), transparent 45%, rgba(102,133,255,0.06));
+  pointer-events: none;
+}
+body .sticky-player-left {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+}
+body .now-cover {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  border: 1px solid rgba(196, 159, 255, 0.28);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35), 0 0 18px rgba(166,104,255,0.18);
+}
+body .now-meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+body .now-meta .label {
+  display: none;
+}
+body .now-meta h3 {
+  margin: 0;
+  color: var(--aura-text);
+  font-size: clamp(1rem, 1.9vw, 1.32rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+body .now-scripture-row {
+  display: block;
+}
+body .sticky-player #nowScripture {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(233,223,255,0.82) !important;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body .sticky-player-center {
+  display: grid;
+  grid-template-columns: auto;
+  gap: 10px;
+  min-width: 290px;
+}
+body .sticky-player .transport {
+  order: 2;
+  justify-content: flex-end;
+  gap: 14px;
+  margin: 0;
+}
+body .sticky-player .control-btn.mode-btn,
+body .sticky-player #shuffleModeBtn,
+body .sticky-player #repeatModeBtn,
+body .sticky-player-right {
+  display: none !important;
+}
+body .sticky-player .control-btn {
+  width: 42px;
+  height: 42px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--aura-line-soft);
+  box-shadow: none;
+}
+body .sticky-player #playBtn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #f3e2ff 0%, #d094ff 22%, #a45aff 54%, #5f3ad0 100%);
+  border: 1px solid rgba(241,220,255,0.62);
+  box-shadow: 0 0 0 4px rgba(181, 114, 255, 0.16), 0 0 22px rgba(180,114,255,0.32);
+}
+body .sticky-player .progress-wrap {
+  order: 1;
+  grid-template-columns: 42px minmax(120px, 1fr) 42px;
+  gap: 10px;
+  align-items: center;
+  padding: 0;
+}
+body .sticky-player .progress-wrap span {
+  color: rgba(255,255,255,0.78);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+body #seekBar {
+  height: 5px;
+}
+
+body .player-sheet-backdrop {
+  background: rgba(5, 4, 18, 0.74);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+}
+body .player-sheet-content {
+  width: min(760px, calc(100% - 18px));
+  max-height: calc(100vh - 18px);
+  margin: 9px auto;
+  padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  border-radius: 34px;
+  border: 1px solid var(--aura-line);
+  background:
+    radial-gradient(circle at 50% 18%, rgba(161, 100, 255, 0.20), transparent 26%),
+    radial-gradient(circle at 8% 5%, rgba(91, 74, 255, 0.10), transparent 18%),
+    linear-gradient(180deg, rgba(13, 9, 38, 0.98), rgba(7, 6, 24, 0.985));
+  box-shadow: 0 24px 74px rgba(0,0,0,0.5);
+}
+body .player-sheet-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 16px 20px 8px;
+  border-bottom: 0;
+  background: linear-gradient(180deg, rgba(11,9,30,0.92), rgba(11,9,30,0.18));
+}
+body .player-sheet-drag-handle {
+  width: 86px;
+  height: 6px;
+  margin: 12px auto 10px;
+  background: rgba(234,229,255,0.26);
+}
+body .player-sheet-heading--simple {
+  flex: 1;
+  text-align: center;
+}
+body .player-sheet-heading .eyebrow { display:none !important; }
+body .player-sheet-heading h2 {
+  margin: 0;
+  color: rgba(244,239,255,0.92);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+body .player-sheet-header #closePlayerSheetBtn,
+body .player-sheet-header #playerSheetFavoriteBtn {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--aura-line-soft);
+}
+body .player-sheet-header #playerSheetFavoriteBtn {
+  color: #f0d2ff;
+  font-size: 1.32rem;
+}
+body .player-sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 18px 18px;
+}
+body .player-sheet-now {
+  padding: 18px 18px 20px;
+  border: 1px solid var(--aura-line-soft);
+  border-right: 1px solid var(--aura-line-soft);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+}
+body .player-sheet-cover-wrap {
+  padding: 8px 0 6px;
+}
+body .player-sheet-cover-wrap::before {
+  width: min(88vw, 520px);
+  background: radial-gradient(circle, rgba(170,114,255,0.44) 0%, rgba(170,114,255,0.16) 42%, transparent 72%);
+  filter: blur(16px);
+}
+body .player-sheet-cover {
+  width: min(100%, 560px);
+  border-radius: 34px;
+  border: 1px solid rgba(201, 169, 255, 0.24);
+}
+body .aura-player-sheet-meta {
+  gap: 10px;
+  margin-top: 4px;
+}
+body .player-sheet-collection-line {
+  margin: 0;
+  color: rgba(240,232,255,0.72);
+  font-size: 0.86rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+body .player-sheet-meta h3 {
+  margin: 0;
+  color: var(--aura-text);
+  font-size: clamp(2rem, 6vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+body .scripture-pill-row {
+  gap: 10px;
+}
+body .scripture-pill-row .scripture-link,
+body .player-sheet-meta .scripture-link {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--aura-pill);
+  border: 1px solid rgba(185,145,255,0.24);
+  color: rgba(245,237,255,0.92);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+body .player-sheet-progress {
+  margin-top: 8px;
+  grid-template-columns: 56px minmax(0, 1fr) 56px;
+  gap: 12px;
+}
+body .player-sheet-progress span {
+  color: rgba(255,255,255,0.88);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+body .player-sheet-transport {
+  margin-top: 8px;
+  gap: 18px;
+}
+body .player-sheet-transport .control-btn.mode-btn {
+  color: #cc95ff;
+}
+body .player-sheet-transport .control-btn {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--aura-line-soft);
+}
+body .player-sheet-transport .play-btn {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, #f3e2ff 0%, #d094ff 22%, #a45aff 54%, #5f3ad0 100%);
+  border: 1px solid rgba(241,220,255,0.62);
+  box-shadow: 0 0 0 6px rgba(181,114,255,0.14), 0 0 26px rgba(180,114,255,0.32);
+}
+body .player-sheet-actions {
+  margin-top: 4px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+body .player-sheet-actions .action-btn {
+  min-height: 68px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 20px;
+  background: transparent;
+  border: none;
+  color: rgba(247,243,255,0.88);
+  font-weight: 600;
+  box-shadow: none;
+}
+body .player-sheet-actions .action-btn::before {
+  display: block;
+  font-size: 1.45rem;
+  line-height: 1;
+}
+body #playerSheetAddToPlaylistBtn::before { content: "+"; }
+body #playerSheetSaveOfflineBtn::before { content: "↓"; }
+body #playerSheetPlayNextBtn::before { content: "↝"; }
+body #playerSheetShareBtn::before { content: "⋯"; }
+body .player-sheet-panel {
+  padding: 18px;
+  border-radius: 28px;
+  border: 1px solid var(--aura-line-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.015));
+}
+body .player-sheet-tabs { display:none !important; }
+body #playerSheetLyricsPanel {
+  min-height: 220px;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(184,145,255,0.12);
+  border-radius: 24px;
+}
+body .player-sheet-swipe-hint {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  body .sticky-player {
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 26px;
+    grid-template-columns: minmax(0,1fr) auto;
+  }
+  body .sticky-player-left {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+  body .now-cover {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+  }
+  body .sticky-player-center {
+    min-width: 180px;
+  }
+  body .sticky-player .progress-wrap {
+    grid-template-columns: 34px minmax(92px, 1fr) 34px;
+    gap: 8px;
+  }
+  body .sticky-player .progress-wrap span {
+    font-size: 0.68rem;
+  }
+  body .sticky-player .control-btn {
+    width: 38px;
+    height: 38px;
+  }
+  body .sticky-player #playBtn {
+    width: 58px;
+    height: 58px;
+  }
+  body .player-sheet-content {
+    width: calc(100% - 10px);
+    max-height: calc(100vh - 10px);
+    margin: 5px auto;
+    border-radius: 30px;
+  }
+  body .player-sheet-body {
+    padding: 0 12px 12px;
+    gap: 12px;
+  }
+  body .player-sheet-now {
+    padding: 14px;
+    border-radius: 26px;
+  }
+  body .player-sheet-cover {
+    width: min(100%, 420px);
+    border-radius: 28px;
+  }
+  body .player-sheet-meta h3 {
+    font-size: clamp(1.8rem, 9vw, 2.45rem);
+  }
+  body .scripture-pill-row .scripture-link,
+  body .player-sheet-meta .scripture-link {
+    padding: 7px 12px;
+    font-size: 0.84rem;
+  }
+  body .player-sheet-progress {
+    grid-template-columns: 44px minmax(0,1fr) 44px;
+    gap: 8px;
+  }
+  body .player-sheet-transport {
+    gap: 12px;
+  }
+  body .player-sheet-transport .control-btn {
+    width: 48px;
+    height: 48px;
+  }
+  body .player-sheet-transport .play-btn {
+    width: 78px;
+    height: 78px;
+  }
+  body .player-sheet-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  body .player-sheet-actions .action-btn {
+    min-height: 62px;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 520px) {
+  body .sticky-player {
+    left: 10px;
+    right: 10px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    grid-template-columns: minmax(0,1fr);
+    gap: 12px;
+  }
+  body .sticky-player-center {
+    min-width: 0;
+  }
+  body .sticky-player .transport {
+    justify-content: center;
+  }
+  body .player-sheet-header {
+    padding: 12px 14px 6px;
+  }
+  body .player-sheet-header #closePlayerSheetBtn,
+  body .player-sheet-header #playerSheetFavoriteBtn {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+  }
+  body .player-sheet-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 4px;
+  }
+}
+
+
+/* =========================================================
+   v43.1.99 AURORA GLASS CONCEPT-MATCH PLAYER AUTHORITY
+   Final player surface rules override prior experimental passes.
+========================================================= */
+body .sticky-player #nowArtist,
+body .sticky-player #nowAlbum,
+body .sticky-player #nowScripture,
+body .sticky-player .now-scripture-row,
+body .sticky-player .now-meta .label {
+  display: none !important;
+}
+
+body .sticky-player {
+  left: 16px !important;
+  right: 16px !important;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+  width: auto !important;
+  max-width: 1120px;
+  margin-inline: auto;
+  min-height: 96px;
+  padding: 12px 16px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 14px !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(201, 146, 255, 0.48) !important;
+  border-top: 1px solid rgba(201, 146, 255, 0.48) !important;
+  background:
+    radial-gradient(circle at 24% 50%, rgba(177, 107, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 86% 48%, rgba(143, 73, 255, 0.18), transparent 26%),
+    linear-gradient(135deg, rgba(12, 9, 31, 0.97), rgba(25, 13, 48, 0.95)) !important;
+  box-shadow:
+    0 22px 52px rgba(0, 0, 0, 0.46),
+    0 0 34px rgba(171, 97, 255, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.035) !important;
+  backdrop-filter: blur(18px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(145%) !important;
+  overflow: hidden !important;
+}
+
+body .sticky-player-left {
+  display: grid !important;
+  grid-template-columns: 72px minmax(0, 1fr) !important;
+  gap: 14px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+
+body .sticky-player .now-cover {
+  width: 72px !important;
+  height: 72px !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(220, 190, 255, 0.26) !important;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.36), 0 0 22px rgba(180,112,255,0.2) !important;
+}
+
+body .sticky-player .now-meta {
+  min-width: 0 !important;
+  display: block !important;
+}
+
+body .sticky-player .now-meta h3 {
+  margin: 0 !important;
+  max-width: 100%;
+  color: #ffffff !important;
+  font-size: clamp(1.05rem, 3.5vw, 1.45rem) !important;
+  line-height: 1.08 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+body .sticky-player-center {
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+}
+
+body .sticky-player .transport {
+  margin: 0 !important;
+  display: grid !important;
+  grid-template-columns: 44px 68px 44px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+}
+
+body .sticky-player .transport .mode-btn {
+  display: none !important;
+}
+
+body .sticky-player .control-btn {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(203, 160, 255, 0.18) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
+  color: #ffffff !important;
+  box-shadow: 0 9px 22px rgba(0,0,0,0.28) !important;
+}
+
+body .sticky-player #playBtn {
+  width: 68px !important;
+  height: 68px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 38% 30%, #f3e3ff 0%, #cb93ff 25%, #a85cff 58%, #5b35c9 100%) !important;
+  border: 1px solid rgba(241, 222, 255, 0.68) !important;
+  box-shadow: 0 0 0 7px rgba(176, 102, 255, 0.12), 0 0 34px rgba(180, 101, 255, 0.38) !important;
+}
+
+body .sticky-player .progress-wrap {
+  display: grid !important;
+  grid-template-columns: 34px minmax(84px, 1fr) 34px !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 0 !important;
+}
+
+body .sticky-player .progress-wrap span {
+  color: rgba(255,255,255,0.72) !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+}
+
+body .sticky-player-right {
+  display: none !important;
+}
+
+body #seekBar,
+body #playerSheetSeekBar {
+  height: 7px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(90deg, rgba(213, 152, 255, 1) 0%, rgba(213, 152, 255, 1) var(--range-progress), rgba(255,255,255,0.11) var(--range-progress), rgba(255,255,255,0.11) 100%) !important;
+  box-shadow: 0 0 0 1px rgba(203, 159, 255, 0.1) inset !important;
+}
+
+body #seekBar::-webkit-slider-thumb,
+body #playerSheetSeekBar::-webkit-slider-thumb {
+  width: 20px !important;
+  height: 20px !important;
+  background: #ffffff !important;
+  border: 4px solid #a85cff !important;
+  box-shadow: 0 0 18px rgba(197, 125, 255, 0.7) !important;
+}
+
+/* Full player: concept-style single glass card, large art, no artist line. */
+body .player-sheet-content {
+  width: min(760px, calc(100% - 18px)) !important;
+  max-height: calc(100vh - 18px) !important;
+  margin: 9px auto !important;
+  border-radius: 34px !important;
+  border: 1px solid rgba(197, 150, 255, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 16%, rgba(174, 112, 255, 0.28), transparent 30%),
+    radial-gradient(circle at 20% 52%, rgba(83, 83, 180, 0.12), transparent 35%),
+    linear-gradient(180deg, rgba(12, 9, 31, 0.98), rgba(7, 8, 22, 0.99)) !important;
+  box-shadow: 0 28px 82px rgba(0,0,0,0.56), 0 0 44px rgba(149, 86, 255, 0.18) !important;
+  overflow-y: auto !important;
+}
+
+body .player-sheet-header {
+  padding: 16px 22px 8px !important;
+  border-bottom: none !important;
+}
+
+body .player-sheet-heading .eyebrow {
+  display: none !important;
+}
+
+body .player-sheet-heading h2,
+body #playerSheetTitle {
+  margin: 0 !important;
+  color: rgba(255,255,255,0.82) !important;
+  font-size: 1.04rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+
+body .player-sheet-header #closePlayerSheetBtn,
+body .player-sheet-header #playerSheetFavoriteBtn {
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.055) !important;
+  border: 1px solid rgba(206, 166, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+body .player-sheet-header #playerSheetFavoriteBtn {
+  color: #d9a4ff !important;
+  font-size: 1.38rem !important;
+}
+
+body .player-sheet-body {
+  display: block !important;
+  padding: 0 20px 22px !important;
+}
+
+body .player-sheet-now {
+  padding: 0 0 22px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body .player-sheet-cover-wrap {
+  padding: 14px 0 18px !important;
+  position: relative !important;
+}
+
+body .player-sheet-cover-wrap::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: auto !important;
+  width: min(88%, 600px) !important;
+  aspect-ratio: 16 / 10 !important;
+  border-radius: 34px !important;
+  background: radial-gradient(circle, rgba(180, 106, 255, 0.46), rgba(180,106,255,0.16) 42%, transparent 75%) !important;
+  filter: blur(18px) !important;
+  transform: translateY(22px) !important;
+  z-index: 0 !important;
+}
+
+body .player-sheet-cover {
+  position: relative !important;
+  z-index: 1 !important;
+  width: min(100%, 600px) !important;
+  aspect-ratio: 16 / 10 !important;
+  height: auto !important;
+  object-fit: cover !important;
+  border-radius: 34px !important;
+  border: 1px solid rgba(214, 183, 255, 0.26) !important;
+  box-shadow: 0 28px 60px rgba(0,0,0,0.46), 0 0 40px rgba(174, 108, 255, 0.18) !important;
+}
+
+body .aura-player-sheet-meta {
+  padding: 0 6px !important;
+  margin: 0 0 8px !important;
+  gap: 10px !important;
+}
+
+body .player-sheet-collection-line {
+  order: -1 !important;
+  margin: 0 !important;
+  color: #d09aff !important;
+  font-size: 0.82rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+}
+
+body .player-sheet-meta h3 {
+  margin: 0 !important;
+  color: #ffffff !important;
+  font-size: clamp(2.15rem, 7.8vw, 3.2rem) !important;
+  line-height: 0.98 !important;
+  font-weight: 850 !important;
+}
+
+body #playerSheetTrackArtist,
+body .player-sheet-track-artist {
+  display: none !important;
+}
+
+body .scripture-pill-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 9px !important;
+  margin-top: 2px !important;
+}
+
+body .scripture-pill-row .scripture-link,
+body .player-sheet-meta .scripture-link {
+  padding: 8px 13px !important;
+  border-radius: 999px !important;
+  background: rgba(158, 101, 255, 0.22) !important;
+  border: 1px solid rgba(213, 174, 255, 0.24) !important;
+  color: #efe0ff !important;
+  font-size: 0.88rem !important;
+  font-weight: 800 !important;
+  text-decoration: none !important;
+}
+
+body .player-sheet-progress {
+  margin: 18px 4px 8px !important;
+  display: grid !important;
+  grid-template-columns: 48px minmax(0,1fr) 48px !important;
+  gap: 10px !important;
+  align-items: center !important;
+}
+
+body .player-sheet-progress span {
+  color: rgba(255,255,255,0.9) !important;
+  font-weight: 800 !important;
+  font-size: 0.86rem !important;
+}
+
+body .player-sheet-transport {
+  margin: 12px 0 18px !important;
+  display: grid !important;
+  grid-template-columns: 44px 54px 92px 54px 44px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+
+body .player-sheet-transport .control-btn {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 50% !important;
+  background: rgba(255,255,255,0.055) !important;
+  border: 1px solid rgba(207, 166, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+body .player-sheet-transport .mode-btn {
+  width: 44px !important;
+  height: 44px !important;
+  color: #cf92ff !important;
+}
+
+body .player-sheet-transport .play-btn {
+  width: 92px !important;
+  height: 92px !important;
+  font-size: 2rem !important;
+  background: radial-gradient(circle at 50% 45%, #f2dcff 0%, #ce8eff 24%, #9f55ff 58%, #5a35c7 100%) !important;
+  border: 1px solid rgba(241, 222, 255, 0.7) !important;
+  box-shadow: 0 0 0 8px rgba(177, 102, 255, 0.12), 0 0 36px rgba(181, 105, 255, 0.42) !important;
+}
+
+body .player-sheet-actions {
+  margin: 6px auto 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  max-width: 620px !important;
+}
+
+body .player-sheet-actions .action-btn {
+  min-height: 72px !important;
+  border-radius: 20px !important;
+  border: none !important;
+  background: transparent !important;
+  color: rgba(247, 242, 255, 0.9) !important;
+  box-shadow: none !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+}
+
+body .player-sheet-actions .action-btn::before {
+  color: #d09aff !important;
+  font-size: 1.55rem !important;
+}
+
+body .player-sheet-panel {
+  display: none !important;
+}
+
+@media (max-width: 520px) {
+  body .sticky-player {
+    left: 10px !important;
+    right: 10px !important;
+    min-height: 86px !important;
+    padding: 10px 12px !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    border-radius: 28px !important;
+  }
+  body .sticky-player-left {
+    grid-template-columns: 58px minmax(0, 1fr) !important;
+    gap: 11px !important;
+  }
+  body .sticky-player .now-cover {
+    width: 58px !important;
+    height: 58px !important;
+    border-radius: 18px !important;
+  }
+  body .sticky-player .now-meta h3 {
+    font-size: 1.05rem !important;
+  }
+  body .sticky-player .transport {
+    grid-template-columns: 36px 56px 36px !important;
+    gap: 7px !important;
+  }
+  body .sticky-player .control-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  body .sticky-player #playBtn {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  body .sticky-player .progress-wrap {
+    display: none !important;
+  }
+  body .player-sheet-content {
+    width: calc(100% - 8px) !important;
+    max-height: calc(100vh - 8px) !important;
+    margin: 4px auto !important;
+    border-radius: 30px !important;
+  }
+  body .player-sheet-body {
+    padding: 0 14px 18px !important;
+  }
+  body .player-sheet-cover {
+    width: 100% !important;
+    aspect-ratio: 16 / 10 !important;
+    border-radius: 28px !important;
+  }
+  body .player-sheet-meta h3 {
+    font-size: clamp(2rem, 9.4vw, 2.65rem) !important;
+  }
+  body .player-sheet-transport {
+    grid-template-columns: 38px 46px 78px 46px 38px !important;
+    gap: 10px !important;
+  }
+  body .player-sheet-transport .control-btn {
+    width: 46px !important;
+    height: 46px !important;
+  }
+  body .player-sheet-transport .mode-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  body .player-sheet-transport .play-btn {
+    width: 78px !important;
+    height: 78px !important;
+  }
+  body .player-sheet-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+  body .player-sheet-actions .action-btn {
+    min-height: 60px !important;
+    font-size: 0.7rem !important;
+    padding: 4px !important;
   }
 }

@@ -1,4 +1,4 @@
-AINEO v43.1.98 — Home List Tabs + Library Cleanup + Performance Pass
+AINEO v43.1.99 — Home List Tabs + Library Cleanup + Performance Pass
 
 Changes:
 - Removed the Search, Playlists, and Quick Filters shortcut buttons from the top of the Library page because those actions now live in the bottom icon bar.
@@ -18,4 +18,4 @@ Changes:
   11. Same Sky
 - Persisted the selected Home listening tab per device.
 - Preserved the bottom icon bar panel controls, mini player, global rounded corners, purple theme, and Shout Out card fixes from prior builds.
-- Bumped cache, manifest, service worker, and asset query markers to v43.1.98.
+- Bumped cache, manifest, service worker, and asset query markers to v43.1.99.

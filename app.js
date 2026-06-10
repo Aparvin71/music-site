@@ -1,4 +1,4 @@
-/* v43.1.98 aura glass player redesign + scripture-forward authority */
+/* v43.1.99 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.1.98";
+const BATTERY_OPTIMIZATION_VERSION = "43.1.99";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -3691,8 +3691,8 @@ function updateNowPlaying(track) {
   if (els.nowArtist) els.nowArtist.textContent = track.artist || "";
   if (els.nowAlbum) els.nowAlbum.textContent = track.album || "";
   if (els.nowScripture) {
-    const refs = Array.isArray(track.scripture_references) ? track.scripture_references.filter(Boolean) : [];
-    els.nowScripture.textContent = refs.length ? refs.join(" • ") : "No scripture references";
+    // v43.1.99: mini player is title-only; scripture stays full-player only.
+    els.nowScripture.textContent = "";
   }
 
   if (els.addToPlaylistBtn) {
@@ -4885,7 +4885,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.1.98 LIBRARY PANEL LAUNCHERS
+   v43.1.99 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5036,7 +5036,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.1.98: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.1.99: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5272,7 +5272,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.1.98 legacy analysis preload disabled
+// v43.1.99 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5282,7 +5282,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.1.98 smart playback cleanup
+// v43.1.99 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5301,10 +5301,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.1.98 ULTRA SMOOTH PLAYBACK
+   v43.1.99 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.1.98";
+const SMART_PLAYBACK_VERSION = "43.1.99";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

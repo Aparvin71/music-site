@@ -1,0 +1,7 @@
+Aineo Music v43.1.99
+
+- Mini player rebuilt closer to Aurora Glass concept.
+- Mini player no longer shows artist, album, or scripture.
+- Full player rebuilt closer to Aurora Glass concept with large artwork, scripture chips, glow progress, circular controls, and icon-style action row.
+- Full player keeps scripture references and removes visible artist line.
+- Version/cache markers bumped to 43.1.99.

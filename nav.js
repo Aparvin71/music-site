@@ -1,4 +1,4 @@
-// v43.1.98 foreground page menu + bottom nav fast-tap authority
+// v43.1.99 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -80,7 +80,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.1.98";
+    overlay.dataset.version = "43.1.99";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -186,8 +186,8 @@
 
 
 
-// v43.1.98 root bottom-nav navigation authority.
-// Root fix: v43.1.98 moved real actions onto pointerup and then suppressed the follow-up click.
+// v43.1.99 root bottom-nav navigation authority.
+// Root fix: v43.1.99 moved real actions onto pointerup and then suppressed the follow-up click.
 // On iOS/PWA that made navigation and panel changes feel delayed or fail entirely.
 // This restores a single click/tap activation path while keeping pointerdown visual feedback only.
 (function () {
@@ -366,7 +366,7 @@
   window.addEventListener("pageshow", syncFromLocation, { passive: true });
 })();
 
-// v43.1.98 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.1.99 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;
