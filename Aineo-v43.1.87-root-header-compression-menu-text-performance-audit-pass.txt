@@ -1,0 +1,22 @@
+Aineo v43.1.87 — Root Header Compression + Menu Text Authority + Performance Audit Pass
+
+Changes:
+- Reworked the AINEO/Home and Library header from the final CSS cascade source of truth instead of leaving the previous 96px mobile header target in place.
+- Cut the rounded header card to a true compact mobile height and centered the wordmark plus hamburger inside that shorter card.
+- Forced hamburger/native page list text and More/custom Pages overlay text to white, including nested spans and arrows.
+- Kept hamburger/close controls purple.
+- Updated mobile popup/list top offsets so the shorter header does not leave the old tall-header spacing behind.
+- Reduced expensive transition/blur work for quicker page and popup opening.
+- Preserved v43.1.85/v43.1.86 mini player, rounded panel, bottom nav, and purple theme fixes.
+- Bumped app/cache/manifest/service-worker markers to v43.1.87.
+
+Root cause notes:
+- v43.1.86 still used an approximately 96px compact header target. On the iPhone screenshot, that still rendered as the same oversized visual header instead of a true half-height card.
+- White menu text was applied to the custom overlay, but not authoritatively to every native nav/open-menu child path. v43.1.87 covers both systems.
+
+Verification:
+- JavaScript syntax checks passed with node --check for all root JS files.
+- JSON validation passed for manifest.webmanifest, tracks.json, track-metadata.json, and albums.json.
+- CSS brace balance passed after the root authority block was added.
+- Headless browser computed style check verified Home and Library header heights at 56px on mobile viewport.
+- ZIP integrity test passed.

@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.85 visualizer lift + left-wing alignment polish */
+/* v43.1.87 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.85 visualizer lift + left-wing alignment polish */
+/* v43.1.87 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.85 visualizer lift + left-wing alignment polish */
+/* v43.1.87 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.85 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.87 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.85 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.87 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.85 mobile mini-player final tighten */
+/* v43.1.87 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.85 battery optimization pass */
+/* v43.1.87 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.85 performance + low-power hardening */
+/* v43.1.87 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.85 full player lyrics bottom-safe scroll fix */
+/* v43.1.87 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.85 Mission/Church Shout Out image badge expansion */
+/* v43.1.87 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.85 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.87 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.85 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.87 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.85 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.85"] .shoutout-badge-image,
+/* ===== v43.1.87 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.87"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.85 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.87 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.85 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.87 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.85 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.87 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14912,7 +14912,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.85 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.1.87 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15234,7 +15234,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.1.85 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.1.87 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15603,7 +15603,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.1.85 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.1.87 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15832,4 +15832,397 @@ body.motion-ready .music-left-rail > * {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+
+/* =========================================
+   v43.1.87 Header Height + Page Menu White Text Authority Pass
+   - Removes the doubled safe-area padding inside the rounded AINEO header card.
+   - Cuts the visual header card height down to roughly half of the prior mobile build.
+   - Keeps hamburger/menu button purple and centered in the shorter header.
+   - Forces the Pages menu text opened from hamburger or More to readable white.
+========================================= */
+:root {
+  --aineo-short-header-mobile: 106px;
+  --aineo-short-header-compact: 96px;
+  --aineo-menu-white: #ffffff;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header,
+body.has-aineo-bottom-nav.landing-page-layout .site-header,
+body.has-aineo-bottom-nav.music-page-layout .site-header {
+  padding-top: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  display: block !important;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header .navbar,
+body.has-aineo-bottom-nav.landing-page-layout .site-header .navbar,
+body.has-aineo-bottom-nav.music-page-layout .site-header .navbar {
+  min-height: var(--aineo-short-header-mobile) !important;
+  height: var(--aineo-short-header-mobile) !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  align-items: center !important;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header .nav-top-row,
+body.has-aineo-bottom-nav.landing-page-layout .site-header .nav-top-row,
+body.has-aineo-bottom-nav.music-page-layout .site-header .nav-top-row {
+  width: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header .aineo-wordmark,
+body.has-aineo-bottom-nav .site-header.aineo-app-header .logo,
+body.has-aineo-bottom-nav.landing-page-layout .site-header .aineo-wordmark,
+body.has-aineo-bottom-nav.music-page-layout .site-header .logo {
+  align-self: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+body.has-aineo-bottom-nav .site-header.aineo-app-header .mobile-nav-toggle,
+body.has-aineo-bottom-nav.landing-page-layout .site-header .mobile-nav-toggle,
+body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
+  align-self: center !important;
+  flex: 0 0 auto !important;
+  width: 48px !important;
+  height: 48px !important;
+  min-width: 48px !important;
+  min-height: 48px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: var(--aineo-nav-purple, #c084fc) !important;
+  -webkit-text-fill-color: var(--aineo-nav-purple, #c084fc) !important;
+}
+
+@media (max-width: 640px) {
+  body.has-aineo-bottom-nav .site-header.aineo-app-header,
+  body.has-aineo-bottom-nav.landing-page-layout .site-header,
+  body.has-aineo-bottom-nav.music-page-layout .site-header {
+    margin-top: max(8px, calc(8px + var(--safe-top))) !important;
+  }
+
+  body.has-aineo-bottom-nav .site-header.aineo-app-header .navbar,
+  body.has-aineo-bottom-nav.landing-page-layout .site-header .navbar,
+  body.has-aineo-bottom-nav.music-page-layout .site-header .navbar {
+    min-height: var(--aineo-short-header-compact) !important;
+    height: var(--aineo-short-header-compact) !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  body.has-aineo-bottom-nav .site-header.aineo-app-header .mobile-nav-toggle,
+  body.has-aineo-bottom-nav.landing-page-layout .site-header .mobile-nav-toggle,
+  body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* Hamburger/More page popup text authority: every visible menu word is white. */
+.aineo-page-menu-card,
+.aineo-page-menu-card *,
+.aineo-page-menu-header h2,
+.aineo-page-menu-kicker,
+.aineo-page-menu-links,
+.aineo-page-menu-links a,
+.aineo-page-menu-links a:visited,
+.aineo-page-menu-links a span,
+.aineo-page-menu-links a strong,
+.aineo-page-menu-links a.is-current,
+.aineo-page-menu-links a.is-current span,
+.aineo-page-menu-links a.is-current strong {
+  color: var(--aineo-menu-white) !important;
+  -webkit-text-fill-color: var(--aineo-menu-white) !important;
+}
+
+.aineo-page-menu-close {
+  color: var(--aineo-nav-purple, #c084fc) !important;
+  -webkit-text-fill-color: var(--aineo-nav-purple, #c084fc) !important;
+}
+
+
+/* =========================================
+   v43.1.87 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   Root cause fixed:
+   - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
+   - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
+   - Menu text authority now covers both the custom More overlay and the native hamburger nav list, including every child span/strong.
+========================================= */
+:root {
+  --aineo-header-card-h: 56px;
+  --aineo-header-card-h-wide: 64px;
+  --aineo-header-card-radius: 21px;
+  --aineo-header-edge-gap: 8px;
+  --aineo-header-side-gap: 14px;
+  --aineo-menu-text-white: #ffffff;
+  --aineo-menu-purple: #c084fc;
+  --aineo-menu-purple-strong: #d8b4fe;
+  --aineo-transition-root-fast: 70ms;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header,
+html body.has-aineo-bottom-nav.music-page-layout .site-header {
+  box-sizing: border-box !important;
+  height: var(--aineo-header-card-h-wide) !important;
+  min-height: var(--aineo-header-card-h-wide) !important;
+  max-height: var(--aineo-header-card-h-wide) !important;
+  margin: max(var(--aineo-header-edge-gap), calc(var(--aineo-header-edge-gap) + var(--safe-top))) max(var(--aineo-header-side-gap), calc(var(--aineo-header-side-gap) + var(--safe-right))) 0 max(var(--aineo-header-side-gap), calc(var(--aineo-header-side-gap) + var(--safe-left))) !important;
+  padding: 0 !important;
+  border-radius: var(--aineo-header-card-radius) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
+  background: rgba(7, 6, 16, 0.94) !important;
+  border: 1px solid rgba(168, 85, 255, 0.20) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.045) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .navbar,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .navbar,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .navbar {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 max(18px, calc(18px + var(--safe-right))) 0 max(18px, calc(18px + var(--safe-left))) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  overflow: visible !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .nav-top-row,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .nav-top-row,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .nav-top-row {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .aineo-wordmark,
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .logo,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .aineo-wordmark,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .logo,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .aineo-wordmark,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .logo {
+  margin: 0 !important;
+  padding: 0 !important;
+  align-self: center !important;
+  line-height: 1 !important;
+  font-size: clamp(1.18rem, 4.8vw, 1.55rem) !important;
+  color: var(--aineo-menu-purple) !important;
+  -webkit-text-fill-color: var(--aineo-menu-purple) !important;
+  text-shadow: 0 0 14px rgba(192,132,252,0.36) !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .aineo-wordmark span,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .aineo-wordmark span,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .aineo-wordmark span {
+  line-height: 1 !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .mobile-nav-toggle,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .mobile-nav-toggle,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle,
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .hamburger,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .hamburger,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .hamburger {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  padding: 0 !important;
+  flex: 0 0 38px !important;
+  align-self: center !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  color: var(--aineo-menu-purple) !important;
+  -webkit-text-fill-color: var(--aineo-menu-purple) !important;
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(192,132,252,0.36) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 8px 18px rgba(0,0,0,0.24) !important;
+}
+
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .mobile-nav-toggle:hover,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .mobile-nav-toggle:hover,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle:hover,
+html body.has-aineo-bottom-nav .site-header.aineo-app-header .hamburger:hover,
+html body.has-aineo-bottom-nav.landing-page-layout .site-header .hamburger:hover,
+html body.has-aineo-bottom-nav.music-page-layout .site-header .hamburger:hover {
+  color: var(--aineo-menu-purple-strong) !important;
+  -webkit-text-fill-color: var(--aineo-menu-purple-strong) !important;
+  border-color: rgba(216,180,254,0.48) !important;
+}
+
+@media (max-width: 640px) {
+  html body.has-aineo-bottom-nav .site-header.aineo-app-header,
+  html body.has-aineo-bottom-nav.landing-page-layout .site-header,
+  html body.has-aineo-bottom-nav.music-page-layout .site-header {
+    height: var(--aineo-header-card-h) !important;
+    min-height: var(--aineo-header-card-h) !important;
+    max-height: var(--aineo-header-card-h) !important;
+    margin: max(8px, calc(8px + var(--safe-top))) max(14px, calc(14px + var(--safe-right))) 0 max(14px, calc(14px + var(--safe-left))) !important;
+    border-radius: 20px !important;
+  }
+
+  html body.has-aineo-bottom-nav .site-header.aineo-app-header .navbar,
+  html body.has-aineo-bottom-nav.landing-page-layout .site-header .navbar,
+  html body.has-aineo-bottom-nav.music-page-layout .site-header .navbar {
+    padding-left: max(16px, calc(16px + var(--safe-left))) !important;
+    padding-right: max(16px, calc(16px + var(--safe-right))) !important;
+  }
+
+  html body.has-aineo-bottom-nav .site-header.aineo-app-header .mobile-nav-toggle,
+  html body.has-aineo-bottom-nav.landing-page-layout .site-header .mobile-nav-toggle,
+  html body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle,
+  html body.has-aineo-bottom-nav .site-header.aineo-app-header .hamburger,
+  html body.has-aineo-bottom-nav.landing-page-layout .site-header .hamburger,
+  html body.has-aineo-bottom-nav.music-page-layout .site-header .hamburger {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    flex-basis: 36px !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* Page menu text source-of-truth: native hamburger dropdown AND custom More overlay. */
+html body #siteNavLinks.nav-open,
+html body #siteNavLinks.open,
+html body .nav-links.nav-open,
+html body .nav-links.open,
+html body .aineo-page-menu-card {
+  color: var(--aineo-menu-text-white) !important;
+  -webkit-text-fill-color: var(--aineo-menu-text-white) !important;
+}
+
+html body #siteNavLinks.nav-open *,
+html body #siteNavLinks.open *,
+html body .nav-links.nav-open *,
+html body .nav-links.open *,
+html body .aineo-page-menu-card,
+html body .aineo-page-menu-card *:not(.aineo-page-menu-close) {
+  color: var(--aineo-menu-text-white) !important;
+  -webkit-text-fill-color: var(--aineo-menu-text-white) !important;
+}
+
+html body #siteNavLinks.nav-open a,
+html body #siteNavLinks.open a,
+html body .nav-links.nav-open a,
+html body .nav-links.open a,
+html body .aineo-page-menu-links a,
+html body .aineo-page-menu-links a:visited,
+html body .aineo-page-menu-links a.is-current {
+  color: var(--aineo-menu-text-white) !important;
+  -webkit-text-fill-color: var(--aineo-menu-text-white) !important;
+  text-shadow: none !important;
+}
+
+html body .aineo-page-menu-close {
+  color: var(--aineo-menu-purple) !important;
+  -webkit-text-fill-color: var(--aineo-menu-purple) !important;
+}
+
+@media (max-width: 760px) {
+  html body #siteNavLinks.nav-open,
+  html body #siteNavLinks.open,
+  html body .nav-links.nav-open,
+  html body .nav-links.open {
+    top: calc(max(74px, 60px + var(--safe-top))) !important;
+    max-height: calc(100svh - 88px - var(--safe-top) - var(--safe-bottom)) !important;
+  }
+
+  html body.music-page-layout .library-panel-backdrop {
+    inset: calc(66px + var(--safe-top)) max(8px, calc(8px + var(--safe-right))) 0 max(8px, calc(8px + var(--safe-left))) !important;
+  }
+
+  html body.library-page-cleanup.library-panel-playlists-open .playlist-section-card,
+  html body.library-page-cleanup.library-panel-search-open .music-library-card,
+  html body.library-page-cleanup.library-panel-filters-open .music-library-card {
+    top: calc(82px + var(--safe-top)) !important;
+    scroll-margin-top: calc(82px + var(--safe-top)) !important;
+  }
+}
+
+/* Performance audit: collapse duplicate slow transition families and reduce opening blur costs. */
+html body.motion-enabled .site-header,
+html body.motion-enabled .navbar,
+html body.motion-enabled .page-card,
+html body.motion-enabled .aineo-home-action-card,
+html body.motion-enabled .aineo-home-panel,
+html body.motion-enabled .featured-album-card,
+html body.motion-enabled .album-card,
+html body.motion-enabled .mini-card,
+html body.motion-enabled .catalog-card,
+html body.motion-enabled .featured-track-row,
+html body.motion-enabled .album-track-row,
+html body.motion-enabled .queue-row,
+html body.motion-enabled .sticky-player,
+html body.motion-enabled .action-btn,
+html body.motion-enabled .mini-action-btn,
+html body.motion-enabled .playlist-btn,
+html body.motion-enabled .tag-chip,
+html body.motion-enabled .filter-chip,
+html body.motion-enabled .search-scope-chip,
+html body.motion-enabled .nav-links a,
+html body.motion-enabled .mobile-nav-toggle,
+html body.motion-enabled .library-command-btn,
+html body.motion-enabled .library-panel,
+html body.motion-enabled .playlist-section-card,
+html body.motion-enabled .music-library-card,
+html body.motion-enabled .aineo-page-menu-card,
+html body.motion-enabled .library-panel-backdrop,
+html body.motion-enabled .aineo-page-menu-overlay,
+html body.motion-enabled .player-sheet-content,
+html body.motion-enabled .track-action-sheet-panel {
+  transition-duration: var(--aineo-transition-root-fast) !important;
+  transition-delay: 0ms !important;
+  transition-property: transform, opacity, background-color, border-color, box-shadow, color !important;
+}
+
+html body.motion-ready .main-content > *,
+html body.motion-ready .aineo-landing-page > *,
+html body.motion-ready .music-layout-shell > *,
+html body.motion-ready .music-center-column > *,
+html body.motion-ready .music-right-rail > *,
+html body.motion-ready .music-left-rail > * {
+  animation-duration: 75ms !important;
+  animation-delay: 0ms !important;
+}
+
+html body .aineo-page-menu-backdrop,
+html body .library-panel-backdrop,
+html body .player-sheet-backdrop,
+html body .track-action-sheet-backdrop,
+html body .lyrics-modal-backdrop,
+html body .album-modal-backdrop {
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
 }
