@@ -1,0 +1,13 @@
+Aineo v43.1.83 — Purple Theme + Menu Authority Fix
+
+Forward build from the current working package.
+
+Changes:
+- Rebuilt the hamburger/More page menu as a real foreground overlay.
+- Fixed the blank blurred menu screen issue on Home and Library.
+- More button now opens the same foreground page menu as hamburger.
+- Disabled the old hidden UL/nav-open blur path that caused the blank overlay.
+- Carried the Home purple theme across the rest of the pages:
+  headers, cards, panels, forms, buttons, chips, library controls, album/track cards, and menus.
+- Preserved the Home/Library bottom navigation and mini-player repair work.
+- Updated app/cache/manifest/service-worker version references to v43.1.83.

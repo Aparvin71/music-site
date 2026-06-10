@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.82 visualizer lift + left-wing alignment polish */
+/* v43.1.83 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.1.82 visualizer lift + left-wing alignment polish */
+/* v43.1.83 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.82 visualizer lift + left-wing alignment polish */
+/* v43.1.83 visualizer lift + left-wing alignment polish */
 
 
-/* v43.1.82 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.1.83 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.82 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.1.83 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.82 mobile mini-player final tighten */
+/* v43.1.83 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.1.82 battery optimization pass */
+/* v43.1.83 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.1.82 performance + low-power hardening */
+/* v43.1.83 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.82 full player lyrics bottom-safe scroll fix */
+/* v43.1.83 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.82 Mission/Church Shout Out image badge expansion */
+/* v43.1.83 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.82 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.1.83 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.1.82 Shout Out badge image authority + mobile proportion repair */
+/* v43.1.83 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.1.82 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.82"] .shoutout-badge-image,
+/* ===== v43.1.83 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.1.83"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.1.82 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.1.83 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.82 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.1.83 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14389,7 +14389,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.1.82 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.1.83 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14907,5 +14907,328 @@ body.has-aineo-bottom-nav {
 
   .has-aineo-bottom-nav .progress-wrap {
     width: 88px !important;
+  }
+}
+
+
+/* =========================================
+   v43.1.83 PURPLE THEME AUTHORITY + FOREGROUND MENU
+========================================= */
+
+:root {
+  --aineo-purple-bg: #070610;
+  --aineo-purple-bg-2: #0d0b19;
+  --aineo-purple-surface: rgba(18, 18, 31, 0.86);
+  --aineo-purple-surface-strong: rgba(24, 20, 42, 0.94);
+  --aineo-purple-border: rgba(168, 85, 255, 0.28);
+  --aineo-purple-border-strong: rgba(168, 85, 255, 0.46);
+  --aineo-purple-text: #f8f4ff;
+  --aineo-purple-muted: rgba(248, 244, 255, 0.72);
+  --aineo-purple-accent: #a855ff;
+  --aineo-purple-accent-2: #d946ef;
+}
+
+html,
+body,
+body.music-page-layout,
+body:not(.landing-page-layout) {
+  background:
+    radial-gradient(circle at 86% 5%, rgba(168, 85, 255, 0.24), transparent 28%),
+    radial-gradient(circle at 14% 0%, rgba(37, 99, 235, 0.15), transparent 34%),
+    linear-gradient(180deg, var(--aineo-purple-bg) 0%, var(--aineo-purple-bg-2) 48%, #080911 100%) !important;
+  color: var(--aineo-purple-text) !important;
+}
+
+.site-header,
+.aineo-app-header {
+  background: rgba(7, 6, 16, 0.88) !important;
+  border-bottom: 1px solid rgba(168, 85, 255, 0.18) !important;
+  backdrop-filter: blur(18px) !important;
+  z-index: 6200 !important;
+}
+
+.logo,
+.brand-title,
+.aineo-wordmark {
+  color: #b96cff !important;
+  text-shadow: 0 0 20px rgba(168, 85, 255, 0.38) !important;
+}
+
+.mobile-nav-toggle,
+.hamburger {
+  background: rgba(255,255,255,0.065) !important;
+  border-color: rgba(168, 85, 255, 0.26) !important;
+  color: #f8f4ff !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,0.22) !important;
+}
+
+.page-card,
+.library-panel,
+.about-panel,
+.featured-album-card,
+.lyrics-panel,
+.queue-panel,
+.sidebar-section,
+.album-modal-content,
+.lyrics-modal-content,
+.track-action-sheet-panel,
+.install-modal-content,
+.contact-card,
+.feedback-card,
+.albums-page-grid .catalog-card,
+.catalog-card,
+.album-card,
+.mini-card,
+.home-hero-card,
+.page-hero-card,
+.mission-card,
+.request-card {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(168,85,255,0.12), transparent 30%),
+    linear-gradient(180deg, rgba(20,19,34,0.88), rgba(10,11,20,0.90)) !important;
+  border-color: var(--aineo-purple-border) !important;
+  color: var(--aineo-purple-text) !important;
+  box-shadow: 0 18px 46px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.045) !important;
+}
+
+.page-card h1,
+.page-card h2,
+.page-card h3,
+.library-panel h2,
+.library-panel h3,
+.about-panel h2,
+.about-panel h3,
+.featured-album-card h2,
+.featured-album-card h3,
+.album-card h3,
+.catalog-card h2,
+.catalog-card h3,
+.mini-card strong,
+.featured-track-title,
+.queue-title,
+.album-track-title {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.page-card p,
+.library-panel p,
+.about-panel p,
+.featured-album-card p,
+.album-card p,
+.catalog-card p,
+.mini-card span,
+.featured-track-meta-line,
+.queue-meta,
+.album-track-meta,
+.search-meta,
+.active-filter-label,
+.empty-message {
+  color: var(--aineo-purple-muted) !important;
+  -webkit-text-fill-color: var(--aineo-purple-muted) !important;
+}
+
+.action-btn,
+.secondary-btn,
+.playlist-btn,
+.tag-chip,
+.filter-chip,
+.search-scope-chip,
+.library-command-btn {
+  border-color: rgba(168, 85, 255, 0.28) !important;
+  color: var(--aineo-purple-text) !important;
+}
+
+.action-btn:not(.secondary-btn),
+.primary-btn,
+button[type="submit"] {
+  background: linear-gradient(135deg, #a855ff, #7c3aed 48%, #d946ef) !important;
+  color: #fff !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 14px 36px rgba(168,85,255,0.24) !important;
+}
+
+.secondary-btn,
+.playlist-btn,
+.tag-chip,
+.filter-chip,
+.search-scope-chip {
+  background: rgba(255,255,255,0.055) !important;
+}
+
+.playlist-btn.active,
+.tag-chip.active,
+.filter-chip.active,
+.search-scope-chip.active,
+.album-card.active,
+.featured-track-row.is-current,
+.featured-track-row.playing,
+.queue-row.is-current {
+  background: linear-gradient(135deg, rgba(168,85,255,0.22), rgba(217,70,239,0.12)) !important;
+  border-color: var(--aineo-purple-border-strong) !important;
+  box-shadow: 0 0 0 1px rgba(168,85,255,0.12) inset, 0 14px 34px rgba(168,85,255,0.12) !important;
+}
+
+input,
+textarea,
+select {
+  background: rgba(8, 9, 18, 0.82) !important;
+  border-color: rgba(168,85,255,0.24) !important;
+  color: #fff !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(248,244,255,0.48) !important;
+}
+
+/* Disable the old blank blur overlay/menu path. The explicit Aineo page menu below is authoritative. */
+body.nav-open::before,
+#siteNavLinks.nav-open,
+#siteNavLinks.open,
+.nav-links.nav-open,
+.nav-links.open {
+  display: none !important;
+}
+
+.aineo-page-menu-overlay.hidden {
+  display: none !important;
+}
+
+.aineo-page-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: grid;
+  place-items: start center;
+  padding: calc(76px + var(--safe-top)) max(16px, calc(16px + var(--safe-right))) calc(24px + var(--safe-bottom)) max(16px, calc(16px + var(--safe-left)));
+}
+
+.aineo-page-menu-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 4, 10, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.aineo-page-menu-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: calc(100svh - 106px - var(--safe-top) - var(--safe-bottom));
+  overflow: auto;
+  border-radius: 28px;
+  padding: 16px;
+  background:
+    radial-gradient(circle at 90% 4%, rgba(217,70,239,0.20), transparent 28%),
+    radial-gradient(circle at 12% 0%, rgba(124,58,237,0.22), transparent 34%),
+    linear-gradient(180deg, rgba(24, 20, 42, 0.98), rgba(8, 9, 18, 0.99));
+  border: 1px solid rgba(168,85,255,0.45);
+  box-shadow: 0 32px 90px rgba(0,0,0,0.58), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+.aineo-page-menu-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 4px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 12px;
+}
+
+.aineo-page-menu-kicker {
+  margin: 0 0 4px;
+  color: #c084fc;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.aineo-page-menu-header h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.65rem, 5vw, 2.25rem);
+  letter-spacing: -0.05em;
+}
+
+.aineo-page-menu-close {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.aineo-page-menu-links {
+  display: grid;
+  gap: 8px;
+}
+
+.aineo-page-menu-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 50px;
+  padding: 12px 14px;
+  border-radius: 17px;
+  background: rgba(255,255,255,0.055);
+  color: #f8f4ff;
+  border: 1px solid rgba(255,255,255,0.075);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.aineo-page-menu-links a.is-current {
+  background: linear-gradient(135deg, rgba(168,85,255,0.28), rgba(217,70,239,0.13));
+  border-color: rgba(168,85,255,0.42);
+  box-shadow: 0 0 24px rgba(168,85,255,0.14);
+}
+
+.aineo-page-menu-links a strong {
+  color: #c084fc;
+  font-size: 1.35rem;
+}
+
+body.aineo-page-menu-open {
+  overflow: hidden;
+}
+
+/* Carry the purple styling through the Library cleanup controls too. */
+.library-command-row {
+  filter: drop-shadow(0 16px 28px rgba(0,0,0,0.18));
+}
+
+.library-command-btn {
+  background: linear-gradient(135deg, rgba(168,85,255,0.20), rgba(18,18,31,0.88)) !important;
+}
+
+.library-command-btn--search {
+  background: linear-gradient(135deg, rgba(168,85,255,0.36), rgba(88,28,135,0.18), rgba(18,18,31,0.92)) !important;
+}
+
+.aineo-bottom-icon-row {
+  border-top-color: rgba(168,85,255,0.24) !important;
+}
+
+.aineo-bottom-icon.active,
+.aineo-bottom-icon[aria-current="page"] {
+  color: #b96cff !important;
+  background: rgba(168,85,255,0.13) !important;
+}
+
+@media (max-width: 700px) {
+  .aineo-page-menu-overlay {
+    padding-top: calc(74px + var(--safe-top));
+  }
+
+  .aineo-page-menu-card {
+    border-radius: 24px;
+    padding: 14px;
   }
 }

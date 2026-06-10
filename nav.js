@@ -1,57 +1,140 @@
-// v43.1.82 unified hamburger page menu
+// v43.1.83 foreground page menu authority
 (function () {
-  function getNav() { return document.getElementById('siteNavLinks') || document.querySelector('.nav-menu'); }
-  function getToggle() { return document.getElementById('mobileNavToggle') || document.querySelector('.hamburger'); }
-  function closeMenu(nav, toggle) {
-    if (!nav) return;
-    nav.classList.remove('nav-open', 'open');
-    document.body.classList.remove('nav-open');
+  const MENU_ID = "aineoPageMenuOverlay";
+
+  function getSourceLinks() {
+    const nav = document.getElementById("siteNavLinks") || document.querySelector(".nav-menu");
+    const links = Array.from(nav?.querySelectorAll("a[href]") || []);
+    const seen = new Set();
+    return links
+      .map(link => ({
+        href: link.getAttribute("href") || "#",
+        label: (link.textContent || "").trim() || "Page",
+        current: link.getAttribute("aria-current") === "page" || link.classList.contains("active")
+      }))
+      .filter(item => {
+        const key = `${item.label}|${item.href}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }
+
+  function closeNativeNav() {
+    const nav = document.getElementById("siteNavLinks") || document.querySelector(".nav-menu");
+    const toggle = document.getElementById("mobileNavToggle") || document.querySelector(".hamburger");
+    nav?.classList.remove("nav-open", "open");
+    document.body.classList.remove("nav-open");
     if (toggle) {
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.textContent = '☰';
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = "☰";
     }
   }
-  function openMenu(nav, toggle) {
-    if (!nav) return;
-    nav.classList.add('nav-open', 'open');
-    document.body.classList.add('nav-open');
+
+  function ensureOverlay() {
+    let overlay = document.getElementById(MENU_ID);
+    if (overlay) return overlay;
+
+    overlay = document.createElement("div");
+    overlay.id = MENU_ID;
+    overlay.className = "aineo-page-menu-overlay hidden";
+    overlay.setAttribute("aria-hidden", "true");
+    overlay.innerHTML = `
+      <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
+      <section class="aineo-page-menu-card" role="dialog" aria-modal="true" aria-labelledby="aineoPageMenuTitle">
+        <div class="aineo-page-menu-header">
+          <div>
+            <p class="aineo-page-menu-kicker">Aineo Music</p>
+            <h2 id="aineoPageMenuTitle">Pages</h2>
+          </div>
+          <button class="aineo-page-menu-close" type="button" aria-label="Close page menu" data-aineo-page-menu-close>×</button>
+        </div>
+        <nav class="aineo-page-menu-links" aria-label="All pages"></nav>
+      </section>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener("click", (event) => {
+      if (event.target.closest("[data-aineo-page-menu-close]")) {
+        event.preventDefault();
+        close();
+      }
+    });
+    return overlay;
+  }
+
+  function renderLinks(overlay) {
+    const linkMount = overlay.querySelector(".aineo-page-menu-links");
+    if (!linkMount) return;
+    const links = getSourceLinks();
+    linkMount.innerHTML = links.map(item => `
+      <a class="${item.current ? "is-current" : ""}" href="${escapeAttribute(item.href)}" ${item.current ? 'aria-current="page"' : ""}>
+        <span>${escapeHtml(item.label)}</span><strong aria-hidden="true">›</strong>
+      </a>
+    `).join("");
+    linkMount.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => close(), { once: true });
+    });
+  }
+
+  function open() {
+    closeNativeNav();
+    const overlay = ensureOverlay();
+    renderLinks(overlay);
+    overlay.classList.remove("hidden");
+    overlay.classList.add("show");
+    overlay.setAttribute("aria-hidden", "false");
+    document.body.classList.add("aineo-page-menu-open");
+    const toggle = document.getElementById("mobileNavToggle") || document.querySelector(".hamburger");
     if (toggle) {
-      toggle.setAttribute('aria-expanded', 'true');
-      toggle.textContent = '✕';
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.textContent = "✕";
     }
+    requestAnimationFrame(() => overlay.querySelector(".aineo-page-menu-close")?.focus?.());
   }
-  function toggleMenu() {
-    const nav = getNav();
-    const toggle = getToggle();
-    if (!nav) return;
-    if (nav.classList.contains('nav-open') || nav.classList.contains('open')) closeMenu(nav, toggle);
-    else openMenu(nav, toggle);
+
+  function close() {
+    const overlay = document.getElementById(MENU_ID);
+    if (overlay) {
+      overlay.classList.remove("show");
+      overlay.classList.add("hidden");
+      overlay.setAttribute("aria-hidden", "true");
+    }
+    document.body.classList.remove("aineo-page-menu-open");
+    closeNativeNav();
   }
-  document.addEventListener('click', function (e) {
-    const nav = getNav();
-    const navToggle = getToggle();
-    const moreButton = e.target.closest('[data-open-nav]');
-    if (moreButton) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleMenu();
-      return;
-    }
-    const nativeToggle = e.target.closest('#mobileNavToggle, .hamburger');
-    if (nativeToggle && !nativeToggle.__aineoHandledByApp) {
-      // If app.js is also listening, this handler still keeps the overlay in the foreground.
-      if (window.__AINEO_APP_JS_NAV__ && nativeToggle.id === 'mobileNavToggle') return;
-      e.preventDefault();
-      toggleMenu();
-      return;
-    }
-    if (!nav) return;
-    if ((nav.classList.contains('nav-open') || nav.classList.contains('open')) && !e.target.closest('#siteNavLinks, .nav-menu')) {
-      closeMenu(nav, navToggle);
-    }
-    if (e.target.closest('#siteNavLinks a, .nav-menu a')) {
-      closeMenu(nav, navToggle);
-    }
+
+  function toggle() {
+    const overlay = document.getElementById(MENU_ID);
+    if (overlay && overlay.classList.contains("show")) close();
+    else open();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function escapeAttribute(value) {
+    return escapeHtml(value);
+  }
+
+  document.addEventListener("click", (event) => {
+    const menuTrigger = event.target.closest("#mobileNavToggle, .hamburger, [data-open-nav]");
+    if (!menuTrigger) return;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    toggle();
+  }, true);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") close();
   });
-  window.AineoNav = { open: function() { openMenu(getNav(), getToggle()); }, close: function() { closeMenu(getNav(), getToggle()); }, toggle: toggleMenu };
+
+  window.AineoNav = { open, close, toggle };
 })();
