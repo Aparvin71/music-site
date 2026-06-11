@@ -1,4 +1,4 @@
-/* v43.2.10 concept-faithful aura player rebuild */
+/* v43.2.11 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -20,6 +20,10 @@ let shuffleModeEnabled = false;
 let repeatMode = "off";
 let pendingResumeSeek = null;
 let lastResumePersistAt = 0;
+let restoredPausedSession = null;
+let resumeChoiceAcceptedForTrackId = "";
+let pendingSavedAudioHydration = null;
+let lastKnownPersistedPosition = null;
 let lastFocusedElement = null;
 let customPlaylists = {};
 let downloadedTracks = [];
@@ -53,7 +57,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.10";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.11";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -241,6 +245,7 @@ const els = {
   resumeText: document.getElementById("resumeText"),
   resumeSongBtn: document.getElementById("resumeSongBtn"),
   dismissResumeBtn: document.getElementById("dismissResumeBtn"),
+  restartSongBtn: document.getElementById("restartSongBtn"),
   continueListeningCard: document.getElementById("continueListeningCard"),
   continueListeningCover: document.getElementById("continueListeningCover"),
   continueListeningTitle: document.getElementById("continueListeningTitle"),
@@ -1075,6 +1080,142 @@ function restoreSavedQueue() {
   currentQueueIndex = Math.max(0, Math.min(savedQueue.index || 0, currentQueue.length - 1));
 }
 
+
+function getTrackDurationSeconds(track, fallbackDuration = 0) {
+  return Math.max(0, Number(fallbackDuration) || Number(track?.duration_seconds) || Number(track?.duration) || 0);
+}
+
+function applyPersistedProgressUI(track, timeSeconds = 0, durationSeconds = 0) {
+  const current = Math.max(0, Number(timeSeconds) || 0);
+  const duration = getTrackDurationSeconds(track, durationSeconds || els.audioPlayer?.duration || 0);
+  const progress = duration ? Math.max(0, Math.min(100, (current / duration) * 100)) : 0;
+  lastKnownPersistedPosition = {
+    trackId: track?.id || '',
+    time: current,
+    duration,
+    updatedAt: Date.now()
+  };
+
+  if (els.currentTime) els.currentTime.textContent = formatTime(current);
+  if (els.duration) els.duration.textContent = formatTime(duration);
+  if (els.seekBar) {
+    els.seekBar.value = String(progress);
+    setRangeProgress(els.seekBar, progress);
+  }
+
+  if (els.playerSheetCurrentTime) els.playerSheetCurrentTime.textContent = formatTime(current);
+  if (els.playerSheetDuration) els.playerSheetDuration.textContent = formatTime(duration);
+  if (els.playerSheetSeekBar) {
+    els.playerSheetSeekBar.value = String(progress);
+    setRangeProgress(els.playerSheetSeekBar, progress);
+  }
+}
+
+function clearResumeChoicePrompt() {
+  const existing = document.getElementById('aineoResumeChoicePrompt');
+  if (existing) existing.remove();
+}
+
+function showResumeChoicePrompt(track, timeSeconds = 0) {
+  if (!track || !document.body) return;
+  if ((Number(timeSeconds) || 0) < 2) return;
+  clearResumeChoicePrompt();
+  restoredPausedSession = {
+    trackId: track.id,
+    time: Math.max(0, Number(timeSeconds) || 0),
+    duration: getTrackDurationSeconds(track, lastKnownPersistedPosition?.duration || 0)
+  };
+
+  const prompt = document.createElement('div');
+  prompt.id = 'aineoResumeChoicePrompt';
+  prompt.className = 'aineo-resume-choice';
+  prompt.setAttribute('role', 'dialog');
+  prompt.setAttribute('aria-live', 'polite');
+  prompt.innerHTML = `
+    <div class="aineo-resume-choice__card">
+      <img class="aineo-resume-choice__cover" src="${escapeHtml(track.cover || '')}" alt="${escapeHtml(track.title || 'Track')} cover">
+      <div class="aineo-resume-choice__copy">
+        <p class="aineo-resume-choice__eyebrow">Continue listening?</p>
+        <h3>${escapeHtml(track.title || 'This song')}</h3>
+        <p>Paused at ${formatTime(restoredPausedSession.time)}.</p>
+      </div>
+      <div class="aineo-resume-choice__actions">
+        <button id="aineoResumeChoiceResume" class="action-btn" type="button">Resume</button>
+        <button id="aineoResumeChoiceRestart" class="action-btn secondary-btn" type="button">Start Over</button>
+      </div>
+    </div>`;
+  document.body.appendChild(prompt);
+  document.getElementById('aineoResumeChoiceResume')?.addEventListener('click', () => resumePersistedTrackChoice(true));
+  document.getElementById('aineoResumeChoiceRestart')?.addEventListener('click', () => resumePersistedTrackChoice(false));
+}
+
+function shouldAskResumeChoice() {
+  const current = getCurrentTrack();
+  if (!current || !restoredPausedSession) return false;
+  if (resumeChoiceAcceptedForTrackId === current.id) return false;
+  if (restoredPausedSession.trackId !== current.id) return false;
+  if (!els.audioPlayer?.paused) return false;
+  return (Number(restoredPausedSession.time) || 0) > 2;
+}
+
+async function resumePersistedTrackChoice(shouldResume = true) {
+  const session = restoredPausedSession;
+  const track = session ? tracks.find(item => item.id === session.trackId) : getCurrentTrack();
+  if (!track) return;
+  resumeChoiceAcceptedForTrackId = track.id;
+  clearResumeChoicePrompt();
+  const targetTime = shouldResume ? Math.max(0, Number(session?.time) || Number(resumeTrackTime) || 0) : 0;
+  resumeTrackSrc = shouldResume ? track.src : null;
+  resumeTrackTime = targetTime;
+  if (!currentQueue.length) setQueue(getCurrentCollectionTracks().length ? getCurrentCollectionTracks() : tracks, false);
+  const queueIndex = currentQueue.findIndex(item => item.id === track.id);
+  if (queueIndex >= 0) currentQueueIndex = queueIndex;
+  setCurrentPlaybackTrack(track);
+  currentTrackIndex = filteredTracks.findIndex(item => item.id === track.id);
+  applyPersistedProgressUI(track, targetTime, session?.duration || track.duration_seconds || 0);
+  pendingResumeSeek = targetTime > 1 ? targetTime : null;
+  await playTrack(track);
+  if (!shouldResume && els.audioPlayer) {
+    try { els.audioPlayer.currentTime = 0; } catch (error) {}
+    saveResume(track, 0);
+    savePlayerState(track, 0);
+  }
+}
+
+async function hydrateSavedAudioElement(track, timeSeconds = 0, durationSeconds = 0) {
+  if (!track || !els.audioPlayer) return;
+  const token = `${track.id}:${Date.now()}`;
+  pendingSavedAudioHydration = token;
+  const targetTime = Math.max(0, Number(timeSeconds) || 0);
+  const fallbackDuration = getTrackDurationSeconds(track, durationSeconds);
+  applyPersistedProgressUI(track, targetTime, fallbackDuration);
+
+  try {
+    await setAudioSourceWithFallback(track, els.audioPlayer);
+    if (pendingSavedAudioHydration !== token) return;
+    els.audioPlayer.pause();
+    const applyTime = () => {
+      try {
+        const duration = Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : fallbackDuration;
+        if (targetTime > 0 && duration > 0) {
+          els.audioPlayer.currentTime = Math.min(targetTime, Math.max(0, duration - 0.25));
+        }
+        applyPersistedProgressUI(track, targetTime, duration);
+        updatePlayButton();
+        syncCurrentPlaybackHighlights();
+        syncQueuePlaybackUI();
+      } catch (error) {
+        applyPersistedProgressUI(track, targetTime, fallbackDuration);
+      }
+    };
+    if (els.audioPlayer.readyState >= 1) applyTime();
+    else els.audioPlayer.addEventListener('loadedmetadata', applyTime, { once: true });
+  } catch (error) {
+    console.warn('Could not hydrate saved audio state:', error);
+    applyPersistedProgressUI(track, targetTime, fallbackDuration);
+  }
+}
+
 function savePlayerState(track = getCurrentTrack(), timeOverride) {
   const player = els.audioPlayer;
   const resumeTime = Math.max(0, Number(timeOverride ?? player?.currentTime ?? 0) || 0);
@@ -1083,7 +1224,9 @@ function savePlayerState(track = getCurrentTrack(), timeOverride) {
     trackId: track?.id || "",
     trackSrc: track?.src || "",
     time: resumeTime,
+    duration: Number.isFinite(player?.duration) ? player.duration : Math.max(0, Number(track?.duration_seconds) || 0),
     paused: Boolean(player?.paused ?? true),
+    ended: Boolean(player?.ended ?? false),
     queueTrackIds,
     queueIndex: currentQueueIndex,
     collectionKey: getCurrentCollectionKey?.() || currentCollectionKey || "all-songs",
@@ -1120,10 +1263,21 @@ function restoreSavedPlaybackContext() {
   resumeTrackTime = Math.max(0, Number(state.time) || 0);
   resumeTrackTitle = stateTrack.title || "";
 
+  const restoredTime = Math.max(0, Number(state.time) || 0);
+  const restoredDuration = getTrackDurationSeconds(stateTrack, state.duration);
+
   updateNowPlaying(stateTrack);
   updateMediaSessionMetadata(stateTrack);
   updateLyricsPanel(stateTrack);
   updateScripturePanel(stateTrack);
+  applyPersistedProgressUI(stateTrack, restoredTime, restoredDuration);
+  hydrateSavedAudioElement(stateTrack, restoredTime, restoredDuration);
+  if (state.paused !== false && restoredTime > 2 && !state.ended) {
+    showResumeChoicePrompt(stateTrack, restoredTime);
+  }
+  updatePlayButton();
+  syncCurrentPlaybackHighlights();
+  syncQueuePlaybackUI();
   renderQueue();
 }
 
@@ -1140,7 +1294,10 @@ function saveResume(track, timeOverride) {
       title: track.title,
       artist: track.artist,
       album: track.album,
-      time: resumeTime
+      time: resumeTime,
+      duration: Number.isFinite(els.audioPlayer?.duration) ? els.audioPlayer.duration : Math.max(0, Number(track.duration_seconds) || 0),
+      paused: Boolean(els.audioPlayer?.paused ?? true),
+      updatedAt: Date.now()
     })
   );
 
@@ -1469,6 +1626,7 @@ function bindUI() {
       updateProgressUI();
       requestMiniPlayerSyncAfterSheetClose();
       updateMediaSessionPlaybackState();
+      if (current) saveResume(current);
       savePlayerState();
       syncCurrentPlaybackHighlights();
       syncQueuePlaybackUI();
@@ -1478,6 +1636,12 @@ function bindUI() {
       updateProgressUI();
       requestMiniPlayerSyncAfterSheetClose();
       updateSyncedLyricsProgress();
+      const current = getCurrentTrack();
+      if (current) {
+        saveResume(current);
+        savePlayerState(current);
+        restoredPausedSession = els.audioPlayer?.paused ? { trackId: current.id, time: els.audioPlayer.currentTime || 0, duration: Number.isFinite(els.audioPlayer.duration) ? els.audioPlayer.duration : current.duration_seconds || 0 } : null;
+      }
       startLyricsSyncLoop();
     });
     els.audioPlayer.addEventListener("ended", () => {
@@ -1609,6 +1773,7 @@ function bindUI() {
 
   on(els.resumeSongBtn, "click", resumeSavedTrack);
   on(els.dismissResumeBtn, "click", hideResumeBanner);
+  on(els.restartSongBtn, "click", startSavedTrackOver);
 
   on(els.createPlaylistBtn, "click", createNewPlaylist);
   on(els.addToPlaylistBtn, "click", () => {
@@ -3655,6 +3820,10 @@ function togglePlayPause() {
   }
 
   if (els.audioPlayer.paused) {
+    if (shouldAskResumeChoice()) {
+      showResumeChoicePrompt(current, restoredPausedSession.time);
+      return;
+    }
     markUserPlaybackIntent(true);
     els.audioPlayer.play().then(() => primeNextAudioForContinuousPlayback()).catch(err => {
       console.error("Playback failed:", err);
@@ -4558,8 +4727,16 @@ function resumeSavedTrack() {
   if (!resumeTrackSrc) return;
   const track = tracks.find(t => t.src === resumeTrackSrc);
   if (!track) return;
+  restoredPausedSession = { trackId: track.id, time: resumeTrackTime || 0, duration: getTrackDurationSeconds(track, lastKnownPersistedPosition?.duration || 0) };
+  resumePersistedTrackChoice(true);
+  hideResumeBanner();
+}
 
-  startPlaybackFromList([track], false, 0);
+function startSavedTrackOver() {
+  const track = resumeTrackSrc ? tracks.find(t => t.src === resumeTrackSrc) : getCurrentTrack();
+  if (!track) return;
+  restoredPausedSession = { trackId: track.id, time: 0, duration: getTrackDurationSeconds(track, 0) };
+  resumePersistedTrackChoice(false);
   hideResumeBanner();
 }
 
@@ -5010,7 +5187,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.10 LIBRARY PANEL LAUNCHERS
+   v43.2.11 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5161,7 +5338,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.10: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.11: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5397,7 +5574,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.10 legacy analysis preload disabled
+// v43.2.11 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5407,7 +5584,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.10 smart playback cleanup
+// v43.2.11 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5426,10 +5603,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.10 ULTRA SMOOTH PLAYBACK
+   v43.2.11 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.10";
+const SMART_PLAYBACK_VERSION = "43.2.11";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
