@@ -1,6 +1,6 @@
-Aineo Music v43.2.13
+Aineo Music v43.2.14
 
 - Full player artwork frame now owns the rounded border and inward glow.
 - Album art remains contained inside a stable fixed frame without clipping the border.
 - Mini player now refreshes from the full player/shared audio state on close, play, pause, and seek.
-- Version/cache markers updated to v43.2.13.
+- Version/cache markers updated to v43.2.14.

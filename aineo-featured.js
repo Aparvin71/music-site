@@ -1,4 +1,4 @@
-/* v43.2.13 featured home list selector */
+/* v43.2.14 featured home list selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -131,7 +131,7 @@
           <button class="mini-action-btn mini-action-btn--icon ${isFav}" data-favorite-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${isFavorite(track) ? 'Remove favorite' : 'Add favorite'}"></button>
           <button class="mini-action-btn mini-action-btn--icon" data-lyrics-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="Lyrics"></button>
           <button class="mini-action-btn mini-action-btn--icon ${offlineSaved ? 'is-saved-offline' : ''}" data-offline-track="${escapeHtmlAttr(track.id)}" type="button" aria-label="${offlineSaved ? 'Remove offline save' : 'Save offline'}"></button>
-          <button class="mini-action-btn mini-action-btn--icon" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions"></button>
+          <button class="mini-action-btn mini-action-btn--icon mini-action-btn--more" data-track-more="${escapeHtmlAttr(track.id)}" type="button" aria-label="More actions" title="More actions"><span class="mini-action-glyph" aria-hidden="true">⋯</span></button>
         </div>
       </div>`;
     }).join('');
