@@ -1,4 +1,4 @@
-/* v43.2.14 featured home list selector */
+/* v43.2.15 featured home list selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -180,10 +180,16 @@
       }
     }));
 
-    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => btn.addEventListener('click', e => {
-      const track = collection.tracks.find(t => t.id === btn.dataset.trackMore);
-      if (track) openTrackActionSheet?.(track, e.currentTarget);
-    }));
+    els.featuredTrackList.querySelectorAll('[data-track-more]').forEach(btn => {
+      if (btn.dataset.quickActionBound === 'true') return;
+      btn.dataset.quickActionBound = 'true';
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const track = collection.tracks.find(t => String(t.id) === String(btn.dataset.trackMore));
+        if (track) openTrackActionSheet?.(track, e.currentTarget);
+      });
+    });
   }
 
   window.AineoFeatured = { getVisibleAlbums, renderAlbums, renderFeaturedAlbum, getFeaturedTrackPlayState, renderFeaturedTrackList };
