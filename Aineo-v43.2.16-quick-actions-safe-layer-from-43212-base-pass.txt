@@ -1,0 +1,11 @@
+Aineo Music v43.2.16
+
+Reset base: v43.2.12.
+
+Implemented a clean Quick Actions repair without carrying forward the v43.2.13-v43.2.15 trigger rewrites.
+- Preserved the original working three-dot trigger path from v43.2.12.
+- Moved Quick Actions sheet above mini player/bottom nav with safe floating placement.
+- Added top-right X close button.
+- Kept Close button and backdrop close behavior.
+- Added scroll bounds for small screens.
+- Did not resize or rewrite the track-row three-dot buttons.
