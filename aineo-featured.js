@@ -1,4 +1,4 @@
-/* v43.2.06 featured home list selector */
+/* v43.2.07 featured home list selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
