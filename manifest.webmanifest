@@ -1,7 +1,7 @@
 {
   "name": "Aineo Music",
   "short_name": "Aineo",
-  "start_url": "./index.html?source=pwa&v=43.2.12&shell=43212",
+  "start_url": "./index.html?source=pwa&v=43.2.13&shell=43213",
   "scope": "./",
   "display": "standalone",
   "display_override": [
@@ -45,7 +45,7 @@
       "purpose": "any maskable"
     }
   ],
-  "id": "./index.html?app=AineoMusic&v=43.2.12",
+  "id": "./index.html?app=AineoMusic&v=43.2.13",
   "categories": [
     "music",
     "entertainment",
@@ -55,22 +55,22 @@
     {
       "name": "Home",
       "short_name": "Home",
-      "url": "./index.html?source=pwa&v=43.2.12&shell=43212"
+      "url": "./index.html?source=pwa&v=43.2.13&shell=43213"
     },
     {
       "name": "Library",
       "short_name": "Library",
-      "url": "./music.html?source=pwa&v=43.2.12&shell=43212"
+      "url": "./music.html?source=pwa&v=43.2.13&shell=43213"
     },
     {
       "name": "Albums",
       "short_name": "Albums",
-      "url": "./albums.html?source=pwa&v=43.2.12&shell=43212"
+      "url": "./albums.html?source=pwa&v=43.2.13&shell=43213"
     },
     {
       "name": "Shout Outs",
       "short_name": "Shout Outs",
-      "url": "./contact.html?source=pwa&v=43.2.12&shell=43212"
+      "url": "./contact.html?source=pwa&v=43.2.13&shell=43213"
     }
   ]
 }

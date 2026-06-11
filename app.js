@@ -1,4 +1,4 @@
-/* v43.2.12 concept-faithful aura player rebuild */
+/* v43.2.13 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -57,7 +57,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.12";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.13";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1460,6 +1460,7 @@ function clearQueueList() {
 }
 function openTrackActionSheet(track, triggerEl = null) {
   if (!track || !els.trackActionSheet) return;
+  closePlayerSheetMoreMenu?.();
   actionSheetTrackId = track.id;
   actionSheetTriggerEl = triggerEl || null;
   if (els.trackActionSheetTitle) els.trackActionSheetTitle.textContent = track.title || "Track actions";
@@ -1475,6 +1476,10 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
+  window.requestAnimationFrame(() => {
+    const closeButton = els.trackActionSheet?.querySelector?.("[data-track-action-close]");
+    closeButton?.focus?.({ preventScroll: true });
+  });
 }
 
 function closeTrackActionSheet() {
@@ -1830,6 +1835,16 @@ function bindUI() {
   });
   on(els.trackActionSheetBackdrop, "click", closeTrackActionSheet);
   on(els.trackActionCloseBtn, "click", closeTrackActionSheet);
+  document.addEventListener("click", event => {
+    if (!document.body.classList.contains("track-action-sheet-open")) return;
+    const closeTarget = event.target?.closest?.("[data-track-action-close]");
+    if (!closeTarget) return;
+    event.preventDefault();
+    closeTrackActionSheet();
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && document.body.classList.contains("track-action-sheet-open")) closeTrackActionSheet();
+  });
   on(els.trackActionPlayNextBtn, "click", () => {
     const track = tracks.find(item => item.id === actionSheetTrackId);
     if (!track) return;
@@ -5189,7 +5204,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.12 LIBRARY PANEL LAUNCHERS
+   v43.2.13 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5340,7 +5355,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.12: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.13: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5576,7 +5591,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.12 legacy analysis preload disabled
+// v43.2.13 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5586,7 +5601,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.12 smart playback cleanup
+// v43.2.13 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5605,10 +5620,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.12 ULTRA SMOOTH PLAYBACK
+   v43.2.13 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.12";
+const SMART_PLAYBACK_VERSION = "43.2.13";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Aineo Music" />
   <meta name="format-detection" content="telephone=no" />
-  <link rel="manifest" href="/manifest.webmanifest?v=43.2.12" />
+  <link rel="manifest" href="/manifest.webmanifest?v=43.2.13" />
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />
@@ -24,20 +24,20 @@
   <link rel="preconnect" href="https://pub-de889868274142c4924a1b81e51a1d94.r2.dev" crossorigin />
   <link rel="dns-prefetch" href="//pub-de889868274142c4924a1b81e51a1d94.r2.dev" />
   <title>Home - Aineo Music</title>
-  <link rel="stylesheet" href="/style.css?v=43.2.12" />
-  <script src="/pwa-init.js?v=43.2.12" defer></script>
-  <script src="/aineo-config.js?v=43.2.12" defer></script>
-  <script src="/aineo-data.js?v=43.2.12" defer></script>
-  <script src="/aineo-ui.js?v=43.2.12" defer></script>
-  <script src="/aineo-lyrics.js?v=43.2.12" defer></script>
-  <script src="/aineo-media-session.js?v=43.2.12" defer></script>
-  <script src="/aineo-library.js?v=43.2.12" defer></script>
-  <script src="/aineo-queue.js?v=43.2.12" defer></script>
-  <script src="/aineo-featured.js?v=43.2.12" defer></script>
-  <script src="/aineo-playlists.js?v=43.2.12" defer></script>
-  <script src="/aineo-player-sheet.js?v=43.2.12" defer></script>
-  <script src="/aineo-offline.js?v=43.2.12" defer></script>
-  <script src="/app.js?v=43.2.12" defer></script>
+  <link rel="stylesheet" href="/style.css?v=43.2.13" />
+  <script src="/pwa-init.js?v=43.2.13" defer></script>
+  <script src="/aineo-config.js?v=43.2.13" defer></script>
+  <script src="/aineo-data.js?v=43.2.13" defer></script>
+  <script src="/aineo-ui.js?v=43.2.13" defer></script>
+  <script src="/aineo-lyrics.js?v=43.2.13" defer></script>
+  <script src="/aineo-media-session.js?v=43.2.13" defer></script>
+  <script src="/aineo-library.js?v=43.2.13" defer></script>
+  <script src="/aineo-queue.js?v=43.2.13" defer></script>
+  <script src="/aineo-featured.js?v=43.2.13" defer></script>
+  <script src="/aineo-playlists.js?v=43.2.13" defer></script>
+  <script src="/aineo-player-sheet.js?v=43.2.13" defer></script>
+  <script src="/aineo-offline.js?v=43.2.13" defer></script>
+  <script src="/app.js?v=43.2.13" defer></script>
 </head>
 <body class="landing-page-layout music-page-layout has-aineo-bottom-nav">
   <a class="skip-link" href="#mainContent">Skip to main content</a>
@@ -329,9 +329,12 @@
     <div class="track-action-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="trackActionSheetTitle">
       <div class="track-action-sheet-handle" aria-hidden="true"></div>
       <div class="track-action-sheet-header">
-        <p class="eyebrow">Quick Actions</p>
-        <h2 id="trackActionSheetTitle">Track actions</h2>
-        <p id="trackActionSheetMeta" class="track-action-sheet-meta">Choose what to do next.</p>
+        <div class="track-action-sheet-title-block">
+          <p class="eyebrow">Quick Actions</p>
+          <h2 id="trackActionSheetTitle">Track actions</h2>
+          <p id="trackActionSheetMeta" class="track-action-sheet-meta">Choose what to do next.</p>
+        </div>
+        <button id="trackActionCloseBtn" class="track-action-sheet-close" type="button" aria-label="Close quick actions" data-track-action-close>×</button>
       </div>
       <div class="track-action-sheet-actions">
         <button id="trackActionPlayNextBtn" class="action-btn" type="button">Play Next</button>
@@ -340,7 +343,7 @@
         <button id="trackActionGoAlbumBtn" class="action-btn secondary-btn" type="button">Go to Album</button>
       </div>
       <div class="track-action-sheet-footer">
-        <button id="trackActionCloseBtn" class="action-btn secondary-btn" type="button">Close</button>
+        <button id="trackActionCloseBtnBottom" class="action-btn secondary-btn" type="button" data-track-action-close>Close</button>
       </div>
     </div>
   </div>
@@ -356,7 +359,7 @@
 </nav>
 
 <footer class="site-footer">
-    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.2.12</span></p>
+    <p>© 2026 Aineo Music <span class="footer-sep">·</span> <span class="app-version">v43.2.13</span></p>
     <p class="footer-links footer-links--admin">
       <a href="/about.html">About</a>
       <a href="/changelog.html">Changelog</a>
@@ -365,7 +368,7 @@
       <a href="/contact.html">Shout Outs</a>
     </p>
   </footer>
-<script src="/nav.js?v=43.2.12"></script>
+<script src="/nav.js?v=43.2.13"></script>
 <script>
 (function() {
   function readArray(key) { try { const v = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } }
