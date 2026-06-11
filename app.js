@@ -1,4 +1,4 @@
-/* v43.2.09 concept-faithful aura player rebuild */
+/* v43.2.10 concept-faithful aura player rebuild */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -53,7 +53,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.09";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.10";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1430,6 +1430,7 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("play", () => {
       markUserPlaybackIntent(true);
+      requestMiniPlayerSyncAfterSheetClose();
       stopPreviewAudio();
       updatePlayButton();
       updateMediaSessionPlaybackState();
@@ -1440,6 +1441,7 @@ function bindUI() {
       syncCurrentPlaybackHighlights();
     });
     els.audioPlayer.addEventListener("playing", () => {
+      requestMiniPlayerSyncAfterSheetClose();
       playbackErrorRecoveryCount = 0;
       playbackErrorRecoveryAt = 0;
       clearPendingPlaybackTrack(getCurrentTrack()?.id || "");
@@ -1464,6 +1466,8 @@ function bindUI() {
         stopLyricsSyncLoop();
       }
       updatePlayButton();
+      updateProgressUI();
+      requestMiniPlayerSyncAfterSheetClose();
       updateMediaSessionPlaybackState();
       savePlayerState();
       syncCurrentPlaybackHighlights();
@@ -1471,6 +1475,8 @@ function bindUI() {
     });
     els.audioPlayer.addEventListener("seeking", updateSyncedLyricsProgress);
     els.audioPlayer.addEventListener("seeked", () => {
+      updateProgressUI();
+      requestMiniPlayerSyncAfterSheetClose();
       updateSyncedLyricsProgress();
       startLyricsSyncLoop();
     });
@@ -4693,15 +4699,47 @@ function togglePlayerSheetLyricsPanel(forceVisible = true) {
     requestAnimationFrame(() => els.playerSheetLyricsPanel.scrollIntoView({ behavior: 'auto', block: 'start' }));
   }
 }
+
+function syncMiniPlayerFromAudioState() {
+  const track = getCurrentTrack();
+  if (track) {
+    if (els.nowCover) {
+      els.nowCover.src = track.cover || "";
+      els.nowCover.alt = `${track.title || "Current song"} cover`;
+    }
+    if (els.nowTitle) els.nowTitle.textContent = track.title || "Untitled";
+    if (els.nowArtist) els.nowArtist.textContent = "";
+    if (els.nowAlbum) els.nowAlbum.textContent = "";
+    if (els.nowScripture) els.nowScripture.textContent = "";
+    updateOfflineButtons(track);
+  }
+  updateProgressUI();
+  updatePlayButton();
+  updateMediaSessionPlaybackState();
+  updateMediaSessionPositionState(true);
+  syncCurrentPlaybackHighlights();
+  syncQueuePlaybackUI();
+}
+
+function requestMiniPlayerSyncAfterSheetClose() {
+  syncMiniPlayerFromAudioState();
+  window.requestAnimationFrame(() => {
+    syncMiniPlayerFromAudioState();
+    window.setTimeout(syncMiniPlayerFromAudioState, 80);
+    window.setTimeout(syncMiniPlayerFromAudioState, 240);
+  });
+}
 function closePlayerSheet() {
   hidePlayerSheetMoreMenu();
   setMiniVisualizerActive(false);
+  requestMiniPlayerSyncAfterSheetClose();
   window.AineoPlayerSheet.close({
     els,
     isAnyModalOpen,
     lockBodyScroll,
     restoreFocus
   });
+  requestMiniPlayerSyncAfterSheetClose();
 }
 
 function setPlayerSheetTab(tabName) {
@@ -4972,7 +5010,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.09 LIBRARY PANEL LAUNCHERS
+   v43.2.10 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5123,7 +5161,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.09: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.10: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5359,7 +5397,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.09 legacy analysis preload disabled
+// v43.2.10 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5369,7 +5407,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.09 smart playback cleanup
+// v43.2.10 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5388,10 +5426,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.09 ULTRA SMOOTH PLAYBACK
+   v43.2.10 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.09";
+const SMART_PLAYBACK_VERSION = "43.2.10";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
