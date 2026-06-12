@@ -1,3 +1,3 @@
-Aineo v43.2.18 — Full App Share Card + App Landing Preview Pass
+Aineo v43.2.19 — Full App Share Card + App Landing Preview Pass
 
-Built from v43.2.18. Adds full app sharing via /share/app/, branded app card and story assets, Open Graph and X/Twitter metadata, Home/Library/Install/menu Share App entry points, and app-mode behavior in the existing social share sheet.
+Built from v43.2.19. Adds full app sharing via /share/app/, branded app card and story assets, Open Graph and X/Twitter metadata, Home/Library/Install/menu Share App entry points, and app-mode behavior in the existing social share sheet.

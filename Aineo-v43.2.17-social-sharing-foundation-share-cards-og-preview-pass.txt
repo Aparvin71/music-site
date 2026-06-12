@@ -1,4 +1,4 @@
-AINEO Music v43.2.18
+AINEO Music v43.2.19
 
 - Added song share preview pages under /share/song/.
 - Added album share preview pages under /share/album/.
@@ -6,4 +6,4 @@ AINEO Music v43.2.18
 - Added Open Graph and X/Twitter metadata for rich link previews when hosted publicly.
 - Added an in-app Social Share sheet with native share, Facebook, X, copy link, download card, and story card actions.
 - Added Share action to the track Quick Actions sheet.
-- Updated cache/version markers to v43.2.18.
+- Updated cache/version markers to v43.2.19.

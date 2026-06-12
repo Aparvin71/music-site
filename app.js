@@ -1,4 +1,4 @@
-/* v43.2.18 full app social share card + app landing preview pass */
+/* v43.2.19 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.18";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.19";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1496,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.18 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.19 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -4791,27 +4791,32 @@ function getTrackShareSlug(track) {
   return track?.slug || fallback;
 }
 
-function getAineoShareOrigin() {
+function getAineoAppBaseUrl() {
   try {
-    if (window.location.origin && window.location.origin !== 'null') return window.location.origin;
-  } catch (error) {}
-  return window.location.href.replace(/[#?].*$/, '').replace(/\/[^/]*$/, '/');
+    const href = String(window.location.href || '').split(/[?#]/)[0];
+    const shareIndex = href.indexOf('/share/');
+    if (shareIndex >= 0) return href.slice(0, shareIndex + 1);
+    return new URL('./', href || document.baseURI || './').toString();
+  } catch (error) {
+    try { return new URL('./', document.baseURI || './').toString(); } catch (innerError) { return './'; }
+  }
 }
 
 function buildAineoShareUrl(path) {
+  const cleanPath = String(path || '').replace(/^\/+/, '');
   try {
-    return new URL(path, getAineoShareOrigin()).toString();
+    return new URL(cleanPath, getAineoAppBaseUrl()).toString();
   } catch (error) {
-    return String(path || '').replace(/^\//, '');
+    return cleanPath;
   }
 }
 
 function getAppShareUrl() {
-  return buildAineoShareUrl('/share/app/');
+  return buildAineoShareUrl('share/app/');
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? '/share/cards/app-story.png' : '/share/cards/app-card.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story.png' : 'share/cards/app-card.png');
 }
 
 function getAppShareText() {
@@ -4820,12 +4825,12 @@ function getAppShareText() {
 
 function getTrackShareUrl(track) {
   const slug = getTrackShareSlug(track);
-  return buildAineoShareUrl(`/share/song/${slug}.html`);
+  return buildAineoShareUrl(`share/song/${slug}.html`);
 }
 
 function getTrackShareCardUrl(track, story = false) {
   const slug = getTrackShareSlug(track);
-  const path = story ? `/share/cards/story/${slug}.svg` : `/share/cards/song/${slug}.svg`;
+  const path = story ? `share/cards/story/${slug}.svg` : `share/cards/song/${slug}.svg`;
   return buildAineoShareUrl(path);
 }
 
@@ -4871,14 +4876,51 @@ function getActiveSharePayload() {
   };
 }
 
+
+function makeAineoFallbackShareCardDataUrl(payload = {}) {
+  const isApp = payload.kind === 'app';
+  const title = isApp ? 'Share the app.' : (payload.title || 'AINEO Music');
+  const meta = isApp ? 'Original songs, worship playlists, downloads, and Shout Outs.' : (payload.meta || 'Listen in AINEO Music');
+  const safeTitle = String(title).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] || c));
+  const safeMeta = String(meta).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] || c));
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1f4fd8"/><stop offset="0.45" stop-color="#110b2d"/><stop offset="1" stop-color="#8c35e8"/></linearGradient>
+      <radialGradient id="glow" cx="78%" cy="16%" r="54%"><stop offset="0" stop-color="#c084fc" stop-opacity="0.55"/><stop offset="1" stop-color="#c084fc" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="1200" height="630" fill="url(#bg)"/>
+    <rect width="1200" height="630" fill="url(#glow)"/>
+    <rect x="56" y="56" width="1088" height="518" rx="44" fill="#100a28" fill-opacity="0.90" stroke="#d8b4fe" stroke-width="3"/>
+    <rect x="118" y="198" width="236" height="236" rx="44" fill="#050616" stroke="#72d7ff" stroke-width="4"/>
+    <text x="236" y="293" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="42" fill="#ffffff">AINEO</text>
+    <text x="236" y="346" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="800" font-size="30" fill="#9adfff">MUSIC</text>
+    <text x="410" y="176" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="30" letter-spacing="3" fill="#d8b4fe">AINEO MUSIC</text>
+    <text x="410" y="266" font-family="Georgia,serif" font-weight="900" font-size="76" fill="#ffffff">${safeTitle}</text>
+    <text x="410" y="342" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="40" fill="#eee7ff">${safeMeta}</text>
+    <rect x="410" y="452" width="338" height="66" rx="33" fill="#8b5cf6" stroke="#eadcff" stroke-width="2"/>
+    <text x="579" y="495" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="30" fill="#ffffff">Open AINEO Music</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function primeSocialPreviewImage(payload) {
+  if (!els.socialSharePreview || !payload) return;
+  const fallback = makeAineoFallbackShareCardDataUrl(payload);
+  els.socialSharePreview.onerror = () => {
+    els.socialSharePreview.onerror = null;
+    els.socialSharePreview.src = fallback;
+    els.socialSharePreview.dataset.fallback = 'true';
+  };
+  els.socialSharePreview.dataset.fallback = 'false';
+  els.socialSharePreview.src = payload.cardUrl;
+  els.socialSharePreview.alt = payload.kind === 'app' ? 'AINEO Music app share card preview' : 'AINEO song share card preview';
+}
+
 function paintSocialShareSheet(payload) {
   if (!payload) return;
   if (els.socialShareTitle) els.socialShareTitle.textContent = payload.title;
   if (els.socialShareMeta) els.socialShareMeta.textContent = payload.meta || 'Choose where to share.';
-  if (els.socialSharePreview) {
-    els.socialSharePreview.src = payload.cardUrl;
-    els.socialSharePreview.alt = payload.kind === 'app' ? 'AINEO Music app share card preview' : 'AINEO song share card preview';
-  }
+  primeSocialPreviewImage(payload);
   if (els.socialShareNativeBtn) els.socialShareNativeBtn.textContent = payload.kind === 'app' ? 'Share App with Device' : 'Share with Device';
   if (els.socialShareDownloadBtn) els.socialShareDownloadBtn.textContent = payload.kind === 'app' ? 'Download App Card' : 'Download Card';
   if (els.socialShareStoryBtn) els.socialShareStoryBtn.textContent = payload.kind === 'app' ? 'Download Story Card' : 'Story Card';
@@ -5460,7 +5502,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.18 LIBRARY PANEL LAUNCHERS
+   v43.2.19 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5611,7 +5653,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.18: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.19: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5847,7 +5889,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.18 legacy analysis preload disabled
+// v43.2.19 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5857,7 +5899,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.18 smart playback cleanup
+// v43.2.19 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5876,10 +5918,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.18 ULTRA SMOOTH PLAYBACK
+   v43.2.19 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.18";
+const SMART_PLAYBACK_VERSION = "43.2.19";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

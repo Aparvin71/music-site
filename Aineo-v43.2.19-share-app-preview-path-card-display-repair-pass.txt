@@ -1,0 +1,11 @@
+AINEO v43.2.19 — Share App Preview Path + Card Display Repair Pass
+
+Built from v43.2.18. Repairs the Share App sheet and app-card preview by resolving share-card assets from the installed app base path instead of assuming the site root, adding a built-in fallback image if the PNG cannot be loaded, constraining the preview height on phone screens, and correcting share/app landing links so previewing or opening the card does not become a blank white page in local, installed, or subfolder-hosted builds.
+
+Validation completed:
+- JS syntax check on all root scripts
+- manifest and JSON parse checks
+- CSS brace balance
+- hidden control character scan
+- app card/story image dimension verification
+- ZIP integrity
