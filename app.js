@@ -1,4 +1,4 @@
-/* v43.2.23 share app preview path and card display repair pass */
+/* v43.2.24 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.23";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.24";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1496,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.23 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.24 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -4820,7 +4820,7 @@ function getAppShareCardUrl(story = false) {
 }
 
 function getAppShareText() {
-  return 'AINEO Music — scripture-centered worship, original songs, playlists, downloads, and Shout Outs in one app.';
+  return 'AINEO Music — original worship music and scripture-centered listening.';
 }
 
 
@@ -4882,37 +4882,35 @@ function getActiveSharePayload() {
 
 function makeAineoFallbackShareCardDataUrl(payload = {}) {
   const isApp = payload.kind === 'app';
-  const title = isApp ? 'Share the app.' : (payload.title || 'AINEO Music');
-  const meta = isApp ? 'Original songs, worship playlists, downloads, and Shout Outs — all in one place.' : (payload.meta || 'Listen in AINEO Music');
   const escapeXml = (value) => String(value || '').replace(/[&<>\"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] || c));
-  const safeTitle = escapeXml(title);
-  const metaWords = String(meta).split(/\s+/).filter(Boolean);
-  const metaLine1 = escapeXml(metaWords.slice(0, 5).join(' '));
-  const metaLine2 = escapeXml(metaWords.slice(5, 11).join(' '));
-  const metaLine3 = escapeXml(metaWords.slice(11, 16).join(' '));
+  const title = isApp ? 'Share the app.' : (payload.title || 'AINEO Music');
+  const metaLines = isApp
+    ? ['Original worship music.', 'Scripture-centered listening.']
+    : [payload.meta || 'Listen in AINEO Music'];
   const iconMarkup = isApp
-    ? `<image href="${AINEO_APP_ICON_INLINE_DATA_URI}" x="142" y="152" width="318" height="318" preserveAspectRatio="xMidYMid meet"/>`
+    ? `<image href="${AINEO_APP_ICON_INLINE_DATA_URI}" x="124" y="144" width="344" height="344" preserveAspectRatio="xMidYMid meet"/>`
     : `<text x="236" y="293" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="42" fill="#ffffff">AINEO</text><text x="236" y="346" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="800" font-size="30" fill="#9adfff">MUSIC</text>`;
+  const line1 = escapeXml(metaLines[0] || '');
+  const line2 = escapeXml(metaLines[1] || '');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
     <defs>
-      <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1f4fd8"/><stop offset="0.45" stop-color="#110b2d"/><stop offset="1" stop-color="#7b2fd8"/></linearGradient>
+      <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#1f4fd8"/><stop offset="0.45" stop-color="#100a2d"/><stop offset="1" stop-color="#7b2fd8"/></linearGradient>
       <radialGradient id="glow" cx="78%" cy="16%" r="54%"><stop offset="0" stop-color="#c084fc" stop-opacity="0.55"/><stop offset="1" stop-color="#c084fc" stop-opacity="0"/></radialGradient>
       <filter id="soft"><feGaussianBlur stdDeviation="24"/></filter>
     </defs>
     <rect width="1200" height="630" fill="url(#bg)"/>
     <rect width="1200" height="630" fill="url(#glow)"/>
-    <rect x="56" y="56" width="1088" height="518" rx="44" fill="#100a28" fill-opacity="0.92" stroke="#d8b4fe" stroke-width="3"/>
-    <rect x="96" y="96" width="1008" height="438" rx="34" fill="#0d0820" fill-opacity="0.72" stroke="#eadcff" stroke-opacity="0.58" stroke-width="3"/>
-    <rect x="116" y="126" width="370" height="370" rx="52" fill="#7855ff" fill-opacity="0.24" filter="url(#soft)"/>
-    <rect x="116" y="126" width="370" height="370" rx="52" fill="#08081c" fill-opacity="0.92" stroke="#72d7ff" stroke-width="4"/>
+    <rect x="42" y="42" width="1116" height="546" rx="48" fill="#100a28" fill-opacity="0.93" stroke="#d8b4fe" stroke-width="3"/>
+    <rect x="74" y="74" width="1052" height="482" rx="38" fill="#0d0820" fill-opacity="0.72" stroke="#eadcff" stroke-opacity="0.58" stroke-width="2"/>
+    <rect x="94" y="114" width="404" height="404" rx="58" fill="#7855ff" fill-opacity="0.24" filter="url(#soft)"/>
+    <rect x="94" y="114" width="404" height="404" rx="58" fill="#08081c" fill-opacity="0.94" stroke="#72d7ff" stroke-width="4"/>
     ${iconMarkup}
-    <text x="530" y="178" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="30" letter-spacing="3" fill="#d8b4fe">AINEO MUSIC</text>
-    <text x="530" y="268" font-family="Georgia,serif" font-weight="900" font-size="74" fill="#ffffff">${safeTitle}</text>
-    <text x="530" y="338" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="30" fill="#eee7ff">${metaLine1}</text>
-    <text x="530" y="376" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="30" fill="#eee7ff">${metaLine2}</text>
-    <text x="530" y="414" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="30" fill="#eee7ff">${metaLine3}</text>
-    <rect x="530" y="456" width="308" height="58" rx="29" fill="#8b5cf6" stroke="#eadcff" stroke-width="2"/>
-    <text x="684" y="493" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="26" fill="#ffffff">Open AINEO Music</text>
+    <text x="548" y="180" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="28" letter-spacing="3" fill="#d8b4fe">AINEO MUSIC</text>
+    <text x="548" y="276" font-family="Georgia,serif" font-weight="900" font-size="68" fill="#ffffff">${escapeXml(title)}</text>
+    <text x="548" y="348" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="32" fill="#eee7ff">${line1}</text>
+    <text x="548" y="390" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-size="32" fill="#eee7ff">${line2}</text>
+    <rect x="548" y="442" width="320" height="60" rx="30" fill="#8b5cf6" stroke="#eadcff" stroke-width="2"/>
+    <text x="708" y="481" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif" font-weight="900" font-size="27" fill="#ffffff">Open AINEO Music</text>
   </svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
@@ -5048,15 +5046,23 @@ function isPublicHttpUrl(value) {
 function openPlatformShare(platform) {
   const payload = getActiveSharePayload();
   if (!payload) return;
-  if (platform === 'facebook' && !isPublicHttpUrl(payload.url)) {
-    flashButtonText(els.socialShareFacebookBtn, 'Copy public link first');
-    copyActiveSocialShareLink();
-    return;
-  }
   let shareUrl = '';
   if (platform === 'facebook') {
-    // Facebook only needs the public landing-page URL here; title, description, and image come from its Open Graph tags.
-    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(payload.url)}`;
+    if (!isPublicHttpUrl(payload.url)) {
+      flashButtonText(els.socialShareFacebookBtn, 'Needs public link');
+      copyActiveSocialShareLink();
+      return;
+    }
+    // Facebook composes a post from the shared public URL. The card image and text come from the Open Graph
+    // metadata on /share/app/ or the song share page, so we must send the landing page URL, not the PNG file.
+    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(payload.url)}&quote=${encodeURIComponent(payload.text || '')}`;
+    flashButtonText(els.socialShareFacebookBtn, 'Opening Facebook…');
+    try {
+      window.location.assign(shareUrl);
+    } catch (error) {
+      window.location.href = shareUrl;
+    }
+    return;
   } else if (platform === 'x') {
     shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(payload.text)}&url=${encodeURIComponent(payload.url)}`;
   }
@@ -5547,7 +5553,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.23 LIBRARY PANEL LAUNCHERS
+   v43.2.24 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5698,7 +5704,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.23: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.24: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5934,7 +5940,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.23 legacy analysis preload disabled
+// v43.2.24 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5944,7 +5950,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.23 smart playback cleanup
+// v43.2.24 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5963,10 +5969,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.23 ULTRA SMOOTH PLAYBACK
+   v43.2.24 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.23";
+const SMART_PLAYBACK_VERSION = "43.2.24";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
