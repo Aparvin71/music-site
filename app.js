@@ -1,4 +1,4 @@
-/* v43.2.16 concept-faithful aura player rebuild */
+/* v43.2.18 full app social share card + app landing preview pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -36,6 +36,9 @@ let syncedLyricsRequestToken = 0;
 const autoScrollEnabled = false;
 let actionSheetTrackId = "";
 let actionSheetTriggerEl = null;
+let socialShareTrackId = "";
+let socialShareMode = "track";
+let socialShareTriggerEl = null;
 let previewAudio = null;
 let previewTrackId = '';
 let previewHoldTimer = null;
@@ -57,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.16";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.18";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -323,7 +326,24 @@ const els = {
   trackActionAddPlaylistBtn: document.getElementById("trackActionAddPlaylistBtn"),
   trackActionSaveOfflineBtn: document.getElementById("trackActionSaveOfflineBtn"),
   trackActionGoAlbumBtn: document.getElementById("trackActionGoAlbumBtn"),
-  trackActionCloseBtn: document.getElementById("trackActionCloseBtn")
+  trackActionShareBtn: document.getElementById("trackActionShareBtn"),
+  trackActionCloseBtn: document.getElementById("trackActionCloseBtn"),
+
+  socialShareSheet: document.getElementById("socialShareSheet"),
+  socialShareBackdrop: document.getElementById("socialShareBackdrop"),
+  socialShareCloseBtn: document.getElementById("socialShareCloseBtn"),
+  socialShareTitle: document.getElementById("socialShareTitle"),
+  socialShareMeta: document.getElementById("socialShareMeta"),
+  socialSharePreview: document.getElementById("socialSharePreview"),
+  socialShareNativeBtn: document.getElementById("socialShareNativeBtn"),
+  socialShareFacebookBtn: document.getElementById("socialShareFacebookBtn"),
+  socialShareXBtn: document.getElementById("socialShareXBtn"),
+  socialShareCopyBtn: document.getElementById("socialShareCopyBtn"),
+  socialShareDownloadBtn: document.getElementById("socialShareDownloadBtn"),
+  socialShareStoryBtn: document.getElementById("socialShareStoryBtn"),
+  socialShareAppBtn: document.getElementById("socialShareAppBtn"),
+  shareAppHomeBtn: document.getElementById("shareAppHomeBtn"),
+  shareAppLibraryBtn: document.getElementById("shareAppLibraryBtn")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -1476,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.16 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.18 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -1834,6 +1854,18 @@ function bindUI() {
   on(els.trackActionSheetBackdrop, "click", closeTrackActionSheet);
   on(els.trackActionCloseBtn, "click", closeTrackActionSheet);
   on(els.trackActionCloseXBtn, "click", closeTrackActionSheet);
+  on(els.socialShareBackdrop, "click", closeSocialShareSheet);
+  on(els.socialShareCloseBtn, "click", closeSocialShareSheet);
+  on(els.socialShareNativeBtn, "click", () => shareActiveSocialItemWithDevice());
+  on(els.socialShareFacebookBtn, "click", () => openPlatformShare('facebook'));
+  on(els.socialShareXBtn, "click", () => openPlatformShare('x'));
+  on(els.socialShareCopyBtn, "click", () => copyActiveSocialShareLink());
+  on(els.socialShareDownloadBtn, "click", () => downloadActiveSocialShareCard(false));
+  on(els.socialShareStoryBtn, "click", () => downloadActiveSocialShareCard(true));
+  on(els.socialShareAppBtn, "click", () => openSocialShareSheetForApp(els.socialShareAppBtn || document.activeElement));
+  on(els.shareAppHomeBtn, "click", () => openSocialShareSheetForApp(els.shareAppHomeBtn));
+  on(els.shareAppLibraryBtn, "click", () => openSocialShareSheetForApp(els.shareAppLibraryBtn));
+
   on(els.trackActionPlayNextBtn, "click", () => {
     const track = tracks.find(item => item.id === actionSheetTrackId);
     if (!track) return;
@@ -1857,6 +1889,13 @@ function bindUI() {
     if (!track) return;
     closeTrackActionSheet();
     setAlbumFilter(track.album);
+  });
+  on(els.trackActionShareBtn, "click", () => {
+    const track = tracks.find(item => item.id === actionSheetTrackId);
+    if (!track) return;
+    const trigger = actionSheetTriggerEl || els.trackActionShareBtn;
+    closeTrackActionSheet();
+    window.requestAnimationFrame(() => openSocialShareSheetForTrack(track, trigger));
   });
 
   if (els.playerSheetSeekBar) {
@@ -4746,6 +4785,251 @@ function startSavedTrackOver() {
   hideResumeBanner();
 }
 
+
+function getTrackShareSlug(track) {
+  const fallback = String(track?.title || track?.id || 'song').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'song';
+  return track?.slug || fallback;
+}
+
+function getAineoShareOrigin() {
+  try {
+    if (window.location.origin && window.location.origin !== 'null') return window.location.origin;
+  } catch (error) {}
+  return window.location.href.replace(/[#?].*$/, '').replace(/\/[^/]*$/, '/');
+}
+
+function buildAineoShareUrl(path) {
+  try {
+    return new URL(path, getAineoShareOrigin()).toString();
+  } catch (error) {
+    return String(path || '').replace(/^\//, '');
+  }
+}
+
+function getAppShareUrl() {
+  return buildAineoShareUrl('/share/app/');
+}
+
+function getAppShareCardUrl(story = false) {
+  return buildAineoShareUrl(story ? '/share/cards/app-story.png' : '/share/cards/app-card.png');
+}
+
+function getAppShareText() {
+  return 'AINEO Music — scripture-centered worship, original songs, playlists, downloads, and Shout Outs in one app.';
+}
+
+function getTrackShareUrl(track) {
+  const slug = getTrackShareSlug(track);
+  return buildAineoShareUrl(`/share/song/${slug}.html`);
+}
+
+function getTrackShareCardUrl(track, story = false) {
+  const slug = getTrackShareSlug(track);
+  const path = story ? `/share/cards/story/${slug}.svg` : `/share/cards/song/${slug}.svg`;
+  return buildAineoShareUrl(path);
+}
+
+function getTrackShareText(track) {
+  const refs = Array.isArray(track?.scripture_references) ? track.scripture_references.filter(Boolean) : [];
+  const scripture = refs.length ? ` Scripture: ${refs.slice(0, 2).join(' • ')}` : '';
+  return `${track?.title || 'AINEO Music'} — listen in AINEO Music.${scripture}`;
+}
+
+function findTrackForShare() {
+  if (socialShareTrackId) return tracks.find(item => item.id === socialShareTrackId) || null;
+  return getCurrentTrack();
+}
+
+function getActiveSharePayload() {
+  if (socialShareMode === 'app') {
+    return {
+      kind: 'app',
+      title: 'AINEO Music',
+      meta: 'Share the full AINEO Music app',
+      text: getAppShareText(),
+      url: getAppShareUrl(),
+      cardUrl: getAppShareCardUrl(false),
+      storyUrl: getAppShareCardUrl(true),
+      downloadName: 'aineo-app-card.png',
+      storyDownloadName: 'aineo-app-story.png'
+    };
+  }
+  const track = findTrackForShare();
+  if (!track) return null;
+  const refs = Array.isArray(track.scripture_references) ? track.scripture_references.filter(Boolean) : [];
+  const slug = getTrackShareSlug(track);
+  return {
+    kind: 'track',
+    title: track.title || 'Share this song',
+    meta: `${track.album || 'AINEO Music'}${refs[0] ? ` • ${refs[0]}` : ''}`,
+    text: getTrackShareText(track),
+    url: getTrackShareUrl(track),
+    cardUrl: getTrackShareCardUrl(track, false),
+    storyUrl: getTrackShareCardUrl(track, true),
+    downloadName: `${slug}-share-card.svg`,
+    storyDownloadName: `${slug}-story.svg`
+  };
+}
+
+function paintSocialShareSheet(payload) {
+  if (!payload) return;
+  if (els.socialShareTitle) els.socialShareTitle.textContent = payload.title;
+  if (els.socialShareMeta) els.socialShareMeta.textContent = payload.meta || 'Choose where to share.';
+  if (els.socialSharePreview) {
+    els.socialSharePreview.src = payload.cardUrl;
+    els.socialSharePreview.alt = payload.kind === 'app' ? 'AINEO Music app share card preview' : 'AINEO song share card preview';
+  }
+  if (els.socialShareNativeBtn) els.socialShareNativeBtn.textContent = payload.kind === 'app' ? 'Share App with Device' : 'Share with Device';
+  if (els.socialShareDownloadBtn) els.socialShareDownloadBtn.textContent = payload.kind === 'app' ? 'Download App Card' : 'Download Card';
+  if (els.socialShareStoryBtn) els.socialShareStoryBtn.textContent = payload.kind === 'app' ? 'Download Story Card' : 'Story Card';
+  if (els.socialShareAppBtn) els.socialShareAppBtn.textContent = payload.kind === 'app' ? 'Sharing Full App' : 'Share Full App';
+}
+
+function openSocialShareSheetForTrack(track, triggerEl = null) {
+  if (!track) return;
+  if (!els.socialShareSheet) {
+    shareTrackWithDevice(track);
+    return;
+  }
+  socialShareMode = 'track';
+  socialShareTrackId = track.id || '';
+  socialShareTriggerEl = triggerEl || document.activeElement || null;
+  paintSocialShareSheet(getActiveSharePayload());
+  els.socialShareSheet.classList.remove('hidden');
+  els.socialShareSheet.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('social-share-open');
+  window.requestAnimationFrame(() => els.socialShareNativeBtn?.focus?.({ preventScroll: true }));
+}
+
+function openSocialShareSheetForApp(triggerEl = null) {
+  if (!els.socialShareSheet) {
+    shareAppWithDevice();
+    return;
+  }
+  socialShareMode = 'app';
+  socialShareTrackId = '';
+  socialShareTriggerEl = triggerEl || document.activeElement || null;
+  paintSocialShareSheet(getActiveSharePayload());
+  els.socialShareSheet.classList.remove('hidden');
+  els.socialShareSheet.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('social-share-open');
+  window.requestAnimationFrame(() => els.socialShareNativeBtn?.focus?.({ preventScroll: true }));
+}
+
+function closeSocialShareSheet() {
+  if (!els.socialShareSheet) return;
+  els.socialShareSheet.classList.add('hidden');
+  els.socialShareSheet.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('social-share-open');
+  socialShareTrackId = '';
+  socialShareMode = 'track';
+  const restore = socialShareTriggerEl;
+  socialShareTriggerEl = null;
+  if (restore && typeof restore.focus === 'function') window.requestAnimationFrame(() => restore.focus({ preventScroll: true }));
+}
+
+async function shareActiveSocialItemWithDevice() {
+  const payload = getActiveSharePayload();
+  if (!payload) return;
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: payload.kind === 'app' ? 'AINEO Music' : `${payload.title} | AINEO Music`, text: payload.text, url: payload.url });
+      return;
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+    }
+  }
+  return copyActiveSocialShareLink();
+}
+
+async function shareTrackWithDevice(track = findTrackForShare()) {
+  if (!track) return;
+  const previousMode = socialShareMode;
+  const previousTrackId = socialShareTrackId;
+  socialShareMode = 'track';
+  socialShareTrackId = track.id || socialShareTrackId;
+  try {
+    await shareActiveSocialItemWithDevice();
+  } finally {
+    socialShareMode = previousMode;
+    socialShareTrackId = previousTrackId;
+  }
+}
+
+async function shareAppWithDevice() {
+  const previousMode = socialShareMode;
+  socialShareMode = 'app';
+  try {
+    await shareActiveSocialItemWithDevice();
+  } finally {
+    socialShareMode = previousMode;
+  }
+}
+
+function openPlatformShare(platform) {
+  const payload = getActiveSharePayload();
+  if (!payload) return;
+  let shareUrl = '';
+  if (platform === 'facebook') {
+    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(payload.url)}`;
+  } else if (platform === 'x') {
+    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(payload.text)}&url=${encodeURIComponent(payload.url)}`;
+  }
+  if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer');
+}
+
+async function copyActiveSocialShareLink() {
+  const payload = getActiveSharePayload();
+  if (!payload) return;
+  try {
+    await navigator.clipboard.writeText(payload.url);
+    flashButtonText(els.socialShareCopyBtn, 'Copied!');
+    if (payload.kind === 'track') {
+      flashButtonText(els.shareSongBtn, 'Copied!');
+      flashButtonText(els.shareSongBtnDesktop, 'Copied!');
+    }
+  } catch (error) {
+    console.error('Share link copy failed:', error);
+  }
+}
+
+function downloadActiveSocialShareCard(story = false) {
+  const payload = getActiveSharePayload();
+  if (!payload) return;
+  const a = document.createElement('a');
+  a.href = story ? payload.storyUrl : payload.cardUrl;
+  a.download = story ? payload.storyDownloadName : payload.downloadName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function copyTrackShareLink(track = findTrackForShare()) {
+  if (!track) return;
+  const previousMode = socialShareMode;
+  const previousTrackId = socialShareTrackId;
+  socialShareMode = 'track';
+  socialShareTrackId = track.id || socialShareTrackId;
+  const result = copyActiveSocialShareLink();
+  socialShareMode = previousMode;
+  socialShareTrackId = previousTrackId;
+  return result;
+}
+
+function downloadTrackShareCard(track = findTrackForShare(), story = false) {
+  if (!track) return;
+  const previousMode = socialShareMode;
+  const previousTrackId = socialShareTrackId;
+  socialShareMode = 'track';
+  socialShareTrackId = track.id || socialShareTrackId;
+  try {
+    downloadActiveSocialShareCard(story);
+  } finally {
+    socialShareMode = previousMode;
+    socialShareTrackId = previousTrackId;
+  }
+}
+
 /* =========================
    SONG ACTIONS
 ========================= */
@@ -4765,24 +5049,7 @@ function copyCurrentLyrics() {
 function shareCurrentSong() {
   const track = getCurrentTrack();
   if (!track) return;
-
-  const url = new URL(window.location.href);
-  url.searchParams.set("song", track.slug || track.title);
-
-  if (navigator.share) {
-    navigator.share({
-      title: track.title,
-      text: `${track.title} — ${track.artist}`,
-      url: url.toString()
-    }).catch(() => {});
-  } else {
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      flashButtonText(els.shareSongBtn, "Link Copied!");
-      flashButtonText(els.shareSongBtnDesktop, "Link Copied!");
-    }).catch(err => {
-      console.error("Share fallback failed:", err);
-    });
-  }
+  openSocialShareSheetForTrack(track, els.shareSongBtn || els.playerSheetShareBtn || document.activeElement);
 }
 
 function downloadCurrentSong() {
@@ -5193,7 +5460,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.16 LIBRARY PANEL LAUNCHERS
+   v43.2.18 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5344,7 +5611,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.16: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.18: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5580,7 +5847,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.16 legacy analysis preload disabled
+// v43.2.18 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5590,7 +5857,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.16 smart playback cleanup
+// v43.2.18 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5609,10 +5876,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.16 ULTRA SMOOTH PLAYBACK
+   v43.2.18 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.16";
+const SMART_PLAYBACK_VERSION = "43.2.18";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
