@@ -1,6 +1,6 @@
-// v43.2.19 Bottom Nav Responsiveness + Full Home Tab List Pass
+// v43.2.21 Bottom Nav Responsiveness + Full Home Tab List Pass
 
-const CACHE_VERSION = "v43.2.19";
+const CACHE_VERSION = "v43.2.21";
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 const USER_AUDIO_CACHE = "aineo-user-offline-audio";
@@ -57,30 +57,30 @@ const STATIC_ASSETS = [
   "/artist.html",
   "/feedback.html",
   "/contact.html",
-  "/style.css?v=43.2.19",
-  "/app.js?v=43.2.19",
-  "/nav.js?v=43.2.19",
-  "/pwa-init.js?v=43.2.19",
-  "/manifest.webmanifest?v=43.2.19",
-  "/aineo-album-page.js?v=43.2.19",
-  "/aineo-config.js?v=43.2.19",
-  "/aineo-data.js?v=43.2.19",
-  "/aineo-featured.js?v=43.2.19",
-  "/aineo-library.js?v=43.2.19",
-  "/aineo-lyrics.js?v=43.2.19",
-  "/aineo-media-session.js?v=43.2.19",
-  "/aineo-offline.js?v=43.2.19",
-  "/aineo-player-sheet.js?v=43.2.19",
-  "/aineo-playlists.js?v=43.2.19",
-  "/aineo-queue.js?v=43.2.19",
-  "/aineo-shared.js?v=43.2.19",
-  "/aineo-ui.js?v=43.2.19",
-  "/album-page.js?v=43.2.19",
-  "/albums-page.js?v=43.2.19",
-  "/artist-page.js?v=43.2.19",
-  "/artists-page.js?v=43.2.19",
-  "/contact.js?v=43.2.19",
-  "/share/share.css?v=43.2.19",
+  "/style.css?v=43.2.21",
+  "/app.js?v=43.2.21",
+  "/nav.js?v=43.2.21",
+  "/pwa-init.js?v=43.2.21",
+  "/manifest.webmanifest?v=43.2.21",
+  "/aineo-album-page.js?v=43.2.21",
+  "/aineo-config.js?v=43.2.21",
+  "/aineo-data.js?v=43.2.21",
+  "/aineo-featured.js?v=43.2.21",
+  "/aineo-library.js?v=43.2.21",
+  "/aineo-lyrics.js?v=43.2.21",
+  "/aineo-media-session.js?v=43.2.21",
+  "/aineo-offline.js?v=43.2.21",
+  "/aineo-player-sheet.js?v=43.2.21",
+  "/aineo-playlists.js?v=43.2.21",
+  "/aineo-queue.js?v=43.2.21",
+  "/aineo-shared.js?v=43.2.21",
+  "/aineo-ui.js?v=43.2.21",
+  "/album-page.js?v=43.2.21",
+  "/albums-page.js?v=43.2.21",
+  "/artist-page.js?v=43.2.21",
+  "/artists-page.js?v=43.2.21",
+  "/contact.js?v=43.2.21",
+  "/share/share.css?v=43.2.21",
   "/share/index.html",
   "/share/app/",
   "/share/app/index.html",
@@ -90,11 +90,11 @@ const STATIC_ASSETS = [
   "share/app/index.html",
   "share/cards/app-card.png",
   "share/cards/app-story.png",
-  "share/share.css?v=43.2.19",
-  "/images/church-logo.png?v=43.2.19",
-  "/images/alpena-first-baptist-church.png?v=43.2.19",
-  "/images/new-beginnings-cc.jpg?v=43.2.19",
-  "/images/wielders-of-the-word.jpg?v=43.2.19"
+  "share/share.css?v=43.2.21",
+  "/images/church-logo.png?v=43.2.21",
+  "/images/alpena-first-baptist-church.png?v=43.2.21",
+  "/images/new-beginnings-cc.jpg?v=43.2.21",
+  "/images/wielders-of-the-word.jpg?v=43.2.21"
 ];
 
 async function safeWarmStaticCache() {
