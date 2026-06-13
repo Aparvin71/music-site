@@ -1,4 +1,4 @@
-/* v43.2.28 share app preview path and card display repair pass */
+/* v43.2.29 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.28";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.29";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1496,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.28 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.29 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -4821,7 +4821,7 @@ function getAineoConfiguredPublicShareUrl() {
 }
 
 function getAineoAppSharePath() {
-  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43228.html').replace(/^\/+/, '');
+  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43229.html').replace(/^\/+/, '');
 }
 
 function getAineoDetectedPublicShareUrl() {
@@ -4836,7 +4836,7 @@ function getAppShareUrl() {
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? 'share/cards/app-story-v43228.png' : 'share/cards/app-card-v43228.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story-v43229.png' : 'share/cards/app-card-v43229.png');
 }
 
 function getAppShareText() {
@@ -5087,31 +5087,61 @@ function buildFacebookComposerUrl(targetUrl) {
 }
 
 function showFacebookPublicUrlRequiredMessage() {
-  const message = 'Facebook sharing needs the public hosted AINEO share page first. Set publicAppShareUrl in aineo-config.js after hosting.';
-  showToast(message, 4200);
+  const message = 'Facebook needs the hosted public AINEO share page before it can create a clickable preview post.';
+  showToast(message, 4600);
   if (els.socialShareMeta) els.socialShareMeta.textContent = message;
   flashButtonText(els.socialShareFacebookBtn, 'Hosted link needed');
 }
 
-function openFacebookShareComposer(payload) {
+function isAineoMobileNativeShareContext() {
+  const ua = String(navigator.userAgent || '');
+  const isiOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const standalone = Boolean(window.navigator?.standalone) || Boolean(window.matchMedia?.('(display-mode: standalone)')?.matches);
+  return isiOS || isAndroid || standalone;
+}
+
+async function openFacebookShareComposer(payload) {
   const facebookTargetUrl = payload?.kind === 'app' ? getAineoDetectedPublicShareUrl() : getFacebookShareTargetUrl(payload);
   if (!isPublicHttpUrl(facebookTargetUrl)) {
     showFacebookPublicUrlRequiredMessage();
     return;
   }
 
-  const facebookComposerUrl = buildFacebookComposerUrl(facebookTargetUrl);
   try {
     localStorage.setItem('aineo_last_facebook_share_url', facebookTargetUrl);
   } catch (error) {}
 
+  const nativeSharePayload = {
+    title: payload?.kind === 'app' ? 'AINEO Music' : (payload?.title || 'AINEO Music'),
+    text: payload?.kind === 'app' ? getAppShareText() : (payload?.text || 'Listen in AINEO Music.'),
+    url: facebookTargetUrl
+  };
+
+  // iOS/installed PWAs often drop direct facebook.com/sharer handoffs. The reliable mobile route is
+  // the system share sheet, then the user chooses Facebook from that sheet. This keeps the public,
+  // crawlable AINEO link attached so Facebook can build the clickable preview.
+  if (navigator.share && isAineoMobileNativeShareContext()) {
+    flashButtonText(els.socialShareFacebookBtn, 'Choose Facebook…');
+    if (els.socialShareMeta) els.socialShareMeta.textContent = 'Choose Facebook in the device share sheet to create the post.';
+    try {
+      await navigator.share(nativeSharePayload);
+      closeSocialShareSheet();
+      return;
+    } catch (error) {
+      if (error && (error.name === 'AbortError' || error.name === 'NotAllowedError')) {
+        flashButtonText(els.socialShareFacebookBtn, 'Facebook');
+        return;
+      }
+      // Continue to browser composer fallback below.
+    }
+  }
+
+  const facebookComposerUrl = buildFacebookComposerUrl(facebookTargetUrl);
   flashButtonText(els.socialShareFacebookBtn, 'Opening Facebook…');
   closeSocialShareSheet();
-
-  // Facebook only receives a public, crawlable URL here. If this URL is not configured/hosted,
-  // we stop before leaving the app so the user does not see the old bump-with-no-post behavior.
   window.setTimeout(() => {
-    openExternalShareUrl(facebookComposerUrl, { preferSameTabOnMobile: true });
+    openExternalShareUrl(facebookComposerUrl, { preferSameTabOnMobile: false });
   }, 80);
 }
 
@@ -5122,20 +5152,14 @@ function openExternalShareUrl(shareUrl, options = {}) {
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
 
   if (preferSameTabOnMobile && (isStandalone || isMobile)) {
-    try {
-      window.location.assign(shareUrl);
-    } catch (error) {
-      window.location.href = shareUrl;
-    }
+    try { window.location.assign(shareUrl); }
+    catch (error) { window.location.href = shareUrl; }
     return;
   }
 
   let opened = null;
-  try {
-    opened = window.open(shareUrl, '_blank', 'noopener,noreferrer');
-  } catch (error) {
-    opened = null;
-  }
+  try { opened = window.open(shareUrl, '_blank', 'noopener,noreferrer'); }
+  catch (error) { opened = null; }
 
   if (!opened) {
     const link = document.createElement('a');
@@ -5145,13 +5169,6 @@ function openExternalShareUrl(shareUrl, options = {}) {
     document.body.appendChild(link);
     link.click();
     link.remove();
-
-    window.setTimeout(() => {
-      if (!document.hidden) {
-        try { window.location.assign(shareUrl); }
-        catch (error) { window.location.href = shareUrl; }
-      }
-    }, 220);
   }
 }
 
@@ -5637,7 +5654,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.28 LIBRARY PANEL LAUNCHERS
+   v43.2.29 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5788,7 +5805,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.28: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.29: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -6024,7 +6041,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.28 legacy analysis preload disabled
+// v43.2.29 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -6034,7 +6051,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.28 smart playback cleanup
+// v43.2.29 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -6053,10 +6070,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.28 ULTRA SMOOTH PLAYBACK
+   v43.2.29 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.28";
+const SMART_PLAYBACK_VERSION = "43.2.29";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
