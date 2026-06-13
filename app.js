@@ -1,4 +1,4 @@
-/* v43.2.26 share app preview path and card display repair pass */
+/* v43.2.27 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.26";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.27";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1496,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.26 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.27 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -4812,11 +4812,11 @@ function buildAineoShareUrl(path) {
 }
 
 function getAppShareUrl() {
-  return buildAineoShareUrl('share/app/v43226.html');
+  return buildAineoShareUrl('share/app/v43227.html');
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? 'share/cards/app-story-v43225.png' : 'share/cards/app-card-v43225.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story-v43227.png' : 'share/cards/app-card-v43227.png');
 }
 
 function getAppShareText() {
@@ -5034,42 +5034,95 @@ function isPublicHttpUrl(value) {
 function openPlatformShare(platform) {
   const payload = getActiveSharePayload();
   if (!payload) return;
-  let shareUrl = '';
   if (platform === 'facebook') {
-    const facebookTargetUrl = payload.kind === 'app' ? getAppShareUrl() : payload.url;
-    if (!isPublicHttpUrl(facebookTargetUrl)) {
-      // Facebook cannot prepare a share composer from file://, localhost, private LAN, or unhosted ZIP URLs.
-      // Keep the user in the app and explain the real requirement instead of opening a blank/useless Facebook page.
-      flashButtonText(els.socialShareFacebookBtn, 'Public host needed');
-      copyActiveSocialShareLink();
-      return;
-    }
-    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(facebookTargetUrl)}`;
-    flashButtonText(els.socialShareFacebookBtn, 'Opening Facebook…');
-    openExternalShareUrl(shareUrl);
+    openFacebookShareComposer(payload);
     return;
-  } else if (platform === 'x') {
-    shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(payload.text)}&url=${encodeURIComponent(payload.url)}`;
   }
-  if (!shareUrl) return;
-  openExternalShareUrl(shareUrl);
+  if (platform === 'x') {
+    const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(payload.text)}&url=${encodeURIComponent(payload.url)}`;
+    openExternalShareUrl(shareUrl, { preferSameTabOnMobile: false });
+  }
 }
 
-function openExternalShareUrl(shareUrl) {
-  if (!shareUrl) return;
-  const link = document.createElement('a');
-  link.href = shareUrl;
-  link.target = '_blank';
-  link.rel = 'noopener';
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+function getFacebookShareTargetUrl(payload) {
+  const url = payload && payload.kind === 'app' ? getAppShareUrl() : payload?.url;
+  try {
+    const parsed = new URL(url, window.location.href);
+    parsed.hash = '';
+    return parsed.toString();
+  } catch (error) {
+    return String(url || '');
+  }
+}
+
+function buildFacebookComposerUrl(targetUrl) {
+  const params = new URLSearchParams();
+  params.set('u', targetUrl);
+  return `https://www.facebook.com/sharer/sharer.php?${params.toString()}`;
+}
+
+function openFacebookShareComposer(payload) {
+  const facebookTargetUrl = getFacebookShareTargetUrl(payload);
+  if (!isPublicHttpUrl(facebookTargetUrl)) {
+    flashButtonText(els.socialShareFacebookBtn, 'Copy link first');
+    copyActiveSocialShareLink();
+    return;
+  }
+
+  const facebookComposerUrl = buildFacebookComposerUrl(facebookTargetUrl);
+  try {
+    localStorage.setItem('aineo_last_facebook_share_url', facebookTargetUrl);
+  } catch (error) {}
+
+  flashButtonText(els.socialShareFacebookBtn, 'Opening Facebook…');
+  closeSocialShareSheet();
+
+  // iOS installed PWAs often block or silently swallow popup-style window.open/target=_blank flows.
+  // For Facebook we intentionally use same-tab navigation from the user's tap so Facebook receives
+  // a real top-level navigation and can show the share composer instead of only "bumping" the app.
   window.setTimeout(() => {
-    if (!document.hidden) {
-      try { window.open(shareUrl, '_blank', 'noopener'); }
-      catch (error) { window.location.href = shareUrl; }
+    openExternalShareUrl(facebookComposerUrl, { preferSameTabOnMobile: true });
+  }, 80);
+}
+
+function openExternalShareUrl(shareUrl, options = {}) {
+  if (!shareUrl) return;
+  const preferSameTabOnMobile = Boolean(options.preferSameTabOnMobile);
+  const isStandalone = Boolean(window.navigator?.standalone) || window.matchMedia?.('(display-mode: standalone)')?.matches;
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+  if (preferSameTabOnMobile && (isStandalone || isMobile)) {
+    try {
+      window.location.assign(shareUrl);
+    } catch (error) {
+      window.location.href = shareUrl;
     }
-  }, 180);
+    return;
+  }
+
+  let opened = null;
+  try {
+    opened = window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  } catch (error) {
+    opened = null;
+  }
+
+  if (!opened) {
+    const link = document.createElement('a');
+    link.href = shareUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.setTimeout(() => {
+      if (!document.hidden) {
+        try { window.location.assign(shareUrl); }
+        catch (error) { window.location.href = shareUrl; }
+      }
+    }, 220);
+  }
 }
 
 async function copyActiveSocialShareLink() {
@@ -5554,7 +5607,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.26 LIBRARY PANEL LAUNCHERS
+   v43.2.27 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5705,7 +5758,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.26: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.27: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5941,7 +5994,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.26 legacy analysis preload disabled
+// v43.2.27 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -5951,7 +6004,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.26 smart playback cleanup
+// v43.2.27 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -5970,10 +6023,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.26 ULTRA SMOOTH PLAYBACK
+   v43.2.27 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.26";
+const SMART_PLAYBACK_VERSION = "43.2.27";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"
