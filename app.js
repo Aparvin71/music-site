@@ -1,4 +1,4 @@
-/* v43.2.27 share app preview path and card display repair pass */
+/* v43.2.28 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.27";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.28";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1496,7 +1496,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.27 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.28 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -4811,12 +4811,32 @@ function buildAineoShareUrl(path) {
   }
 }
 
+function getAineoConfiguredPublicShareUrl() {
+  const raw = (window.AineoConfig && window.AineoConfig.sharing && window.AineoConfig.sharing.publicAppShareUrl)
+    || window.AINEO_PUBLIC_SHARE_URL
+    || document.querySelector('meta[name="aineo:public-share-url"]')?.content
+    || '';
+  const value = String(raw || '').trim();
+  return isPublicHttpUrl(value) ? value : '';
+}
+
+function getAineoAppSharePath() {
+  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43228.html').replace(/^\/+/, '');
+}
+
+function getAineoDetectedPublicShareUrl() {
+  const configured = getAineoConfiguredPublicShareUrl();
+  if (configured) return configured;
+  const detected = buildAineoShareUrl(getAineoAppSharePath());
+  return isPublicHttpUrl(detected) ? detected : '';
+}
+
 function getAppShareUrl() {
-  return buildAineoShareUrl('share/app/v43227.html');
+  return getAineoDetectedPublicShareUrl() || buildAineoShareUrl(getAineoAppSharePath());
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? 'share/cards/app-story-v43227.png' : 'share/cards/app-card-v43227.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story-v43228.png' : 'share/cards/app-card-v43228.png');
 }
 
 function getAppShareText() {
@@ -4853,7 +4873,7 @@ function getActiveSharePayload() {
     return {
       kind: 'app',
       title: 'AINEO Music',
-      meta: 'Share the full AINEO Music app',
+      meta: getAineoDetectedPublicShareUrl() ? 'Ready to share the public AINEO Music app link.' : 'Facebook needs the hosted public Share App URL before it can create the post.',
       text: getAppShareText(),
       url: getAppShareUrl(),
       cardUrl: getAppShareCardUrl(false),
@@ -4934,6 +4954,11 @@ function paintSocialShareSheet(payload) {
   if (els.socialShareMeta) els.socialShareMeta.textContent = payload.meta || 'Choose where to share.';
   primeSocialPreviewImage(payload);
   if (els.socialShareNativeBtn) els.socialShareNativeBtn.textContent = payload.kind === 'app' ? 'Share App with Device' : 'Share with Device';
+  if (els.socialShareFacebookBtn && payload.kind === 'app') {
+    els.socialShareFacebookBtn.textContent = getAineoDetectedPublicShareUrl() ? 'Facebook' : 'Facebook needs hosted link';
+  } else if (els.socialShareFacebookBtn) {
+    els.socialShareFacebookBtn.textContent = 'Facebook';
+  }
   // Download-card and nested Share Full App controls were intentionally removed from the share sheet.
 }
 
@@ -5061,11 +5086,17 @@ function buildFacebookComposerUrl(targetUrl) {
   return `https://www.facebook.com/sharer/sharer.php?${params.toString()}`;
 }
 
+function showFacebookPublicUrlRequiredMessage() {
+  const message = 'Facebook sharing needs the public hosted AINEO share page first. Set publicAppShareUrl in aineo-config.js after hosting.';
+  showToast(message, 4200);
+  if (els.socialShareMeta) els.socialShareMeta.textContent = message;
+  flashButtonText(els.socialShareFacebookBtn, 'Hosted link needed');
+}
+
 function openFacebookShareComposer(payload) {
-  const facebookTargetUrl = getFacebookShareTargetUrl(payload);
+  const facebookTargetUrl = payload?.kind === 'app' ? getAineoDetectedPublicShareUrl() : getFacebookShareTargetUrl(payload);
   if (!isPublicHttpUrl(facebookTargetUrl)) {
-    flashButtonText(els.socialShareFacebookBtn, 'Copy link first');
-    copyActiveSocialShareLink();
+    showFacebookPublicUrlRequiredMessage();
     return;
   }
 
@@ -5077,9 +5108,8 @@ function openFacebookShareComposer(payload) {
   flashButtonText(els.socialShareFacebookBtn, 'Opening Facebook…');
   closeSocialShareSheet();
 
-  // iOS installed PWAs often block or silently swallow popup-style window.open/target=_blank flows.
-  // For Facebook we intentionally use same-tab navigation from the user's tap so Facebook receives
-  // a real top-level navigation and can show the share composer instead of only "bumping" the app.
+  // Facebook only receives a public, crawlable URL here. If this URL is not configured/hosted,
+  // we stop before leaving the app so the user does not see the old bump-with-no-post behavior.
   window.setTimeout(() => {
     openExternalShareUrl(facebookComposerUrl, { preferSameTabOnMobile: true });
   }, 80);
@@ -5607,7 +5637,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.27 LIBRARY PANEL LAUNCHERS
+   v43.2.28 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5758,7 +5788,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.27: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.28: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -5994,7 +6024,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.27 legacy analysis preload disabled
+// v43.2.28 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -6004,7 +6034,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.27 smart playback cleanup
+// v43.2.28 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -6023,10 +6053,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.27 ULTRA SMOOTH PLAYBACK
+   v43.2.28 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.27";
+const SMART_PLAYBACK_VERSION = "43.2.28";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

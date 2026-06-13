@@ -12439,7 +12439,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.2.27 visualizer lift + left-wing alignment polish */
+/* v43.2.28 visualizer lift + left-wing alignment polish */
 .catalog-card-copy h2,
 .catalog-card-copy h3,
 .catalog-card-copy .eyebrow,
@@ -12468,13 +12468,13 @@ body.ios-standalone .player-sheet-header::before {
   -webkit-text-fill-color: #d7deea !important;
 }
 
-/* v43.2.27 visualizer lift + left-wing alignment polish */
+/* v43.2.28 visualizer lift + left-wing alignment polish */
 
 
-/* v43.2.27 visualizer lift + left-wing alignment polish */
+/* v43.2.28 visualizer lift + left-wing alignment polish */
 
 
-/* v43.2.27 mobile mini-player reduction + centered spectrum line + outerspace stars */
+/* v43.2.28 mobile mini-player reduction + centered spectrum line + outerspace stars */
 @media (max-width: 640px) {
   .sticky-player {
     gap: 8px !important;
@@ -12676,7 +12676,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.2.27 mobile player spacing + fullscreen header/lyrics + denser starfield */
+/* v43.2.28 mobile player spacing + fullscreen header/lyrics + denser starfield */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -12835,7 +12835,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.2.27 mobile mini-player final tighten */
+/* v43.2.28 mobile mini-player final tighten */
 @media (max-width: 640px) {
   .music-page-layout .sticky-player,
   .sticky-player {
@@ -13185,7 +13185,7 @@ body.ios-standalone .player-sheet-header::before {
 }
 
 
-/* v43.2.27 battery optimization pass */
+/* v43.2.28 battery optimization pass */
 body.aineo-low-power .player-cover-visualizer::before {
   opacity: 0.24 !important;
   filter: blur(18px) saturate(1.05) !important;
@@ -13215,7 +13215,7 @@ body.aineo-low-power .player-cover-visualizer-canvas {
 }
 
 
-/* v43.2.27 performance + low-power hardening */
+/* v43.2.28 performance + low-power hardening */
 .player-cover-visualizer-stars,
 .player-cover-visualizer-stars::before,
 .player-cover-visualizer-stars::after {
@@ -13237,7 +13237,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.2.27 full player lyrics bottom-safe scroll fix */
+/* v43.2.28 full player lyrics bottom-safe scroll fix */
 @media (max-width: 640px) {
   .player-sheet-content {
     height: 100dvh !important;
@@ -13277,7 +13277,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.2.27 Mission/Church Shout Out image badge expansion */
+/* v43.2.28 Mission/Church Shout Out image badge expansion */
 .church-badge-grid--featured {
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 }
@@ -13323,7 +13323,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.2.27 Mission/Church Shout Out visual redesign ===== */
+/* ===== v43.2.28 Mission/Church Shout Out visual redesign ===== */
 .shoutout-redesign-page {
   --shoutout-bg: #080910;
   --shoutout-panel: rgba(18, 20, 31, 0.9);
@@ -13654,7 +13654,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* v43.2.27 Shout Out badge image authority + mobile proportion repair */
+/* v43.2.28 Shout Out badge image authority + mobile proportion repair */
 .shoutout-redesign-page .shoutout-badge-image {
   min-height: 0;
   overflow: hidden;
@@ -13682,8 +13682,8 @@ body.aineo-low-power .player-cover-visualizer-bar {
 }
 
 
-/* ===== v43.2.27 Shout Out image fit + container polish ===== */
-.shoutout-redesign-page[data-badge-image-authority="fit-v43.2.27"] .shoutout-badge-image,
+/* ===== v43.2.28 Shout Out image fit + container polish ===== */
+.shoutout-redesign-page[data-badge-image-authority="fit-v43.2.28"] .shoutout-badge-image,
 .shoutout-redesign-page .shoutout-badge-image {
   position: relative;
   display: flex;
@@ -13787,7 +13787,7 @@ body.aineo-low-power .player-cover-visualizer-bar {
 
 
 /* =========================================
-   v43.2.27 Aineo Landing/Home Redesign + Page Menu Authority
+   v43.2.28 Aineo Landing/Home Redesign + Page Menu Authority
 ========================================= */
 :root {
   --aineo-purple: #9b4dff;
@@ -14004,7 +14004,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.2.27 HOME LAYOUT + MINI PLAYER REPAIR
+   v43.2.28 HOME LAYOUT + MINI PLAYER REPAIR
    - smaller worship hero
    - compact continue cards
    - mini player stacked above bottom nav
@@ -14386,7 +14386,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.2.27 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
+   v43.2.28 NAV FOREGROUND + LIBRARY CLEANUP/POLISH
 ========================================= */
 
 .site-header,
@@ -14909,7 +14909,7 @@ body.has-aineo-bottom-nav {
 
 
 /* =========================================
-   v43.2.27 PURPLE THEME AUTHORITY + FOREGROUND MENU
+   v43.2.28 PURPLE THEME AUTHORITY + FOREGROUND MENU
 ========================================= */
 
 :root {
@@ -15231,7 +15231,7 @@ body.aineo-page-menu-open {
 }
 
 /* =========================================
-   v43.2.27 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
+   v43.2.28 HOME HEADER RADIUS + PURPLE TEXT + MINI PLAYER RECOVERY + OPENING SPEED
    - Rounded app header shell on Home/Library.
    - Shout Outs megaphone no longer overlaps title text.
    - Blue typography accents are normalized to purple.
@@ -15600,7 +15600,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.2.27 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
+   v43.2.28 Bottom Nav + Popup Radius + Text Authority + Fast Panel Pass
    - Home action card text remains white over gradients.
    - Hamburger and inactive bottom icons are purple.
    - Selected bottom page/popup icon text is dark blue.
@@ -15833,7 +15833,7 @@ body.motion-ready .music-left-rail > * {
 
 
 /* =========================================
-   v43.2.27 Header Height + Page Menu White Text Authority Pass
+   v43.2.28 Header Height + Page Menu White Text Authority Pass
    - Removes the doubled safe-area padding inside the rounded AINEO header card.
    - Cuts the visual header card height down to roughly half of the prior mobile build.
    - Keeps hamburger/menu button purple and centered in the shorter header.
@@ -15951,7 +15951,7 @@ body.has-aineo-bottom-nav.music-page-layout .site-header .mobile-nav-toggle {
 
 
 /* =========================================
-   v43.2.27 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
+   v43.2.28 ROOT HEADER COMPRESSION + MENU TEXT AUTHORITY + PERFORMANCE AUDIT
    Root cause fixed:
    - Prior header pass only reduced the navbar to ~96px; on iPhone screenshots that still read as the same oversized black card.
    - Header sizing lived across multiple late CSS blocks, so this creates one final source-of-truth height for Home and Library.
@@ -16225,7 +16225,7 @@ html body .album-modal-backdrop {
 }
 
 /* =========================================
-   v43.2.27 GLOBAL HEADER CARD AUTHORITY
+   v43.2.28 GLOBAL HEADER CARD AUTHORITY
    Root fix: the compact AINEO header now targets every page header,
    not only Home/Library body classes.
 ========================================= */
@@ -16439,7 +16439,7 @@ html body .aineo-page-menu-close {
   -webkit-text-fill-color: var(--aineo-global-header-purple) !important;
 }
 
-/* v43.2.27 transition audit: keep header/menu opening responsive on every page. */
+/* v43.2.28 transition audit: keep header/menu opening responsive on every page. */
 html body.motion-enabled .site-header,
 html body.motion-enabled .navbar,
 html body.motion-enabled .nav-top-row,
@@ -16451,7 +16451,7 @@ html body.motion-enabled .aineo-page-menu-card {
 
 
 /* =========================================
-   v43.2.27 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
+   v43.2.28 GLOBAL ROUNDED-CORNER AUTHORITY + FAST TRANSITION AUDIT
    Root fix: all pages now share one radius/token system instead of
    page-specific card/background rules that allowed square corners to resurface.
 ========================================= */
@@ -16842,7 +16842,7 @@ html body :where(
   }
 }
 
-/* v43.2.27 radius audit supplement: secondary containers/rows found in page markup. */
+/* v43.2.28 radius audit supplement: secondary containers/rows found in page markup. */
 html body .aineo-home-panel,
 html body .home-card-primary,
 html body .home-hero-grid,
@@ -16920,7 +16920,7 @@ html body .mini-btn-label {
 
 
 /* =========================================
-   v43.2.27 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
+   v43.2.28 SHOUT OUT PAGE ROOT CORNER + BUTTON TEXT AUTHORITY
    Root fix:
    - The Shout Out page was using a fixed full-viewport pseudo background, so the visible page color could not be clipped by the rounded page shell.
    - This gives the Shout Out page its own real rounded/clipped surface and moves the glow background inside that surface.
@@ -17024,7 +17024,7 @@ html body.motion-enabled :where(
 
 
 /* =========================================
-   v43.2.27 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
+   v43.2.28 SHOUT OUT CARD FIT + CHURCH BUTTON TEXT ROOT PASS
    Root fix:
    - v43.1.90 used page-level overflow clipping to force the Shout Out page corner radius.
    - That clipped the wide mobile badge cards against the page edge.
@@ -17119,7 +17119,7 @@ html body .about-page .church-button * {
 }
 
 
-/* v43.2.27 — Library top button removal + customizable Home listening tabs */
+/* v43.2.28 — Library top button removal + customizable Home listening tabs */
 .library-command-row {
   display: none !important;
 }
@@ -17180,7 +17180,7 @@ html body .about-page .church-button * {
 }
 
 /* =========================================
-   v43.2.27 Bottom Nav Responsiveness + Full Home Tab List Authority
+   v43.2.28 Bottom Nav Responsiveness + Full Home Tab List Authority
    Root causes fixed:
    - Home list CSS was hiding every row after the fifth child.
    - Home tab data helpers capped My Songs/Favorites/Recent to 11 items.
@@ -17225,7 +17225,7 @@ html body .about-page .church-button * {
 
 
 /* =========================================
-   v43.2.27 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
+   v43.2.28 SHOUT OUT HERO + BOTTOM RADIUS + MENU SOURCE ROOT PASS
    Root fixes:
    - The Shout Out hero repeated the same title twice; the megaphone label is now the single page heading.
    - The page shell still had square bottom corners from earlier top-only radius rules.
@@ -17294,7 +17294,7 @@ body.shoutout-page-layout .shoutout-request-panel {
   }
 }
 
-/* v43.2.27 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
+/* v43.2.28 deep performance authority: quicker taps, lighter transitions, less first-paint motion */
 :root {
   --aineo-fast: 90ms;
   --aineo-medium: 120ms;
@@ -17392,7 +17392,7 @@ body.motion-ready .music-page-layout .right-rail > .page-card {
 
 
 /* =========================================================
-   v43.2.27 AURORA GLASS PLAYER AUTHORITY
+   v43.2.28 AURORA GLASS PLAYER AUTHORITY
    Root redesign for sticky mini player + full player sheet
 ========================================================= */
 .player-hidden-meta {
@@ -17951,7 +17951,7 @@ body .player-sheet-swipe-hint {
 
 
 /* =========================================================
-   v43.2.27 CONCEPT-FAITHFUL AURA PLAYER REBUILD
+   v43.2.28 CONCEPT-FAITHFUL AURA PLAYER REBUILD
 ========================================================= */
 :root {
   --aura-bg-1: rgba(9, 7, 28, 0.97);
@@ -18402,7 +18402,7 @@ body .player-sheet-swipe-hint {
 
 
 /* =========================================================
-   v43.2.27 AURORA GLASS CONCEPT-MATCH PLAYER AUTHORITY
+   v43.2.28 AURORA GLASS CONCEPT-MATCH PLAYER AUTHORITY
    Final player surface rules override prior experimental passes.
 ========================================================= */
 body .sticky-player #nowArtist,
@@ -18847,7 +18847,7 @@ body .player-sheet-panel {
 
 
 /* =========================================================
-   v43.2.27 CONCEPT MATCH PLAYER ROOT PASS
+   v43.2.28 CONCEPT MATCH PLAYER ROOT PASS
 ========================================================= */
 body .sticky-player {
   grid-template-columns: minmax(0, 1fr) auto;
@@ -19082,7 +19082,7 @@ body .player-sheet-panel {
 
 
 /* =========================================================
-   v43.2.27 CONCEPT BUTTON AUTHORITY PASS
+   v43.2.28 CONCEPT BUTTON AUTHORITY PASS
 ========================================================= */
 body .sticky-player {
   grid-template-columns: minmax(0, 1fr) auto;
@@ -19189,7 +19189,7 @@ body .concept-action-btn .player-action-label {
 
 
 /* =========================================================
-   v43.2.27 TRUE PLAYER REBUILD AUTHORITY
+   v43.2.28 TRUE PLAYER REBUILD AUTHORITY
    Dedicated markup + styling for concept-match mini and full player
 ========================================================= */
 body .sticky-player.aura-mini-player {
@@ -19554,7 +19554,7 @@ body .player-sheet-swipe-hint {
 
 
 /* =========================================================
-   v43.2.27 STRICT CONCEPT MATCH AUDIT FIXES
+   v43.2.28 STRICT CONCEPT MATCH AUDIT FIXES
    Fixes found from screenshot audit:
    - mini player was stacking on mobile instead of staying a slim concept capsule
    - full-player More button was not anchored to the right
@@ -19756,7 +19756,7 @@ body .aura-full-actions .concept-action-btn .player-action-label {
 
 
 /* =========================================================
-   v43.2.27 PLAYER CONTROL WIRING + CONCEPT ICON AUTHORITY
+   v43.2.28 PLAYER CONTROL WIRING + CONCEPT ICON AUTHORITY
 ========================================================= */
 body .aura-player-sheet-header {
   display: grid !important;
@@ -19926,7 +19926,7 @@ body .mobile-nav-toggle {
 
 
 /* =========================================================
-   v43.2.27 CONTROL-CHAR + CONCEPT BUTTON CLEANUP AUTHORITY
+   v43.2.28 CONTROL-CHAR + CONCEPT BUTTON CLEANUP AUTHORITY
    Removes accidental rendered boxes and blocks legacy pseudo overlays
    from the rebuilt Aurora player controls.
 ========================================================= */
@@ -19970,7 +19970,7 @@ body .aura-mini-controls .aura-transport-btn {
 
 
 /* =========================================================
-   v43.2.27 FULL PLAYER LAYOUT + CONTROL USABILITY REPAIR
+   v43.2.28 FULL PLAYER LAYOUT + CONTROL USABILITY REPAIR
    Fixes: true centered title, usable lyrics action, button overlap,
    centered shuffle/repeat icons, rounded onscreen borders, visible favorite state.
 ========================================================= */
@@ -20267,7 +20267,7 @@ html body .player-sheet-favorite-floating[aria-pressed="true"] .player-icon-glyp
 
 
 /* =========================================================
-   v43.2.27 FULL PLAYER CENTERLINE + BOTTOM BORDER TUNE
+   v43.2.28 FULL PLAYER CENTERLINE + BOTTOM BORDER TUNE
    User screenshot calibration: shift Now Playing left visually and
    shorten the sheet so the lower rounded border sits above the screen edge.
 ========================================================= */
@@ -20312,7 +20312,7 @@ html body .aura-full-player {
 
 
 /* =========================================================
-   v43.2.27 FULL PLAYER SAFE BORDER + PERSISTENT ART FRAME
+   v43.2.28 FULL PLAYER SAFE BORDER + PERSISTENT ART FRAME
    - Keeps lower rounded border fully visible inside iOS viewport.
    - Locks album-art frame dimensions so changing track art cannot resize
      the layout or bounce controls/text around.
@@ -20430,7 +20430,7 @@ html body .aura-full-title-row {
 
 
 /* =========================================================
-   v43.2.27 FULL PLAYER TITLE/FIT + MODE STATE AUTHORITY
+   v43.2.28 FULL PLAYER TITLE/FIT + MODE STATE AUTHORITY
    - Keep full-screen track titles on one line without layout bounce.
    - Fit entire artwork inside the persistent frame instead of cropping.
    - Make shuffle/repeat active states obvious on the player controls.
@@ -20551,7 +20551,7 @@ html body #playerSheetRepeatBtn .control-icon {
 
 
 /* =========================================================
-   v43.2.27 ARTWORK INNER GLOW + MINI/FULL PLAYER SYNC PASS
+   v43.2.28 ARTWORK INNER GLOW + MINI/FULL PLAYER SYNC PASS
    - The artwork frame owns the rounded border and inward glow so album art
      corners no longer clip the border.
    - The image is contained inside a stable fixed frame without resizing the
@@ -20648,7 +20648,7 @@ html body .aura-mini-player #playBtn {
 
 
 /* =========================================================
-   v43.2.27 PERSISTED PLAYBACK POSITION + RESUME CHOICE
+   v43.2.28 PERSISTED PLAYBACK POSITION + RESUME CHOICE
 ========================================================= */
 .aineo-resume-choice {
   position: fixed;
@@ -20751,7 +20751,7 @@ html body .aura-mini-player #playBtn {
 }
 
 /* =========================================================
-   v43.2.27 RESUME CHOICE CLOSE BUTTON
+   v43.2.28 RESUME CHOICE CLOSE BUTTON
 ========================================================= */
 .aineo-resume-choice__card {
   position: relative;
@@ -20794,8 +20794,8 @@ html body .aura-mini-player #playBtn {
 
 
 /* =========================================================
-   v43.2.27 QUICK ACTIONS SAFE FLOATING LAYER REBUILD
-   Reset from v43.2.27 base: keep the original working trigger path,
+   v43.2.28 QUICK ACTIONS SAFE FLOATING LAYER REBUILD
+   Reset from v43.2.28 base: keep the original working trigger path,
    only fix sheet visibility, close access, and safe placement.
 ========================================================= */
 html body .track-action-sheet {
@@ -20904,7 +20904,7 @@ html body.track-action-sheet-open .aineo-bottom-icon-row {
 
 
 /* =========================================================
-   v43.2.27 SOCIAL SHARING FOUNDATION
+   v43.2.28 SOCIAL SHARING FOUNDATION
 ========================================================= */
 .social-share-sheet {
   position: fixed;
@@ -20977,7 +20977,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 FULL APP SHARE CARD + APP LANDING PREVIEW PASS
+   v43.2.28 FULL APP SHARE CARD + APP LANDING PREVIEW PASS
    ========================================================= */
 .aineo-app-share-hero-actions,
 .aineo-app-share-inline-actions {
@@ -21018,7 +21018,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 SHARE APP PREVIEW PATH + CARD DISPLAY REPAIR PASS
+   v43.2.28 SHARE APP PREVIEW PATH + CARD DISPLAY REPAIR PASS
    ========================================================= */
 .social-share-preview {
   aspect-ratio: 1200 / 630 !important;
@@ -21043,7 +21043,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 SOCIAL SHARE ICON PRIMARY + FACEBOOK AUTHORITY PASS
+   v43.2.28 SOCIAL SHARE ICON PRIMARY + FACEBOOK AUTHORITY PASS
    ========================================================= */
 .social-share-preview[data-share-kind="app"] {
   object-fit: contain !important;
@@ -21066,7 +21066,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 APP SHARE CARD TEXT + FACEBOOK COMPOSER AUTHORITY
+   v43.2.28 APP SHARE CARD TEXT + FACEBOOK COMPOSER AUTHORITY
    ========================================================= */
 .social-share-preview[data-share-kind="app"] {
   width: 100% !important;
@@ -21087,7 +21087,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 APP SHARE CARD CLARITY + FACEBOOK CACHE BUST
+   v43.2.28 APP SHARE CARD CLARITY + FACEBOOK CACHE BUST
    Keeps the app share preview readable and fully contained on small screens.
 ========================================================= */
 .social-share-preview {
@@ -21105,7 +21105,7 @@ body.social-share-open .aineo-bottom-icon-row { pointer-events: none; }
 
 
 /* =========================================================
-   v43.2.27 FACEBOOK SHARE ROOT REPAIR + SIMPLIFIED APP SHARE
+   v43.2.28 FACEBOOK SHARE ROOT REPAIR + SIMPLIFIED APP SHARE
    ========================================================= */
 #socialShareDownloadBtn,
 #socialShareStoryBtn,

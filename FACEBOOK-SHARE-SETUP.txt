@@ -1,0 +1,14 @@
+AINEO Facebook Share Setup (v43.2.28)
+
+Facebook sharing cannot create a clickable preview from a ZIP, file:// URL, localhost, or private PWA test address.
+
+After hosting AINEO publicly:
+1. Upload this full package to the public site.
+2. Confirm this page opens publicly in a browser:
+   https://YOUR-DOMAIN/share/app/v43228.html
+3. Edit aineo-config.js and set:
+   sharing.publicAppShareUrl = "https://YOUR-DOMAIN/share/app/v43228.html"
+4. Open Meta Sharing Debugger and scrape that public URL to refresh the Facebook preview.
+5. Test the in-app Facebook button again.
+
+The Facebook button now refuses to leave the app unless the share URL is a public http/https URL, so the old bump-with-no-post behavior is not repeated from local/private builds.
