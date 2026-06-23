@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090812" />
+  <meta name="description" content="AINEO Music is a scripture-centered worship music app with original songs, playlists, downloads, and church Shout Outs." />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AINEO Music" />
+  <meta property="og:title" content="AINEO Music" />
+  <meta property="og:url" content="https://music-site.aparvin.workers.dev/share/app/v43232.html" />
+  <meta property="og:description" content="Original worship songs, playlists, downloads, and Shout Outs in one app." />
+  <meta property="og:image" content="https://music-site.aparvin.workers.dev/share/cards/app-card-v43232.png" />
+  <meta property="og:image:secure_url" content="https://music-site.aparvin.workers.dev/share/cards/app-card-v43232.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AINEO Music" />
+  <meta name="twitter:description" content="Original worship songs, playlists, downloads, and Shout Outs in one app." />
+  <meta name="twitter:image" content="https://music-site.aparvin.workers.dev/share/cards/app-card-v43232.png" />
+  <link rel="canonical" href="https://music-site.aparvin.workers.dev/share/app/v43232.html" />
+  <link rel="stylesheet" href="../share.css?v=43.2.33" />
+  <title>AINEO Music — Share the App</title>
+</head>
+<body class="app-share-landing">
+  <main class="share-card share-card--app">
+    <div class="brand">AINEO Music</div>
+    <h1>Share AINEO Music.</h1>
+    <p>Use this public page when sharing AINEO Music. Facebook, X, Messages, and other apps read this page to build the clickable preview.</p>
+    <img class="preview" src="../cards/app-card-v43232.png" alt="AINEO Music app icon share preview" />
+    <div class="actions">
+      <button id="shareThisAppPageBtn" class="button" type="button">Share this page</button>
+      <button id="copyThisAppPageBtn" class="button secondary" type="button">Copy share link</button>
+      <a class="button secondary" href="../../index.html">Open AINEO</a>
+      <a class="button secondary" href="../../install.html">Install</a>
+    </div>
+    <p id="sharePageStatus" class="share-page-status" aria-live="polite"></p>
+    <script>
+      (function(){
+        const shareUrl = "https://music-site.aparvin.workers.dev/share/app/v43232.html";
+        const text = "AINEO Music — original worship songs, playlists, downloads, and Shout Outs.";
+        const status = document.getElementById("sharePageStatus");
+        const setStatus = (msg) => { if (status) status.textContent = msg || ""; };
+        document.getElementById("shareThisAppPageBtn")?.addEventListener("click", async () => {
+          if (navigator.share) {
+            try { await navigator.share({ title: "AINEO Music", text, url: shareUrl }); setStatus("Shared through your device share sheet."); return; }
+            catch (error) { if (error && error.name === "AbortError") return; }
+          }
+          try { await navigator.clipboard.writeText(shareUrl); setStatus("Share link copied."); }
+          catch (error) { setStatus(shareUrl); }
+        });
+        document.getElementById("copyThisAppPageBtn")?.addEventListener("click", async () => {
+          try { await navigator.clipboard.writeText(shareUrl); setStatus("Share link copied."); }
+          catch (error) { setStatus(shareUrl); }
+        });
+      })();
+    </script>
+  </main>
+</body>
+</html>
