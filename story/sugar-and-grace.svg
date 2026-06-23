@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-label="AINEO Music story card">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#050516"/><stop offset="0.55" stop-color="#1a0e43"/><stop offset="1" stop-color="#3b1f80"/></linearGradient>
+    <radialGradient id="glow" cx="60%" cy="24%" r="70%"><stop offset="0" stop-color="#c68cff" stop-opacity="0.52"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="660" cy="360" r="480" fill="url(#glow)"/>
+  <rect x="70" y="90" width="940" height="1740" rx="64" fill="rgba(255,255,255,0.045)" stroke="#c99cff" stroke-opacity="0.28"/>
+  <text x="110" y="190" fill="#d1a7ff" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" letter-spacing="9">AINEO</text>
+  <text x="110" y="610" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="82" font-weight="900">Sugar and Grace</text>
+  <text x="110" y="710" fill="#efe8ff" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">Real People</text>
+  <rect x="110" y="830" width="760" height="2" fill="#c99cff" opacity="0.36"/>
+  <text x="110" y="940" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="800">Galatians 6:2 • Proverbs 31:25-31 • 3 John 1:4</text>
+  <text x="110" y="1580" fill="#d9c7ff" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">Listen in AINEO Music</text>
+  <rect x="110" y="1640" width="430" height="82" rx="41" fill="#8d55ff" opacity="0.92"/>
+  <text x="170" y="1695" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="900">SHARE SONG</text>
+</svg>
