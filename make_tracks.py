@@ -4,6 +4,7 @@ import json
 import re
 import unicodedata
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
@@ -24,8 +25,9 @@ LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
-GENERATOR_VERSION = "v43.1.97"
+GENERATOR_VERSION = "v43.2.32"
 AUDIO_EXTENSIONS = {".mp3"}
+COVER_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
 SCRIPT_PATH = Path(__file__).resolve()
 SITE_DIR = SCRIPT_PATH.parent
@@ -57,7 +59,7 @@ SCRIPTURE_BOOKS = [
 
 ALBUM_METADATA: dict[str, dict[str, Any]] = {}
 SMART_CHAR_REPLACEMENTS = {"‘": "'", "’": "'", "“": '"', "”": '"', "–": "-", "—": "-", " ": " "}
-BAD_UNICODE_MARKER_RE = re.compile(r"[#\]?u?201[89abcd]|#U201[89ABCD]", re.IGNORECASE)
+BAD_UNICODE_MARKER_RE = re.compile(r"(?:#?u?201[89abcd]|#U201[89ABCD])", re.IGNORECASE)
 
 
 def normalize_text(value: str) -> str:
@@ -303,6 +305,139 @@ def find_lyrics_file(file_name: str, title: str, slug: str, lrc_map: dict[str, s
             return lrc_map[key]
     return ""
 
+def normalize_boolish_text(value: Any) -> str:
+    """Return only real lyric text. Prevent old boolean placeholders from becoming lyrics."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return ""
+    text = normalize_text(str(value))
+    return "" if text.lower() in {"true", "false", "none", "null"} else text
+
+
+def normalize_relative_path(value: Any, default_folder: str = "") -> str:
+    raw = normalize_text(str(value or ""))
+    if not raw:
+        return ""
+    if re.match(r"^https?://", raw, flags=re.IGNORECASE):
+        return raw
+    raw = raw.replace("\\", "/").lstrip("/")
+    if default_folder and not raw.startswith(default_folder.rstrip("/") + "/"):
+        return f"{default_folder.rstrip('/')}/{raw}"
+    return raw
+
+
+def write_lrc_manifest_from_tracks(tracks_out: list[dict[str, Any]]) -> None:
+    """Write both root and lyrics-folder LRC manifests from the current track list."""
+    entries = []
+    for track in tracks_out:
+        lyrics_file = normalize_text(str(track.get("lyrics_file") or ""))
+        if not lyrics_file:
+            continue
+        src = normalize_text(str(track.get("src") or track.get("audio") or ""))
+        mp3_name = unquote(src.rsplit("/", 1)[-1]) if src else ""
+        entries.append({
+            "title": track.get("title") or "",
+            "slug": track.get("slug") or slugify(track.get("title") or ""),
+            "mp3": quote(mp3_name, safe="") if mp3_name else "",
+            "lyrics_file": lyrics_file,
+        })
+    save_json_file(LRC_MANIFEST_FILE, entries)
+    save_json_file(LYRICS_DIR / LRC_MANIFEST_NAME, entries)
+
+
+def iso_from_ns(ns_value: Any) -> str:
+    try:
+        ns = int(ns_value)
+        if ns <= 0:
+            return ""
+        return datetime.fromtimestamp(ns / 1_000_000_000, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    except Exception:
+        return ""
+
+
+def iso_from_path_mtime(path: Path) -> str:
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    except Exception:
+        return ""
+
+
+def find_cover_file(file_name: str, title: str, slug: str, cover_override: Any = "") -> str:
+    if cover_override:
+        raw = normalize_text(str(cover_override)).replace("\\", "/").lstrip("/")
+        candidate = COVERS_DIR / raw.replace("covers/", "", 1)
+        if candidate.exists():
+            return candidate.name
+        if Path(raw).suffix.lower() in COVER_EXTENSIONS:
+            return Path(raw).name
+    if not COVERS_DIR.exists():
+        return ""
+    stems = []
+    for value in (slug, title, clean_title(file_name), Path(file_name).stem):
+        for key in build_lookup_keys(value):
+            if key not in stems:
+                stems.append(key)
+    by_stem = {cover_path.stem.lower(): cover_path.name for ext in COVER_EXTENSIONS for cover_path in COVERS_DIR.glob(f"*{ext}")}
+    for stem in stems:
+        if stem in by_stem:
+            return by_stem[stem]
+    return ""
+
+
+def choose_cover_value(file_name: str, title: str, slug: str, override: dict[str, Any], existing_track: dict[str, Any]) -> tuple[str, str]:
+    override_cover = normalize_text(str(override.get("cover") or ""))
+    if override_cover:
+        if re.match(r"^https?://", override_cover, flags=re.IGNORECASE):
+            return override_cover, "metadata-cover-url"
+        file_part = override_cover.replace("covers/", "", 1).lstrip("/")
+        return build_cover_url(file_part), "metadata-cover-file"
+    cover_file = find_cover_file(file_name, title, slug, override.get("cover_file") or override.get("coverFile") or "")
+    if cover_file:
+        return build_cover_url(cover_file), "local-cover-file"
+    existing_cover = normalize_text(str(existing_track.get("cover") or "")) if isinstance(existing_track, dict) else ""
+    if existing_cover:
+        return existing_cover, "existing-cover"
+    return build_cover_url(f"{slug}.jpg"), "slug-default"
+
+
+def get_audio_added_at(mp3_path: Path, existing_track: dict[str, Any], cache_entry: dict[str, Any], override: dict[str, Any]) -> str:
+    for key in ("added_at", "date_added", "dateAdded"):
+        if override.get(key):
+            return normalize_text(str(override.get(key)))
+    if isinstance(existing_track, dict):
+        for key in ("added_at", "date_added", "dateAdded"):
+            if existing_track.get(key):
+                return normalize_text(str(existing_track.get(key)))
+    if isinstance(cache_entry, dict):
+        cached = cache_entry.get("added_at") or cache_entry.get("date_added") or iso_from_ns(cache_entry.get("mtime_ns"))
+        if cached:
+            return normalize_text(str(cached))
+    return iso_from_path_mtime(mp3_path)
+
+
+def find_cache_entry_for_existing_track(existing_track: dict[str, Any], track_cache: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(existing_track, dict) or not isinstance(track_cache, dict):
+        return {}
+    src = normalize_text(str(existing_track.get("src") or existing_track.get("audio") or ""))
+    src_name = unquote(src.rsplit("/", 1)[-1]) if src else ""
+    direct = track_cache.get(src_name)
+    if isinstance(direct, dict):
+        return direct
+    lookup_keys = set(build_lookup_keys(src_name, existing_track.get("title") or "", existing_track.get("slug") or ""))
+    for cache_name, cache_entry in track_cache.items():
+        if lookup_keys.intersection(build_lookup_keys(str(cache_name or ""), str(cache_entry.get("title") or "") if isinstance(cache_entry, dict) else "")):
+            return cache_entry if isinstance(cache_entry, dict) else {}
+    return {}
+
+
+def fallback_added_at_for_existing_track(existing_track: dict[str, Any]) -> str:
+    year = normalize_text(str(existing_track.get("year") or ""))
+    if re.match(r"^\d{4}$", year):
+        return f"{year}-01-01T00:00:00Z"
+    return ""
+
+
 
 def extract_scripture_references(text: str) -> list[str]:
     if not text:
@@ -365,6 +500,7 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument("--report-json", action="store_true", help="Write track-build-report.json with a detailed summary.")
     parser.add_argument("--limit", type=int, default=0, help="Only process the first N audio files for targeted testing.")
     parser.add_argument("--verbose", action="store_true", help="Print per-track decisions.")
+    parser.add_argument("--replace-all", action="store_true", help="Advanced: rebuild tracks.json from local audio only instead of preserving existing remote tracks.")
     return parser
 
 
@@ -378,7 +514,8 @@ def main() -> int:
     args = create_parser().parse_args()
     existing_tracks = load_json_file(OUTPUT_FILE, [])
     existing_tracks = existing_tracks if isinstance(existing_tracks, list) else []
-    existing_by_src = {str(track.get("src") or ""): track for track in existing_tracks if isinstance(track, dict)}
+    existing_by_src = {str(track.get("src") or track.get("audio") or ""): track for track in existing_tracks if isinstance(track, dict)}
+    existing_by_id = {str(track.get("id") or ""): track for track in existing_tracks if isinstance(track, dict) and track.get("id")}
     track_cache = load_json_file(TRACK_BUILD_CACHE_FILE, {})
     track_cache = track_cache if isinstance(track_cache, dict) else {}
     lrc_map = load_lrc_manifest()
@@ -388,8 +525,10 @@ def main() -> int:
     if args.limit and args.limit > 0:
         mp3_paths = mp3_paths[:args.limit]
 
-    tracks_out = []
-    new_track_cache = {}
+    tracks_out: list[dict[str, Any]] = []
+    new_track_cache: dict[str, Any] = {}
+    processed_srcs: set[str] = set()
+    processed_ids: set[str] = set()
 
     report = {
         "generator_version": GENERATOR_VERSION,
@@ -399,8 +538,13 @@ def main() -> int:
         "new_tracks": [],
         "changed_tracks": [],
         "reused_tracks": [],
+        "preserved_existing_tracks": [],
+        "cover_sources": {},
         "warnings": [],
     }
+
+    if not mp3_paths:
+        report["warnings"].append("No local audio/*.mp3 files found. Existing tracks.json was preserved instead of being overwritten empty.")
 
     for index, mp3_path in enumerate(mp3_paths, start=1):
         metadata = get_mp3_metadata(mp3_path)
@@ -414,26 +558,35 @@ def main() -> int:
         slug = slugify(title)
         audio_url = build_audio_url(mp3_path.name)
         existing_track = existing_by_src.get(audio_url, {})
-        previous_sig = {
-            "title": existing_track.get("title"), "album": existing_track.get("album"),
-            "artist": existing_track.get("artist"), "duration_seconds": existing_track.get("duration_seconds")
-        } if isinstance(existing_track, dict) else {}
 
         override = get_track_override(mp3_path.name, title, slug, track_meta_map)
         title = normalize_text(str(override.get("title") or title))
         artist = normalize_text(str(override.get("artist") or artist or DEFAULT_ARTIST))
         album = normalize_text(str(override.get("album") or album or DEFAULT_ALBUM))
         genre = normalize_text(str(override.get("genre") or genre))
+        year = int(override.get("year") or year or DEFAULT_YEAR)
         slug = normalize_text(str(override.get("slug") or slugify(title)))
-        track_id = str(override.get("id") or existing_track.get("id") or make_track_id(title, album, index))
+        track_id = str(override.get("id") or (existing_track.get("id") if isinstance(existing_track, dict) else "") or make_track_id(title, album, index))
+        if not existing_track and track_id in existing_by_id:
+            existing_track = existing_by_id.get(track_id, {})
         collection = normalize_text(str(override.get("collection") or existing_track.get("collection") or DEFAULT_COLLECTION))
         featured = bool(override.get("featured", existing_track.get("featured", False)))
         playlists = override.get("playlists") or existing_track.get("playlists") or choose_playlists(album)
         tags = override.get("tags") or existing_track.get("tags") or parse_genre_tags(genre)
-        lyrics_file = normalize_text(str(override.get("lyrics_file") or find_lyrics_file(mp3_path.name, title, slug, lrc_map) or existing_track.get("lyrics_file") or ""))
-        lyrics = normalize_text(str(override.get("lyrics") or existing_track.get("lyrics") or get_embedded_lyrics(mp3_path) or ""))
+
+        lyrics_file = normalize_relative_path(override.get("lyrics_file") or find_lyrics_file(mp3_path.name, title, slug, lrc_map) or existing_track.get("lyrics_file") or "", "lyrics")
+        embedded_lyrics = get_embedded_lyrics(mp3_path) or ""
+        lyrics = normalize_boolish_text(override.get("lyrics")) or normalize_boolish_text(embedded_lyrics) or normalize_boolish_text(existing_track.get("lyrics") if isinstance(existing_track, dict) else "")
         scripture_refs = override.get("scripture_references") or existing_track.get("scripture_references") or extract_scripture_references(" ".join([lyrics, str(metadata.get("comment") or "")]))
-        cover_value = normalize_text(str(override.get("cover") or existing_track.get("cover") or build_cover_url(f"{slug}.jpg")))
+        cover_value, cover_source = choose_cover_value(mp3_path.name, title, slug, override, existing_track if isinstance(existing_track, dict) else {})
+        added_at = get_audio_added_at(mp3_path, existing_track if isinstance(existing_track, dict) else {}, track_cache.get(mp3_path.name, {}), override)
+        updated_at = iso_from_path_mtime(mp3_path)
+
+        previous_sig = {
+            "title": existing_track.get("title"), "album": existing_track.get("album"),
+            "artist": existing_track.get("artist"), "duration_seconds": existing_track.get("duration_seconds"),
+            "cover": existing_track.get("cover"), "lyrics_file": existing_track.get("lyrics_file")
+        } if isinstance(existing_track, dict) else {}
 
         track = {
             "id": track_id,
@@ -446,48 +599,78 @@ def main() -> int:
             "genre": genre,
             "year": year,
             "src": audio_url,
-            "playlists": playlists,
-            "tags": tags,
+            "playlists": playlists if isinstance(playlists, list) else [str(playlists)],
+            "tags": tags if isinstance(tags, list) else parse_genre_tags(str(tags)),
             "duration": format_duration(duration_seconds),
             "duration_seconds": duration_seconds,
-            "scripture_references": scripture_refs,
+            "scripture_references": scripture_refs if isinstance(scripture_refs, list) else [str(scripture_refs)],
             "trackNumber": track_number,
             "collection": collection,
             "featured": featured,
-            "play_count": existing_track.get("play_count", 0),
-            "last_played": existing_track.get("last_played", ""),
+            "play_count": existing_track.get("play_count", 0) if isinstance(existing_track, dict) else 0,
+            "last_played": existing_track.get("last_played", "") if isinstance(existing_track, dict) else "",
+            "date_added": added_at,
+            "added_at": added_at,
+            "updated_at": updated_at,
             "has_lyrics": bool(lyrics_file or lyrics),
             "has_scripture_refs": bool(scripture_refs),
             "audio": audio_url,
-            "playlist": playlists[0] if playlists else album,
-            "scripture": scripture_refs[0] if scripture_refs else "",
+            "playlist": (playlists[0] if isinstance(playlists, list) and playlists else album),
+            "scripture": (scripture_refs[0] if isinstance(scripture_refs, list) and scripture_refs else ""),
             "cover": cover_value,
+            "cover_source": cover_source,
             "lyrics": lyrics,
             "lyrics_file": lyrics_file,
         }
 
         cache_entry = TrackCacheEntry.from_path(mp3_path, duration_seconds)
-        new_track_cache[mp3_path.name] = {**cache_entry.to_dict(), "track_id": track_id, "title": title, "album": album}
+        new_track_cache[mp3_path.name] = {**cache_entry.to_dict(), "track_id": track_id, "title": title, "album": album, "added_at": added_at, "updated_at": updated_at, "cover": cover_value, "lyrics_file": lyrics_file}
         tracks_out.append(track)
+        processed_srcs.add(audio_url)
+        processed_ids.add(track_id)
+        report["cover_sources"][track_id] = cover_source
 
         if not existing_track:
             report["new_tracks"].append(track_id)
         else:
-            changed = previous_sig != {"title": title, "album": album, "artist": artist, "duration_seconds": duration_seconds}
+            current_sig = {"title": title, "album": album, "artist": artist, "duration_seconds": duration_seconds, "cover": cover_value, "lyrics_file": lyrics_file}
+            changed = previous_sig != current_sig
             if changed:
                 report["changed_tracks"].append(track_id)
             else:
                 report["reused_tracks"].append(track_id)
         if args.verbose:
             decision = "new" if track_id in report["new_tracks"] else "changed" if track_id in report["changed_tracks"] else "reused"
-            print(f"[{decision:7}] {mp3_path.name} -> {track_id}")
+            print(f"[{decision:7}] {mp3_path.name} -> {track_id} ({cover_source})")
 
-    tracks_out.sort(key=lambda item: (normalize_text(item.get("album") or ""), int(item.get("trackNumber") or 0), normalize_text(item.get("title") or "")))
+    if not getattr(args, 'replace_all', False):
+        for existing in existing_tracks:
+            if not isinstance(existing, dict):
+                continue
+            existing_src = str(existing.get("src") or existing.get("audio") or "")
+            existing_id = str(existing.get("id") or "")
+            if (existing_src and existing_src in processed_srcs) or (existing_id and existing_id in processed_ids):
+                continue
+            preserved = dict(existing)
+            if not (preserved.get("date_added") or preserved.get("added_at")):
+                cached = find_cache_entry_for_existing_track(preserved, track_cache)
+                added = cached.get("added_at") or cached.get("date_added") or iso_from_ns(cached.get("mtime_ns")) or fallback_added_at_for_existing_track(preserved)
+                if added:
+                    preserved["date_added"] = added
+                    preserved["added_at"] = added
+            tracks_out.append(preserved)
+            if existing_id:
+                report["preserved_existing_tracks"].append(existing_id)
+
+    def sort_key(item: dict[str, Any]):
+        return (normalize_text(item.get("album") or ""), int(item.get("trackNumber") or 9999), normalize_text(item.get("title") or ""))
+
+    tracks_out.sort(key=sort_key)
     report["tracks_written"] = len(tracks_out)
 
     save_json_file(OUTPUT_FILE, tracks_out)
     write_lrc_manifest_from_tracks(tracks_out)
-    save_json_file(TRACK_BUILD_CACHE_FILE, new_track_cache)
+    save_json_file(TRACK_BUILD_CACHE_FILE, {**track_cache, **new_track_cache})
     if args.report_json:
         save_json_file(BUILD_REPORT_FILE, report)
 
@@ -498,6 +681,7 @@ def main() -> int:
     print(summarize_counts("New tracks", report["new_tracks"]))
     print(summarize_counts("Changed tracks", report["changed_tracks"]))
     print(summarize_counts("Reused tracks", report["reused_tracks"]))
+    print(summarize_counts("Preserved existing tracks", report["preserved_existing_tracks"]))
     if report["warnings"]:
         for warning in report["warnings"]:
             print(f"Warning: {warning}")

@@ -1,0 +1,60 @@
+AINEO v43.2.32 — Track Ingestion + Recently Added Audit
+
+Purpose
+- Confirm the package can safely accept new songs without losing the existing library.
+- Confirm make_tracks.py can update metadata, covers, lyrics/LRC files, and recently-added dates.
+- Add a Home screen Recently Added strip showing the newest 5 songs.
+
+Root audit findings
+1) make_tracks.py could compile, but failed at runtime because write_lrc_manifest_from_tracks() was missing.
+2) Running make_tracks.py with no local audio files could overwrite tracks.json with an empty list before failing.
+3) Existing lyrics values like boolean true could become the literal text "True" during rebuilds.
+4) Cover handling reused old cover values before checking for a new matching local cover file.
+5) Existing tracks did not all expose date_added/added_at, so Recently Added had no reliable source.
+
+Repairs made
+- Added write_lrc_manifest_from_tracks() and writes both root lrc-manifest.json and lyrics/lrc-manifest.json.
+- Changed the generator to preserve existing remote tracks by default.
+- Added --replace-all only for advanced full rebuilds from local audio.
+- Added date_added, added_at, and updated_at fields from metadata override, existing track data, cache mtime, or audio file mtime.
+- Added cover authority order:
+  1. track-metadata.json cover URL
+  2. track-metadata.json cover_file
+  3. matching local covers/<slug/title>.jpg/.jpeg/.png/.webp
+  4. existing cover
+  5. default R2 covers/<slug>.jpg
+- Added safe lyric handling so boolean placeholders do not become lyric text.
+- Added LRC matching from lrc-manifest.json and lyrics/*.lrc.
+- Updated track-metadata.template.json to include cover_file and added_at.
+- Added Home screen Recently Added section showing newest 5 songs.
+
+Recommended new-song workflow
+1) Put new MP3 files in /audio.
+2) Put matching cover images in /covers using the song slug, for example:
+   covers/my-new-song.jpg
+3) Put synced lyrics in /lyrics using the song slug, for example:
+   lyrics/my-new-song.lrc
+4) Optionally add or update track-metadata.json for exact title, album, playlists, scripture refs, cover_file, lyrics_file, and added_at.
+5) Run:
+   python3 make_tracks.py --report-json --verbose
+6) Confirm the report:
+   track-build-report.json
+7) Deploy the updated package plus any new audio/cover/lyrics assets.
+
+Expected behavior after rebuild
+- Existing tracks remain present.
+- New songs are added.
+- Changed covers/lyrics/metadata are reflected in tracks.json.
+- Recently Added on the Home screen shows the newest 5 by date_added/added_at.
+
+Additional root fix
+- Fixed BAD_UNICODE_MARKER_RE so it no longer strips normal letters such as a/b/c/d while building slugs and lookup keys. This prevents new album/track IDs like "test-lm" and keeps future generated IDs stable and readable.
+
+Validation performed
+- Ran make_tracks.py with no audio files: it preserved all 72 existing tracks instead of emptying tracks.json.
+- Ran a temporary new-song simulation with:
+  audio/New Test Worship.mp3
+  covers/new-test-worship.png
+  lyrics/new-test-worship.lrc
+  track-metadata.json override
+  Result: generator preserved existing tracks, added the new track, used local-cover-file, used lyrics file, kept added_at, and produced the correct ID test-album__new-test-worship__1.

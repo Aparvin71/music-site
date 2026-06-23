@@ -1,4 +1,4 @@
-/* v43.2.31 share app preview path and card display repair pass */
+/* v43.2.32 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.31";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.32";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -190,6 +190,7 @@ const els = {
 
   favoritesList: document.getElementById("favoritesList"),
   recentlyPlayedList: document.getElementById("recentlyPlayedList"),
+  recentlyAddedList: document.getElementById("recentlyAddedList"),
 
   nowCover: document.getElementById("nowCover"),
   nowTitle: document.getElementById("nowTitle"),
@@ -374,6 +375,7 @@ async function init() {
   restoreSavedPlaybackContext();
   renderFavorites();
   renderRecentlyPlayed();
+  renderRecentlyAdded();
   renderMyPlaylists();
   renderDownloadedSongs();
   ensureOfflineAssetsReady();
@@ -1497,7 +1499,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.31 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.32 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -2483,8 +2485,8 @@ function findTrackFromPreviewTarget(target) {
   let track = null;
   if (row.dataset.trackId) {
     track = tracks.find(item => item.id === row.dataset.trackId) || null;
-  } else if (row.dataset.miniIndex && row.closest('#favoritesList, #recentlyPlayedList')) {
-    const source = row.closest('#favoritesList') ? favorites : recentlyPlayed;
+  } else if (row.dataset.miniIndex && row.closest('#favoritesList, #recentlyPlayedList, #recentlyAddedList')) {
+    const source = row.closest('#favoritesList') ? favorites : row.closest('#recentlyPlayedList') ? recentlyPlayed : getRecentlyAddedTracks(5).map(item => item.id);
     const ids = source.map(id => tracks.find(trackItem => trackItem.id === id)).filter(Boolean);
     track = ids[Number(row.dataset.miniIndex)] || null;
   }
@@ -2995,6 +2997,29 @@ function getHomeFavoriteTracks() {
 
 function getHomeRecentTracks() {
   return resolveTrackIdsToTracks(recentlyPlayed).slice(0, 15);
+}
+
+function getTrackDateValue(track) {
+  if (!track) return 0;
+  const raw = track.date_added || track.added_at || track.addedAt || track.release_date || track.released_at || track.created_at || track.updated_at || "";
+  if (!raw) return 0;
+  const parsed = Date.parse(String(raw));
+  if (Number.isFinite(parsed)) return parsed;
+  const year = Number(raw);
+  return Number.isFinite(year) ? Date.parse(`${year}-01-01T00:00:00Z`) : 0;
+}
+
+function getRecentlyAddedTracks(limit = 5) {
+  const seen = new Set();
+  return [...tracks]
+    .filter(track => track && track.id && getTrackDateValue(track) > 0)
+    .sort((a, b) => getTrackDateValue(b) - getTrackDateValue(a) || String(a.title || "").localeCompare(String(b.title || "")))
+    .filter(track => {
+      if (seen.has(track.id)) return false;
+      seen.add(track.id);
+      return true;
+    })
+    .slice(0, limit);
 }
 
 function getHomeMySongsSelection() {
@@ -4671,6 +4696,17 @@ function addToRecentlyPlayed(track) {
   }
 }
 
+function renderRecentlyAdded() {
+  if (!els.recentlyAddedList) return;
+  const newestTracks = getRecentlyAddedTracks(5);
+  if (!newestTracks.length) {
+    els.recentlyAddedList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No added-date metadata yet. Run make_tracks.py after adding songs.") : `<p class="empty-message">No added-date metadata yet. Run make_tracks.py after adding songs.</p>`;
+    return;
+  }
+  els.recentlyAddedList.innerHTML = newestTracks.map((track, index) => renderMiniCard(track, index)).join("");
+  bindMiniCardClicks(els.recentlyAddedList, newestTracks);
+}
+
 function renderRecentlyPlayed() {
   if (!els.recentlyPlayedList) return;
 
@@ -4888,7 +4924,7 @@ function getAineoConfiguredPublicShareUrl() {
 }
 
 function getAineoAppSharePath() {
-  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43231.html').replace(/^\/+/, '');
+  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43232.html').replace(/^\/+/, '');
 }
 
 function getAineoDetectedPublicShareUrl() {
@@ -4903,7 +4939,7 @@ function getAppShareUrl() {
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? 'share/cards/app-story-v43231.png' : 'share/cards/app-card-v43231.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story-v43232.png' : 'share/cards/app-card-v43232.png');
 }
 
 function getAppShareText() {
@@ -5817,7 +5853,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.31 LIBRARY PANEL LAUNCHERS
+   v43.2.32 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -5968,7 +6004,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.31: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.32: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -6204,7 +6240,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.31 legacy analysis preload disabled
+// v43.2.32 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -6214,7 +6250,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.31 smart playback cleanup
+// v43.2.32 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -6233,10 +6269,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.31 ULTRA SMOOTH PLAYBACK
+   v43.2.32 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.31";
+const SMART_PLAYBACK_VERSION = "43.2.32";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

@@ -1,4 +1,4 @@
-AINEO v43.2.31 Playlist Playback Audit
+AINEO v43.2.32 Playlist Playback Audit
 
 Confirmed intended rules in code:
 1. Starting playback from a playlist/album/custom playlist builds currentQueue from that exact list.
