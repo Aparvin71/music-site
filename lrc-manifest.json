@@ -162,6 +162,18 @@
     "lyrics_file": "lyrics/trash-in-trash-out.lrc"
   },
   {
+    "title": "Is it Faith",
+    "slug": "is-it-faith",
+    "mp3": "Is%20it%20Faith.mp3",
+    "lyrics_file": "lyrics/is-it-faith.lrc"
+  },
+  {
+    "title": "Intertwined",
+    "slug": "intertwined",
+    "mp3": "Intertwined.mp3",
+    "lyrics_file": "lyrics/intertwined.lrc"
+  },
+  {
     "title": "Chop it like it's hot",
     "slug": "chop-it-like-its-hot",
     "mp3": "Chop%20it%20like%20it%27s%20hot.mp3",
@@ -370,6 +382,12 @@
     "slug": "finally-let-you-in",
     "mp3": "Finally%20Let%20You%20In.mp3",
     "lyrics_file": "lyrics/finally-let-you-in.lrc"
+  },
+  {
+    "title": "Promise in the Sky",
+    "slug": "promise-in-the-sky",
+    "mp3": "Promise%20in%20the%20Sky.mp3",
+    "lyrics_file": "lyrics/promise-in-the-sky.lrc"
   },
   {
     "title": "Sugar and Grace",

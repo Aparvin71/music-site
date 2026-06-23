@@ -9,7 +9,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:18:51Z",
     "updated_at": "2026-03-21T20:18:51Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/a-man-like-him.jpg",
+    "cover": "covers/a-man-like-him.jpg",
     "lyrics_file": "lyrics/a-man-like-him.lrc"
   },
   "Agape Love.mp3": {
@@ -22,7 +22,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:46:21Z",
     "updated_at": "2026-03-21T19:46:21Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/agape-love.jpg",
+    "cover": "covers/agape-love.jpg",
     "lyrics_file": "lyrics/agape-love.lrc"
   },
   "Alive in Me.mp3": {
@@ -35,7 +35,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-26T12:50:29Z",
     "updated_at": "2026-03-26T12:50:29Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/alive-in-me.jpg",
+    "cover": "covers/alive-in-me.jpg",
     "lyrics_file": "lyrics/alive-in-me.lrc"
   },
   "Alivia - Play with Me.mp3": {
@@ -54,7 +54,7 @@
     "album": "Beautiful Things",
     "added_at": "2026-03-21T20:14:08Z",
     "updated_at": "2026-03-21T20:14:08Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/at-work.jpg",
+    "cover": "covers/at-work.jpg",
     "lyrics_file": "lyrics/at-work.lrc"
   },
   "Before Anyone Else.mp3": {
@@ -67,7 +67,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:19:00Z",
     "updated_at": "2026-03-21T20:19:00Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/before-anyone-else.jpg",
+    "cover": "covers/before-anyone-else.jpg",
     "lyrics_file": "lyrics/before-anyone-else.lrc"
   },
   "Bent My Mind.mp3": {
@@ -80,7 +80,7 @@
     "album": "Trauma",
     "added_at": "2026-03-21T20:19:36Z",
     "updated_at": "2026-03-21T20:19:36Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/bent-my-mind.jpg",
+    "cover": "covers/bent-my-mind.jpg",
     "lyrics_file": "lyrics/bent-my-mind.lrc"
   },
   "Breathe.mp3": {
@@ -93,7 +93,7 @@
     "album": "Trauma",
     "added_at": "2026-03-21T20:19:50Z",
     "updated_at": "2026-03-21T20:19:50Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/breathe.jpg",
+    "cover": "covers/breathe.jpg",
     "lyrics_file": "lyrics/breathe.lrc"
   },
   "By Your Hands.mp3": {
@@ -106,7 +106,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:11:29Z",
     "updated_at": "2026-03-21T20:11:29Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/by-your-hands.jpg",
+    "cover": "covers/by-your-hands.jpg",
     "lyrics_file": "lyrics/by-your-hands.lrc"
   },
   "Card Drop.mp3": {
@@ -119,7 +119,7 @@
     "album": "Fun",
     "added_at": "2026-03-13T13:54:33Z",
     "updated_at": "2026-03-13T13:54:33Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/card-drop.jpg",
+    "cover": "covers/card-drop.jpg",
     "lyrics_file": "lyrics/card-drop.lrc"
   },
   "Changed.mp3": {
@@ -132,7 +132,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:32:57Z",
     "updated_at": "2026-03-21T19:32:57Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/changed.jpg",
+    "cover": "covers/changed.jpg",
     "lyrics_file": "lyrics/changed.lrc"
   },
   "Chop it like it’s hot!.mp3": {
@@ -151,7 +151,7 @@
     "album": "Fun",
     "added_at": "2026-03-17T21:05:49Z",
     "updated_at": "2026-03-17T21:05:49Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/deck-9-kind-of-love.jpg",
+    "cover": "covers/deck-9-kind-of-love.jpg",
     "lyrics_file": "lyrics/deck-9-kind-of-love.lrc"
   },
   "Don't Drop the Bar Bro.mp3": {
@@ -164,7 +164,7 @@
     "album": "Fun",
     "added_at": "2026-03-21T19:53:25Z",
     "updated_at": "2026-03-21T19:53:25Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/dont-drop-the-bar-bro.jpg",
+    "cover": "covers/dont-drop-the-bar-bro.jpg",
     "lyrics_file": "lyrics/dont-drop-the-bar-bro.lrc"
   },
   "Don't Remember Me.mp3": {
@@ -177,7 +177,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:30:12Z",
     "updated_at": "2026-03-21T19:30:12Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/dont-remember-me.jpg",
+    "cover": "covers/dont-remember-me.jpg",
     "lyrics_file": "lyrics/dont-remember-me.lrc"
   },
   "EVERY BREATH, YOUR NAME (1).mp3": {
@@ -196,7 +196,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T20:05:30Z",
     "updated_at": "2026-03-21T20:05:30Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/finally-let-you-in.jpg",
+    "cover": "covers/finally-let-you-in.jpg",
     "lyrics_file": "lyrics/finally-let-you-in.lrc"
   },
   "Foot of the Cross.mp3": {
@@ -209,7 +209,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:25:04Z",
     "updated_at": "2026-03-21T19:25:04Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/foot-of-the-cross.jpg",
+    "cover": "covers/foot-of-the-cross.jpg",
     "lyrics_file": "lyrics/foot-of-the-cross.lrc"
   },
   "Forever and Ever (Gritty).mp3": {
@@ -228,7 +228,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:22:51Z",
     "updated_at": "2026-03-21T19:22:51Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/genesis.jpg",
+    "cover": "covers/genesis.jpg",
     "lyrics_file": "lyrics/genesis.lrc"
   },
   "Hands of a Man.mp3": {
@@ -241,7 +241,7 @@
     "album": "Real People",
     "added_at": "2026-03-21T20:20:52Z",
     "updated_at": "2026-03-21T20:20:52Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/hands-of-a-man.jpg",
+    "cover": "covers/hands-of-a-man.jpg",
     "lyrics_file": "lyrics/hands-of-a-man.lrc"
   },
   "Haunting Blue.mp3": {
@@ -254,7 +254,7 @@
     "album": "Heartprints",
     "added_at": "2026-03-13T14:25:43Z",
     "updated_at": "2026-03-13T14:25:43Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/haunting-blue.jpg",
+    "cover": "covers/haunting-blue.jpg",
     "lyrics_file": "lyrics/haunting-blue.lrc"
   },
   "Higher Aim.mp3": {
@@ -267,7 +267,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:12:20Z",
     "updated_at": "2026-03-21T20:12:20Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/higher-aim.jpg",
+    "cover": "covers/higher-aim.jpg",
     "lyrics_file": "lyrics/higher-aim.lrc"
   },
   "Holy Beyond Measure.mp3": {
@@ -280,7 +280,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:18:50Z",
     "updated_at": "2026-03-21T19:18:50Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/holy-beyond-measure.jpg",
+    "cover": "covers/holy-beyond-measure.jpg",
     "lyrics_file": "lyrics/holy-beyond-measure.lrc"
   },
   "I'm Still Here.mp3": {
@@ -293,7 +293,7 @@
     "album": "Trauma",
     "added_at": "2026-03-21T20:20:04Z",
     "updated_at": "2026-03-21T20:20:04Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/im-still-here.jpg",
+    "cover": "covers/im-still-here.jpg",
     "lyrics_file": "lyrics/im-still-here.lrc"
   },
   "Iron Don’t Lie.mp3": {
@@ -306,7 +306,7 @@
     "album": "Fun",
     "added_at": "2026-03-21T19:53:34Z",
     "updated_at": "2026-03-21T19:53:34Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/iron-dont-lie.jpg",
+    "cover": "covers/iron-dont-lie.jpg",
     "lyrics_file": "lyrics/iron-dont-lie.lrc"
   },
   "It's You.mp3": {
@@ -319,7 +319,7 @@
     "album": "Heartprints",
     "added_at": "2026-03-21T19:53:55Z",
     "updated_at": "2026-03-21T19:53:55Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/its-you.jpg",
+    "cover": "covers/its-you.jpg",
     "lyrics_file": "lyrics/its-you.lrc"
   },
   "Just Strollin Through.mp3": {
@@ -332,7 +332,7 @@
     "album": "Real People",
     "added_at": "2026-03-17T13:48:09Z",
     "updated_at": "2026-03-17T13:48:09Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/just-strollin-through.jpg",
+    "cover": "covers/just-strollin-through.jpg",
     "lyrics_file": "lyrics/just-strollin-through.lrc"
   },
   "Keeper of the Pines.mp3": {
@@ -345,7 +345,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:12:29Z",
     "updated_at": "2026-03-21T20:12:29Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/keeper-of-the-pines.jpg",
+    "cover": "covers/keeper-of-the-pines.jpg",
     "lyrics_file": "lyrics/keeper-of-the-pines.lrc"
   },
   "Lake House Weekend.mp3": {
@@ -358,7 +358,7 @@
     "album": "Fun",
     "added_at": "2026-03-21T19:52:55Z",
     "updated_at": "2026-03-21T19:52:55Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lake-house-weekend.jpg",
+    "cover": "covers/lake-house-weekend.jpg",
     "lyrics_file": "lyrics/lake-house-weekend.lrc"
   },
   "Lake house! (Chant).mp3": {
@@ -377,7 +377,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:56:28Z",
     "updated_at": "2026-03-21T19:56:28Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lead-me-home-good-shepherd.jpg",
+    "cover": "covers/lead-me-home-good-shepherd.jpg",
     "lyrics_file": "lyrics/lead-me-home-good-shepherd.lrc"
   },
   "Let it All Hang Out.mp3": {
@@ -390,7 +390,7 @@
     "album": "Real People",
     "added_at": "2026-03-15T21:10:49Z",
     "updated_at": "2026-03-15T21:10:49Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/let-it-all-hang-out.jpg",
+    "cover": "covers/let-it-all-hang-out.jpg",
     "lyrics_file": "lyrics/let-it-all-hang-out.lrc"
   },
   "Little Brother.mp3": {
@@ -403,7 +403,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:18:10Z",
     "updated_at": "2026-03-21T20:18:10Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/little-brother.jpg",
+    "cover": "covers/little-brother.jpg",
     "lyrics_file": "lyrics/little-brother.lrc"
   },
   "Make a Good Tree in Me.mp3": {
@@ -416,7 +416,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:57:58Z",
     "updated_at": "2026-03-21T19:57:58Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/make-a-good-tree-in-me.jpg",
+    "cover": "covers/make-a-good-tree-in-me.jpg",
     "lyrics_file": "lyrics/make-a-good-tree-in-me.lrc"
   },
   "Make Me a Faithful Tree.mp3": {
@@ -429,7 +429,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:57:43Z",
     "updated_at": "2026-03-21T19:57:43Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/make-me-a-faithful-tree.jpg",
+    "cover": "covers/make-me-a-faithful-tree.jpg",
     "lyrics_file": "lyrics/make-me-a-faithful-tree.lrc"
   },
   "Mi Luna.mp3": {
@@ -442,7 +442,7 @@
     "album": "Heartprints",
     "added_at": "2026-03-21T19:54:07Z",
     "updated_at": "2026-03-21T19:54:07Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/mi-luna.jpg",
+    "cover": "covers/mi-luna.jpg",
     "lyrics_file": "lyrics/mi-luna.lrc"
   },
   "Mother of Two.mp3": {
@@ -455,7 +455,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:18:26Z",
     "updated_at": "2026-03-21T20:18:26Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/mother-of-two.jpg",
+    "cover": "covers/mother-of-two.jpg",
     "lyrics_file": "lyrics/mother-of-two.lrc"
   },
   "Moved with Compassion.mp3": {
@@ -468,7 +468,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:23:55Z",
     "updated_at": "2026-03-21T19:23:55Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/moved-with-compassion.jpg",
+    "cover": "covers/moved-with-compassion.jpg",
     "lyrics_file": "lyrics/moved-with-compassion.lrc"
   },
   "My Son.mp3": {
@@ -481,7 +481,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:12:10Z",
     "updated_at": "2026-03-21T20:12:10Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/my-son.jpg",
+    "cover": "covers/my-son.jpg",
     "lyrics_file": "lyrics/my-son.lrc"
   },
   "On My Body.mp3": {
@@ -494,7 +494,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T20:06:40Z",
     "updated_at": "2026-03-21T20:06:40Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/on-my-body.jpg",
+    "cover": "covers/on-my-body.jpg",
     "lyrics_file": "lyrics/on-my-body.lrc"
   },
   "Out of Ashes.mp3": {
@@ -507,7 +507,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T20:04:28Z",
     "updated_at": "2026-03-21T20:04:28Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/out-of-ashes.jpg",
+    "cover": "covers/out-of-ashes.jpg",
     "lyrics_file": "lyrics/out-of-ashes.lrc"
   },
   "Please Stay With Me (Child).mp3": {
@@ -520,7 +520,7 @@
     "album": "Beautiful Things",
     "added_at": "2026-03-21T20:17:05Z",
     "updated_at": "2026-03-21T20:17:05Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/please-stay-with-me-child.jpg",
+    "cover": "covers/please-stay-with-me-child.jpg",
     "lyrics_file": "lyrics/please-stay-with-me-child.lrc"
   },
   "Please Stay With Me (Mom).mp3": {
@@ -533,7 +533,7 @@
     "album": "Beautiful Things",
     "added_at": "2026-03-21T20:17:13Z",
     "updated_at": "2026-03-21T20:17:13Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/please-stay-with-me-mom.jpg",
+    "cover": "covers/please-stay-with-me-mom.jpg",
     "lyrics_file": "lyrics/please-stay-with-me-mom.lrc"
   },
   "Praise the Lord, O My Soul.mp3": {
@@ -552,7 +552,7 @@
     "album": "Heartprints",
     "added_at": "2026-03-21T19:54:19Z",
     "updated_at": "2026-03-21T19:54:19Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/rearview-memories.jpg",
+    "cover": "covers/rearview-memories.jpg",
     "lyrics_file": "lyrics/rearview-memories.lrc"
   },
   "Remember Me.mp3": {
@@ -565,7 +565,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:29:44Z",
     "updated_at": "2026-03-21T19:29:44Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remember-me.jpg",
+    "cover": "covers/remember-me.jpg",
     "lyrics_file": "lyrics/remember-me.lrc"
   },
   "Remington the Pump Truck Guy.mp3": {
@@ -578,7 +578,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:12:41Z",
     "updated_at": "2026-03-21T20:12:41Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remington-the-pump-truck-guy.jpg",
+    "cover": "covers/remington-the-pump-truck-guy.jpg",
     "lyrics_file": "lyrics/remington-the-pump-truck-guy.lrc"
   },
   "Remove the Log.mp3": {
@@ -591,7 +591,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:40:45Z",
     "updated_at": "2026-03-21T19:40:45Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/remove-the-log.jpg",
+    "cover": "covers/remove-the-log.jpg",
     "lyrics_file": "lyrics/remove-the-log.lrc"
   },
   "Same Mouth.mp3": {
@@ -604,7 +604,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:41:09Z",
     "updated_at": "2026-03-21T19:41:09Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/same-mouth.jpg",
+    "cover": "covers/same-mouth.jpg",
     "lyrics_file": "lyrics/same-mouth.lrc"
   },
   "Same Sky.mp3": {
@@ -617,7 +617,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T20:00:07Z",
     "updated_at": "2026-03-21T20:00:07Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/same-sky.jpg",
+    "cover": "covers/same-sky.jpg",
     "lyrics_file": "lyrics/same-sky.lrc"
   },
   "Shape of Sacrifice.mp3": {
@@ -630,7 +630,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T20:01:59Z",
     "updated_at": "2026-03-21T20:01:59Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/shape-of-sacrifice.jpg",
+    "cover": "covers/shape-of-sacrifice.jpg",
     "lyrics_file": "lyrics/shape-of-sacrifice.lrc"
   },
   "Spiritual Gym Anthem.mp3": {
@@ -643,7 +643,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:36:53Z",
     "updated_at": "2026-03-21T19:36:53Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/spiritual-gym-anthem.jpg",
+    "cover": "covers/spiritual-gym-anthem.jpg",
     "lyrics_file": "lyrics/spiritual-gym-anthem.lrc"
   },
   "Step Out and Go.mp3": {
@@ -656,7 +656,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:35:52Z",
     "updated_at": "2026-03-21T19:35:52Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/step-out-and-go.jpg",
+    "cover": "covers/step-out-and-go.jpg",
     "lyrics_file": "lyrics/step-out-and-go.lrc"
   },
   "Stones Don’t Become Bread.mp3": {
@@ -669,7 +669,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:30:41Z",
     "updated_at": "2026-03-21T19:30:41Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/stones-dont-become-bread.jpg",
+    "cover": "covers/stones-dont-become-bread.jpg",
     "lyrics_file": "lyrics/stones-dont-become-bread.lrc"
   },
   "Sugar and Grace.mp3": {
@@ -682,7 +682,7 @@
     "album": "Real People",
     "added_at": "2026-03-21T20:20:34Z",
     "updated_at": "2026-03-21T20:20:34Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/sugar-and-grace.jpg",
+    "cover": "covers/sugar-and-grace.jpg",
     "lyrics_file": "lyrics/sugar-and-grace.lrc"
   },
   "That's Just How She Is.mp3": {
@@ -695,7 +695,7 @@
     "album": "Real People",
     "added_at": "2026-03-21T20:20:43Z",
     "updated_at": "2026-03-21T20:20:43Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/thats-just-how-she-is.jpg",
+    "cover": "covers/thats-just-how-she-is.jpg",
     "lyrics_file": "lyrics/thats-just-how-she-is.lrc"
   },
   "The Table.mp3": {
@@ -708,7 +708,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:17:46Z",
     "updated_at": "2026-03-21T20:17:46Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/the-table.jpg",
+    "cover": "covers/the-table.jpg",
     "lyrics_file": "lyrics/the-table.lrc"
   },
   "Theres Always Enough.mp3": {
@@ -721,7 +721,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:11:42Z",
     "updated_at": "2026-03-21T20:11:42Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/theres-always-enough.jpg",
+    "cover": "covers/theres-always-enough.jpg",
     "lyrics_file": "lyrics/theres-always-enough.lrc"
   },
   "Things I Carry.mp3": {
@@ -734,7 +734,7 @@
     "album": "Home",
     "added_at": "2026-03-21T20:11:59Z",
     "updated_at": "2026-03-21T20:11:59Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/things-i-carry.jpg",
+    "cover": "covers/things-i-carry.jpg",
     "lyrics_file": "lyrics/things-i-carry.lrc"
   },
   "Trash In Trash Out.mp3": {
@@ -747,7 +747,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-26T12:51:47Z",
     "updated_at": "2026-03-26T12:51:47Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/trash-in-trash-out.jpg",
+    "cover": "covers/trash-in-trash-out.jpg",
     "lyrics_file": "lyrics/trash-in-trash-out.lrc"
   },
   "Turn That Other Cheek.mp3": {
@@ -760,7 +760,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:41:51Z",
     "updated_at": "2026-03-21T19:41:51Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/turn-that-other-cheek.jpg",
+    "cover": "covers/turn-that-other-cheek.jpg",
     "lyrics_file": "lyrics/turn-that-other-cheek.lrc"
   },
   "Upon the Holy Mount.mp3": {
@@ -773,7 +773,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:41:32Z",
     "updated_at": "2026-03-21T19:41:32Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/upon-the-holy-mount.jpg",
+    "cover": "covers/upon-the-holy-mount.jpg",
     "lyrics_file": "lyrics/upon-the-holy-mount.lrc"
   },
   "Wait Hold Up.mp3": {
@@ -786,7 +786,7 @@
     "album": "Real People",
     "added_at": "2026-03-15T22:40:18Z",
     "updated_at": "2026-03-15T22:40:18Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/wait-hold-up.jpg",
+    "cover": "covers/wait-hold-up.jpg",
     "lyrics_file": "lyrics/wait-hold-up.lrc"
   },
   "Watching you Grow.mp3": {
@@ -799,7 +799,7 @@
     "album": "Beautiful Things",
     "added_at": "2026-03-21T20:13:59Z",
     "updated_at": "2026-03-21T20:13:59Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/watching-you-grow.jpg",
+    "cover": "covers/watching-you-grow.jpg",
     "lyrics_file": "lyrics/watching-you-grow.lrc"
   },
   "Where the Worm Does not Die.mp3": {
@@ -812,7 +812,7 @@
     "album": "Mercy & Grace",
     "added_at": "2026-03-21T19:29:16Z",
     "updated_at": "2026-03-21T19:29:16Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/where-the-worm-does-not-die.jpg",
+    "cover": "covers/where-the-worm-does-not-die.jpg",
     "lyrics_file": "lyrics/where-the-worm-does-not-die.lrc"
   },
   "Who's Driving this Bus.mp3": {
@@ -825,7 +825,7 @@
     "album": "Fun",
     "added_at": "2026-03-17T13:56:41Z",
     "updated_at": "2026-03-17T13:56:41Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/whos-driving-this-bus.jpg",
+    "cover": "covers/whos-driving-this-bus.jpg",
     "lyrics_file": "lyrics/whos-driving-this-bus.lrc"
   },
   "Wide Awake.mp3": {
@@ -838,7 +838,7 @@
     "album": "Carry the Light",
     "added_at": "2026-03-21T19:36:14Z",
     "updated_at": "2026-03-21T19:36:14Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/wide-awake.jpg",
+    "cover": "covers/wide-awake.jpg",
     "lyrics_file": "lyrics/wide-awake.lrc"
   },
   "Worth It All.mp3": {
@@ -851,7 +851,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:23:33Z",
     "updated_at": "2026-03-21T19:23:33Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/worth-it-all.jpg",
+    "cover": "covers/worth-it-all.jpg",
     "lyrics_file": "lyrics/worth-it-all.lrc"
   },
   "You See Me.mp3": {
@@ -864,7 +864,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:20:34Z",
     "updated_at": "2026-03-21T19:20:34Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/you-see-me.jpg",
+    "cover": "covers/you-see-me.jpg",
     "lyrics_file": "lyrics/you-see-me.lrc"
   },
   "You Spoke.mp3": {
@@ -877,7 +877,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T20:03:58Z",
     "updated_at": "2026-03-21T20:03:58Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/you-spoke.jpg",
+    "cover": "covers/you-spoke.jpg",
     "lyrics_file": "lyrics/you-spoke.lrc"
   },
   "You're Done!.mp3": {
@@ -896,7 +896,7 @@
     "album": "Fun",
     "added_at": "2026-03-21T19:52:42Z",
     "updated_at": "2026-04-15T11:22:35Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/chop-it-like-its-hot.jpg",
+    "cover": "covers/chop-it-like-its-hot.jpg",
     "lyrics_file": "lyrics/chop-it-like-its-hot.lrc"
   },
   "EVERY BREATH YOUR NAME.mp3": {
@@ -909,7 +909,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T20:01:41Z",
     "updated_at": "2026-04-15T11:21:36Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/every-breath-your-name.jpg",
+    "cover": "covers/every-breath-your-name.jpg",
     "lyrics_file": "lyrics/every-breath-your-name.lrc"
   },
   "Forever and Ever.mp3": {
@@ -922,7 +922,7 @@
     "album": "Heartprints",
     "added_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-03-21T19:05:49Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/forever-and-ever-gritty.jpg",
+    "cover": "covers/forever-and-ever-gritty.jpg",
     "lyrics_file": "lyrics/forever-and-ever-gritty.lrc"
   },
   "Intertwined.mp3": {
@@ -935,8 +935,8 @@
     "album": "Carry the Light",
     "added_at": "2026-06-23T13:13:57Z",
     "updated_at": "2026-06-23T13:13:57Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/intertwined.jpg",
-    "lyrics_file": ""
+    "cover": "covers/intertwined.jpg",
+    "lyrics_file": "lyrics/intertwined.lrc"
   },
   "Is it Faith.mp3": {
     "file_name": "Is it Faith.mp3",
@@ -948,8 +948,8 @@
     "album": "Carry the Light",
     "added_at": "2026-06-23T13:16:29Z",
     "updated_at": "2026-06-23T13:16:29Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/is-it-faith.jpg",
-    "lyrics_file": ""
+    "cover": "covers/is-it-faith.jpg",
+    "lyrics_file": "lyrics/is-it-faith.lrc"
   },
   "Lake house (Chant).mp3": {
     "file_name": "Lake house (Chant).mp3",
@@ -961,7 +961,7 @@
     "album": "Fun",
     "added_at": "2026-03-21T19:53:15Z",
     "updated_at": "2026-03-21T19:53:15Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/lake-house-chant.jpg",
+    "cover": "covers/lake-house-chant.jpg",
     "lyrics_file": "lyrics/lake-house-chant.lrc"
   },
   "Play with Me.mp3": {
@@ -974,7 +974,7 @@
     "album": "Beautiful Things",
     "added_at": "2026-01-01T00:00:00Z",
     "updated_at": "2026-03-21T20:13:13Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/alivia-play-with-me.jpg",
+    "cover": "covers/alivia-play-with-me.jpg",
     "lyrics_file": "lyrics/alivia-play-with-me.lrc"
   },
   "Praise the Lord O My Soul.mp3": {
@@ -987,7 +987,7 @@
     "album": "Alpha & Omega",
     "added_at": "2026-03-21T19:51:49Z",
     "updated_at": "2026-04-15T11:21:58Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/praise-the-lord-o-my-soul.jpg",
+    "cover": "covers/praise-the-lord-o-my-soul.jpg",
     "lyrics_file": "lyrics/praise-the-lord-o-my-soul.lrc"
   },
   "Promise in the Sky.mp3": {
@@ -1000,8 +1000,8 @@
     "album": "Mercy & Grace",
     "added_at": "2026-06-23T13:20:33Z",
     "updated_at": "2026-06-23T13:20:33Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/promise-in-the-sky.jpg",
-    "lyrics_file": ""
+    "cover": "covers/promise-in-the-sky.jpg",
+    "lyrics_file": "lyrics/promise-in-the-sky.lrc"
   },
   "You're Done.mp3": {
     "file_name": "You're Done.mp3",
@@ -1013,7 +1013,33 @@
     "album": "Real People",
     "added_at": "2026-03-21T19:11:22Z",
     "updated_at": "2026-04-15T11:22:26Z",
-    "cover": "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers/youre-done.jpg",
+    "cover": "covers/youre-done.jpg",
     "lyrics_file": "lyrics/youre-done.lrc"
+  },
+  "Iron Don#U2019t Lie.mp3": {
+    "file_name": "Iron Don#U2019t Lie.mp3",
+    "size": 4610207,
+    "mtime_ns": 1774122814000000000,
+    "duration_seconds": 196,
+    "track_id": "fun__iron-don-t-lie__26",
+    "title": "Iron Don't Lie",
+    "album": "Fun",
+    "added_at": "2026-03-21T19:53:34Z",
+    "updated_at": "2026-03-21T19:53:34Z",
+    "cover": "covers/iron-dont-lie.jpg",
+    "lyrics_file": "lyrics/iron-dont-lie.lrc"
+  },
+  "Stones Don#U2019t Become Bread.mp3": {
+    "file_name": "Stones Don#U2019t Become Bread.mp3",
+    "size": 4707073,
+    "mtime_ns": 1774121441000000000,
+    "duration_seconds": 207,
+    "track_id": "mercy-and-grace__stones-don-t-become-bread__55",
+    "title": "Stones Don't Become Bread",
+    "album": "Mercy & Grace",
+    "added_at": "2026-03-21T19:30:41Z",
+    "updated_at": "2026-03-21T19:30:41Z",
+    "cover": "covers/stones-dont-become-bread.jpg",
+    "lyrics_file": "lyrics/stones-dont-become-bread.lrc"
   }
 }

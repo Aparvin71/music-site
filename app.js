@@ -1,4 +1,4 @@
-/* v43.2.32 share app preview path and card display repair pass */
+/* v43.2.33 share app preview path and card display repair pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
@@ -60,7 +60,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.32";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.33";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -1499,7 +1499,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.32 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.33 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -5853,7 +5853,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.32 LIBRARY PANEL LAUNCHERS
+   v43.2.33 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -6004,7 +6004,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.32: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.33: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -6240,7 +6240,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.32 legacy analysis preload disabled
+// v43.2.33 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -6250,7 +6250,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.32 smart playback cleanup
+// v43.2.33 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -6269,10 +6269,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.32 ULTRA SMOOTH PLAYBACK
+   v43.2.33 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.32";
+const SMART_PLAYBACK_VERSION = "43.2.33";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

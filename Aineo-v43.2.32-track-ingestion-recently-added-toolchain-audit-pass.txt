@@ -1,3 +1,3 @@
-AINEO v43.2.32 — Track Ingestion + Recently Added Toolchain Audit Pass
+AINEO v43.2.33 — Track Ingestion + Recently Added Toolchain Audit Pass
 
 Built from v43.2.31. Audited and repaired make_tracks.py so adding new songs preserves the existing remote library, updates metadata/covers/lyrics from audio tags and track-metadata.json, regenerates LRC manifests, writes a build report, and supplies date_added/added_at fields used by the Home screen Recently Added strip. Added a dedicated Home Recently Added section showing the newest 5 songs.

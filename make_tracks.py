@@ -2,6 +2,7 @@
 import argparse
 import json
 import re
+import shutil
 import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -9,7 +10,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
 
-from mutagen.id3 import ID3
+from mutagen.id3 import ID3, APIC
 from mutagen.mp3 import MP3
 
 AUDIO_BASE_URL = "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio"
@@ -25,7 +26,7 @@ LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
-GENERATOR_VERSION = "v43.2.32"
+GENERATOR_VERSION = "v43.2.33"
 AUDIO_EXTENSIONS = {".mp3"}
 COVER_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
@@ -247,6 +248,39 @@ def build_lookup_keys(*values: str) -> list[str]:
     return keys
 
 
+def source_name_from_url_or_path(value: Any) -> str:
+    raw = normalize_text(str(value or ""))
+    if not raw:
+        return ""
+    raw = raw.split("?", 1)[0].split("#", 1)[0]
+    return unquote(raw.rsplit("/", 1)[-1])
+
+
+def build_existing_track_lookup_keys(track: dict[str, Any]) -> list[str]:
+    if not isinstance(track, dict):
+        return []
+    src = source_name_from_url_or_path(track.get("src") or track.get("audio") or "")
+    return build_lookup_keys(
+        src,
+        track.get("title") or "",
+        track.get("slug") or "",
+        f"{track.get('album') or ''} {track.get('title') or ''}",
+    )
+
+
+def add_lookup_entry(lookup: dict[str, dict[str, Any]], keys: list[str], track: dict[str, Any]) -> None:
+    for key in keys:
+        lookup.setdefault(key, track)
+
+
+def find_existing_track_by_lookup(file_name: str, title: str, slug: str, album: str, lookup: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    for key in build_lookup_keys(file_name, title, slug, f"{album} {title}"):
+        match = lookup.get(key)
+        if isinstance(match, dict):
+            return match
+    return {}
+
+
 def load_track_metadata() -> dict[str, dict[str, Any]]:
     if not TRACK_METADATA_FILE.exists():
         return {}
@@ -313,6 +347,91 @@ def normalize_boolish_text(value: Any) -> str:
         return ""
     text = normalize_text(str(value))
     return "" if text.lower() in {"true", "false", "none", "null"} else text
+
+
+def normalize_multiline_lyrics(value: Any) -> str:
+    """Preserve lyric line breaks while cleaning smart characters and non-lyric markers."""
+    if value is None or isinstance(value, bool):
+        return ""
+    raw = str(value).replace("\r\n", "\n").replace("\r", "\n")
+    for old, new in SMART_CHAR_REPLACEMENTS.items():
+        raw = raw.replace(old, new)
+    raw = unicodedata.normalize("NFKC", raw)
+    if raw.strip().lower() in {"true", "false", "none", "null"}:
+        return ""
+    cleaned_lines: list[str] = []
+    for line in raw.split("\n"):
+        line = re.sub(r"\*\*([^*]+)\*\*", r"\1", line)
+        line = re.sub(r"__([^_]+)__", r"\1", line)
+        line = re.sub(r"\s+", " ", line).strip()
+        line = re.sub(r"^title:\s*.*$", "", line, flags=re.IGNORECASE).strip()
+        if not line:
+            continue
+        cleaned_lines.append(line)
+    return "\n".join(cleaned_lines).strip()
+
+
+def is_lyric_section_or_metadata_line(text: str) -> bool:
+    value = normalize_text(text)
+    if not value:
+        return True
+    if re.match(r"^\[(ar|ti|al|by|re|ve|offset|length):.*\]$", value, flags=re.IGNORECASE):
+        return True
+    if re.match(r"^(verse|chorus|bridge|pre-chorus|intro|outro|tag|instrumental|music)\s*\d*:?$", value, flags=re.IGNORECASE):
+        return True
+    if re.match(r"^[.\-–—]{2,}$", value):
+        return True
+    return False
+
+
+def lyric_lines_for_lrc(lyrics_text: str) -> list[str]:
+    lines = []
+    for line in normalize_multiline_lyrics(lyrics_text).split("\n"):
+        line = normalize_text(line)
+        if not line or is_lyric_section_or_metadata_line(line):
+            continue
+        lines.append(line)
+    return lines
+
+
+def format_lrc_time(seconds: float) -> str:
+    seconds = max(0.0, float(seconds or 0))
+    minutes = int(seconds // 60)
+    remainder = seconds - (minutes * 60)
+    return f"{minutes:02d}:{remainder:05.2f}"
+
+
+def build_estimated_lrc_text(lyrics_text: str, duration_seconds: int = 0) -> str:
+    lines = lyric_lines_for_lrc(lyrics_text)
+    if not lines:
+        return ""
+    duration = int(duration_seconds or 0)
+    if duration <= 0:
+        duration = max(180, len(lines) * 5)
+    # Leave a small lead-in, then spread the lyric lines across the track.
+    start_at = 0.8 if duration < 90 else 2.0
+    usable_duration = max(float(duration) - start_at - 2.0, float(len(lines)) * 2.0)
+    step = usable_duration / max(len(lines), 1)
+    out = [f"[length:{format_lrc_time(duration)}]"]
+    for index, line in enumerate(lines):
+        out.append(f"[{format_lrc_time(start_at + (index * step))}]{line}")
+    return "\n".join(out).strip() + "\n"
+
+
+def write_generated_lrc(slug: str, lyrics_text: str, duration_seconds: int = 0, requested_path: str = "") -> tuple[str, bool]:
+    lrc_text = build_estimated_lrc_text(lyrics_text, duration_seconds)
+    if not lrc_text:
+        return "", False
+    raw = normalize_relative_path(requested_path, "lyrics") if requested_path else f"lyrics/{slugify(slug) or 'track'}.lrc"
+    if re.match(r"^https?://", raw, flags=re.IGNORECASE):
+        raw = f"lyrics/{slugify(slug) or 'track'}.lrc"
+    target = SITE_DIR / raw
+    target.parent.mkdir(parents=True, exist_ok=True)
+    existing = target.read_text(encoding="utf-8") if target.exists() else ""
+    changed = existing != lrc_text
+    if changed:
+        target.write_text(lrc_text, encoding="utf-8")
+    return raw.replace("\\", "/"), changed
 
 
 def normalize_relative_path(value: Any, default_folder: str = "") -> str:
@@ -385,20 +504,51 @@ def find_cover_file(file_name: str, title: str, slug: str, cover_override: Any =
     return ""
 
 
-def choose_cover_value(file_name: str, title: str, slug: str, override: dict[str, Any], existing_track: dict[str, Any]) -> tuple[str, str]:
+def cover_asset_path(file_name: str) -> str:
+    return f"covers/{Path(file_name).name}"
+
+
+def choose_cover_value(file_name: str, title: str, slug: str, override: dict[str, Any], existing_track: dict[str, Any], mp3_path: Path | None = None) -> tuple[str, str, bool]:
+    """Choose and, when possible, generate the local cover asset used by the app/package."""
     override_cover = normalize_text(str(override.get("cover") or ""))
     if override_cover:
         if re.match(r"^https?://", override_cover, flags=re.IGNORECASE):
-            return override_cover, "metadata-cover-url"
+            return override_cover, "metadata-cover-url", False
         file_part = override_cover.replace("covers/", "", 1).lstrip("/")
-        return build_cover_url(file_part), "metadata-cover-file"
-    cover_file = find_cover_file(file_name, title, slug, override.get("cover_file") or override.get("coverFile") or "")
+        candidate = COVERS_DIR / file_part
+        if candidate.exists():
+            return cover_asset_path(candidate.name), "metadata-cover-file", False
+        return build_cover_url(file_part), "metadata-cover-file-missing-local", False
+
+    requested_cover = override.get("cover_file") or override.get("coverFile") or ""
+    if requested_cover:
+        raw = normalize_text(str(requested_cover)).replace("\\", "/").lstrip("/")
+        source = SITE_DIR / raw
+        if not source.exists() and raw.startswith("covers/"):
+            source = COVERS_DIR / raw.replace("covers/", "", 1)
+        if source.exists() and source.is_file() and source.suffix.lower() in COVER_EXTENSIONS:
+            target_name = f"{slug}.{source.suffix.lower()}"
+            target = COVERS_DIR / target_name
+            COVERS_DIR.mkdir(parents=True, exist_ok=True)
+            if source.resolve() != target.resolve():
+                shutil.copy2(source, target)
+            return cover_asset_path(target.name), "metadata-cover-file-copied", True
+
+    cover_file = find_cover_file(file_name, title, slug, requested_cover)
     if cover_file:
-        return build_cover_url(cover_file), "local-cover-file"
+        return cover_asset_path(cover_file), "local-cover-file", False
+
+    if mp3_path is not None:
+        extracted_name, changed = extract_embedded_cover_file(mp3_path, slug, requested_cover)
+        if extracted_name:
+            return cover_asset_path(extracted_name), "embedded-cover-extracted", changed
+
     existing_cover = normalize_text(str(existing_track.get("cover") or "")) if isinstance(existing_track, dict) else ""
-    if existing_cover:
-        return existing_cover, "existing-cover"
-    return build_cover_url(f"{slug}.jpg"), "slug-default"
+    existing_cover_name = existing_cover.rsplit("/", 1)[-1] if existing_cover else ""
+    if existing_cover and (not existing_cover_name or (COVERS_DIR / existing_cover_name).exists() or re.match(r"^https?://", existing_cover, flags=re.IGNORECASE)):
+        return existing_cover, "existing-cover", False
+
+    return build_cover_url(f"{slug}.jpg"), "slug-default-missing", False
 
 
 def get_audio_added_at(mp3_path: Path, existing_track: dict[str, Any], cache_entry: dict[str, Any], override: dict[str, Any]) -> str:
@@ -460,20 +610,61 @@ def make_track_id(title: str, album: str, index: int) -> str:
 
 
 def get_embedded_lyrics(mp3_path: Path) -> str | None:
+    """Return embedded USLT lyrics while preserving line breaks for generated LRC files."""
     try:
         tags = ID3(mp3_path)
-        if "USLT::eng" in tags:
-            text = normalize_text(str(tags["USLT::eng"].text))
-            if text:
-                return text
-        for key in tags.keys():
-            if key.startswith("USLT"):
-                text = normalize_text(str(tags[key].text))
+        preferred_keys = ["USLT::eng"] + [key for key in tags.keys() if key.startswith("USLT") and key != "USLT::eng"]
+        for key in preferred_keys:
+            if key in tags:
+                text = normalize_multiline_lyrics(getattr(tags[key], "text", ""))
                 if text:
                     return text
     except Exception:
         pass
     return None
+
+
+def get_embedded_cover_bytes(mp3_path: Path) -> tuple[bytes, str]:
+    """Return the best embedded APIC image payload and extension."""
+    try:
+        tags = ID3(mp3_path)
+    except Exception:
+        return b"", ""
+    apic_frames = []
+    for frame in tags.values():
+        if isinstance(frame, APIC) and getattr(frame, "data", None):
+            apic_frames.append(frame)
+    if not apic_frames:
+        return b"", ""
+    # Prefer front cover/type 3, otherwise any embedded artwork.
+    apic_frames.sort(key=lambda frame: 0 if int(getattr(frame, "type", 0) or 0) == 3 else 1)
+    frame = apic_frames[0]
+    data = bytes(frame.data or b"")
+    mime = normalize_text(str(getattr(frame, "mime", "") or "")).lower()
+    if "png" in mime or data.startswith(b"\x89PNG"):
+        ext = ".png"
+    elif "webp" in mime or data.startswith(b"RIFF"):
+        ext = ".webp"
+    else:
+        ext = ".jpg"
+    return data, ext
+
+
+def extract_embedded_cover_file(mp3_path: Path, slug: str, requested_name: str = "") -> tuple[str, bool]:
+    data, ext = get_embedded_cover_bytes(mp3_path)
+    if not data:
+        return "", False
+    raw_requested = normalize_text(str(requested_name or "")).replace("\\", "/").lstrip("/")
+    if raw_requested and Path(raw_requested).suffix.lower() in COVER_EXTENSIONS:
+        target_name = Path(raw_requested.replace("covers/", "", 1)).name
+    else:
+        target_name = f"{slugify(slug) or mp3_path.stem}{ext}"
+    target = COVERS_DIR / target_name
+    COVERS_DIR.mkdir(parents=True, exist_ok=True)
+    changed = not target.exists() or target.read_bytes() != data
+    if changed:
+        target.write_bytes(data)
+    return target.name, changed
 
 
 def choose_playlists(album: str) -> list[str]:
@@ -516,6 +707,10 @@ def main() -> int:
     existing_tracks = existing_tracks if isinstance(existing_tracks, list) else []
     existing_by_src = {str(track.get("src") or track.get("audio") or ""): track for track in existing_tracks if isinstance(track, dict)}
     existing_by_id = {str(track.get("id") or ""): track for track in existing_tracks if isinstance(track, dict) and track.get("id")}
+    existing_by_lookup: dict[str, dict[str, Any]] = {}
+    for track in existing_tracks:
+        if isinstance(track, dict):
+            add_lookup_entry(existing_by_lookup, build_existing_track_lookup_keys(track), track)
     track_cache = load_json_file(TRACK_BUILD_CACHE_FILE, {})
     track_cache = track_cache if isinstance(track_cache, dict) else {}
     lrc_map = load_lrc_manifest()
@@ -529,6 +724,7 @@ def main() -> int:
     new_track_cache: dict[str, Any] = {}
     processed_srcs: set[str] = set()
     processed_ids: set[str] = set()
+    processed_lookup_keys: set[str] = set()
 
     report = {
         "generator_version": GENERATOR_VERSION,
@@ -540,6 +736,8 @@ def main() -> int:
         "reused_tracks": [],
         "preserved_existing_tracks": [],
         "cover_sources": {},
+        "generated_cover_files": [],
+        "generated_lyrics_files": [],
         "warnings": [],
     }
 
@@ -558,6 +756,8 @@ def main() -> int:
         slug = slugify(title)
         audio_url = build_audio_url(mp3_path.name)
         existing_track = existing_by_src.get(audio_url, {})
+        if not existing_track:
+            existing_track = find_existing_track_by_lookup(mp3_path.name, title, slug, album, existing_by_lookup)
 
         override = get_track_override(mp3_path.name, title, slug, track_meta_map)
         title = normalize_text(str(override.get("title") or title))
@@ -576,9 +776,20 @@ def main() -> int:
 
         lyrics_file = normalize_relative_path(override.get("lyrics_file") or find_lyrics_file(mp3_path.name, title, slug, lrc_map) or existing_track.get("lyrics_file") or "", "lyrics")
         embedded_lyrics = get_embedded_lyrics(mp3_path) or ""
-        lyrics = normalize_boolish_text(override.get("lyrics")) or normalize_boolish_text(embedded_lyrics) or normalize_boolish_text(existing_track.get("lyrics") if isinstance(existing_track, dict) else "")
+        lyrics = normalize_multiline_lyrics(override.get("lyrics")) or normalize_multiline_lyrics(embedded_lyrics) or normalize_multiline_lyrics(existing_track.get("lyrics") if isinstance(existing_track, dict) else "")
+        if lyrics:
+            lyrics_path_exists = bool(lyrics_file and not re.match(r"^https?://", lyrics_file, flags=re.IGNORECASE) and (SITE_DIR / lyrics_file).exists())
+            if not lyrics_path_exists:
+                requested_lyrics_path = override.get("lyrics_file") or override.get("lyricsFile") or lyrics_file or ""
+                generated_lyrics_file, lyrics_changed = write_generated_lrc(slug, lyrics, duration_seconds, requested_lyrics_path)
+                if generated_lyrics_file:
+                    lyrics_file = generated_lyrics_file
+                    if lyrics_changed:
+                        report["generated_lyrics_files"].append(lyrics_file)
         scripture_refs = override.get("scripture_references") or existing_track.get("scripture_references") or extract_scripture_references(" ".join([lyrics, str(metadata.get("comment") or "")]))
-        cover_value, cover_source = choose_cover_value(mp3_path.name, title, slug, override, existing_track if isinstance(existing_track, dict) else {})
+        cover_value, cover_source, cover_changed = choose_cover_value(mp3_path.name, title, slug, override, existing_track if isinstance(existing_track, dict) else {}, mp3_path)
+        if cover_changed and cover_value.startswith("covers/"):
+            report["generated_cover_files"].append(cover_value)
         added_at = get_audio_added_at(mp3_path, existing_track if isinstance(existing_track, dict) else {}, track_cache.get(mp3_path.name, {}), override)
         updated_at = iso_from_path_mtime(mp3_path)
 
@@ -618,6 +829,7 @@ def main() -> int:
             "playlist": (playlists[0] if isinstance(playlists, list) and playlists else album),
             "scripture": (scripture_refs[0] if isinstance(scripture_refs, list) and scripture_refs else ""),
             "cover": cover_value,
+            "cover_file": cover_value if str(cover_value).startswith("covers/") else "",
             "cover_source": cover_source,
             "lyrics": lyrics,
             "lyrics_file": lyrics_file,
@@ -628,6 +840,7 @@ def main() -> int:
         tracks_out.append(track)
         processed_srcs.add(audio_url)
         processed_ids.add(track_id)
+        processed_lookup_keys.update(build_lookup_keys(mp3_path.name, title, slug, f"{album} {title}"))
         report["cover_sources"][track_id] = cover_source
 
         if not existing_track:
@@ -649,7 +862,8 @@ def main() -> int:
                 continue
             existing_src = str(existing.get("src") or existing.get("audio") or "")
             existing_id = str(existing.get("id") or "")
-            if (existing_src and existing_src in processed_srcs) or (existing_id and existing_id in processed_ids):
+            existing_keys = set(build_existing_track_lookup_keys(existing))
+            if (existing_src and existing_src in processed_srcs) or (existing_id and existing_id in processed_ids) or existing_keys.intersection(processed_lookup_keys):
                 continue
             preserved = dict(existing)
             if not (preserved.get("date_added") or preserved.get("added_at")):
@@ -682,6 +896,8 @@ def main() -> int:
     print(summarize_counts("Changed tracks", report["changed_tracks"]))
     print(summarize_counts("Reused tracks", report["reused_tracks"]))
     print(summarize_counts("Preserved existing tracks", report["preserved_existing_tracks"]))
+    print(summarize_counts("Generated cover files", report.get("generated_cover_files", [])))
+    print(summarize_counts("Generated lyrics files", report.get("generated_lyrics_files", [])))
     if report["warnings"]:
         for warning in report["warnings"]:
             print(f"Warning: {warning}")

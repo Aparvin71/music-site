@@ -1,0 +1,57 @@
+AINEO v43.2.33 — Track Ingestion Asset Generation Audit
+
+Purpose
+- Confirm make_tracks.py updates tracks.json AND generates the supporting covers/lyrics files for newly added songs.
+- Repair the issue where tracks.json updated, but newly embedded MP3 covers and lyrics were not emitted into /covers and /lyrics.
+
+Root cause found
+- v43.2.32 could read embedded lyrics and artwork enough to populate track metadata, but it did not write missing embedded APIC artwork into /covers.
+- v43.2.32 could read embedded USLT lyrics, but it did not generate missing .lrc files into /lyrics.
+- Lyrics read from embedded USLT were normalized into one line, which reduced the usefulness of line-by-line lyrics.
+- Smart apostrophe filename variants could create duplicate logical tracks if one filename used #U2019 and an existing track used a real smart apostrophe.
+
+Repairs made
+- Added embedded APIC cover extraction from MP3 files into /covers/{slug}.jpg/png/webp.
+- Added embedded USLT lyric extraction into generated estimated LRC files at /lyrics/{slug}.lrc.
+- Added metadata lyrics support: track-metadata.json lyrics text can now generate a missing .lrc file.
+- Added metadata cover_file support: local cover files referenced in track-metadata.json can be copied into /covers.
+- Preserved lyric line breaks instead of flattening them into one line.
+- Added estimated timestamps for generated LRC files so the existing synced lyric UI can read them.
+- Added local cover_file tracking in tracks.json for generated/local covers.
+- Added duplicate protection for smart-apostrophe filename variants such as #U2019 vs ’.
+- make_tracks.py is now idempotent: running it again after generation reports reused tracks and does not duplicate tracks.
+
+Validation from this package
+- Audio files found: 75
+- Tracks written: 75
+- Generated cover files on first repaired run: 3
+  - covers/intertwined.jpg
+  - covers/is-it-faith.jpg
+  - covers/promise-in-the-sky.jpg
+- Generated lyric files on first repaired run: 3
+  - lyrics/intertwined.lrc
+  - lyrics/is-it-faith.lrc
+  - lyrics/promise-in-the-sky.lrc
+- Second run check:
+  - New tracks: 0
+  - Changed tracks: 0
+  - Reused tracks: 75
+  - Generated cover files: 0
+  - Generated lyrics files: 0
+- No duplicate Iron Don't Lie track.
+- No duplicate Stones Don't Become Bread track.
+- No tracks missing lyrics_file.
+- No local cover references missing files.
+
+Recommended workflow for adding songs
+1. Add new MP3 files to /audio.
+2. Put lyrics and cover art into the MP3 metadata when possible.
+3. Optional: add overrides to track-metadata.json for album, playlist, scripture references, cover_file, lyrics, or lyrics_file.
+4. Run:
+   python3 make_tracks.py --report-json --verbose
+5. Confirm the report shows generated covers/lyrics when new MP3 metadata includes them.
+6. Deploy the full package including /tracks.json, /covers, /lyrics, and /lrc-manifest.json.
+
+Notes
+- If an MP3 has no embedded cover and no metadata cover_file, make_tracks.py cannot invent the missing art. It will keep an existing cover or fall back to the slug-default URL.
+- If an MP3 has no embedded lyrics and no metadata lyrics/lyrics_file, make_tracks.py cannot create lyric text. It will leave lyrics missing rather than adding false placeholder lyrics.
