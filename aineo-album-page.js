@@ -30,17 +30,13 @@ let currentQueueIndex = -1;
 let toastTimer = null;
 let albumQueueDragIndex = null;
 let activeAlbumQueueTouchDrag = null;
-let albumContinuousPlaybackWanted = false;
-let albumMediaSessionLastPositionAt = 0;
 
 const params = new URLSearchParams(window.location.search);
 const albumParam = params.get("album") || "";
 
 async function initAlbumPage() {
   initMobileNav();
-  configureAlbumAudioElement();
   bindPlayer();
-  bindAlbumMediaSession();
   bindModal();
   await Promise.all([loadTracks(), loadAlbumsMetadata()]);
   renderAlbumPage();
@@ -66,57 +62,6 @@ function initMobileNav() {
   });
 }
 
-function configureAlbumAudioElement() {
-  const audio = albumPageEls.audioPlayer;
-  if (!audio) return;
-  audio.preload = "auto";
-  audio.setAttribute("preload", "auto");
-  audio.setAttribute("playsinline", "");
-  audio.setAttribute("webkit-playsinline", "");
-  audio.setAttribute("x-webkit-airplay", "allow");
-  try { audio.disableRemotePlayback = false; } catch (error) {}
-}
-
-function bindAlbumMediaSession() {
-  if (!window.AineoMediaSession?.bindHandlers) return;
-  window.AineoMediaSession.bindHandlers({
-    playCurrentAudio: () => {
-      albumContinuousPlaybackWanted = true;
-      if (!albumPageEls.audioPlayer?.src && albumTracks.length) return startPlaybackFromList(albumTracks, false, 0);
-      return albumPageEls.audioPlayer?.play?.().catch(() => {});
-    },
-    pauseCurrentAudio: () => {
-      albumContinuousPlaybackWanted = false;
-      albumPageEls.audioPlayer?.pause?.();
-      updateAlbumMediaSessionPlaybackState();
-    },
-    togglePlayPause,
-    playPreviousTrack: playPrevious,
-    playNextTrack: playNext,
-    getAudio: () => albumPageEls.audioPlayer,
-    onStateChange: () => {
-      updateProgressUI();
-      updateAlbumMediaSessionPlaybackState();
-      updateAlbumMediaSessionPosition(true);
-    }
-  });
-}
-
-function updateAlbumMediaSessionMetadata(track) {
-  window.AineoMediaSession?.updateMetadata?.(track, albumPageEls.audioPlayer);
-}
-
-function updateAlbumMediaSessionPlaybackState() {
-  window.AineoMediaSession?.updatePlaybackState?.(albumPageEls.audioPlayer);
-}
-
-function updateAlbumMediaSessionPosition(force = false) {
-  const now = Date.now();
-  if (!force && now - albumMediaSessionLastPositionAt < 4500) return;
-  albumMediaSessionLastPositionAt = now;
-  window.AineoMediaSession?.updatePositionState?.(albumPageEls.audioPlayer, { force });
-}
-
 function bindPlayer() {
   const audio = albumPageEls.audioPlayer;
   if (!audio) return;
@@ -129,41 +74,20 @@ function bindPlayer() {
     audio.currentTime = (Number(albumPageEls.seekBar.value) / 100) * audio.duration;
   });
 
-  audio.addEventListener("timeupdate", () => {
-    updateProgressUI();
-    updateAlbumMediaSessionPosition();
-  });
+  audio.addEventListener("timeupdate", updateProgressUI);
   audio.addEventListener("loadedmetadata", () => {
     updateProgressUI();
-    updateAlbumMediaSessionPosition(true);
     syncAlbumTrackPlaybackUI();
   });
   audio.addEventListener("play", () => {
-    albumContinuousPlaybackWanted = true;
     updatePlayButton();
-    updateAlbumMediaSessionPlaybackState();
-    updateAlbumMediaSessionMetadata(getCurrentTrack());
     syncAlbumTrackPlaybackUI();
   });
   audio.addEventListener("pause", () => {
-    if (!document.hidden && !audio.ended) albumContinuousPlaybackWanted = false;
     updatePlayButton();
-    updateAlbumMediaSessionPlaybackState();
     syncAlbumTrackPlaybackUI();
   });
-  audio.addEventListener("waiting", () => {
-    if (albumContinuousPlaybackWanted && !document.hidden) {
-      window.setTimeout(() => {
-        if (albumContinuousPlaybackWanted && audio.paused && !audio.ended) audio.play().catch(() => {});
-      }, 6500);
-    }
-  });
   audio.addEventListener("ended", handleTrackEnded);
-  document.addEventListener("visibilitychange", () => {
-    updateAlbumMediaSessionPlaybackState();
-    updateAlbumMediaSessionPosition(true);
-    if (!document.hidden && albumContinuousPlaybackWanted && audio.paused && !audio.ended) audio.play().catch(() => {});
-  }, { passive: true });
 }
 
 function bindModal() {
@@ -309,7 +233,7 @@ function renderAlbumPage() {
             <a class="quick-link-pill" href="./index.html">Music</a>
             <a class="quick-link-pill" href="./albums.html">All Albums</a>
             <a class="quick-link-pill" href="./about.html">About</a>
-            <a class="quick-link-pill" href="./contact.html">Mission/Church Shout Out</a>
+            <a class="quick-link-pill" href="./contact.html">Request a Song</a>
           </div>
         </div>
       </div>
@@ -672,12 +596,9 @@ function syncAlbumTrackPlaybackUI() {
 
 function playTrack(track) {
   if (!track || !track.src || !albumPageEls.audioPlayer) return;
-  albumContinuousPlaybackWanted = true;
   albumPageEls.audioPlayer.src = track.src;
-  albumPageEls.audioPlayer.load();
   albumPageEls.audioPlayer.play().catch(() => {});
   updateNowPlaying(track);
-  updateAlbumMediaSessionMetadata(track);
   updatePlayButton();
   updateProgressUI();
   renderAlbumPage();
@@ -720,17 +641,11 @@ function playPrevious() {
 
 function togglePlayPause() {
   if (!albumPageEls.audioPlayer.src && albumTracks.length) {
-    albumContinuousPlaybackWanted = true;
     startPlaybackFromList(albumTracks, false, 0);
     return;
   }
-  if (albumPageEls.audioPlayer.paused) {
-    albumContinuousPlaybackWanted = true;
-    albumPageEls.audioPlayer.play();
-  } else {
-    albumContinuousPlaybackWanted = false;
-    albumPageEls.audioPlayer.pause();
-  }
+  if (albumPageEls.audioPlayer.paused) albumPageEls.audioPlayer.play();
+  else albumPageEls.audioPlayer.pause();
 }
 
 function updateNowPlaying(track) {

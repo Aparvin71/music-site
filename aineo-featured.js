@@ -1,4 +1,4 @@
-/* v43.2.29 featured home list selector */
+/* v42.3.76 featured track state sync fix */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -92,16 +92,13 @@
   }
 
   function getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer }) {
-    const activePlaybackTrackId = window.__AINEO_CURRENT_PLAYBACK_TRACK_ID__ || getCurrentTrack()?.id || '';
-    const isCurrentTrack = Boolean(activePlaybackTrackId && activePlaybackTrackId === track?.id);
-    const pendingLockUntil = Number(window.__AINEO_PENDING_PLAYBACK_LOCK_UNTIL__ || 0);
-    const isPending = Boolean(isCurrentTrack && window.__AINEO_PENDING_PLAYBACK_TRACK_ID__ === track?.id && (!pendingLockUntil || Date.now() <= pendingLockUntil));
-    const isPlaying = Boolean(isCurrentTrack && ((audioPlayer && !audioPlayer.paused && audioPlayer.src) || isPending));
+    const isCurrentTrack = getCurrentTrack()?.id === track?.id;
+    const isPlaying = Boolean(isCurrentTrack && audioPlayer && !audioPlayer.paused && audioPlayer.src);
     return { isCurrentTrack, isPlaying, label: isPlaying ? '❚❚' : '▶', action: isPlaying ? 'Pause' : 'Play' };
   }
 
   function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, playTrackById, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
     if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
     const collection = getFeaturedCollection();
     if (!collection) {
@@ -109,7 +106,7 @@
       els.featuredTrackList.innerHTML = `<p class="empty-message">No tracks available.</p>`;
       return;
     }
-    els.featuredTrackListTitle.textContent = document.body.classList.contains('landing-page-layout') ? (collection.name || 'Suggested Listening') : (collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`);
+    els.featuredTrackListTitle.textContent = collection.name === 'All Songs' ? 'All Songs' : `${collection.name} Tracks`;
     els.featuredTrackList.innerHTML = collection.tracks.map((track, index) => {
       const playState = getFeaturedTrackPlayState({ track, getCurrentTrack, audioPlayer });
       const rowStateClass = playState.isCurrentTrack ? (playState.isPlaying ? 'is-current is-playing playing' : 'is-current playing') : '';
@@ -146,12 +143,9 @@
           togglePlayPause();
           return;
         }
-        if (playTrackById) {
-          playTrackById(track.id, collection.tracks);
-          return;
-        }
-        setQueue(collection.tracks, false);
-        playFromQueueIndex(collection.tracks.findIndex(item => item.id === track.id));
+        syncQueueToCurrentCollection(true);
+        if (getCurrentCollectionTracks()[idx]?.id !== track.id) setQueue(collection.tracks, false);
+        playFromQueueIndex(idx);
       });
     });
 

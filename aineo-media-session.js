@@ -1,12 +1,5 @@
 (function () {
   let handlersBound = false;
-  let lastPositionUpdateAt = 0;
-  let lastPositionSignature = "";
-
-  function absoluteUrl(src) {
-    try { return new URL(src, window.location.href).href; }
-    catch (error) { return src; }
-  }
 
   function isSupported() {
     return "mediaSession" in navigator;
@@ -23,34 +16,21 @@
     const src = track?.cover || track?.artwork || "/icons/icon-512.png";
     if (!src) return [];
     const type = inferArtworkType(src);
-    const absoluteSrc = absoluteUrl(src);
     return [96, 128, 192, 256, 384, 512].map(size => ({
-      src: absoluteSrc,
+      src,
       sizes: `${size}x${size}`,
       type
     }));
   }
 
-  function bindHandlers({ togglePlayPause, playCurrentAudio, pauseCurrentAudio, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
+  function bindHandlers({ togglePlayPause, playPreviousTrack, playNextTrack, getAudio, onStateChange }) {
     if (handlersBound || !isSupported()) return;
 
     const safeAudio = () => getAudio?.() || null;
-    const playRequested = () => {
-      const audio = safeAudio();
-      if (typeof playCurrentAudio === "function") return playCurrentAudio();
-      if (audio && audio.paused && typeof audio.play === "function") return audio.play().catch(() => togglePlayPause?.());
-      return undefined;
-    };
-    const pauseRequested = () => {
-      const audio = safeAudio();
-      if (typeof pauseCurrentAudio === "function") return pauseCurrentAudio();
-      if (audio && !audio.paused) { audio.pause(); onStateChange?.(); return undefined; }
-      return undefined;
-    };
 
     const handlers = {
-      play: playRequested,
-      pause: pauseRequested,
+      play: () => togglePlayPause?.(),
+      pause: () => togglePlayPause?.(),
       previoustrack: () => playPreviousTrack?.(),
       nexttrack: () => playNextTrack?.(),
       stop: () => {
@@ -116,19 +96,12 @@
     updatePlaybackState(audio);
   }
 
-  function updatePositionState(audio, { force = false } = {}) {
+  function updatePositionState(audio) {
     if (!isSupported() || !audio || typeof navigator.mediaSession.setPositionState !== "function") return;
 
     const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
     const position = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
     if (!duration || duration <= 0) return;
-
-    const now = Date.now();
-    const signature = `${Math.floor(position)}|${Math.floor(duration)}|${audio.playbackRate || 1}|${audio.paused ? "p" : "y"}`;
-    if (!force && signature === lastPositionSignature && now - lastPositionUpdateAt < 4500) return;
-    if (!force && now - lastPositionUpdateAt < 4500 && !audio.paused) return;
-    lastPositionUpdateAt = now;
-    lastPositionSignature = signature;
 
     try {
       navigator.mediaSession.setPositionState({
