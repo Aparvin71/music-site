@@ -1,24 +1,60 @@
-// v43.2.29 foreground page menu + bottom nav fast-tap authority
+// v43.2.31 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
+  function isCurrentHref(href) {
+    try {
+      const target = new URL(href, window.location.origin);
+      const currentPath = window.location.pathname || "/index.html";
+      const targetPath = target.pathname || "/index.html";
+      if (targetPath === "/" && (currentPath === "/" || currentPath.endsWith("/index.html"))) return true;
+      if (targetPath.endsWith("/index.html") && (currentPath === "/" || currentPath.endsWith("/index.html"))) return true;
+      return currentPath === targetPath && (target.search || "") === (window.location.search || "");
+    } catch (error) {
+      return false;
+    }
+  }
+
   function getSourceLinks() {
+    const canonical = [
+      { href: "/index.html", label: "Home" },
+      { href: "/home.html", label: "Welcome" },
+      { href: "/music.html", label: "Library" },
+      { href: "/music.html?panel=playlists", label: "Playlists" },
+      { href: "/albums.html", label: "Albums" },
+      { href: "/artists.html", label: "Artists" },
+      { href: "/contact.html", label: "Shout Outs" },
+      { href: "/share/app/v43231.html", label: "Share App" },
+      { href: "/install.html", label: "Open / Install" },
+      { href: "/mission.html", label: "Mission" },
+      { href: "/about.html", label: "About" },
+      { href: "/feedback.html", label: "Feedback" },
+      { href: "/changelog.html", label: "Changelog" }
+    ];
+
     const nav = document.getElementById("siteNavLinks") || document.querySelector(".nav-menu");
-    const links = Array.from(nav?.querySelectorAll("a[href]") || []);
+    const source = Array.from(nav?.querySelectorAll("a[href]") || []).map(link => ({
+      href: link.getAttribute("href") || "#",
+      label: (link.textContent || "").trim() || "Page",
+      current: link.getAttribute("aria-current") === "page" || link.classList.contains("active")
+    }));
+
+    const combined = [...canonical, ...source];
     const seen = new Set();
-    return links
-      .map(link => ({
-        href: link.getAttribute("href") || "#",
-        label: (link.textContent || "").trim() || "Page",
-        current: link.getAttribute("aria-current") === "page" || link.classList.contains("active")
-      }))
-      .filter(item => {
-        const key = `${item.label}|${item.href}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      })
-      .sort((a, b) => a.label.localeCompare(b.label));
+    return combined.filter(item => {
+      const labelKey = String(item.label || "").trim().toLowerCase();
+      const normalizedLabel = labelKey === "install" ? "open / install" : labelKey;
+      const key = normalizedLabel || String(item.href || "");
+      if (seen.has(key)) return false;
+      seen.add(key);
+      if (normalizedLabel === "share app") item.href = "/share/app/v43231.html";
+      if (normalizedLabel === "welcome") item.href = "/home.html";
+      return true;
+    }).map(item => ({
+      href: item.href,
+      label: item.label === "Install" ? "Open / Install" : item.label,
+      current: Boolean(item.current || isCurrentHref(item.href))
+    }));
   }
 
   function closeNativeNav() {
@@ -80,7 +116,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.2.29";
+    overlay.dataset.version = "43.2.31";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -186,8 +222,8 @@
 
 
 
-// v43.2.29 root bottom-nav navigation authority.
-// Root fix: v43.2.29 moved real actions onto pointerup and then suppressed the follow-up click.
+// v43.2.31 root bottom-nav navigation authority.
+// Root fix: v43.2.31 moved real actions onto pointerup and then suppressed the follow-up click.
 // On iOS/PWA that made navigation and panel changes feel delayed or fail entirely.
 // This restores a single click/tap activation path while keeping pointerdown visual feedback only.
 (function () {
@@ -366,7 +402,7 @@
   window.addEventListener("pageshow", syncFromLocation, { passive: true });
 })();
 
-// v43.2.29 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.2.31 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;

@@ -1,7 +1,7 @@
-AINEO v43.2.29 Facebook sharing setup
+AINEO v43.2.31 Facebook sharing setup
 
 Public app link wired in this build:
-https://music-site.aparvin.workers.dev/share/app/v43229.html
+https://music-site.aparvin.workers.dev/share/app/v43231.html
 
 Facebook button behavior:
 - iPhone/iPad/installed PWA: opens the device share sheet with the public AINEO share URL. Choose Facebook in that sheet.
@@ -11,6 +11,11 @@ Why this is necessary:
 Facebook builds the clickable image/link post from the public Share App page Open Graph tags. It cannot create the clickable preview from a local ZIP, file:// URL, or private app state.
 
 After deploying this package to Cloudflare Workers:
-1. Open https://music-site.aparvin.workers.dev/share/app/v43229.html in a browser and confirm it loads.
-2. Use Meta Sharing Debugger for https://music-site.aparvin.workers.dev/share/app/v43229.html and scrape again.
+1. Open https://music-site.aparvin.workers.dev/share/app/v43231.html in a browser and confirm it loads.
+2. Use Meta Sharing Debugger for https://music-site.aparvin.workers.dev/share/app/v43231.html and scrape again.
 3. Test Share App > Facebook from the installed PWA.
+
+
+v43.2.31 note:
+The Facebook Link Post button shares the public AINEO page URL so Facebook can create a clickable preview from Open Graph metadata.
+The Share Image + Link button uses the device share sheet with the AINEO card image attached plus the public app link in the text. Facebook may treat that as an uploaded photo with a text link rather than a clickable link-preview card; this is controlled by Facebook/iOS share behavior.

@@ -1,0 +1,16 @@
+AINEO v43.2.31 Playlist Playback Audit
+
+Confirmed intended rules in code:
+1. Starting playback from a playlist/album/custom playlist builds currentQueue from that exact list.
+2. Auto-advance uses currentQueue only. It does not fall through into the full library after the last playlist song.
+3. With Repeat Off, the last song ending calls stopPlaybackAtQueueEnd("playlist-complete") and stops playback.
+4. With Repeat All, the last song ending wraps currentQueueIndex to 0 and continues from the beginning of the same playlist queue.
+5. With Repeat One, the same current song restarts.
+6. Manual Next at the end with Repeat Off stops instead of wrapping.
+
+Smoke test checklist:
+- Start an album playlist from song 1; allow song 1 to end; confirm song 2 starts.
+- Jump to the final song with Repeat Off; allow it to end; confirm playback stops and mini/full player show paused/stopped.
+- Turn Repeat All on; start the final song; allow it to end; confirm song 1 of the same queue starts.
+- Turn Repeat One on; allow a song to end; confirm the same song restarts.
+- Start a custom playlist; confirm queue count matches the custom playlist length.

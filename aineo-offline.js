@@ -37,12 +37,20 @@ window.AineoOffline = (() => {
     const kind = state.downloaded
       ? 'offlineSaved'
       : (state.disabled ? 'offlineUnavailable' : 'offlineSave');
+    const conciseLabel = state.downloaded ? 'Saved' : (state.disabled ? 'Needs Internet' : 'Download');
+
     if (button.id === 'saveOfflineBtn' && window.buildMiniPlayerButtonMarkup) {
-      const label = state.downloaded ? 'Saved' : (state.disabled ? 'Needs Internet' : 'Offline');
-      button.innerHTML = window.buildMiniPlayerButtonMarkup(kind, label);
+      // Mini player keeps its hidden utility wiring but should not visually leak into the concept capsule.
+      button.innerHTML = window.buildMiniPlayerButtonMarkup(kind, conciseLabel);
+    } else if (button.id === 'playerSheetSaveOfflineBtn') {
+      // Full player concept button keeps its icon tile; only the label changes.
+      const labelEl = button.querySelector('.player-action-label');
+      if (labelEl) labelEl.textContent = conciseLabel;
+      else button.textContent = conciseLabel;
     } else {
       button.textContent = state.buttonLabel;
     }
+
     button.disabled = Boolean(state.disabled);
     button.dataset.offlineState = state.downloaded ? 'saved' : (state.offline ? 'offline-unavailable' : 'ready');
     button.classList.toggle('is-saved-offline', state.downloaded);
@@ -51,7 +59,7 @@ window.AineoOffline = (() => {
       ? 'This song is saved and can play offline.'
       : (state.disabled ? 'Reconnect to save this song for offline playback.' : 'Save this song for offline playback.');
     button.setAttribute('aria-disabled', state.disabled ? 'true' : 'false');
-    button.setAttribute('aria-label', state.downloaded ? 'Saved offline' : (state.disabled ? 'Needs Internet' : 'Save offline'));
+    button.setAttribute('aria-label', state.downloaded ? 'Saved offline' : (state.disabled ? 'Needs Internet' : 'Download'));
   }
 
   function updateButtons({ track, downloadedTracks, els }) {
