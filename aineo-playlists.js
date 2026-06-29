@@ -124,7 +124,7 @@
       const list = getCustomPlaylistTracks(name);
       if (list.length) {
         setActiveCustomPlaylist(name);
-        startPlaybackFromList(list, false, 0);
+        startPlaybackFromList(list, false, 0, { type: 'custom-playlist', key: `custom-playlist:${name}`, name, authoritative: true });
       }
     }));
 
@@ -133,7 +133,7 @@
       const list = getCustomPlaylistTracks(name);
       if (list.length) {
         setActiveCustomPlaylist(name);
-        startPlaybackFromList(list, true, 0);
+        startPlaybackFromList(list, true, 0, { type: 'custom-playlist', key: `custom-playlist:${name}`, name, authoritative: true });
       }
     }));
 

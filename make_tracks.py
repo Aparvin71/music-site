@@ -1,6 +1,7 @@
 
 import argparse
 import json
+import html
 import re
 import shutil
 import unicodedata
@@ -26,7 +27,7 @@ LRC_MANIFEST_NAME = "lrc-manifest.json"
 TRACK_METADATA_NAME = "track-metadata.json"
 TRACK_BUILD_CACHE_NAME = "track-build-cache.json"
 BUILD_REPORT_NAME = "track-build-report.json"
-GENERATOR_VERSION = "v43.2.33"
+GENERATOR_VERSION = "v43.2.37"
 AUDIO_EXTENSIONS = {".mp3"}
 COVER_EXTENSIONS = (".jpg", ".jpeg", ".png", ".webp")
 
@@ -45,6 +46,10 @@ LRC_MANIFEST_FILE = SITE_DIR / LRC_MANIFEST_NAME
 TRACK_METADATA_FILE = SITE_DIR / TRACK_METADATA_NAME
 TRACK_BUILD_CACHE_FILE = SITE_DIR / TRACK_BUILD_CACHE_NAME
 BUILD_REPORT_FILE = SITE_DIR / BUILD_REPORT_NAME
+SHARE_DIR = SITE_DIR / "share"
+SHARE_SONG_DIR = SHARE_DIR / "song"
+SHARE_CARD_SONG_DIR = SHARE_DIR / "cards" / "song"
+SHARE_CARD_STORY_DIR = SHARE_DIR / "cards" / "story"
 
 SCRIPTURE_BOOKS = [
     "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy", "Joshua", "Judges", "Ruth",
@@ -111,6 +116,34 @@ def build_audio_url(file_name: str) -> str:
 
 def build_cover_url(file_name: str) -> str:
     return f"{COVER_BASE_URL.rstrip('/')}/{encode_url_path_component(file_name)}"
+
+
+
+def cover_public_url(value: str) -> str:
+    """Return the public R2 cover URL while preserving local cover_file separately."""
+    raw = normalize_text(str(value or "")).replace("\\", "/").lstrip("/")
+    if not raw:
+        return ""
+    if re.match(r"^https?://", raw, flags=re.IGNORECASE):
+        return raw
+    if raw.startswith("covers/"):
+        raw = raw.replace("covers/", "", 1)
+    return build_cover_url(raw)
+
+
+def cover_file_from_value(value: str) -> str:
+    raw = normalize_text(str(value or "")).replace("\\", "/")
+    if not raw:
+        return ""
+    if raw.startswith("covers/"):
+        return raw
+    if re.match(r"^https?://", raw, flags=re.IGNORECASE):
+        name = unquote(raw.rstrip("/").rsplit("/", 1)[-1])
+        if Path(name).suffix.lower() in COVER_EXTENSIONS:
+            return cover_asset_path(name)
+    if Path(raw).suffix.lower() in COVER_EXTENSIONS:
+        return cover_asset_path(Path(raw).name)
+    return ""
 
 
 def build_album_zip_url(file_name: str) -> str:
@@ -188,6 +221,19 @@ def get_mp3_metadata(mp3_path: Path) -> dict[str, Any]:
                         comment = safe_tag_text(tags[key])
                         if comment:
                             break
+        scripture_text_parts = []
+        if comment:
+            scripture_text_parts.append(comment)
+        if tags:
+            for key, frame in tags.items():
+                frame_id = str(key or "")
+                desc = normalize_text(str(getattr(frame, "desc", "") or ""))
+                frame_text = safe_tag_text(frame)
+                haystack = f"{desc} {frame_text}".lower()
+                if frame_id.startswith("TXXX") and any(token in haystack for token in ("scripture", "bible", "reference", "verse")):
+                    scripture_text_parts.append(f"{desc} {frame_text}")
+                elif frame_id.startswith("COMM") and frame_text and frame_text != comment:
+                    scripture_text_parts.append(frame_text)
         return {
             "title": title_case_if_all_caps(title),
             "artist": title_case_if_all_caps(artist),
@@ -197,6 +243,7 @@ def get_mp3_metadata(mp3_path: Path) -> dict[str, Any]:
             "track_number": track_number,
             "duration_seconds": duration_seconds,
             "comment": comment,
+            "scripture_text": " ".join(part for part in scripture_text_parts if part),
         }
     except Exception as exc:
         print(f"Error reading MP3 metadata from {mp3_path.name}: {exc}")
@@ -589,20 +636,136 @@ def fallback_added_at_for_existing_track(existing_track: dict[str, Any]) -> str:
 
 
 
+def normalize_scripture_ref(ref: Any) -> str:
+    text = normalize_text(str(ref or ""))
+    if not text:
+        return ""
+    text = re.sub(r"\s*:\s*", ":", text)
+    text = re.sub(r"\s*[-–—]\s*", "-", text)
+    text = re.sub(r"^[\s,;|]+|[\s,;|.]+$", "", text)
+    return text
+
+
+def normalize_scripture_ref_list(value: Any) -> list[str]:
+    refs: list[str] = []
+    seen: set[str] = set()
+
+    def append_ref(ref_value: Any) -> None:
+        ref = normalize_scripture_ref(ref_value)
+        if not ref:
+            return
+        key = ref.lower()
+        if key not in seen:
+            seen.add(key)
+            refs.append(ref)
+
+    def add_ref(ref_value: Any) -> None:
+        if ref_value is None or ref_value is False:
+            return
+        if isinstance(ref_value, (list, tuple, set)):
+            for nested in ref_value:
+                add_ref(nested)
+            return
+        if isinstance(ref_value, str):
+            pieces = re.split(r"[;|]+", ref_value)
+            for piece in pieces:
+                extracted = extract_scripture_references(piece)
+                if extracted:
+                    for extracted_ref in extracted:
+                        append_ref(extracted_ref)
+                else:
+                    append_ref(piece)
+            return
+        append_ref(ref_value)
+
+    add_ref(value)
+    return refs
+
+
 def extract_scripture_references(text: str) -> list[str]:
     if not text:
         return []
     normalized = " ".join(normalize_text(text).split())
     found, seen = [], set()
     for book in sorted(SCRIPTURE_BOOKS, key=len, reverse=True):
-        pattern = rf"{re.escape(book)}\s+\d+:\d+(?:[-–]\d+)?"
+        # Use real regex word boundaries. A previous build accidentally wrote literal
+        # backspace characters here, which prevented new scripture references from
+        # being detected from MP3 comments, custom tags, or lyric text.
+        pattern = rf"\b{re.escape(book)}\s+\d+\s*:\s*\d+(?:\s*[-–—]\s*(?:\d+\s*:\s*)?\d+)?\b"
         for match in re.finditer(pattern, normalized, flags=re.IGNORECASE):
-            ref = normalize_text(match.group(0))
+            ref = normalize_scripture_ref(match.group(0))
             key = ref.lower()
             if key not in seen:
                 seen.add(key)
                 found.append(ref)
     return found
+
+
+SCRIPTURE_OVERRIDE_KEYS = (
+    "scripture_references", "scriptureReferences", "scripture_refs", "scriptureRefs",
+    "scriptures", "scripture", "bible_references", "bibleReferences", "bible_refs",
+    "bibleRefs", "bible", "reference", "references",
+)
+
+
+def resolve_scripture_references(override: dict[str, Any], existing_track: dict[str, Any], lyrics: str, metadata: dict[str, Any]) -> list[str]:
+    candidates: list[Any] = []
+    for source in (override, existing_track):
+        if not isinstance(source, dict):
+            continue
+        for key in SCRIPTURE_OVERRIDE_KEYS:
+            if key in source:
+                candidates.append(source.get(key))
+    refs = normalize_scripture_ref_list(candidates)
+    if refs:
+        return refs
+    metadata_text = " ".join(
+        normalize_text(str(metadata.get(key) or ""))
+        for key in ("scripture_text", "comment", "description")
+        if isinstance(metadata, dict)
+    )
+    return extract_scripture_references(" ".join([lyrics or "", metadata_text]))
+
+
+def read_existing_lyrics_text(track: dict[str, Any]) -> str:
+    lyrics = normalize_multiline_lyrics(track.get("lyrics") if isinstance(track, dict) else "")
+    if lyrics:
+        return lyrics
+    raw_path = normalize_relative_path(track.get("lyrics_file") if isinstance(track, dict) else "", "lyrics")
+    if not raw_path or re.match(r"^https?://", raw_path, flags=re.IGNORECASE):
+        return ""
+    path = SITE_DIR / raw_path
+    if not path.exists():
+        return ""
+    try:
+        # Strip LRC timestamps before scripture extraction so metadata/header lines are ignored.
+        text = path.read_text(encoding="utf-8")
+        text = re.sub(r"^\s*\[[^\]]+\]", "", text, flags=re.MULTILINE)
+        return normalize_multiline_lyrics(text)
+    except Exception:
+        return ""
+
+
+def reconcile_preserved_track_metadata(track: dict[str, Any], track_meta_map: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    if not isinstance(track, dict):
+        return track
+    preserved = dict(track)
+    src_name = source_name_from_url_or_path(preserved.get("src") or preserved.get("audio") or "")
+    title = normalize_text(str(preserved.get("title") or ""))
+    slug = normalize_text(str(preserved.get("slug") or slugify(title)))
+    override = get_track_override(src_name, title, slug, track_meta_map)
+    lyrics = read_existing_lyrics_text(preserved)
+    refs = resolve_scripture_references(override, preserved, lyrics, {})
+    if refs:
+        preserved["scripture_references"] = refs
+        preserved["has_scripture_refs"] = True
+        preserved["scripture"] = refs[0]
+    else:
+        existing_refs = normalize_scripture_ref_list(preserved.get("scripture_references") or preserved.get("scripture"))
+        preserved["scripture_references"] = existing_refs
+        preserved["has_scripture_refs"] = bool(existing_refs)
+        preserved["scripture"] = existing_refs[0] if existing_refs else ""
+    return preserved
 
 
 def make_track_id(title: str, album: str, index: int) -> str:
@@ -684,6 +847,218 @@ def get_album_zip(album: str) -> str:
     return build_album_zip_url(zip_name) if zip_name else ""
 
 
+def escape_html(value: Any) -> str:
+    return html.escape(normalize_text(str(value or "")), quote=True)
+
+
+def escape_svg(value: Any) -> str:
+    return html.escape(normalize_text(str(value or "")), quote=True)
+
+
+def track_share_slug(track: dict[str, Any]) -> str:
+    return slugify(track.get("slug") or track.get("title") or track.get("id") or "song") or "song"
+
+
+def get_track_refs_for_share(track: dict[str, Any], max_refs: int = 5) -> list[str]:
+    refs = track.get("scripture_references") or []
+    if isinstance(refs, str):
+        refs = [refs]
+    seen, cleaned = set(), []
+    for ref in refs:
+        value = normalize_text(str(ref or ""))
+        key = value.lower()
+        if value and key not in seen:
+            seen.add(key)
+            cleaned.append(value)
+        if len(cleaned) >= max_refs:
+            break
+    return cleaned
+
+
+def get_track_share_description(track: dict[str, Any]) -> str:
+    title = normalize_text(str(track.get("title") or "this song"))
+    album = normalize_text(str(track.get("album") or "AINEO Music"))
+    refs = get_track_refs_for_share(track, 1)
+    description = f"Listen to {title} from {album}."
+    if refs:
+        description += f" Scripture reference: {refs[0]}."
+    return description
+
+
+def split_svg_lines(text: str, max_chars: int, max_lines: int = 3) -> list[str]:
+    words = normalize_text(text).split()
+    if not words:
+        return [""]
+    lines: list[str] = []
+    current = ""
+    for word in words:
+        test = f"{current} {word}".strip()
+        if current and len(test) > max_chars:
+            lines.append(current)
+            current = word
+            if len(lines) >= max_lines:
+                break
+        else:
+            current = test
+    if current and len(lines) < max_lines:
+        lines.append(current)
+    if len(lines) == max_lines:
+        consumed = " ".join(lines).split()
+        if len(consumed) < len(words):
+            last = lines[-1]
+            if len(last) > max_chars - 1:
+                last = last[: max_chars - 1].rstrip()
+            lines[-1] = last.rstrip(" .,-") + "…"
+    return lines
+
+
+def svg_tspans(lines: list[str], x: int, line_height: int) -> str:
+    out = []
+    for index, line in enumerate(lines):
+        dy = 0 if index == 0 else line_height
+        out.append(f'<tspan x="{x}" dy="{dy}">{escape_svg(line)}</tspan>')
+    return "".join(out)
+
+
+def write_song_share_page(track: dict[str, Any]) -> bool:
+    slug = track_share_slug(track)
+    title = normalize_text(str(track.get("title") or "AINEO Music"))
+    description = get_track_share_description(track)
+    refs = get_track_refs_for_share(track, 5)
+    refs_html = "".join(f"<span>{escape_html(ref)}</span>" for ref in refs)
+    html_text = f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{escape_html(title)} | AINEO Music</title>
+  <meta name="description" content="{escape_html(description)}" />
+  <meta property="og:type" content="music.song" />
+  <meta property="og:title" content="{escape_html(title)} | AINEO Music" />
+  <meta property="og:description" content="{escape_html(description)}" />
+  <meta property="og:image" content="../cards/song/{escape_html(slug)}.svg" />
+  <meta property="og:site_name" content="AINEO Music" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{escape_html(title)} | AINEO Music" />
+  <meta name="twitter:description" content="{escape_html(description)}" />
+  <meta name="twitter:image" content="../cards/song/{escape_html(slug)}.svg" />
+  <link rel="stylesheet" href="../share.css?v=43.2.37" />
+</head>
+<body>
+  <main class="share-card">
+    <div class="brand">AINEO Music</div>
+    <h1>{escape_html(title)}</h1>
+    <p>{escape_html(description)}</p>
+    <div class="refs">{refs_html}</div>
+    <div class="actions">
+      <a class="button" href="/index.html?song={escape_html(slug)}">Open in AINEO</a>
+      <a class="button secondary" href="../../index.html">Explore music</a>
+    </div>
+    <img class="preview" src="../cards/song/{escape_html(slug)}.svg" alt="AINEO share card preview" />
+  </main>
+</body>
+</html>
+"""
+    target = SHARE_SONG_DIR / f"{slug}.html"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    existing = target.read_text(encoding="utf-8") if target.exists() else ""
+    changed = existing != html_text
+    if changed:
+        target.write_text(html_text, encoding="utf-8")
+    return changed
+
+
+def write_song_share_card(track: dict[str, Any]) -> bool:
+    slug = track_share_slug(track)
+    title = normalize_text(str(track.get("title") or "AINEO Music"))
+    album = normalize_text(str(track.get("album") or "AINEO Music"))
+    refs = get_track_refs_for_share(track, 3)
+    refs_text = " • ".join(refs) if refs else "Listen in AINEO Music"
+    title_lines = split_svg_lines(title, 26, 2)
+    refs_lines = split_svg_lines(refs_text, 58, 3)
+    album_y = 280 + ((len(title_lines)-1) * 66)
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="AINEO Music share card">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#050516"/><stop offset="0.45" stop-color="#160d38"/><stop offset="1" stop-color="#2d1766"/></linearGradient>
+    <radialGradient id="glow" cx="58%" cy="28%" r="70%"><stop offset="0" stop-color="#b67cff" stop-opacity="0.45"/><stop offset="0.45" stop-color="#7e4cff" stop-opacity="0.16"/><stop offset="1" stop-color="#000000" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="28"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="830" cy="150" r="230" fill="url(#glow)"/>
+  <circle cx="250" cy="470" r="210" fill="#7238ff" opacity="0.14" filter="url(#soft)"/>
+  <rect x="56" y="56" width="1088" height="518" rx="44" fill="#ffffff" fill-opacity="0.045" stroke="#b88cff" stroke-opacity="0.28"/>
+  <text x="96" y="130" fill="#c993ff" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" letter-spacing="7">AINEO MUSIC</text>
+  <text x="96" y="204" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="800">{svg_tspans(title_lines, 96, 66)}</text>
+  <text x="96" y="{album_y}" fill="#efe8ff" font-family="Arial, Helvetica, sans-serif" font-size="31" font-weight="600">{escape_svg(album)}</text>
+  <rect x="96" y="342" width="850" height="1.5" fill="#b88cff" opacity="0.32"/>
+  <text x="96" y="398" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">{svg_tspans(refs_lines, 96, 42)}</text>
+  <text x="96" y="520" fill="#d9c7ff" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="600">Listen, save, and share in the AINEO Music app.</text>
+  <rect x="906" y="410" width="166" height="64" rx="32" fill="#8d55ff" opacity="0.9"/>
+  <text x="945" y="451" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800">Song</text>
+</svg>
+"""
+    target = SHARE_CARD_SONG_DIR / f"{slug}.svg"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    existing = target.read_text(encoding="utf-8") if target.exists() else ""
+    changed = existing != svg
+    if changed:
+        target.write_text(svg, encoding="utf-8")
+    return changed
+
+
+def write_song_story_card(track: dict[str, Any]) -> bool:
+    slug = track_share_slug(track)
+    title = normalize_text(str(track.get("title") or "AINEO Music"))
+    album = normalize_text(str(track.get("album") or "AINEO Music"))
+    refs = get_track_refs_for_share(track, 3)
+    refs_text = " • ".join(refs) if refs else "Listen in AINEO Music"
+    title_lines = split_svg_lines(title, 18, 3)
+    refs_lines = split_svg_lines(refs_text, 34, 4)
+    album_y = 720 + ((len(title_lines)-1) * 88)
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-label="AINEO Music story card">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#050516"/><stop offset="0.55" stop-color="#1a0e43"/><stop offset="1" stop-color="#3b1f80"/></linearGradient>
+    <radialGradient id="glow" cx="60%" cy="24%" r="70%"><stop offset="0" stop-color="#c68cff" stop-opacity="0.52"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="660" cy="360" r="480" fill="url(#glow)"/>
+  <rect x="70" y="90" width="940" height="1740" rx="64" fill="#ffffff" fill-opacity="0.045" stroke="#c99cff" stroke-opacity="0.28"/>
+  <text x="110" y="190" fill="#d1a7ff" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="800" letter-spacing="9">AINEO</text>
+  <text x="110" y="610" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="900">{svg_tspans(title_lines, 110, 88)}</text>
+  <text x="110" y="{album_y}" fill="#efe8ff" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700">{escape_svg(album)}</text>
+  <rect x="110" y="870" width="760" height="2" fill="#c99cff" opacity="0.36"/>
+  <text x="110" y="970" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="800">{svg_tspans(refs_lines, 110, 56)}</text>
+  <text x="110" y="1580" fill="#d9c7ff" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">Listen in AINEO Music</text>
+  <rect x="110" y="1640" width="430" height="82" rx="41" fill="#8d55ff" opacity="0.92"/>
+  <text x="170" y="1695" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="900">SHARE SONG</text>
+</svg>
+"""
+    target = SHARE_CARD_STORY_DIR / f"{slug}.svg"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    existing = target.read_text(encoding="utf-8") if target.exists() else ""
+    changed = existing != svg
+    if changed:
+        target.write_text(svg, encoding="utf-8")
+    return changed
+
+
+def generate_share_assets_from_tracks(tracks_out: list[dict[str, Any]], report: dict[str, Any] | None = None) -> dict[str, int]:
+    """Generate per-song share pages and share cards every time tracks.json is built."""
+    counts = {"song_pages_written": 0, "song_cards_written": 0, "story_cards_written": 0}
+    for track in tracks_out:
+        if not isinstance(track, dict):
+            continue
+        if write_song_share_page(track):
+            counts["song_pages_written"] += 1
+        if write_song_share_card(track):
+            counts["song_cards_written"] += 1
+        if write_song_story_card(track):
+            counts["story_cards_written"] += 1
+    if isinstance(report, dict):
+        report["share_generation"] = counts
+    return counts
+
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Build tracks.json incrementally for the Aineo site.")
@@ -739,6 +1114,7 @@ def main() -> int:
         "generated_cover_files": [],
         "generated_lyrics_files": [],
         "warnings": [],
+        "share_generation": {"song_pages_written": 0, "song_cards_written": 0, "story_cards_written": 0},
     }
 
     if not mp3_paths:
@@ -786,7 +1162,7 @@ def main() -> int:
                     lyrics_file = generated_lyrics_file
                     if lyrics_changed:
                         report["generated_lyrics_files"].append(lyrics_file)
-        scripture_refs = override.get("scripture_references") or existing_track.get("scripture_references") or extract_scripture_references(" ".join([lyrics, str(metadata.get("comment") or "")]))
+        scripture_refs = resolve_scripture_references(override, existing_track if isinstance(existing_track, dict) else {}, lyrics, metadata if isinstance(metadata, dict) else {})
         cover_value, cover_source, cover_changed = choose_cover_value(mp3_path.name, title, slug, override, existing_track if isinstance(existing_track, dict) else {}, mp3_path)
         if cover_changed and cover_value.startswith("covers/"):
             report["generated_cover_files"].append(cover_value)
@@ -828,15 +1204,17 @@ def main() -> int:
             "audio": audio_url,
             "playlist": (playlists[0] if isinstance(playlists, list) and playlists else album),
             "scripture": (scripture_refs[0] if isinstance(scripture_refs, list) and scripture_refs else ""),
-            "cover": cover_value,
-            "cover_file": cover_value if str(cover_value).startswith("covers/") else "",
+            "cover": cover_public_url(cover_value),
+            "artwork": cover_public_url(cover_value),
+            "image": cover_public_url(cover_value),
+            "cover_file": cover_file_from_value(cover_value),
             "cover_source": cover_source,
             "lyrics": lyrics,
             "lyrics_file": lyrics_file,
         }
 
         cache_entry = TrackCacheEntry.from_path(mp3_path, duration_seconds)
-        new_track_cache[mp3_path.name] = {**cache_entry.to_dict(), "track_id": track_id, "title": title, "album": album, "added_at": added_at, "updated_at": updated_at, "cover": cover_value, "lyrics_file": lyrics_file}
+        new_track_cache[mp3_path.name] = {**cache_entry.to_dict(), "track_id": track_id, "title": title, "album": album, "added_at": added_at, "updated_at": updated_at, "cover": cover_public_url(cover_value), "lyrics_file": lyrics_file}
         tracks_out.append(track)
         processed_srcs.add(audio_url)
         processed_ids.add(track_id)
@@ -846,7 +1224,7 @@ def main() -> int:
         if not existing_track:
             report["new_tracks"].append(track_id)
         else:
-            current_sig = {"title": title, "album": album, "artist": artist, "duration_seconds": duration_seconds, "cover": cover_value, "lyrics_file": lyrics_file}
+            current_sig = {"title": title, "album": album, "artist": artist, "duration_seconds": duration_seconds, "cover": cover_public_url(cover_value), "lyrics_file": lyrics_file}
             changed = previous_sig != current_sig
             if changed:
                 report["changed_tracks"].append(track_id)
@@ -865,7 +1243,7 @@ def main() -> int:
             existing_keys = set(build_existing_track_lookup_keys(existing))
             if (existing_src and existing_src in processed_srcs) or (existing_id and existing_id in processed_ids) or existing_keys.intersection(processed_lookup_keys):
                 continue
-            preserved = dict(existing)
+            preserved = reconcile_preserved_track_metadata(existing, track_meta_map)
             if not (preserved.get("date_added") or preserved.get("added_at")):
                 cached = find_cache_entry_for_existing_track(preserved, track_cache)
                 added = cached.get("added_at") or cached.get("date_added") or iso_from_ns(cached.get("mtime_ns")) or fallback_added_at_for_existing_track(preserved)
@@ -884,6 +1262,7 @@ def main() -> int:
 
     save_json_file(OUTPUT_FILE, tracks_out)
     write_lrc_manifest_from_tracks(tracks_out)
+    share_counts = generate_share_assets_from_tracks(tracks_out, report)
     save_json_file(TRACK_BUILD_CACHE_FILE, {**track_cache, **new_track_cache})
     if args.report_json:
         save_json_file(BUILD_REPORT_FILE, report)
@@ -898,6 +1277,9 @@ def main() -> int:
     print(summarize_counts("Preserved existing tracks", report["preserved_existing_tracks"]))
     print(summarize_counts("Generated cover files", report.get("generated_cover_files", [])))
     print(summarize_counts("Generated lyrics files", report.get("generated_lyrics_files", [])))
+    print(f"Share song pages updated: {share_counts.get('song_pages_written', 0)}")
+    print(f"Share song cards updated: {share_counts.get('song_cards_written', 0)}")
+    print(f"Share story cards updated: {share_counts.get('story_cards_written', 0)}")
     if report["warnings"]:
         for warning in report["warnings"]:
             print(f"Warning: {warning}")

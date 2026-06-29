@@ -1,0 +1,27 @@
+AINEO v43.2.37 — R2 Cover URL Authority + No-Covers Package Repair Pass
+
+Root cause found
+- The v43.2.34 app-no-audio-covers package did not include a /covers folder, which is correct for the split/R2 workflow.
+- tracks.json still pointed all 75 song covers to local relative paths like covers/holy-beyond-measure.jpg.
+- Because those local files were not in the app package, image tags resolved to missing local files instead of the Cloudflare R2 bucket.
+- Some pages still carried v43.2.32 cache-buster URLs, so even fixed scripts could be bypassed by stale app-shell cache.
+
+Repairs made
+- Converted all 75 track cover entries in tracks.json to public R2 cover URLs.
+- Preserved cover_file entries as local/R2 staging references for make_tracks.py and future audits.
+- Added runtime cover URL authority in aineo-data.js so any future covers/*.jpg value is resolved to R2 when externalCovers is enabled.
+- Added fallback cover resolution in app.js and AineoShared so secondary pages can also recover old relative cover values.
+- Fixed the lyrics config lookup from AineoConfig.app.assets to AineoConfig.assets.
+- Updated make_tracks.py so future track builds write R2 cover URLs to tracks.json while retaining cover_file.
+- Bumped app shell, service worker, manifest, share pages, and cache-busters to v43.2.37.
+- Added v43237 app share page/card aliases so the public app share URL stays version-current.
+
+Validation from this repaired package
+- Tracks checked: 75
+- Track cover values using R2 URLs: 75/75
+- Local relative track cover values remaining in cover field: 0
+- cover_file references preserved: 75/75
+- Missing packaged /covers folder: accepted for this R2/no-audio-covers build
+
+Note
+- Network validation against the R2 host was not available from this sandbox because DNS resolution for the r2.dev hostname failed here. The package-level bug is still confirmed because the app was trying to load local covers that are intentionally absent.

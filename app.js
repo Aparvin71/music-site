@@ -1,10 +1,11 @@
-/* v43.2.33 share app preview path and card display repair pass */
+/* v43.2.37 Playback Queue Authority + Recently Added Playlist Pass */
 window.__AINEO_APP_JS_NAV__ = true;
 let tracks = [];
 let filteredTracks = [];
 let currentTrackIndex = -1;
 let currentQueue = [];
 let currentQueueIndex = -1;
+let currentQueueMeta = { type: "all", key: "all-songs", name: "All Songs", authoritative: false };
 let currentPlaybackTrackId = "";
 window.__AINEO_CURRENT_PLAYBACK_TRACK_ID__ = "";
 let continuousPlaybackWanted = false;
@@ -60,7 +61,7 @@ let visualizerUseFallback = false;
 let lyricsSyncFrame = 0;
 const DEFAULT_LYRICS_GLOBAL_OFFSET = -0.12;
 let smartQueueSuggestionId = '';
-const BATTERY_OPTIMIZATION_VERSION = "43.2.33";
+const BATTERY_OPTIMIZATION_VERSION = "43.2.37";
 const BATTERY_OPTIMIZATION_KEYS = {
   lowPowerMode: "aineo_low_power_mode"
 };
@@ -522,6 +523,17 @@ async function loadTracks() {
   }
 }
 
+
+function resolveRuntimeCoverPath(value) {
+  const raw = String(value || "").trim().replace(/\\/g, "/");
+  if (!raw) return "";
+  if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+  if (window.AineoData?.resolveCoverPath) return window.AineoData.resolveCoverPath(raw);
+  const baseUrl = String(window.AineoConfig?.assets?.coverBaseUrl || "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers").replace(/\/+$/, "");
+  const relative = raw.replace(/^\/+/, "").replace(/^covers\//, "");
+  return `${baseUrl}/${relative.split("/").filter(Boolean).map(part => encodeURIComponent(decodeURIComponent(part))).join("/")}`;
+}
+
 const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
   ? window.AineoData.normalizeTrack
   : function normalizeTrack(track, index) {
@@ -540,13 +552,13 @@ const normalizeTrack = (window.AineoData && window.AineoData.normalizeTrack)
         genre: track.genre || "",
         duration: track.duration || "",
         src: track.src || track.url || track.audio || "",
-        cover: track.cover || track.artwork || track.image || "",
+        cover: resolveRuntimeCoverPath(track.cover || track.artwork || track.image || track.cover_file || ""),
         lyrics: track.lyrics || "",
         lyrics_file: (() => {
           const raw = String(track.lyrics_file || track.lyricsFile || "").trim();
           if (!raw) return "";
           if (/^https?:\/\//i.test(raw)) return raw;
-          const basePath = String(window.AineoConfig?.app?.assets?.lyricsBasePath || "lyrics").replace(/\/$/, "");
+          const basePath = String(window.AineoConfig?.assets?.lyricsBasePath || "lyrics").replace(/\/$/, "");
           if (raw.startsWith("lyrics/")) return raw;
           if (basePath && !raw.startsWith(basePath + "/")) return `${basePath}/${raw.replace(/^\/+/, "")}`;
           return raw;
@@ -1080,12 +1092,67 @@ function saveDownloadedTracks() {
   renderOfflineStatus({ forceVisible: navigator.onLine === false });
 }
 
+function normalizeQueueMeta(meta = null, fallbackTracks = []) {
+  const trackCount = Array.isArray(fallbackTracks) ? fallbackTracks.length : 0;
+  const cleanName = String(meta?.name || meta?.label || '').trim();
+  const cleanType = String(meta?.type || 'playlist').trim() || 'playlist';
+  const cleanKey = String(meta?.key || cleanName || cleanType || 'queue').trim();
+  const fallbackName = trackCount ? `${trackCount} song playlist` : 'Queue';
+  return {
+    type: cleanType,
+    key: cleanKey || 'queue',
+    name: cleanName || fallbackName,
+    authoritative: Boolean(meta?.authoritative),
+    updatedAt: Number(meta?.updatedAt || Date.now()) || Date.now()
+  };
+}
+
+function getQueueMetaFromCollection(collection = getFeaturedCollection?.()) {
+  if (!collection) return normalizeQueueMeta({ type: 'collection', key: 'collection', name: 'Collection', authoritative: true }, []);
+  return normalizeQueueMeta({
+    type: collection.type || collection.openMode || 'collection',
+    key: collection.key || collection.name || 'collection',
+    name: collection.name || 'Collection',
+    authoritative: true
+  }, collection.tracks || []);
+}
+
+function getCurrentCollectionQueueMeta() {
+  const collection = getCurrentCollectionMeta?.();
+  return normalizeQueueMeta({
+    type: collection?.type || 'collection',
+    key: collection?.key || getCurrentCollectionKey?.() || 'collection',
+    name: collection?.name || 'Current Collection',
+    authoritative: true
+  }, collection?.tracks || getCurrentCollectionTracks?.() || []);
+}
+
+function setCurrentQueueMeta(meta = null, fallbackTracks = currentQueue) {
+  currentQueueMeta = normalizeQueueMeta(meta || currentQueueMeta, fallbackTracks);
+}
+
+function queueMetaMatchesTracks(meta, trackList) {
+  const list = normalizePlaybackList(trackList);
+  if (!list.length || !meta?.trackIds?.length) return false;
+  if (list.length !== meta.trackIds.length) return false;
+  return list.every((track, index) => track.id === meta.trackIds[index]);
+}
+
+function getQueueBoundaryLabel(queue = currentQueue) {
+  if (currentQueueMeta?.name) return currentQueueMeta.name;
+  if (!Array.isArray(queue) || !queue.length) return "playlist";
+  const albums = new Set(queue.map(track => track.album).filter(Boolean));
+  if (albums.size === 1) return `${albums.values().next().value}`;
+  return `${queue.length} song playlist`;
+}
+
 function saveQueueState() {
   localStorage.setItem(
     STORAGE_KEYS.lastQueue,
     JSON.stringify({
       trackIds: currentQueue.map(track => track.id),
-      index: currentQueueIndex
+      index: currentQueueIndex,
+      meta: currentQueueMeta
     })
   );
 }
@@ -1102,6 +1169,7 @@ function restoreSavedQueue() {
 
   currentQueue = queueTracks;
   currentQueueIndex = Math.max(0, Math.min(savedQueue.index || 0, currentQueue.length - 1));
+  setCurrentQueueMeta(savedQueue.meta || { type: 'saved-queue', key: 'saved-queue', name: 'Last Queue', authoritative: true }, currentQueue);
 }
 
 
@@ -1255,6 +1323,7 @@ function savePlayerState(track = getCurrentTrack(), timeOverride) {
     ended: Boolean(player?.ended ?? false),
     queueTrackIds,
     queueIndex: currentQueueIndex,
+    queueMeta: currentQueueMeta,
     collectionKey: getCurrentCollectionKey?.() || currentCollectionKey || "all-songs",
     updatedAt: Date.now()
   };
@@ -1273,6 +1342,7 @@ function restoreSavedPlaybackContext() {
     if (queueTracks.length) {
       currentQueue = queueTracks;
       currentQueueIndex = Math.max(0, Math.min(Number(state.queueIndex) || 0, queueTracks.length - 1));
+      setCurrentQueueMeta(state.queueMeta || { type: 'saved-playback', key: 'saved-playback', name: 'Last Queue', authoritative: true }, currentQueue);
     }
   }
 
@@ -1441,6 +1511,7 @@ function addTrackToQueue(track, options = {}) {
   if (!currentQueue.length) {
     const collectionTracks = getCurrentCollectionTracks();
     currentQueue = collectionTracks.length ? [...collectionTracks] : [track];
+    setCurrentQueueMeta(collectionTracks.length ? getCurrentCollectionQueueMeta() : { type: 'single', key: `single:${track.id}`, name: track.title || 'Selected Song', authoritative: true }, currentQueue);
     currentQueueIndex = currentQueue.findIndex(item => item.id === track.id);
     if (currentQueueIndex < 0) {
       currentQueue.push(track);
@@ -1476,6 +1547,7 @@ function clearQueueList() {
   markUserPlaybackIntent(false);
   currentQueue = [];
   currentQueueIndex = -1;
+  setCurrentQueueMeta({ type: 'empty', key: 'empty', name: 'Queue', authoritative: false }, currentQueue);
   smartQueueSuggestionId = '';
   saveQueueState();
   savePlayerState();
@@ -1499,7 +1571,7 @@ function openTrackActionSheet(track, triggerEl = null) {
   els.trackActionSheet.classList.remove("hidden");
   els.trackActionSheet.setAttribute("aria-hidden", "false");
   document.body.classList.add("track-action-sheet-open");
-  // v43.2.33 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
+  // v43.2.37 quick action safe floating layer focus: keep trigger path unchanged, only improve sheet behavior.
   window.requestAnimationFrame(() => els.trackActionCloseXBtn?.focus?.({ preventScroll: true }));
 }
 
@@ -1724,27 +1796,27 @@ function bindUI() {
   on(els.downloadSongBtnDesktop, "click", downloadCurrentSong);
 
   on(els.shuffleQueueBtn, "click", () => {
-    startPlaybackFromList(getCurrentCollectionTracks(), true);
+    startPlaybackFromList(getCurrentCollectionTracks(), true, 0, getCurrentCollectionQueueMeta());
     openAndScrollQueueToCurrentTrack();
     closeMobilePlayerDrawer();
   });
 
   on(els.shuffleQueueBtnDesktop, "click", () => {
-    startPlaybackFromList(getCurrentCollectionTracks(), true);
+    startPlaybackFromList(getCurrentCollectionTracks(), true, 0, getCurrentCollectionQueueMeta());
     openAndScrollQueueToCurrentTrack();
   });
 
   on(els.queuePlayListBtn, "click", () => {
     const list = getCurrentCollectionTracks();
     if (!list.length) return;
-    startPlaybackFromList(list, false);
+    startPlaybackFromList(list, false, 0, getCurrentCollectionQueueMeta());
     openAndScrollQueueToCurrentTrack();
   });
 
   on(els.queueShuffleListBtn, "click", () => {
     const list = getCurrentCollectionTracks();
     if (!list.length) return;
-    startPlaybackFromList(list, true);
+    startPlaybackFromList(list, true, 0, getCurrentCollectionQueueMeta());
     openAndScrollQueueToCurrentTrack();
   });
 
@@ -1755,13 +1827,13 @@ function bindUI() {
   on(els.playAlbumBtn, "click", () => {
     const collection = getFeaturedCollection();
     if (!collection) return;
-    startPlaybackFromList(collection.tracks, false);
+    startPlaybackFromList(collection.tracks, false, 0, getQueueMetaFromCollection(collection));
   });
 
   on(els.shuffleAlbumBtn, "click", () => {
     const collection = getFeaturedCollection();
     if (!collection) return;
-    startPlaybackFromList(collection.tracks, true);
+    startPlaybackFromList(collection.tracks, true, 0, getQueueMetaFromCollection(collection));
   });
 
   on(els.saveAlbumOfflineBtn, "click", async () => {
@@ -1785,14 +1857,14 @@ function bindUI() {
   on(els.albumModalPlayBtn, "click", () => {
     const album = getAlbumModalAlbum();
     if (!album) return;
-    startPlaybackFromList(album.tracks, false);
+    startPlaybackFromList(album.tracks, false, 0, { type: 'album', key: `album:${album.name}`, name: album.name, authoritative: true });
     scrollAlbumModalToCurrentTrack();
   });
 
   on(els.albumModalShuffleBtn, "click", () => {
     const album = getAlbumModalAlbum();
     if (!album) return;
-    startPlaybackFromList(album.tracks, true);
+    startPlaybackFromList(album.tracks, true, 0, { type: 'album', key: `album:${album.name}`, name: album.name, authoritative: true });
     scrollAlbumModalToCurrentTrack();
   });
 
@@ -2570,6 +2642,7 @@ function getSmartQueueSuggestion(baseTrack = getCurrentTrack()) {
 }
 
 function ensureSmartQueueSuggestion(baseTrack = getCurrentTrack()) {
+  if (currentQueueMeta?.authoritative) return;
   if (!baseTrack || !Array.isArray(currentQueue) || !currentQueue.length) return;
   const remaining = currentQueue.length - currentQueueIndex - 1;
   if (remaining > 1) return;
@@ -3104,6 +3177,7 @@ function syncQueueToCurrentCollection(force = false) {
   if (!needsSync) return;
 
   currentQueue = [...collectionTracks];
+  setCurrentQueueMeta(getCurrentCollectionQueueMeta(), currentQueue);
   if (!currentQueue.length) {
     currentQueueIndex = -1;
     saveQueueState();
@@ -3556,6 +3630,8 @@ function renderFeaturedTrackList() {
     setQueue,
     playFromQueueIndex,
     playTrackById,
+    startPlaybackFromList,
+    getQueueMetaFromCollection,
     toggleFavorite,
     openLyricsModalForTrack,
     openPlaylistModalForTrack,
@@ -3651,13 +3727,6 @@ function normalizePlaybackList(trackList) {
     });
 }
 
-function getQueueBoundaryLabel(queue = currentQueue) {
-  if (!Array.isArray(queue) || !queue.length) return "playlist";
-  const albums = new Set(queue.map(track => track.album).filter(Boolean));
-  if (albums.size === 1) return `${albums.values().next().value}`;
-  return `${queue.length} song playlist`;
-}
-
 function stopPlaybackAtQueueEnd(reason = "queue-ended") {
   const audio = els.audioPlayer;
   markUserPlaybackIntent(false);
@@ -3684,22 +3753,27 @@ function stopPlaybackAtQueueEnd(reason = "queue-ended") {
   } catch (error) {}
 }
 
-function setQueue(trackList, shuffle = false) {
+function setQueue(trackList, shuffle = false, queueMeta = null) {
   const normalized = normalizePlaybackList(trackList);
   currentQueue = shuffle ? shuffleArray([...normalized]) : [...normalized];
   currentQueueIndex = currentQueue.length ? 0 : -1;
+  setCurrentQueueMeta(queueMeta || getCurrentCollectionQueueMeta(), currentQueue);
+  smartQueueSuggestionId = '';
   saveQueueState();
   savePlayerState();
   renderQueue();
   syncQueuePlaybackUI();
 }
 
-function startPlaybackFromList(trackList, shuffle = false, startIndex = 0) {
+function startPlaybackFromList(trackList, shuffle = false, startIndex = 0, queueMeta = null) {
   const normalized = normalizePlaybackList(trackList);
   if (!normalized.length) return;
+  const startTrack = normalized[Math.max(0, Math.min(Number(startIndex) || 0, normalized.length - 1))];
   currentQueue = shuffle ? shuffleArray([...normalized]) : [...normalized];
-  const safeIndex = Math.max(0, Math.min(Number(startIndex) || 0, currentQueue.length - 1));
+  const safeIndex = shuffle && startTrack ? Math.max(0, currentQueue.findIndex(track => track.id === startTrack.id)) : Math.max(0, Math.min(Number(startIndex) || 0, currentQueue.length - 1));
   currentQueueIndex = safeIndex;
+  setCurrentQueueMeta(queueMeta || getCurrentCollectionQueueMeta(), currentQueue);
+  smartQueueSuggestionId = '';
   markUserPlaybackIntent(true);
   saveQueueState();
   savePlayerState(currentQueue[currentQueueIndex], 0);
@@ -3721,8 +3795,10 @@ async function playTrack(track) {
   }
 
   if (!currentQueue.length) {
-    const fallbackQueue = normalizePlaybackList(getCurrentCollectionTracks()).length ? normalizePlaybackList(getCurrentCollectionTracks()) : normalizePlaybackList(tracks);
+    const collectionFallback = normalizePlaybackList(getCurrentCollectionTracks());
+    const fallbackQueue = collectionFallback.length ? collectionFallback : normalizePlaybackList(tracks);
     currentQueue = [...fallbackQueue];
+    setCurrentQueueMeta(collectionFallback.length ? getCurrentCollectionQueueMeta() : { type: 'all', key: 'all-songs', name: 'All Songs', authoritative: false }, currentQueue);
   }
 
   let queueIndex = currentQueue.findIndex(t => t.id === track.id);
@@ -3806,10 +3882,10 @@ async function playTrack(track) {
 function playFromQueueIndex(index) {
   if (index < 0 || index >= currentQueue.length) return;
   const track = currentQueue[index];
-  playTrackById(track?.id || "", currentQueue);
+  playTrackById(track?.id || "", currentQueue, currentQueueMeta);
 }
 
-function playTrackById(trackId, preferredQueue = null) {
+function playTrackById(trackId, preferredQueue = null, queueMeta = null) {
   if (!trackId) return;
 
   const queueSource = Array.isArray(preferredQueue) && preferredQueue.length
@@ -3820,6 +3896,8 @@ function playTrackById(trackId, preferredQueue = null) {
   if (!target) return;
 
   currentQueue = [...queueSource];
+  setCurrentQueueMeta(queueMeta || (preferredQueue ? getCurrentCollectionQueueMeta() : currentQueueMeta), currentQueue);
+  smartQueueSuggestionId = '';
   let queueIndex = currentQueue.findIndex(track => track.id === target.id);
   if (queueIndex < 0) {
     currentQueue.push(target);
@@ -4294,7 +4372,7 @@ function openAlbumModal(album, triggerEl = null) {
       btn.addEventListener("click", () => {
         if (Date.now() < suppressPreviewClickUntil) return;
         const idx = Number(btn.dataset.albumTrackIndex);
-        startPlaybackFromList(album.tracks, false, idx);
+        startPlaybackFromList(album.tracks, false, idx, { type: 'album', key: `album:${album.name}`, name: album.name, authoritative: true });
         closeAlbumModal();
       });
     });
@@ -4423,10 +4501,10 @@ function updateFavoriteButton() {
 function renderFavorites() {
   if (!els.favoritesList) return;
 
-  const favTracks = favorites
+  const favoriteQueueTracks = favorites
     .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean)
-    .slice(0, 12);
+    .filter(Boolean);
+  const favTracks = favoriteQueueTracks.slice(0, 12);
 
   if (!favTracks.length) {
     els.favoritesList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No favorites yet.") : `<p class="empty-message">No favorites yet.</p>`;
@@ -4434,7 +4512,10 @@ function renderFavorites() {
   }
 
   els.favoritesList.innerHTML = favTracks.map((track, index) => renderMiniCard(track, index)).join("");
-  bindMiniCardClicks(els.favoritesList, favTracks);
+  bindMiniCardClicks(els.favoritesList, favTracks, {
+    queueTracks: favoriteQueueTracks,
+    queueMeta: { type: 'favorites', key: 'favorites', name: 'Favorites', authoritative: true }
+  });
 }
 
 
@@ -4698,22 +4779,26 @@ function addToRecentlyPlayed(track) {
 
 function renderRecentlyAdded() {
   if (!els.recentlyAddedList) return;
-  const newestTracks = getRecentlyAddedTracks(5);
+  const recentlyAddedQueueTracks = getRecentlyAddedTracks(24);
+  const newestTracks = recentlyAddedQueueTracks.slice(0, 5);
   if (!newestTracks.length) {
     els.recentlyAddedList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No added-date metadata yet. Run make_tracks.py after adding songs.") : `<p class="empty-message">No added-date metadata yet. Run make_tracks.py after adding songs.</p>`;
     return;
   }
   els.recentlyAddedList.innerHTML = newestTracks.map((track, index) => renderMiniCard(track, index)).join("");
-  bindMiniCardClicks(els.recentlyAddedList, newestTracks);
+  bindMiniCardClicks(els.recentlyAddedList, newestTracks, {
+    queueTracks: recentlyAddedQueueTracks,
+    queueMeta: { type: 'smart-playlist', key: 'recently-added', name: 'Recently Added', authoritative: true }
+  });
 }
 
 function renderRecentlyPlayed() {
   if (!els.recentlyPlayedList) return;
 
-  const recentTracks = recentlyPlayed
+  const recentlyPlayedQueueTracks = recentlyPlayed
     .map(id => tracks.find(track => track.id === id))
-    .filter(Boolean)
-    .slice(0, 12);
+    .filter(Boolean);
+  const recentTracks = recentlyPlayedQueueTracks.slice(0, 12);
 
   if (!recentTracks.length) {
     els.recentlyPlayedList.innerHTML = window.AineoUI?.renderEmptyMessage ? window.AineoUI.renderEmptyMessage("No recent songs yet.") : `<p class="empty-message">No recent songs yet.</p>`;
@@ -4721,7 +4806,10 @@ function renderRecentlyPlayed() {
   }
 
   els.recentlyPlayedList.innerHTML = recentTracks.map((track, index) => renderMiniCard(track, index)).join("");
-  bindMiniCardClicks(els.recentlyPlayedList, recentTracks);
+  bindMiniCardClicks(els.recentlyPlayedList, recentTracks, {
+    queueTracks: recentlyPlayedQueueTracks,
+    queueMeta: { type: 'recent', key: 'recently-played', name: 'Recently Played', authoritative: true }
+  });
 }
 
 function renderMiniCard(track, index) {
@@ -4749,14 +4837,16 @@ function renderMiniCard(track, index) {
   `;
 }
 
-function bindMiniCardClicks(container, trackList) {
+function bindMiniCardClicks(container, trackList, options = {}) {
   container.querySelectorAll("[data-mini-index]").forEach(btn => {
     btn.addEventListener("click", () => {
       if (Date.now() < suppressPreviewClickUntil) return;
       const index = Number(btn.dataset.miniIndex);
       const track = trackList[index];
       if (!track) return;
-      startPlaybackFromList([track], false, 0);
+      const queueTracks = normalizePlaybackList(options.queueTracks || trackList);
+      const startIndex = Math.max(0, queueTracks.findIndex(item => item.id === track.id));
+      startPlaybackFromList(queueTracks.length ? queueTracks : [track], false, startIndex, options.queueMeta || { type: 'section', key: 'mini-section', name: 'Selected Section', authoritative: true });
     });
   });
 }
@@ -4772,6 +4862,7 @@ function renderQueue() {
   window.AineoQueue.renderQueue({
     currentQueue,
     currentQueueIndex,
+    currentQueueMeta,
     filteredTracks,
     tracks,
     queueListEl: els.queueList,
@@ -4924,7 +5015,7 @@ function getAineoConfiguredPublicShareUrl() {
 }
 
 function getAineoAppSharePath() {
-  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43232.html').replace(/^\/+/, '');
+  return String(window.AineoConfig?.sharing?.appSharePath || 'share/app/v43237.html').replace(/^\/+/, '');
 }
 
 function getAineoDetectedPublicShareUrl() {
@@ -4939,7 +5030,7 @@ function getAppShareUrl() {
 }
 
 function getAppShareCardUrl(story = false) {
-  return buildAineoShareUrl(story ? 'share/cards/app-story-v43232.png' : 'share/cards/app-card-v43232.png');
+  return buildAineoShareUrl(story ? 'share/cards/app-story-v43237.png' : 'share/cards/app-card-v43237.png');
 }
 
 function getAppShareText() {
@@ -5650,7 +5741,7 @@ function handleSongQueryParam() {
   });
   if (!track) return;
 
-  setQueue([track], false);
+  setQueue([track], false, { type: 'single', key: `song:${track.id}`, name: track.title || 'Selected Song', authoritative: true });
   currentQueueIndex = 0;
   updateNowPlaying(track);
   updateLyricsPanel(track);
@@ -5853,7 +5944,7 @@ function closeMobilePlayerDrawer() {
 
 
 /* =========================
-   v43.2.33 LIBRARY PANEL LAUNCHERS
+   v43.2.37 LIBRARY PANEL LAUNCHERS
 ========================= */
 
 function normalizePanelName(panelName = "library") {
@@ -6004,7 +6095,7 @@ function handleLibraryQueryParams() {
 
 
 function initMobileNav() {
-  // v43.2.33: nav.js owns hamburger/More through a foreground overlay menu.
+  // v43.2.37: nav.js owns hamburger/More through a foreground overlay menu.
   // Keep this initializer as a no-op so music runtime pages do not double-toggle a hidden UL.
 }
 
@@ -6067,14 +6158,14 @@ function bindPlaylistWorkspaceUI() {
     if (!activeCustomPlaylistName) return;
     const list = getCustomPlaylistTracks(activeCustomPlaylistName);
     if (!list.length) return;
-    startPlaybackFromList(list, false, 0);
+    startPlaybackFromList(list, false, 0, { type: 'custom-playlist', key: `custom-playlist:${activeCustomPlaylistName}`, name: activeCustomPlaylistName, authoritative: true });
   });
 
   on(shuffleBtn, "click", () => {
     if (!activeCustomPlaylistName) return;
     const list = getCustomPlaylistTracks(activeCustomPlaylistName);
     if (!list.length) return;
-    startPlaybackFromList(list, true, 0);
+    startPlaybackFromList(list, true, 0, { type: 'custom-playlist', key: `custom-playlist:${activeCustomPlaylistName}`, name: activeCustomPlaylistName, authoritative: true });
   });
 
   on(focusBtn, "click", () => {
@@ -6240,7 +6331,7 @@ function renderMyPlaylists() {
 }
 
 
-// v43.2.33 legacy analysis preload disabled
+// v43.2.37 legacy analysis preload disabled
 async function preloadAnalysis(){
   return null;
 }
@@ -6250,7 +6341,7 @@ async function preloadNextTrack(){
 }
 
 
-// v43.2.33 smart playback cleanup
+// v43.2.37 smart playback cleanup
 let userSkipCount = 0;
 
 function smartPreloadEngine(){
@@ -6269,10 +6360,10 @@ async function instantPlay(){
 
 
 /* =========================
-   v43.2.33 ULTRA SMOOTH PLAYBACK
+   v43.2.37 ULTRA SMOOTH PLAYBACK
 ========================= */
 
-const SMART_PLAYBACK_VERSION = "43.2.33";
+const SMART_PLAYBACK_VERSION = "43.2.37";
 const SMART_PLAYBACK_KEYS = {
   instantPlay: "aineo_instant_play_mode",
   skipHistory: "aineo_skip_history"

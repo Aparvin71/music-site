@@ -45,9 +45,13 @@
     }).join("");
   }
 
-  function renderQueue({ currentQueue, currentQueueIndex, filteredTracks, tracks, queueListEl, queueCountEl, playerSheetQueuePanelEl, audioPlayer, getCurrentTrack, escapeHtml, escapeHtmlAttr, bindInteractions }) {
+  function renderQueue({ currentQueue, currentQueueIndex, currentQueueMeta, filteredTracks, tracks, queueListEl, queueCountEl, playerSheetQueuePanelEl, audioPlayer, getCurrentTrack, escapeHtml, escapeHtmlAttr, bindInteractions }) {
     const displayTracks = getDisplayTracks({ currentQueue, filteredTracks, tracks });
-    if (queueCountEl) queueCountEl.textContent = `${displayTracks.length} song${displayTracks.length === 1 ? "" : "s"}`;
+    if (queueCountEl) {
+      const queueLabel = String(currentQueueMeta?.name || '').trim();
+      const countLabel = `${displayTracks.length} song${displayTracks.length === 1 ? "" : "s"}`;
+      queueCountEl.textContent = queueLabel ? `${queueLabel} • ${countLabel}` : countLabel;
+    }
     if (!queueListEl) return;
 
     if (!displayTracks.length) {

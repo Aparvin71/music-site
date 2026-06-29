@@ -258,10 +258,10 @@ window.AineoOffline = (() => {
   }) {
     if (!els.downloadedList) return;
 
-    const savedTracks = downloadedTracks
+    const downloadedQueueTracks = downloadedTracks
       .map(id => tracks.find(track => track.id === id))
-      .filter(Boolean)
-      .slice(0, 12);
+      .filter(Boolean);
+    const savedTracks = downloadedQueueTracks.slice(0, 12);
 
     if (!savedTracks.length) {
       els.downloadedList.innerHTML = `<p class="empty-message">No offline songs saved yet.</p>`;
@@ -293,7 +293,8 @@ window.AineoOffline = (() => {
         const index = Number(btn.dataset.offlinePlay);
         const track = savedTracks[index];
         if (!track) return;
-        startPlaybackFromList([track], false, 0);
+        const startIndex = Math.max(0, downloadedQueueTracks.findIndex(item => item.id === track.id));
+        startPlaybackFromList(downloadedQueueTracks.length ? downloadedQueueTracks : [track], false, startIndex, { type: 'downloaded', key: 'downloaded', name: 'Downloads', authoritative: true });
       });
     });
 

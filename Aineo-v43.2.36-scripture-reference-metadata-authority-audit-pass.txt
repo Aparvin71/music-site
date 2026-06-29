@@ -1,0 +1,41 @@
+AINEO v43.2.37 — Scripture Reference Metadata Authority Audit Pass
+Date: 2026-06-23
+
+AUDIT SCOPE
+- Reviewed make_tracks.py and tools/make_tracks.py scripture ingestion path.
+- Reviewed tracks.json scripture_references output for the newest songs.
+- Reviewed app rendering path in aineo-data.js, app.js, aineo-player-sheet.js, aineo-shared.js, album-page, artist-page, and share pages.
+
+ROOT CAUSE
+- The scripture extractor in make_tracks.py contained literal backspace characters where regex word-boundary tokens were intended.
+- Because of that, newly added references in MP3 comments/custom tags/lyric text could fail to match.
+- Existing older scripture references mostly survived because they were already present in track-metadata.json or preserved in tracks.json.
+- The app rendering layer was not the primary failure; the data was missing before the UI received it.
+
+REPAIR COMPLETED
+- Replaced the broken regex boundary characters with proper regex word boundaries.
+- Expanded scripture parsing to support clean reference normalization such as Genesis 9:12-17, Matthew 17:20, Mark 10:8-9, and 1 Corinthians 13:4-7.
+- Added support for multiple metadata spellings: scripture_references, scriptureReferences, scripture_refs, scripture, scriptures, bible_references, bibleReferences, bible_refs, bible, reference, and references.
+- Added MP3 custom-tag support for TXXX fields containing scripture/bible/reference/verse text.
+- Added broader COMM/comment capture so scripture references stored in comments can be picked up.
+- Added preserved-track reconciliation so app-only/no-audio packages can still apply track-metadata.json scripture corrections without wiping tracks.json.
+- Mirrored the repaired generator to tools/make_tracks.py.
+
+NEWEST SONGS RESTORED IN THIS PACKAGE
+- Intertwined: Genesis 2:24; Mark 10:8-9; Ephesians 5:25; Ecclesiastes 4:12; 1 Corinthians 13:4-7
+- Is it Faith: Matthew 17:20; Luke 17:6; Hebrews 11:1; Proverbs 3:5-6; 2 Corinthians 5:7
+- Promise in the Sky: Genesis 9:12-17; Genesis 8:22; Isaiah 54:9-10; Psalm 89:34
+
+VALIDATION
+- make_tracks.py compile check passed.
+- tools/make_tracks.py compile check passed.
+- JSON validation passed.
+- JavaScript syntax checks passed.
+- tracks.json contains 75 tracks.
+- Tracks with scripture references: 48.
+- Total scripture references in tracks.json: 246.
+- The three newest 2026-06-23 songs now have scripture_references, has_scripture_refs=true, and scripture set to the first reference.
+- Song share pages were regenerated with the restored scripture references.
+
+NOTE
+- This package is still app-only/no-audio/no-covers. Because no local MP3 files are included, the repair could not read the actual embedded MP3 comments from the R2 audio files inside this sandbox. The generator is now repaired so the next full audio-side build can ingest embedded scripture metadata correctly. Track-metadata overrides were also added so this app package displays the newest references immediately.

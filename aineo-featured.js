@@ -1,4 +1,4 @@
-/* v43.2.33 featured home list selector */
+/* v43.2.37 featured queue authority selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();
@@ -101,7 +101,7 @@
   }
 
   function renderFeaturedTrackList(ctx) {
-    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, playTrackById, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
+    const { els, getFeaturedCollection, getFeaturedTrackPlayState, isFavorite, isDownloaded, escapeHtml, escapeHtmlAttr, getCurrentTrack, audioPlayer, togglePlayPause, syncQueueToCurrentCollection, getCurrentCollectionTracks, setQueue, playFromQueueIndex, playTrackById, startPlaybackFromList, getQueueMetaFromCollection, toggleFavorite, openLyricsModalForTrack, saveTrackOffline, removeTrackOffline, openTrackActionSheet } = ctx;
     if (!els.featuredTrackList || !els.featuredTrackListTitle) return;
     const collection = getFeaturedCollection();
     if (!collection) {
@@ -146,12 +146,18 @@
           togglePlayPause();
           return;
         }
-        if (playTrackById) {
-          playTrackById(track.id, collection.tracks);
+        const queueMeta = getQueueMetaFromCollection ? getQueueMetaFromCollection(collection) : { type: collection.type || 'collection', key: collection.key || collection.name || 'collection', name: collection.name || 'Collection', authoritative: true };
+        const startIndex = collection.tracks.findIndex(item => item.id === track.id);
+        if (startPlaybackFromList) {
+          startPlaybackFromList(collection.tracks, false, startIndex, queueMeta);
           return;
         }
-        setQueue(collection.tracks, false);
-        playFromQueueIndex(collection.tracks.findIndex(item => item.id === track.id));
+        if (playTrackById) {
+          playTrackById(track.id, collection.tracks, queueMeta);
+          return;
+        }
+        setQueue(collection.tracks, false, queueMeta);
+        playFromQueueIndex(startIndex);
       });
     });
 

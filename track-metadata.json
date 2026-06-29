@@ -180,5 +180,77 @@
     "scripture_references": [],
     "collection": "All Songs",
     "featured": false
+  },
+  "Intertwined.mp3": {
+    "title": "Intertwined",
+    "slug": "intertwined",
+    "lyrics_file": "lyrics/intertwined.lrc",
+    "artist": "Allen Parvin",
+    "album": "Carry the Light",
+    "playlists": [
+      "Carry the Light"
+    ],
+    "tags": [
+      "contemporary",
+      "worship",
+      "pop",
+      "rock"
+    ],
+    "scripture_references": [
+      "Genesis 2:24",
+      "Mark 10:8-9",
+      "Ephesians 5:25",
+      "Ecclesiastes 4:12",
+      "1 Corinthians 13:4-7"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Is it Faith.mp3": {
+    "title": "Is it Faith",
+    "slug": "is-it-faith",
+    "lyrics_file": "lyrics/is-it-faith.lrc",
+    "artist": "Allen Parvin",
+    "album": "Carry the Light",
+    "playlists": [
+      "Carry the Light"
+    ],
+    "tags": [
+      "worship",
+      "contemporary",
+      "pop"
+    ],
+    "scripture_references": [
+      "Matthew 17:20",
+      "Luke 17:6",
+      "Hebrews 11:1",
+      "Proverbs 3:5-6",
+      "2 Corinthians 5:7"
+    ],
+    "collection": "All Songs",
+    "featured": false
+  },
+  "Promise in the Sky.mp3": {
+    "title": "Promise in the Sky",
+    "slug": "promise-in-the-sky",
+    "lyrics_file": "lyrics/promise-in-the-sky.lrc",
+    "artist": "Allen Parvin",
+    "album": "Mercy & Grace",
+    "playlists": [
+      "Mercy & Grace"
+    ],
+    "tags": [
+      "worship",
+      "contemporary",
+      "pop"
+    ],
+    "scripture_references": [
+      "Genesis 9:12-17",
+      "Genesis 8:22",
+      "Isaiah 54:9-10",
+      "Psalm 89:34"
+    ],
+    "collection": "All Songs",
+    "featured": false
   }
 }

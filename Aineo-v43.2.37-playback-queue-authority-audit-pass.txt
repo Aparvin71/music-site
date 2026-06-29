@@ -1,0 +1,66 @@
+AINEO v43.2.37 — Playback Queue Authority + Recently Added Playlist Pass
+
+Base package:
+- Aineo-v43.2.36-app-no-audio-covers-scripture-metadata-fix.zip
+
+Primary issue audited:
+- Home mini sections such as Recently Added were launching a one-song queue with startPlaybackFromList([track], false, 0).
+- That meant tapping a song from Recently Added did not preserve the Recently Added listening context.
+- Active queue metadata was not preserved strongly enough across queue play/next/restore paths.
+- Smart queue suggestion logic could append unrelated songs near the end of a queue, which could make an intentional playlist drift beyond its own list.
+
+Fixes applied:
+1. Recently Added is now an authoritative auto-generated playlist.
+   - Visible Recently Added section still shows the newest 5 tracks.
+   - Tapping any visible item starts a Recently Added queue of up to 24 newest dated tracks.
+   - Playback starts at the tapped song and continues through Recently Added only.
+
+2. Mini-section queue authority was repaired.
+   - Favorites starts the Favorites queue.
+   - Recently Played starts the Recently Played queue.
+   - Downloads starts the Downloads/offline queue.
+   - Each queue starts at the tapped item instead of becoming a one-song queue.
+
+3. Playlist/collection playback authority was strengthened.
+   - Featured collections use their own queue metadata.
+   - Albums use album queue metadata from play, shuffle, and modal track taps.
+   - Custom playlist play/shuffle actions pass custom-playlist metadata.
+   - Queue row play/next actions preserve the active queue metadata.
+
+4. Queue persistence was upgraded.
+   - Saved queue state now stores queue metadata with track IDs and queue index.
+   - Restored playback context now restores queue metadata.
+   - Queue count text can show the active queue label when available.
+
+5. Smart queue extension was guarded.
+   - Authoritative queues do not receive automatic smart queue suggestions.
+   - This prevents Recently Added, Favorites, Downloads, Albums, and Custom Playlists from drifting into unrelated library playback at the end.
+
+Files changed:
+- app.js
+- aineo-featured.js
+- aineo-offline.js
+- aineo-queue.js
+- aineo-playlists.js
+- Version/cache/share references across app shell and share pages
+- Added share/app/v43237.html
+- Added app-card-v43237.png and app-story-v43237.png copies
+
+Validation performed:
+- node --check app.js
+- node --check aineo-featured.js
+- node --check aineo-offline.js
+- node --check aineo-queue.js
+- node --check aineo-playlists.js
+- python3 -m py_compile make_tracks.py tools/make_tracks.py
+- tracks.json parsed successfully: 75 tracks
+- Recently Added dated tracks available: 75
+- Recently Added queue size target: 24
+- Top 5 Recently Added detected: Promise in the Sky, Is it Faith, Intertwined, Trash In Trash Out, Alive in Me
+- Zip integrity check passed
+
+Expected behavior after install:
+- Selecting a song from Recently Added keeps playback inside the Recently Added playlist.
+- Selecting a song from Favorites, Downloads, Recently Played, Albums, featured collections, or custom playlists keeps playback inside that selected context.
+- Next/Previous and ended/autoplay continue through the active queue until the queue ends or the user selects another queue/playlist.
+- With repeat off, authoritative playlists stop at the end instead of falling into the full library.

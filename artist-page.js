@@ -19,7 +19,7 @@ async function initArtistPage() {
   const artist = artistTracks[0].artist || "Artist";
   const albums = [...new Set(artistTracks.map(track => track.album).filter(Boolean))];
   const tags = [...new Set(artistTracks.flatMap(track => window.AineoShared.normalizeStringArray(track.tags)).filter(Boolean))].slice(0, 10);
-  const cover = artistTracks.find(track => track.cover)?.cover || "";
+  const cover = window.AineoShared?.resolveCoverPath ? window.AineoShared.resolveCoverPath(artistTracks.find(track => track.cover || track.cover_file)?.cover || artistTracks.find(track => track.cover_file)?.cover_file || "") : (artistTracks.find(track => track.cover)?.cover || "");
   const scriptureRefs = [...new Set(artistTracks.flatMap(track => window.AineoShared.normalizeStringArray(track.scripture_references || track.scripture)))].slice(0, 8);
 
   root.innerHTML = `

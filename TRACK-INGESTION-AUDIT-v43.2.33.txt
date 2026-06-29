@@ -1,4 +1,4 @@
-AINEO v43.2.33 — Track Ingestion Asset Generation Audit
+AINEO v43.2.34 — Track Ingestion Asset Generation Audit
 
 Purpose
 - Confirm make_tracks.py updates tracks.json AND generates the supporting covers/lyrics files for newly added songs.

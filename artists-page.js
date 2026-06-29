@@ -12,7 +12,7 @@ async function initArtistsPage() {
     .map(({ artist, tracks: artistTracks }) => ({
       artist,
       count: artistTracks.length,
-      cover: artistTracks.find(track => track.cover)?.cover || "",
+      cover: window.AineoShared?.resolveCoverPath ? window.AineoShared.resolveCoverPath(artistTracks.find(track => track.cover || track.cover_file)?.cover || artistTracks.find(track => track.cover_file)?.cover_file || "") : (artistTracks.find(track => track.cover)?.cover || ""),
       albums: [...new Set(artistTracks.map(track => track.album).filter(Boolean))].length,
       tags: [...new Set(artistTracks.flatMap(track => window.AineoShared.normalizeStringArray(track.tags)).filter(Boolean))].slice(0, 4)
     }))

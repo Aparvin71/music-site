@@ -100,6 +100,24 @@
     }).join("");
   }
 
+
+  function resolveAssetUrl(value, options = {}) {
+    const raw = String(value || "").trim().replace(/\\/g, "/");
+    if (!raw) return "";
+    if (/^(https?:|data:|blob:)/i.test(raw)) return raw;
+    const folder = String(options.folder || "covers").replace(/^\/+|\/+$/g, "");
+    const baseUrl = String(options.baseUrl || window.AineoConfig?.assets?.coverBaseUrl || "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers").replace(/\/+$/, "");
+    const rawNoLead = raw.replace(/^\/+/, "");
+    const relative = rawNoLead.startsWith(`${folder}/`) ? rawNoLead.slice(folder.length + 1) : rawNoLead;
+    return `${baseUrl}/${relative.split("/").filter(Boolean).map(part => encodeURIComponent(decodeURIComponent(part))).join("/")}`;
+  }
+
+  function resolveCoverPath(value) {
+    if (window.AineoData?.resolveCoverPath) return window.AineoData.resolveCoverPath(value);
+    return resolveAssetUrl(value, { folder: "covers" });
+  }
+
+
   window.AineoShared = {
     escapeHtml,
     escapeAttr,
@@ -108,6 +126,8 @@
     getTrackCounts,
     groupTracksByArtist,
     initSecondaryPageNav,
-    renderScriptureLinks
+    renderScriptureLinks,
+    resolveCoverPath,
+    resolveAssetUrl
   };
 })();
