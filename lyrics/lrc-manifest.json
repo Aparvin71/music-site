@@ -174,6 +174,12 @@
     "lyrics_file": "lyrics/intertwined.lrc"
   },
   {
+    "title": "Let My Love Be",
+    "slug": "let-my-love-be",
+    "mp3": "Let%20My%20Love%20Be.mp3",
+    "lyrics_file": "lyrics/let-my-love-be.lrc"
+  },
+  {
     "title": "Chop it like it's hot",
     "slug": "chop-it-like-its-hot",
     "mp3": "Chop%20it%20like%20it%27s%20hot.mp3",
