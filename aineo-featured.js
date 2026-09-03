@@ -1,4 +1,4 @@
-/* v43.2.37 featured queue authority selector */
+/* v43.2.38 featured queue authority selector */
 (function(){
   function getVisibleAlbums(trackList) {
     const map = new Map();

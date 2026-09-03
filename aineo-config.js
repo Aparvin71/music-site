@@ -13,23 +13,23 @@
   };
 
   window.AineoConfig = {
-    version: "v43.2.37",
-    assetVersion: "43.2.37",
+    version: "v43.2.38",
+    assetVersion: "43.2.38",
     defaultArtist: "Allen Parvin",
     assetMode: "decoupled",
     sharing: {
-      // Set this after the app is hosted publicly, for example:
-      // publicAppShareUrl: "https://music-site.aparvin.workers.dev/share/app/v43237.html"
-      // Facebook requires this to be a public http/https URL it can crawl.
-      publicAppShareUrl: "https://music-site.aparvin.workers.dev/share/app/v43237.html",
-      appSharePath: "share/app/v43237.html"
+      // Single public share authority used for Messages, Facebook, X, and other social platforms.
+      // If the deployed domain changes, update publicSiteBaseUrl and publicAppShareUrl here.
+      publicSiteBaseUrl: "https://music-site.aparvin.workers.dev/",
+      publicAppShareUrl: "https://music-site.aparvin.workers.dev/share/app/v43238.html",
+      appSharePath: "share/app/v43238.html"
     },
     assets: {
       audioBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/audio",
       coverBaseUrl: "https://pub-de889868274142c4924a1b81e51a1d94.r2.dev/covers",
       lyricsBasePath: "lyrics",
       lyricsManifestPath: "lyrics/lrc-manifest.json",
-      lyricsVersionKey: "43.2.37",
+      lyricsVersionKey: "43.2.38",
       externalAudio: true,
       externalCovers: true,
       localLyricsOptional: true

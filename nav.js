@@ -1,4 +1,4 @@
-// v43.2.37 foreground page menu + bottom nav fast-tap authority
+// v43.2.38 foreground page menu + bottom nav fast-tap authority
 (function () {
   const MENU_ID = "aineoPageMenuOverlay";
 
@@ -24,7 +24,7 @@
       { href: "/albums.html", label: "Albums" },
       { href: "/artists.html", label: "Artists" },
       { href: "/contact.html", label: "Shout Outs" },
-      { href: "/share/app/v43237.html", label: "Share App" },
+      { href: "/share/app/v43238.html", label: "Share App" },
       { href: "/install.html", label: "Open / Install" },
       { href: "/mission.html", label: "Mission" },
       { href: "/about.html", label: "About" },
@@ -47,7 +47,7 @@
       const key = normalizedLabel || String(item.href || "");
       if (seen.has(key)) return false;
       seen.add(key);
-      if (normalizedLabel === "share app") item.href = "/share/app/v43237.html";
+      if (normalizedLabel === "share app") item.href = "/share/app/v43238.html";
       if (normalizedLabel === "welcome") item.href = "/home.html";
       return true;
     }).map(item => ({
@@ -116,7 +116,7 @@
     overlay = document.createElement("div");
     overlay.id = MENU_ID;
     overlay.className = "aineo-page-menu-overlay hidden";
-    overlay.dataset.version = "43.2.37";
+    overlay.dataset.version = "43.2.38";
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <div class="aineo-page-menu-backdrop" data-aineo-page-menu-close></div>
@@ -222,8 +222,8 @@
 
 
 
-// v43.2.37 root bottom-nav navigation authority.
-// Root fix: v43.2.37 moved real actions onto pointerup and then suppressed the follow-up click.
+// v43.2.38 root bottom-nav navigation authority.
+// Root fix: v43.2.38 moved real actions onto pointerup and then suppressed the follow-up click.
 // On iOS/PWA that made navigation and panel changes feel delayed or fail entirely.
 // This restores a single click/tap activation path while keeping pointerdown visual feedback only.
 (function () {
@@ -402,7 +402,7 @@
   window.addEventListener("pageshow", syncFromLocation, { passive: true });
 })();
 
-// v43.2.37 mini player visibility guard for Home/Library bottom-nav screens.
+// v43.2.38 mini player visibility guard for Home/Library bottom-nav screens.
 (function () {
   function recoverMiniPlayer() {
     if (!document.body.classList.contains("has-aineo-bottom-nav")) return;

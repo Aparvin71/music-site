@@ -1,0 +1,31 @@
+AINEO v43.2.38 Sharing Platform Guide
+
+Text / Messages Link
+- Best for SMS, iMessage, Android Messages, email, and direct messages.
+- Sends the public AINEO share URL so the recipient can tap and open it.
+- Use this when you want the link to work for another person.
+
+Facebook Link Preview
+- Best for a clickable Facebook post/card.
+- Sends the public AINEO share page URL so Facebook can crawl the Open Graph metadata and create the preview.
+- Use this instead of uploading only an image when you want a clickable link preview.
+
+Other Apps: Image + Link
+- Best for apps that accept a native device share payload with both an image file and a URL.
+- Some platforms may treat the image as an uploaded photo and place the link only in the text.
+
+X / Social Link
+- Opens an X/Twitter share intent with the public AINEO URL.
+
+Download Song/App Card
+- Saves the 1200x630 PNG card.
+- Best for Facebook image posts, general social posts, thumbnails, and manual uploads.
+
+Download Story Card
+- Saves the vertical story card.
+- Best for Instagram/Facebook stories or vertical posts.
+- Add/paste the copied link manually where the platform supports it.
+
+Copy Public Link
+- Copies the public AINEO share URL.
+- If the browser blocks clipboard copy, AINEO displays the link in the share sheet so it can be copied manually.
